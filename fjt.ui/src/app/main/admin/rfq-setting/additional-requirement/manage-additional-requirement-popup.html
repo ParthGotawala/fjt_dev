@@ -1,0 +1,108 @@
+<md-dialog aria-label="Add AdditionalRequirement" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+    <form name="vm.AddAdditionalRequirementForm" class="md-inline-form" novalidate>
+        <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+        <md-toolbar>
+          <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+            <h2>{{vm.additionalRequirementModel.id ? 'Update' : 'Add'}} {{vm.isNarrative ? "Narrative Master Template" : "RFQ Requirement Template"}}</h2>
+            <span flex></span>
+            <div layout-align="center center" class="cm-btn-group cm-square-icon-btn">
+              <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.openAdditionalRequirementHistory($event)" ng-if="vm.additionalRequirementModel.id">
+                <md-icon md-font-icon="t-icons-history-text" class="material-icons"></md-icon>
+                <md-tooltip>{{vm.historyactionButtonName}}</md-tooltip>
+              </md-button>
+              <md-button class="md-icon-button md-primary md-raised md-mini" id="headerAddBtn" ng-click="vm.saveAndProceed(vm.BUTTON_TYPE.ADDNEW)">
+                <md-icon md-font-icon="t-icons-rfq-requirement add-icon" class="material-icons"></md-icon>
+                <md-tooltip>Add RFQ Requirement Template</md-tooltip>
+              </md-button>
+              <md-button class="md-icon-button" ng-click="vm.cancel()">
+                <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+              </md-button>
+            </div>
+          </div>
+        </md-toolbar>
+        <md-dialog-content class="customer-modal no-padding custom-scroll" layout="column">
+            <md-content class="md-padding"><!--padding-10-->
+               <div class="cm-section-main border-0" flex="100">
+                   <div class="cm-section-inner cm-section-inner-popup">
+                       <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                           <tbody>
+                               <tr ng-if="!vm.isNarrative">
+                                   <th>
+                                       <p class="label-container">Category<span ng-if="!vm.categoryDisable">&nbsp;*</span></p>
+                                   </th>
+                                   <td>
+                                       <md-input-container flex="100" md-no-float>
+                                           <md-select ng-model="vm.additionalRequirementModel.category" ng-disabled="vm.categoryDisable" required name="category" id="category" md-autofocus ng-change="vm.changecategory(category)">
+                                               <md-option ng-repeat="category in vm.categoryArray" ng-if="category.id && category.id != vm.categoryArray[2].id" ng-value="category.id" >{{category.value}}</md-option>
+                                           </md-select>
+                                           <div ng-messages="vm.AddAdditionalRequirementForm.category.$error"
+                                                role="alert">
+                                               <div ng-message="required">
+                                                   <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                               </div>
+                                           </div>
+                                       </md-input-container>
+                                   </td>
+                               </tr>
+                               <tr>
+                                   <th>
+                                       <p class="label-container">Name<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p>
+                                   </th>
+                                   <td>
+                                       <div layout="row">
+                                           <md-input-container flex="100">
+                                               <input type="text" name="additionalrequirementname" id="additionalrequirementname" ng-model="vm.additionalRequirementModel.name"
+                                                      placeholder="Name" required ng-maxlength="100"  md-maxlength="100"
+                                                       md-autofocus
+                                                       custom-blur="vm.checkDuplicateTemplate()">
+                                               <div ng-messages="vm.AddAdditionalRequirementForm.additionalrequirementname.$error"
+                                                    role="alert">
+                                                   <div ng-message="required">
+                                                       <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                   </div>
+                                                   <div ng-message="maxlength">
+                                                       <span>{{vm.getMaxLengthValidation(100, vm.AddAdditionalRequirementForm.additionalrequirementname.$viewValue.length)}}</span>
+                                                   </div>
+                                               </div>
+                                           </md-input-container>
+                                           <div>
+                                               <md-radio-group class="" flex="100" layout="row" ng-model="vm.additionalRequirementModel.isActive" name="isActive">
+                                                   <md-radio-button ng-value="true" flex="50" class="md-primary">Enable</md-radio-button>
+                                                   <md-radio-button ng-value="false" flex="50" class="md-primary">Disable</md-radio-button>
+                                               </md-radio-group>
+                                           </div>
+                                       </div>
+                                   </td>
+                               </tr>
+                               <tr>
+                                   <th>
+                                       <p class="label-container">Description</p>
+                                   </th>
+                                   <td>
+                                     <md-input-container flex="100">
+                                       <textarea type="text" name="description" ng-model="vm.additionalRequirementModel.description"
+                                                 placeholder="Description" rows="3" max-rows="4"
+                                                 ng-maxlength="vm.descriptionMaxLength"
+                                                 md-maxlength="vm.descriptionMaxLength"></textarea>
+                                       <div ng-messages="vm.AddAdditionalRequirementForm.description.$error"
+                                            role="alert">
+                                         <div ng-message="maxlength">
+                                           <span>{{vm.getMaxLengthValidation(vm.descriptionMaxLength, vm.AddAdditionalRequirementForm.description.$viewValue.length)}}</span>
+                                         </div>
+                                       </div>
+                                     </md-input-container>
+                                   </td>
+                               </tr>
+                           </tbody>
+                       </table>
+                   </div>
+               </div>
+            </md-content>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+          <md-button class="md-raised" ng-click="vm.cancel()">Cancel</md-button>
+          <md-button class="md-primary md-raised" ng-click="vm.saveAdditionalRequirement(vm.BUTTON_TYPE.SAVE)" aria-label="Submit" ng-class="{'md-formdirty': vm.AddAdditionalRequirementForm.$dirty}">Save</md-button>
+          <md-button class="md-primary md-raised" ng-click="vm.saveAdditionalRequirement(vm.BUTTON_TYPE.SAVEANDEXIT)" aria-label="Submit" ng-class="{'md-formdirty': vm.AddAdditionalRequirementForm.$dirty}" data-focusButton="headerAddBtn" last-element elementcondition="true">{{vm.CORE_MESSAGE_CONSTANT.SAVE_AND_EXIT}}</md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

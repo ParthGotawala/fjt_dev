@@ -1,0 +1,206 @@
+<div flex="100" layout="row" layout-sm="column" layout-wrap>
+  <div flex="100" layout="row" class="input-wrapper" layout-align="start start"
+       ng-if="vm.autoCompleteClass && vm.standardClassList && vm.standardClassList.length">
+    <p class="label-container">
+      <a class="cm-text-decoration underline" ng-click="vm.goToStandardCaregoryList();"
+         tabindex="-1">{{vm.autoCompleteClass.placeholderName}}</a><span>&nbsp;*</span>
+    </p>
+    <md-input-container class="autocompletecustom min-width-initial cm-custom-autocomplete" flex="55"
+                        flex-lg="25">
+      <custom-auto-complete datalist="vm.standardClassList" column-name="vm.autoCompleteClass.columnName"
+                            controller-name="vm.autoCompleteClass.controllerName"
+                            view-template-url="vm.autoCompleteClass.viewTemplateURL"
+                            key-column-name="vm.autoCompleteClass.keyColumnName"
+                            input-name="vm.autoCompleteClass.inputName"
+                            placeholder-name="vm.autoCompleteClass.placeholderName"
+                            key-column-id="vm.autoCompleteClass.keyColumnId"
+                            is-required="vm.autoCompleteClass.isRequired"
+                            is-addnew="vm.autoCompleteClass.isAddnew"
+                            callback-fn="vm.autoCompleteClass.callbackFn"
+                            add-data="vm.autoCompleteClass.addData"
+                            on-select-callback-fn="vm.autoCompleteClass.onSelectCallbackFn">
+      </custom-auto-complete>
+    </md-input-container>
+  </div>
+  <div flex="100" layout="row" class="cm-standard-permissiontab">
+    <div flex flex-xs="100" flex-sm="100" layout="row" layout-wrap>
+      <div flex="100" flex-xs="100" layout="row"
+           class="mobilesearch employee-workstaion-search-box userpermissionhead"
+           layout-align="space-between center">
+        <md-input-container class="clickedsearch md-block error-none no-label" md-no-float flex flex-xs="75">
+          <input id="SearchNoAddedListEmployee" type="text" placeholder="Type here to search personnel"
+                 ng-model="vm.SearchNotAssignedListPersonnel"
+                 ng-change="vm.searchStandardPersonnelFromNoAssignedList()" max="255">
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-disabled="!vm.SearchNotAssignedListPersonnel"
+                   ng-click="vm.SearchNotAssignedListPersonnel='';vm.searchStandardPersonnelFromNoAssignedList()">
+          Clear
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.refreshStandardPersonnelEmployee()">
+          Refresh
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-click="vm.addDataEmployee(null,$event)">
+          Add New
+        </md-button>
+      </div>
+      <md-list flex="100" class="permissiontab custom-scroll dragbox"
+               ng-class="{'layout-column': vm.standardNotAssignedList.length == 0}">
+        <md-list-item id="standardNoAddedList" class="padding-0 items-container" layout="row" flex="100"
+                      layout-wrap ui-sortable="sortableOptionsPersonnel" ng-model="vm.standardNotAssignedList"
+                      haveadded="false">
+          <div flex="100" class="md-1-line margin-0 dragsortable padding-top-0 padding-bottom-0"
+               id="{{personnel.id}}"
+               ng-repeat="personnel in vm.standardNotAssignedList"
+               ui-sortable-selectable ng-model="personnel"
+               layout="row" layout-align="start center">
+            <div class="avatar-wrapper">
+              <img class="md-avatar avatar" ng-src="{{personnel.ProfilePic}}" />
+            </div>
+            <div class="md-list-item-text" layout="row" layout-wrap>
+              <h3 class="name margin-0 md-primary-fg" flex="100">
+                <b>
+                  <a class="cm-text-decoration" ng-click="vm.goToUpdatePersonnel(personnel.id);">
+                    {{personnel.personFullName}}
+                  </a>
+                </b>
+                <span ng-if="personnel.gencCategoryName">
+                  {{'(' + personnel.gencCategoryName + ')'}}
+                  <md-tooltip>Title</md-tooltip>
+                </span>
+                <span ng-if="personnel.deptName">
+                  {{'(' + personnel.deptName + ')'}}
+                  <md-tooltip>Default Department</md-tooltip>
+                </span>
+              </h3>
+              <p class="last-message margin-0" ng-if="personnel.CertificationDetList.length > 0">
+                <label class="label-box margin-top-5 margin-left-2" ng-style="{'background-color': standardPersonnelItem.colorCode}"
+                       ng-repeat="standardPersonnelItem in personnel.CertificationDetList track by $index">
+                  {{standardPersonnelItem.stdClassName}}
+                  <md-tooltip>Certified Standard</md-tooltip>
+                </label>
+              </p>
+            </div>
+          </div>
+          <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+               ng-if="vm.standardNotAssignedList.length == 0" ui-sortable-selectable>
+            <div class="empty-state text-center">
+              <div class="emty-icon">
+                <img ng-src="{{vm.EmptyMesssageForNotAssigned.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="!vm.SearchNotAssignedListPersonnel">
+                {{vm.EmptyMesssageForNotAssigned.MESSAGE}}
+              </p>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="vm.SearchNotAssignedListPersonnel">
+                {{vm.EmptyMesssageForNotAssigned.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+    <div class="cm-data-fields-buttons" flex-xs="100" layout="row" layout-align="space-between center">
+      <div flex="100" layout-sm="row" layout-xs="row" layout="column" layout-align="space-between center">
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="selectedPersonnelListAdded.length == 0"
+                   ng-click="vm.ModifyPageAddedEmployee('Remove',$event)">
+          <i class="icon-chevron-left icondrag"></i>
+          <md-tooltip>Remove</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="vm.standardAssignedList.length == 0"
+                   ng-click="vm.ModifyPageAddedEmployee('RemoveAll',$event)">
+          <i class="icon-chevron-double-left icondrag"></i>
+          <md-tooltip>Remove All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="vm.standardNotAssignedList.length == 0"
+                   ng-click="vm.ModifyPageAddedEmployee('AddAll',$event)">
+          <i class="icon-chevron-double-right icondrag"></i>
+          <md-tooltip>Add All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="selectedPersonnelListNotAdded.length == 0"
+                   ng-click="vm.ModifyPageAddedEmployee('Add',$event)">
+          <i class="icon-chevron-right icondrag"></i>
+          <md-tooltip>Add</md-tooltip>
+        </md-button>
+      </div>
+    </div>
+    <div flex flex-xs="100" flex-sm="100" layout="row" layout-wrap>
+      <div flex="100" flex-xs="100" layout="row"
+           class="mobilesearch employee-workstaion-search-box userpermissionhead"
+           layout-align="space-between center">
+        <md-input-container class="clickedsearch md-block error-none no-label" md-no-float flex flex-xs="75">
+          <input id="SearchAddedListEmployee" type="text" placeholder="Type here to search personnel"
+                 ng-model="vm.SearchAssignedListPersonnel"
+                 ng-change="vm.searchStandardPersonnelFromAssignedList()" max="255">
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-disabled="!vm.SearchAssignedListPersonnel"
+                   ng-click="vm.SearchAssignedListPersonnel='';vm.searchStandardPersonnelFromAssignedList()">
+          Clear
+        </md-button>
+      </div>
+      <md-list flex="100" class="permissiontab custom-scroll dragbox"
+               ng-class="{'layout-column': vm.standardAssignedList.length == 0}">
+        <md-list-item id="standardAddedList" class="padding-0 items-container" layout="row" flex="100"
+                      layout-wrap ui-sortable="sortableOptionsPersonnel" ng-model="vm.standardAssignedList"
+                      haveadded="true">
+          <div flex="100" class="md-1-line margin-0 dragsortable padding-top-0 padding-bottom-0"
+               id="{{personnel.empCertiID}}"
+               ng-repeat="personnel in vm.standardAssignedList" ui-sortable-selectable ng-model="personnel"
+               layout="row" layout-align="start center">
+            <div class="avatar-wrapper">
+              <img class="md-avatar avatar" ng-src="{{personnel.ProfilePic}}" />
+            </div>
+            <div class="md-list-item-text" layout="row" layout-wrap>
+              <h3 class="name margin-0 md-primary-fg" flex="100">
+                <b>
+                  <a class="cm-text-decoration" ng-click="vm.goToUpdatePersonnel(personnel.id);">
+                    {{personnel.personFullName}}
+                  </a>
+                </b>
+                <span ng-if="personnel.gencCategoryName">
+                  {{'(' + personnel.gencCategoryName + ')'}}
+                  <md-tooltip>Title</md-tooltip>
+                </span>
+                <span ng-if="personnel.deptName">
+                  {{'(' + personnel.deptName + ')'}}
+                  <md-tooltip>Default Department</md-tooltip>
+                </span>
+              </h3>
+              <p class="last-message margin-0" ng-if="personnel.CertificationDetList.length > 0">
+                <!--text-truncate-->
+                <label class="label-box margin-top-5 margin-left-2" ng-style="{'background-color': standardPersonnelItem.colorCode}"
+                       ng-repeat="standardPersonnelItem in personnel.CertificationDetList track by $index">
+                  {{standardPersonnelItem.stdClassName}}
+                  <md-tooltip>Certified Standard</md-tooltip>
+                </label>
+              </p>
+            </div>
+          </div>
+          <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+               ng-if="vm.standardAssignedList.length == 0" ui-sortable-selectable>
+            <div class="empty-state text-center">
+              <div class="emty-icon">
+                <img ng-src="{{vm.EmptyMesssageForAssigned.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="!vm.SearchAssignedListPersonnel">
+                {{vm.EmptyMesssageForAssigned.MESSAGE}}
+              </p>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="vm.SearchAssignedListPersonnel">
+                {{vm.EmptyMesssageForAssigned.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+  </div>
+</div>

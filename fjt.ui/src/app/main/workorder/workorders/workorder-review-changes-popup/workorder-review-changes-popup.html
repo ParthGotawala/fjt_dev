@@ -1,0 +1,94 @@
+<md-dialog draggable cg-busy="{promise:vm.cgBusyLoading}">
+  <md-toolbar>
+    <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+      <h2>Change Request <span ng-if="vm.isViewPendingReviewCmtCountReq">Pending Review Count</span></h2>
+      <span flex></span>
+      <div layout="row" layout-align="center center">
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+      </div>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content class="customer-modal no-padding custom-scroll" layout="column">
+    <md-content class="md-padding">
+      <div layout="row" layout-align="{{vm.isViewPendingReviewCmtCountReq ? 'end-end' : 'space-between-center'}}">
+        <div layout="row" ng-if="!vm.isViewPendingReviewCmtCountReq" class="margin-left-10">
+          <p class="label-container margin-0 padding-top-2">Status<span>&nbsp;</span></p>
+          <md-input-container class="margin-0">
+            <md-select ng-model="vm.selectedChangeRequestStatus" placeholder="Review By">
+              <md-option ng-repeat="item in vm.changeRequestFinalStatusList" ng-value="item.Value">
+                {{item.Key}}
+              </md-option>
+            </md-select>
+          </md-input-container>
+        </div>
+        <md-button class="md-primary md-raised margin-left-20" ng-click="vm.refreshRequestForReviewList()">
+          Refresh
+        </md-button>
+      </div>
+      <table class="simple no-padding cm-width-100" ms-responsive-table="" ng-if="vm.RequestForReviewList.length>0">
+        <thead>
+          <tr>
+            <th width="220" style="padding: 16px 17px;">Action</th>
+            <th width="200" style="padding: 16px 8px;">Requested Date</th>
+            <th width="150" style="padding: 16px 8px;">Requested By</th>
+            <th width="450" style="padding: 16px 8px;">Change Request</th>
+            <th width="90" style="padding:  16px 8px;">Status</th>
+            <th width="135" style="padding: 16px 8px;" class="cm-white-space-normal">Review <span class="nowrap">Group Members</span></th>
+            <th width="120" style="padding: 16px 8px;" class="cm-white-space-normal">Pending <span class="nowrap">Review Count</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="item in vm.RequestForReviewList | filter: vm.selectedChangeRequestStatus ? {accRejStatus: vm.selectedChangeRequestStatus} : ''">
+            <td width="220" style="padding: 5px 8px;">
+              <md-input-container class="autocompletecustom nowrap margin-bottom-0 margin-top-0" flex="100" flex-gt-xs="20">
+                <md-button class="md-primary md-raised" ng-click="vm.gotoWorkorder(item.woID,item.woOPID,item.woRevReqID,item.isDisableViewChangeRequest)"
+                           ng-disabled="item.isDisableViewChangeRequest">
+                  View Change Request
+                </md-button>
+              </md-input-container>
+            </td>
+            <td width="140" style="padding: 5px 8px;">{{item.createdAt?(item.createdAt|date: vm.dateTimeDisplayFormat):""}}</td>
+            <td width="150" style="padding: 5px 8px;">{{item.fullName}}</td>
+            <td width="450" style="padding: 5px 8px;">{{item.threadTitle?item.threadTitle:""}}</td>
+            <td width="90" style="padding: 5px 8px;">
+              <div class="text-center" ng-if="item.accRejStatus">
+                <span class="label-box label-danger" ng-if="item.accRejStatus == vm.WorkorderReviewStatus.Rejected">{{item.accRejStatusText}}</span>
+                <span class="label-box label-warning" ng-if="item.accRejStatus == vm.WorkorderReviewStatus.Pending">{{item.accRejStatusText}}</span>
+                <span class="label-box label-primary" ng-if="item.accRejStatus == vm.WorkorderReviewStatus.Accepted">{{item.accRejStatusText}}</span>
+              </div>
+            </td>
+            <td width="135" style="padding: 5px 8px;" class="text-right">
+              <a ng-click="vm.displayInvitedPersonnel(item.woRevReqID,item.isDisableViewChangeRequest,item.woAuthorID)" ng-disabled="item.isDisableViewChangeRequest"
+                 ng-class="{'item-disabled' : item.isDisableViewChangeRequest , 'cursor-pointer' : !item.isDisableViewChangeRequest}">
+                {{item.totalInvitedMembersForReview}}
+              </a>
+            </td>
+            <td width="120" style="padding: 5px 8px;" class="text-right">
+              <span>{{item.totalPendingComment}}<md-tooltip>Pending</md-tooltip></span>
+              <!--| <span>{{item.totalAcceptedComment}}<md-tooltip>Accept</md-tooltip></span> | <span>{{item.totalRejectedComment}}<md-tooltip>Decline</md-tooltip></span>-->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="empty-state text-center full-height" layout="row" flex layout-align="center center"
+           layout-wrap ng-if="vm.RequestForReviewList.length > 0 && vm.selectedChangeRequestStatus && (vm.RequestForReviewList | filter: { accRejStatus : vm.selectedChangeRequestStatus }).length == 0">
+        <div class="emty-icon" flex="100">
+          <img ng-src="{{vm.CommonEmptyMesssage.IMAGEURL}}" />
+        </div>
+        <p flex="100" class="empty-state-title">{{vm.CommonEmptyMesssage.MESSAGE}}</p>
+      </div>
+      <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.emptyState">
+        <div class="emty-icon" flex="100">
+          <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+        </div>
+        <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+      </div>
+    </md-content>
+  </md-dialog-content>
+  <md-dialog-actions layout="row">
+    <md-button class="md-default md-raised" ng-click="vm.cancel()">Close</md-button>
+  </md-dialog-actions>
+</md-dialog>

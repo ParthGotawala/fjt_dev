@@ -1,0 +1,98 @@
+<md-dialog class="cm-custom-label-common cm-bin-add-update" aria-label="Add Message" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="95">
+    <form name="vm.manageMessageForm" class="md-inline-form cm-manage-dynamic" novalidate>
+        <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+        <md-toolbar>
+            <div class="md-toolbar-tools layout-wrap-mob" layout="row" layout-align="space-between center" >
+                <h2>{{ vm.dynamicMessageModel.messageCode ? 'Update':'Add' }} Message</h2>
+                <span flex></span>
+                <div layout="row" layout-align="center center">
+                    <popup-header-label label-data="vm.headerData"></popup-header-label>
+                </div>    
+                <md-button class="md-icon-button cm-can-btn" ng-click="vm.cancel()">
+                    <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content class="customer-modal no-padding custome-scroll min-width-auto-600">
+            <md-content class="padding-10">                
+                <div class="cm-section-main border-1px-solid margin-bottom-5"> <!-- Edit section -->
+                    <div class="cm-section-inner">                        
+                        <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                            <tbody>
+                                <tr>
+                                    <th>
+                                        <p class="label-container">Message<span>&nbsp;*</span></p>
+                                    </th>
+                                    <td colspan="3">
+                                        <div layout="row" flex>
+                                            <md-input-container class="md-block" flex="100">
+                                                <textarea type="text" name="message" id="message" ng-model="vm.dynamicMessageModel.message" ng-required="true" placeholder="Message" ng-maxlength="1000" rows="3" custom-auto-focus>
+                                                </textarea>
+                                                <div ng-messages="vm.manageMessageForm.message.$error" role="alert">
+                                                    <div ng-message="required">
+                                                        <span>{{vm.CORE_MESSAGE.REQUIRED}}</span>
+                                                    </div>
+                                                    <div ng-message="maxlength">
+                                                        <span>{{vm.getMaxLengthValidation(1000,vm.manageMessageForm.message.$viewValue.length)}}</span>
+                                                    </div>                                                    
+                                                </div>                                               
+                                                <div class="custom-note-message md-primary-fg" ng-if="vm.isContainDynamicVariable" ng-bind-html="vm.messageNote">                                                                                                      
+                                                </div>
+                                               <div ng-if="vm.isContainDynamicVariable" ng-show="vm.isContainDynamicVariable">                                                  
+                                                    <dynamic-message-argument  message-text="vm.dynamicMessageModel.message">  </dynamic-message-argument>
+                                                </div> 
+                                            </md-input-container>
+                                        </div>
+                                    </td>
+                                </tr>                               
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </md-content>
+            <md-content  class="padding-10">
+                <div class="cm-section-main border-1px-solid margin-bottom-5">
+                    <div class="cm-section-header" flex="100" layout="row" layout-align="space-between center">                        
+                        <h2>Where Used</h2>                        
+                        <div class="disable-buttons">
+                            <md-button class="md-primary md-raised" ng-click="vm.addEditMessageUsageDetail(vm.dynamicMessageModel,$event)" ng-disabled="vm.isDisabledWhereUsed">
+                                Add Where Used Detail
+                            </md-button>
+                        </div>
+                    </div>
+                    <div id="whereUsed-list" class="page-layout carded fullwidth breadcrumb-fixed " layout="row">
+                        <!-- CONTENT CARD -->
+                        <div class="content-card" layout="column" flex ng-show="!vm.isNoDataFound" ng-if="vm.isGridVisible">
+                            <!--ng-show="!vm.isNoDataFound">-->
+                            <md-card layout="column" class="cm-messagewhereused-grid" flex layout-align="space-between stretch">
+                                <ui-grid-extention load-data="vm.loadUsageData"
+                                                   grid-option="vm.gridOptions"
+                                                   header="vm.whereUsedHeader"
+                                                   grid-data="vm.whereUsedData"
+                                                   total-data-count="vm.totalDataCount"
+                                                   reset-grid="vm.resetSourceGrid"
+                                                   selectted-rows="vm.selectedRowsList"
+                                                   paging-info="vm.pagingInfo"
+                                                   current-item="vm.currentdata"
+                                                   empty-state="vm.emptyState"
+                                                   delete-multiple-data="vm.deleteMultipleData"
+                                                   grid-id="vm.gridConfig.gridMessageWhereUsedList">
+                            </md-card>
+                        </div>
+                        <!-- / CONTENT CARD -->
+                        <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center" flex ng-if="vm.isNoDataFound">
+                            <div class="emty-icon" flex="100">
+                                <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                            </div>
+                            <p class="empty-state-title" flex="100">{{vm.EmptyMesssage.MESSAGE}}</p>
+                        </div>
+                    </div>
+                </div>
+</md-content>
+        </md-dialog-content>
+        <md-dialog-actions layout="row" class="min-width-auto-600">
+            <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+            <md-button class="md-primary md-raised" ng-class="{'md-formdirty': vm.manageMessageForm.$dirty}" ng-click="vm.saveDynamicMessage()" aria-label="Submit" ng-disabled="vm.isDisabledSave">Save</md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

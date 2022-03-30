@@ -1,0 +1,815 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-warehouse-bin-navbar cm-ng-label-common full-height" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="cm-overflow-auto  cm-section-main" flex layout="column" ng-if="!vm.isShowPrint">
+    <md-content class="cm-section-inner">
+      <form flex name="vm.frmShipmentSummaryHeader" class="md-inline-form pt-5" novalidate>
+        <div layout layout-align="start center" class="cm-section-main ph-5 h-45">
+          <div class="pr-5">
+            <p class="label-container m-0">
+              Sort By
+            </p>
+          </div>
+          <div class="pr-5">
+            <md-select name="sortBy" placeholder="Select"
+                       ng-model="vm.filterModel.sortingColumn"
+                       md-container-class="containerClass cm-md-select" class="margin-0" custom-auto-focus="{{vm.setfocus}}">
+              <!--<md-option ng-value="">Select</md-option>-->
+              <md-option ng-repeat="option in vm.sortingColumn" value={{option.id}}>{{option.value}}</md-option>
+            </md-select>
+          </div>
+          <div class="pr-5">
+            <md-select name="sortBy" placeholder="Select"
+                       ng-model="vm.filterModel.sortingOrder"
+                       md-container-class="containerClass cm-md-select" class="margin-0">
+              <!--<md-option ng-value="">Select</md-option>-->
+              <md-option ng-repeat="option in vm.sortingOrder" value={{option.id}}>{{option.value}}</md-option>
+            </md-select>
+          </div>
+          <div>
+            <p class="label-container margin-0">
+              <a class="cm-text-decoration" ng-click="vm.goToCustomerList()" tabindex="-1">{{vm.LabelConstant.Customer.Customer}}</a>
+            </p>
+          </div>
+          <div flex class="pl-5">
+            <md-input-container ng-if="vm.autoCompleteCustomer" class="md-block autocompletecustom" flex="100">
+              <custom-auto-complete-search class="min-width-initial"
+                                           on-search-fn="vm.autoCompleteCustomer.onSearchFn"
+                                           column-name="vm.autoCompleteCustomer.columnName"
+                                           controller-name="vm.autoCompleteCustomer.controllerName"
+                                           view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                           key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                           input-name="vm.autoCompleteCustomer.inputName"
+                                           placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                           key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                           is-required="vm.autoCompleteCustomer.isRequired"
+                                           parent-column-name="vm.autoCompleteCustomer.parentColumnName"
+                                           is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                           add-data="vm.autoCompleteCustomer.addData"
+                                           is-disabled="vm.isDisableInvEntry ||  vm.custInvoiceID"
+                                           callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                           on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn">
+              </custom-auto-complete-search>
+            </md-input-container>
+          </div>
+          <div class="pr-5">
+            <p class="label-container m-0">
+              Working Status
+            </p>
+          </div>
+          <div class="pr-5 w-140">
+            <md-select name="workingStatus" placeholder="Select"
+                       ng-model="vm.filterModel.soWorkingStatus"
+                       md-container-class="containerClass cm-md-select" class="margin-0">
+              <!--<md-option ng-value="">Select</md-option>-->
+              <md-option ng-repeat="option in vm.SOWorkingStatusList" value={{option.id}}>{{option.Name}}</md-option>
+            </md-select>
+          </div>
+          <div class="pr-5">
+            <p class="label-container m-0">
+              SO Posting Status
+            </p>
+          </div>
+          <div class="pr-5 w-130">
+            <md-select name="soStatus" placeholder="Select"
+                       ng-model="vm.filterModel.soStatus"
+                       md-container-class="containerClass cm-md-select" class="margin-0">
+              <!--<md-option ng-value="">Select</md-option>-->
+              <md-option ng-repeat="option in vm.SalesOrderStatus" value={{option.id}}>{{option.Name}}</md-option>
+            </md-select>
+          </div>
+          <div>
+            <p class="label-container margin-0">
+              Search
+            </p>
+          </div>
+          <div flex class="pl-5">
+            <!--ng-pattern="vm.restrictQuoteFromSearch"-->
+            <md-input-container class="md-block" md-no-float ng-class="{'input-highlight' : vm.filterModel.searchText}">
+              <input type="text" placeholder="Type here to search content" id="searchText" ng-model="vm.filterModel.searchText"
+                     ng-keydown="vm.enterSearchText($event)" ng-maxlength="100">
+              <div ng-messages="vm.frmShipmentSummaryHeader.searchText.$error" role="alert">
+                <div ng-message="maxlength">
+                  <span>{{vm.getMaxLengthValidation(100,vm.frmShipmentSummaryHeader.searchText.$viewValue.length)}}</span>
+                </div>
+                <div ng-message="pattern">
+                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                </div>
+              </div>
+            </md-input-container>
+          </div>
+
+          <div layout class="cm-btn-group cm-square-icon-btn">
+            <md-button class="md-primary md-raised md-ink-ripple" ng-click="vm.searchData()">
+              Apply
+            </md-button>
+            <md-button class="md-primary md-raised md-ink-ripple" ng-click="vm.clearData()">
+              Clear
+            </md-button>
+            <md-button class="md-primary md-raised md-ink-ripple" ng-click="vm.refreshData()">
+              Refresh
+            </md-button>
+          </div>
+        </div>
+        <div layout layout-align="start center">
+          <md-button class="md-raised md-primary md-ink-rippl mv-0 ml-0"
+                     ng-click="vm.setPOHeaderExpandCollapse()">{{vm.isAllExpanded ? 'Collapse All' : 'Expand All'}}</md-button>
+          <md-checkbox ng-model="vm.filterModel.showCompletedLines" name="completedLines" id="completedLines" aria-label="pass" class="margin-top-5imp margin-bottom-5imp margin-right-10">
+            <span><b>Incl. Completed Line</b></span>
+          </md-checkbox>
+          <md-checkbox ng-model="vm.filterModel.showCompletedRelLines" name="completedRelLines" id="completedRelLines" aria-label="pass" class="margin-top-5imp margin-bottom-5imp"
+                       ng-change="vm.setCompletedRelLine()">
+            <span><b>Incl. Completed Release Line</b></span>
+          </md-checkbox>
+          <!--<md-checkbox class="margin-0 margin-left-10" ng-model="vm.stickyHeaderTableClass" aria-label="Checkbox" ng-true-value="'cm-sticky-header-table'" ng-false-value="''">
+            <b>Fix Release Line Header</b>
+          </md-checkbox>-->
+          <span class="cm-ml-auto margin-top-5imp margin-bottom-5imp"><b>Note: Double Click to Add/Update Comments.</b></span>
+        </div>
+      </form>
+    </md-content>
+    <md-content flex class="cm-section-inner padding-top-0 border-top" layout="column" id="printSection">
+      <div infinite-scroll="vm.LoadShipmentDetail()" infinite-scroll-disabled="vm.disableScroll" infinite-scroll-container="vm.scrollEle" infinite-scroll-distance="1">
+        <form flex name="vm.frmShipmentSummary" class="md-inline-form pt-5" novalidate>
+          <!--ms-form-wizard-form-->
+          <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+          <!--<div id="shipment-summ"> -->
+          <div class="mb-30 md-whiteframe-2dp separator-bottom" ng-repeat="item in vm.shipmentHeader">
+            <table class="table table-bordered cm-table-input-main cm-table-cell-height-auto mb-0 cm-sap-req-table cm-data-table">
+              <tr>
+                <th>
+                  <p class="label-container">
+                    <button class="bdrbtn md-primary md-icon-button" ng-click="vm.togglePOHeader(item);">
+                      <md-icon ng-if="!item.isShow" md-font-icon="icon-plus"></md-icon>
+                      <md-icon ng-if="item.isShow" md-font-icon="icon-minus"></md-icon>
+                      <md-tooltip>{{item.isShow ? 'Collapse' : 'Expand'}}</md-tooltip>
+                    </button>
+                    <a class="cm-text-decoration cursor-pointer text-underline text-bold ml-10" ng-click="vm.goToCustomerList()">{{vm.LabelConstant.Customer.Customer}}:</a>
+                  </p>
+                </th>
+                <td colspan="{{item.CPSCount ? 7: 12}}" class="w-100">
+                  <div layout>
+                    <span class="cm-text-ellipsis"><a class="cm-text-decoration cursor-pointer text-underline" ng-click="vm.goToManageCustomer(item.customerID)">{{item.customerName}}</a> </span>
+                    <copy-text label="vm.LabelConstant.Customer.Customer" text="item.customerName"></copy-text>
+                    <span class="label-box ml-5" ng-if="item.isBlanketPO" ng-class="item.blanketPOClass">
+                      {{item.isBlanketPOText}}
+                    </span>
+                    <span class="label-box ml-5" ng-if="item.blanketPOOption" ng-class="item.blanketPOOptionObj.className">
+                      {{item.blanketPOOptionObj.value}}
+                    </span>
+                    <span class="label-box ml-5 label-primary" ng-if="item.linkToBlanketPOText">
+                      {{item.linkToBlanketPOText}}
+                    </span>
+                  </div>
+                </td>
+                <th ng-if="item.CPSCount">
+                  <p class="label-container data-align-to-label"><b>Total PS:</b></p>
+                </th>
+                <td ng-if="item.CPSCount">
+                  <span layout>
+                    <span>
+                      (<a class="cm-text-decoration cursor-pointer text-underline" ng-click="vm.showCustPackingSlipDetail(item)">{{item.CPSCount}}</a>)
+                    </span>
+                    <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised"
+                               ng-if="item.showAddCPSHeader"
+                               ng-click="vm.addCustomerPackingSlip(item,null,null,true,$event)">
+                      <md-icon md-font-icon="t-icons-customer-ps add-icon" class="material-icons"></md-icon>
+                      <md-tooltip>Add Customer Packing Slip</md-tooltip>
+                    </md-button>
+                  </span>
+                </td>
+                <th ng-if="item.CPSCount">
+                  <p class="label-container data-align-to-label"><b>Draft PS:</b></p>
+                </th>
+                <td ng-if="item.CPSCount" colspan="5">
+                  <span ng-if="item.CPSDraftCnt">(<a class="cm-text-decoration cursor-pointer text-underline" ng-click="vm.showCustPackingSlipDetail(item,null,true)">{{item.CPSDraftCnt || 0}}</a>)</span>
+                  <span ng-if="!item.CPSDraftCnt">
+                    ({{item.CPSDraftCnt || 0}})
+                  </span>
+                </td>
+                <!--Shipping Address-->
+                <td rowspan="4" class="w-450 padding-4">
+                  <div class="default-addresses">
+                    <view-cust-address-contact-det layout flex param-address-det="item.shippingAddress"
+                                                   param-contact-person-det="item.shippingContactPerson"                                                   
+                                                   param-other-det="item.shipToOtherDet">
+                    </view-cust-address-contact-det>                    
+                  </div>
+                </td>
+              </tr>
+              <!--PO# Row-->
+              <tr>
+                <th><p class="label-container data-align-to-label"><a class="cm-text-decoration cursor-pointer text-underline text-bold" ng-click="vm.goToSalesOrderList()">{{vm.LabelConstant.SalesOrder.PO}}:</a> </p></th>
+                <td>
+                  <p>
+                    <span><a class="cm-text-decoration cursor-pointer text-underline" ng-click="vm.goToManageSalesOrder(item.soId)">{{item.poNumber}}</a></span>
+                    <span><copy-text label="vm.LabelConstant.SalesOrder.PO" text="item.poNumber"></copy-text></span>
+                    <span class="label-box ml-5" ng-if="item.isLegacyPO" ng-class="item.legacyPOClass">
+                      {{item.isLegacyPOText}}
+                    </span>
+                    <span class="label-box ml-5" ng-if="item.isRmaPO" ng-class="item.rmaPOClass">
+                      {{item.isRmaPOText}}
+                    </span>
+                    <!--<span class="label-box ml-5" ng-if="item.isBlanketPO" ng-class="item.blanketPOClass">
+                      {{item.isBlanketPOText}}
+                    </span>
+                    <span class="label-box ml-5" ng-if="item.blanketPOOption" ng-class="item.blanketPOOptionObj.className">
+                      {{item.blanketPOOptionObj.value}}
+                    </span>-->
+                  </p>
+                </td>
+                <th><p class="label-container"><b>PO Rev.:</b></p></th>
+                <td> <span>{{item.poRevision}}</span></td>
+                <th><p class="label-container"><b>PO Rev. Date:</b></p></th>
+                <td class="width-100"> <span>{{item.poRevisionDate}}</span></td>
+                <th>{{vm.LabelConstant.SalesOrder.PODate}}:</th>
+                <td>
+                  <span class="padding-right-10">{{item.poDate}} </span>
+                </td>
+                <th ng-if="!item.lastCPSNumber" rowspan="2" class="width-100">
+                </th>
+                <td ng-if="!item.lastCPSNumber" rowspan="2" class="width-50p border-left-0-imp">
+                  <div class="layout-row layout-align-start-center">
+                    <div>
+                      <md-icon ng-if="!item.showAddCPSHeader" md-font-icon="t-icons-customer-ps" class="material-icons md-accent-fg"></md-icon>
+                      <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised"
+                                 ng-if="item.showAddCPSHeader"
+                                 ng-click="vm.addCustomerPackingSlip(item,null,null,true,$event)">
+                        <md-icon md-font-icon="t-icons-customer-ps add-icon" class="material-icons"></md-icon>
+                        <md-tooltip>Add Customer Packing Slip</md-tooltip>
+                      </md-button>
+                    </div>
+                    <div class="empty-state">
+                      <div class="empty-icon margin-0">
+                        <span class="empty-state-title font-size-20-imp">{{vm.CORE_MESSAGE_CONSTANT.NO_CUSTOMER_PACKINGSLIP_CREATED}}</span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <th ng-if="item.lastCPSNumber">
+                  <p class="label-container data-align-to-label">
+                    <a class="cm-text-decoration cursor-pointer text-underline" ng-click="vm.goToCustomerPackingSlipList()"><b>PS#:</b></a>
+                  </p>
+                </th>
+                <td ng-if="item.lastCPSNumber">
+                  <p>
+                    <span>
+                      <a class="cm-text-decoration cursor-pointer text-underline" ng-click="vm.goToManageCustomerPackingSlip(item.lastCPSId,item.soId)">{{item.lastCPSNumber}}</a>
+                    </span>
+                    <copy-text ng-if="item.lastCPSNumber" label="vm.LabelConstant.CustomerPackingSlip.CustomerPackingSlipNumber" text="item.lastCPSNumber"></copy-text>
+                  </p>
+                </td>
+                <th ng-if="item.lastCPSNumber"><p class="label-container"><b>PS Date:</b></p></th>
+                <td ng-if="item.lastCPSNumber"><span>{{item.lastCPSDate}}</span></td>
+                <td ng-if="item.lastCPSNumber" class="width-50p"></td>
+              </tr>
+              <!--SO# Row-->
+              <tr>
+                <th>
+                  <p class="label-container data-align-to-label">
+                    <a class="cm-text-decoration cursor-pointer text-underline text-bold" ng-click="vm.goToSalesOrderList()">
+                      {{vm.LabelConstant.SalesOrder.SO}}:
+                    </a>
+                  </p>
+                </th>
+                <td>
+                  <span class="mr-20">
+                    <a class="cm-text-decoration cursor-pointer text-underline" ng-click="vm.goToManageSalesOrder(item.soId)">{{item.salesOrderNumber}}</a>
+                    <copy-text label="vm.LabelConstant.SalesOrder.SO" text="item.salesOrderNumber"></copy-text>
+                  </span>
+                  <span class="label-box mr-5" ng-if="item.soStatusText" ng-class="item.soStatusClass">
+                    {{item.soStatusText}}
+                  </span>
+                  <span class="label-box" ng-if="item.workingStatus"
+                        ng-class="{'label-warning': item.workingStatus === vm.SOWorkingStatusId.InProgress,'label-danger': item.workingStatus === vm.SOWorkingStatusId.Cancelled, 'label-success': item.workingStatus === vm.SOWorkingStatusId.Completed}">
+                    {{item.workingStatusText}}
+                  </span>
+                </td>
+                <th><p class="label-container"><b>{{vm.LabelConstant.SalesOrder.SOVersionShort}}:</b></p></th>
+                <td colspan="3"> <span>{{item.sorevision}}</span></td>
+                <th>{{vm.LabelConstant.SalesOrder.SODate}}:</th>
+                <td><span>{{item.soDate}}</span></td>
+                <th ng-if="item.lastCPSNumber">
+                  <p class="label-container"><b>PS Comment:</b></p>
+                </th>
+                <td ng-if="item.lastCPSNumber" colspan="4" class="w-200">
+                  <div layout class="cm-white-space-normal">
+                    <div layout layout-align="start start" flex class="cm-white-space-normal">
+                      <span class="cm-text-ellipsis">{{item.lastCPSComment}}</span>
+                    </div>
+                    <button class="md-primary grid-button md-icon-button" ng-if="item.lastCPSComment && item.lastCPSComment !== '-'" ng-click="vm.showPSComments(item, $event)">
+                      <md-icon md-font-icon="icon-eye" class="icon s18 m-0"></md-icon>
+                    </button>
+                    <copy-text ng-if="item.lastCPSComment && item.lastCPSComment !== '-'" label="" text="item.lastCPSComment"></copy-text>
+                  </div>
+                </td>
+              </tr>
+              <!--Comment Row-->
+              <tr>
+                <th ng-if="vm.showCommentField" class=" width-100">
+                  <p class="label-container cm-white-space-normal"><b>PO {{vm.LabelConstant.SalesOrder.InternalNotes}}:</b></p>
+                </th>
+                <td class="w-200 cm-copy-comment-icon blue" colspan="7" ng-if="vm.showCommentField">
+                  <div class="h-75" layout>
+                    <div layout layout-align="start start" flex class="cm-white-space-normal">
+                      <span class="cm-multi-line-ellipsis cm-4-line-ellipsis cm-white-spce-pre-wrap">{{item.internalComment}}</span>
+                      <button class="md-primary grid-button md-icon-button" ng-if="item.internalComment && item.internalComment !== '-'" ng-click="vm.showInternalComments(item, $event)">
+                        <md-icon md-font-icon="icon-eye" class="icon s18 m-0"></md-icon>
+                      </button>
+                    </div>
+                    <copy-text ng-if="item.internalComment && item.internalComment !== '-'" label="" text="item.internalComment"></copy-text>
+                  </div>
+                </td>
+                <th rowspan="1"><p class="label-container cm-white-space-normal"><b>PO {{vm.LabelConstant.SalesOrder.ShippingComments}}:</b></p></th>
+                <td class="cm-copy-comment-icon" colspan="{{vm.showCommentField ? (item.lastCPSNumber ? 4 : 1) : 12}}"
+                    ng-class="{'w-200': (!item.shippingComment || item.shippingComment === '-') }">
+                  <div class="h-75" layout>
+                    <div layout layout-align="start start" flex class="cm-white-space-normal">
+                      <span class="cm-multi-line-ellipsis cm-4-line-ellipsis cm-white-spce-pre-wrap">{{item.shippingComment}}</span>
+                      <button class="md-primary grid-button md-icon-button" ng-if="item.shippingComment && item.shippingComment !== '-'" ng-click="vm.showShippingComments(item, $event)">
+                        <md-icon md-font-icon="icon-eye" class="icon s18 m-0"></md-icon>
+                      </button>
+                    </div>
+                    <copy-text ng-if="item.shippingComment && item.shippingComment !== '-'" label="" text="item.shippingComment"></copy-text>
+                  </div>
+                </td>
+              </tr>
+              <!--Part Line Detail Section-->
+              <tr ng-show="item.isShow">
+                <td colspan="17" class="padding-10-imp">
+                  <div class="cm-sap-req-sub-table-container border {{vm.stickyHeaderTableClass}}">
+                    <table class="md-table border-0 cm-table-cell-height-auto mb-0 cm-data-sub-table">
+                      <thead>
+                        <tr class="md-grey-200-bg" ng-if="item.detailList.length > 0">
+                          <th class="width-80 text-align-center">Action</th>
+                          <th>
+                            PO Line#
+                          </th>
+                          <th>
+                            Assy/Part Details
+                          </th>
+                          <th ng-if="vm.showCommentField">
+                            WO Comment
+                          </th>
+                          <th>
+                            <span class="cm-white-space-normal">
+                              {{vm.LabelConstant.SalesOrder.ReleaseNumber}}
+                            </span>
+                          </th>
+                          <th class="amount-field">
+                            Release <br />Qty
+                          </th>
+                          <th>
+                            Due Date
+                          </th>
+                          <th class="text-center">
+                            Rel. Qty <br />Ready
+                          </th>
+                          <th class="amount-field">
+                            Shipped <br />Qty
+                          </th>
+                          <th>
+                            Ship Date
+                          </th>
+                          <th class="amount-field">
+                            Total Shipped <br />Qty
+                          </th>
+                          <th class="amount-field">
+                            Open PO Qty
+                          </th>
+                          <th ng-if="vm.showCommentField">
+                            {{vm.LabelConstant.SalesOrder.ReleaseNote}}
+                          </th>
+                        </tr>
+                        <tr class="md-grey-200-bg" ng-if="item.detailList.length === 0">
+                          <td><p>{{vm.emptyDetailMessage}}</p></td>
+                        </tr>
+                      </thead>
+                      <tbody ng-repeat="detItem in item.detailList | filter:vm.filterCompletedLines">
+                        <!-- (vm.filterModel.showCompletedLines && detItem.soWorkingStatus === vm.SOWorkingStatus.Completed) -->
+                        <tr ng-repeat="relItem in detItem.releaseDet">
+                          <td class="bg-white" rowspan="{{detItem.releaseTotalCnt}}" ng-if="$index === 0">
+                            <div layout="row">
+                              <div>                                
+                                <span>
+                                  {{detItem.lineID}}
+                                </span>
+                              </div>
+                              <div flex="40">
+                                <span class="layout-column layout-align-start-center">
+                                  <button class="md-primary grid-button md-icon-button mb-10" ng-style="(!detItem.isAssembly) && {'opacity':'0.3','cursor': 'not-allowed'}" ng-click="vm.ViewAssemblyStockStatus(detItem, $event)" ng-disabled="!detItem.isAssembly">
+                                    <md-icon md-font-icon="t-icons-view-assembly-stock" class="icon m-0"></md-icon>
+                                  </button>
+                                  <button class="md-primary grid-button md-icon-button mb-10 cm-sq-btn" ng-style="(detItem.isOtherComponent) && {'opacity':'0.3','cursor': 'not-allowed'}"
+                                          ng-class="{'release-line-bg':detItem.releaseDet.length > 1 || vm.checkSumAndColor(detItem),'light-green-background-color':detItem.salesOrderDetStatus === 2}"
+                                          ng-click="vm.goToReleaseDetail(item,detItem, $event)" ng-disabled="detItem.isOtherComponent || detItem.cancelStatus">
+                                    <md-icon md-font-icon="t-icons-release-line" class="icon  m-0"></md-icon>
+                                  </button>
+                                  <button class="md-primary grid-button md-icon-button mb-10" ng-style="(!detItem.isAssembly) && {'opacity':'0.3','cursor': 'not-allowed'}" ng-click="vm.getAssyAtGlance(detItem, $event)" ng-disabled="!detItem.isAssembly">
+                                    <md-icon md-font-icon="t-icons-assembly-at-glance" class="icon  m-0"></md-icon>
+                                  </button>
+                                </span>
+                              </div>
+                              <div flex="45">
+                                <span class="layout-column layout-align-start-center">
+                                  <button class="md-primary grid-button md-icon-button mb-10" ng-style="(!detItem.isAssembly) && {'opacity':'0.3','cursor': 'not-allowed'}" ng-click="vm.addEditAssemblyStock(detItem.partID, $event)" ng-disabled="!detItem.isAssembly">
+                                    <md-icon md-font-icon="t-icons-initial-stock add-icon" class="icon  m-0"></md-icon>
+                                  </button>
+                                  <button class="md-primary grid-button md-icon-button mb-10" ng-style="(!detItem.isAssembly) && {'opacity':'0.3','cursor': 'not-allowed'}" ng-click="vm.addStockAdjustment({partId: detItem.partID, pidCode: detItem.PIDCode,isAssembly: detItem.isAssembly}, $event)" ng-disabled="!detItem.isAssembly">
+                                    <md-icon md-font-icon="t-icons-stock-adjustment add-icon" class="icon  m-0"></md-icon>
+                                  </button>
+                                  <!--{{detItem.linkdPOCnt}}-->
+                                  <button class="md-primary grid-button md-icon-button mb-10" ng-class="{'release-line-bg':detItem.linkdPOCnt > 0 }" ng-style="(vm.BlanketPODetails.LINKBLANKETPO !== item.blanketPOOption || item.status==0) && {'opacity':'0.3','cursor': 'not-allowed'}" ng-disabled="(vm.BlanketPODetails.LINKBLANKETPO !== item.blanketPOOption || item.status==0)" ng-click="vm.openLinkedBlanketPO(detItem,item,$event)">
+                                    <md-icon role="img" md-font-icon="t-icons-link-future-po"></md-icon><md-tooltip md-direction="top">Linked PO(s)</md-tooltip>
+                                  </button>
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td class="bg-white" rowspan="{{detItem.releaseTotalCnt}}" ng-if="$index === 0">
+                            <span class="label-container">{{detItem.custPOLineNumber}}</span>
+                            <br />
+                            <p ng-if="detItem.blanketPONumber" class="label-container"><b>BPO#:</b></p>
+                            <p ng-if="detItem.blanketPONumber" class="text">
+                              <a class="cm-text-decoration cursor-pointer text-underline word-break cm-white-space-normal" ng-click="vm.goToManageSalesOrder(detItem.blanketSOId)">{{detItem.blanketPONumber}}</a>
+                              <copy-text ng-if="detItem.blanketPONumber" label="vm.LabelConstant.SalesOrder.BlanketPONumber" text="detItem.blanketPONumber"></copy-text>
+                            </p>
+                            <br />
+                            <p ng-if="detItem.parentReleaseNumber" class="label-container"><b>BPO Release Line#:</b></p>
+                            <p ng-if="detItem.parentReleaseNumber">{{detItem.parentReleaseNumber}}</p>
+                            <img class="h-30" ng-if="detItem.isDetHalt === 1" src="assets/images/logos/stopped.png" />
+                            <span class="label-box" ng-if="detItem.soWorkingStatus !== vm.SOWorkingStatus.InProgress "
+                                  ng-class="{'label-success': detItem.soWorkingStatus == vm.SOWorkingStatus.Completed ,'label-danger' : detItem.soWorkingStatus == vm.SOWorkingStatus.Canceled }">
+                              {{detItem.soWorkingStatus}}
+                            </span>
+                          </td>
+                          <td class="bg-white w-580" rowspan="{{detItem.releaseTotalCnt}}" ng-if="$index === 0">
+                            <table cellspacing="0" cellpadding="0" class="cm-table-input-main margin-0 cm-line-assembly-detail-cell">
+                              <tbody>
+                                <tr>
+                                  <th>
+                                    <p><a class="cm-text-decoration cursor-pointer text-underline" ng-click="vm.goToMFGPartList()">{{vm.LabelConstant.Assembly.PIDCode}}/{{vm.LabelConstant.MFG.PID}} </a> </p>
+                                  </th>
+                                  <td>
+                                    <common-pid-code-label-link component-id="detItem.partID"
+                                                                label="vm.LabelConstant.Assembly.PIDCode"
+                                                                value="detItem.PIDCode"
+                                                                is-copy="true"
+                                                                is-custom-part="detItem.isCustom"
+                                                                rohs-icon="vm.rohsImagePath + detItem.rohsIcon"
+                                                                rohs-status="detItem.rohsName"
+                                                                is-search-findchip="false"
+                                                                is-formated="true"
+                                                                is-search-digi-key="false"
+                                                                cust-part-number="detItem.custAssyPN"></common-pid-code-label-link>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th>
+                                    <p><a class="cm-text-decoration cursor-pointer text-underline" ng-click="vm.goToMFGPartList()">{{vm.LabelConstant.MFG.MFGPN}} </a></p>
+                                  </th>
+                                  <td>
+                                    <common-pid-code-label-link component-id="detItem.partID"
+                                                                label="vm.LabelConstant.MFG.MFGPN"
+                                                                value="detItem.mfgPN"
+                                                                is-copy="true"
+                                                                is-custom-part="detItem.isCustom"
+                                                                rohs-icon="vm.rohsImagePath + detItem.rohsIcon"
+                                                                rohs-status="detItem.rohsName"
+                                                                is-search-findchip="false"
+                                                                is-formated="true"
+                                                                is-search-digi-key="false"
+                                                                cust-part-number="detItem.custAssyPN"></common-pid-code-label-link>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th>
+                                    <p class="label-container data-align-to-label">
+                                      <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.gotoManufacturerList();">{{vm.LabelConstant.MFG.MFG}}</a>
+                                    </p>
+                                  </th>
+                                  <td>
+                                    <div layout class="max-width-420">
+                                      <span class="cm-text-ellipsis" ng-class="{'text-underline': detItem.mfrName, 'cursor-pointer': detItem.mfrName}" ng-click="detItem.mfrName ? vm.goToManufacturerDetail(detItem.mfgcodeID) : ''">
+                                        <b>{{detItem.mfrName?detItem.mfrName:'-'}}</b>
+                                      </span>
+                                      <copy-text ng-if="detItem.mfrName" label="vm.LabelConstant.MFG.MFG" text="detItem.mfrName"></copy-text>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th>
+                                    <p>{{vm.LabelConstant.Assembly.NickName}}</p>
+                                  </th>
+                                  <td>
+                                    <p>
+                                      {{detItem.nickName}}
+                                      <copy-text ng-if="detItem.nickName" label="vm.LabelConstant.Assembly.NickName" text="detItem.nickName"></copy-text>
+                                    </p>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th>
+                                    <p class="label-container">Description</p>
+                                  </th>
+                                  <td>
+                                    <div layout layout-align="start start">
+                                      <p class="cm-multi-line-ellipsis cm-2-line-ellipsis cm-white-space-normal">{{detItem.partDescription}}</p>
+                                      <button class="md-primary grid-button md-icon-button" ng-if="detItem.partDescription && detItem.partDescription !== '-'" ng-click="vm.showAssyDescription(detItem, $event)">
+                                        <md-icon md-font-icon="icon-eye" class="icon s18 m-0"></md-icon>
+                                      </button>
+                                      <copy-text class="h-16" ng-if="detItem.partDescription && detItem.partDescription !== '-'" label="vm.LabelConstant.MFG.MFGPNDescription" text="detItem.partDescription"></copy-text>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th>
+                                    <p class="label-container">{{vm.LabelConstant.MFG.SpecialNote}}</p>
+                                  </th>
+                                  <td>
+                                    <div layout layout-align="start start">
+                                      <p class="cm-multi-line-ellipsis cm-2-line-ellipsis cm-white-space-normal">{{detItem.partSpecialNote}}</p>
+                                      <button class="md-primary grid-button md-icon-button" ng-if="detItem.partSpecialNote && detItem.partSpecialNote !== '-'" ng-click="vm.showAssySpecialNote(detItem, $event)">
+                                        <md-icon md-font-icon="icon-eye" class="icon s18 m-0"></md-icon>
+                                      </button>
+                                      <copy-text class="h-16" ng-if="detItem.partSpecialNote" label="vm.LabelConstant.MFG.SpecialNote" text="detItem.partSpecialNote"></copy-text>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                          <td class="width-15p cm-copy-comment-icon" ng-dblclick="detItem.woCommentClicked=detItem.disableWOComment?false:true;detItem.woCommentFocus=detItem.disableWOComment?false:true;"
+                              rowspan="{{detItem.releaseTotalCnt}}" ng-if="$index === 0  && vm.showCommentField">
+                            <div ng-if="!detItem.woCommentClicked" ng-class="{'cm-empty-div': !detItem.woComment,'cm-editable-triangle': !detItem.disableWOComment}" class="cm-white-space-normal">
+                              <span class="cm-white-spce-pre-wrap">{{detItem.woComment}}</span>
+                            </div>
+                            <md-input-container ng-if="detItem.woCommentClicked" class="md-block" md-no-float>
+                              <!--<input ng-model="detItem.releaseLevelComment" md-select-on-focus placeholder="Type here to add comment" class="md-input p-0" type="text" />-->
+                              <textarea type="text" cols="300" max-rows="5" rows="2" id="woComment" name="woComment" ng-model="detItem.woComment"
+                                        custom-auto-focus="{{detItem.woCommentFocus}}"
+                                        placeholder="Work Order Comments" ng-maxlength="vm.maxLengthForDescription" 
+                                        md-maxlength="{{vm.maxLengthForDescription}}" ng-disabled="detItem.disableWOComment" ng-blur="vm.changePartLineData(detItem);detItem.woCommentClicked=false;detItem.woCommentFocus=false;"></textarea>
+                              <div ng-messages="vm.frmShipmentSummary.woComment.$error" role="alert">
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription, vm.frmShipmentSummary.woComment.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                            <copy-text ng-if="detItem.woComment" label="vm.LabelConstant.SalesOrder.WoComment" text="detItem.woComment"></copy-text>
+                          </td>
+                          <td rowspan="{{relItem.cpsDetailCnt || 1}}" ng-if="relItem.cpsIndex === 1 && relItem.showReleaseLine">
+                            <div layout="column" layout-align="start start">
+                              <span class="label-container">
+                                {{relItem.releaseNumber}}
+                              </span>
+                              <p class="label-container" ng-if="relItem.poReleaseNumber"><b>PO Release#:</b></p>
+                              <span class="label-container word-break cm-white-space-normal">
+                                {{relItem.poReleaseNumber}}
+                              </span>
+                              <button class="md-primary grid-button md-icon-button mb-10"
+                                      ng-if="relItem.showAddCPS"
+                                      ng-click="vm.addCustomerPackingSlip(item,detItem,relItem, true, $event)">
+                                <md-icon md-font-icon="t-icons-customer-ps add-icon" class="material-icons"></md-icon>
+                                <md-tooltip>Add Customer Packing Slip</md-tooltip>
+                              </button>
+                              <button class="md-primary grid-button md-icon-button mb-10 release-line-bg"
+                                      ng-if="relItem.shippingDetailCnt"
+                                      ng-click="vm.goToReleaseDetail(item,detItem, $event)">
+                                <md-icon md-font-icon="t-icons-ship-info" class="material-icons"></md-icon>
+                              </button>
+                            </div>
+                          </td>
+                          <td class="amount-field" rowspan="{{relItem.cpsDetailCnt || 1}}" ng-if="relItem.cpsIndex === 1 && relItem.showReleaseLine">
+                            
+                              <span class="label-container" ng-class="{'red':detItem.isHotJob && detItem.salesOrderDetStatus === 1,'text-strike': (relItem.soReleaseQty > 0 && relItem.soReleaseQty <= relItem.cpsDetailShippedQty || 0) }">{{relItem.soReleaseQty | numberWithoutDecimal}}</span>
+                            
+                          </td>
+                          <td rowspan="{{relItem.cpsDetailCnt || 1}}" ng-if="relItem.cpsIndex === 1 && relItem.showReleaseLine">                            
+                              <span class="label-container" ng-class="{'red':detItem.isHotJob && detItem.salesOrderDetStatus === 1,'text-strike': (relItem.soReleaseQty > 0 && relItem.soReleaseQty <= relItem.cpsDetailShippedQty || 0) }">{{relItem.promisedShipDate}}</span>                            
+                          </td>
+                          <td class="text-center" rowspan="{{relItem.cpsDetailCnt || 1}}" ng-if="relItem.cpsIndex === 1 && relItem.showReleaseLine">                            
+                              <md-checkbox class="margin-bottom-0 margin-top-3 no-label-checkbox" aria-label="checkbox" ng-disabled="detItem.disableTBDComment"
+                                           ng-model="relItem.isReadyToShip" ng-blur="vm.changeReleaseLineDetails(relItem)"></md-checkbox>
+                            
+                          </td>
+                          <td class="amount-field" ng-if="relItem.showReleaseLine">                            
+                              <span class="label-container" ng-class="{'blue':relItem.cpsSubStatus !== vm.custPackingslipSubStatus.Shipped}">
+                                {{relItem.shippedQty}}
+                              </span>                            
+                          </td>
+                          <td ng-if="relItem.showReleaseLine">                            
+                              <span class="label-container">{{relItem.packingSlipDate}}</span>                            
+                          </td>
+                          <td class="amount-field" rowspan="{{detItem.releaseTotalCnt}}" ng-if="$index === 0 && relItem.showReleaseLine">                            
+                              <span class="label-container"><a class="cm-text-decoration cursor-pointer text-underline" ng-click="vm.showCustPackingSlipDetail(item,relItem)">{{detItem.shippedQty}}</a></span>                            
+                          </td>
+                          <td class="amount-field" rowspan="{{detItem.releaseTotalCnt}}" ng-if="$index === 0 && relItem.showReleaseLine">                            
+                              <span class="label-container">{{detItem.openPOQty | numberWithoutDecimal}}</span>                            
+                          </td>
+                          <td class="width-25p cm-copy-comment-icon" ng-dblclick="relItem.releaseLineCommentClicked= detItem.disableTBDComment ? false :true;relItem.releaseLineCommentFocus=detItem.disableTBDComment?false:true; "
+                              rowspan="{{relItem.cpsDetailCnt || 1}}" ng-if="relItem.cpsIndex === 1 && vm.showCommentField && relItem.showReleaseLine">                           
+                              <div ng-show="!relItem.releaseLineCommentClicked" ng-class="{'cm-empty-div': !relItem.releaseLineComment, 'cm-editable-triangle': !detItem.disableTBDComment}" class="cm-white-space-normal">
+                                <span class="cm-white-spce-pre-wrap">{{relItem.releaseLineComment}}</span>
+                              </div>
+                              <md-input-container ng-show="relItem.releaseLineCommentClicked" class="md-block" md-no-float>
+                                <!--<input ng-model="detItem.releaseLevelComment" md-select-on-focus placeholder="Type here to add comment" class="md-input p-0" type="text" />-->
+                                <textarea type="text" cols="300" max-rows="3" rows="2" id="releaseLineComment" name="releaseLineComment" ng-model="relItem.releaseLineComment"
+                                          custom-auto-focus="{{relItem.releaseLineCommentFocus}}"
+                                          placeholder="Release Line Comments" ng-maxlength="vm.maxLengthForDescription"
+                                          md-maxlength="{{vm.maxLengthForDescription}}" ng-disabled="detItem.disableTBDComment" ng-blur="vm.changeReleaseLineDetails(relItem);relItem.releaseLineCommentClicked=false;relItem.releaseLineCommentFocus=false;"></textarea>
+                                <div ng-messages="vm.frmShipmentSummary.releaseLineComment.$error" role="alert">
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription, vm.frmShipmentSummary.releaseLineComment.$viewValue.length)}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                              <copy-text ng-if="relItem.releaseLineComment" label="vm.LabelConstant.SalesOrder.ReleasedComment" text="relItem.releaseLineComment"></copy-text>                            
+                          </td>
+                          <td  rowspan="{{detItem.releaseTotalCnt}}" ng-if="!relItem.showReleaseLine && detItem.releaseInProgCnt === 0 && $index === 0" colspan="9" class="vertical-middle-align">
+                            <!--All release line completed-->
+                            <div layout-align="start center">
+                              <div class="empty-state">                                
+                                  <md-icon md-font-icon="t-icons-release-line" class="material-icons md-accent-fg margin-bottom-5 margin-right-5" ></md-icon>
+                                  <span class="empty-state-title font-size-20-imp cm-white-space-normal">{{vm.LabelConstant.SHIPMENT_SUMMARY.ALL_COMPLETED_RELEASE_LINE}}</span>                                
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr class="md-grey-100-bg">
+                          <th ng-if="!vm.showCommentField">
+                            <p class="label-container" flex="none">Ship. Cmnt</p>
+                          </th>
+                          <td ng-if="!vm.showCommentField" class="cm-copy-comment-icon" colspan="{{vm.showCommentField ? 3:2}}">
+                            <div layout class="pr-5">
+                              <p class="cm-multi-line-ellipsis cm-1-line-ellipsis cm-white-space-normal">{{detItem.shippingComment}}</p>
+                              <button class="md-primary grid-button md-icon-button" ng-if="detItem.shippingComment && detItem.shippingComment !== '-'" ng-click="vm.showLineShippingComment(detItem, $event)">
+                                <md-icon md-font-icon="icon-eye" class="icon s18 m-0"></md-icon>
+                              </button>
+                            </div>
+                            <copy-text ng-if="detItem.shippingComment && detItem.shippingComment !== '-'" label="vm.LabelConstant.SalesOrder.ShippingCommentsLine" text="detItem.shippingComment"></copy-text>
+                          </td>
+                          <th ng-if="vm.showCommentField">
+                            <p class="label-container">Int. Notes</p>
+                          </th>
+                          <td ng-if="vm.showCommentField" colspan="{{vm.showCommentField ? 3:2}}" class="cm-copy-comment-icon blue">
+                            <div layout class="pr-5">
+                              <p class="cm-multi-line-ellipsis cm-1-line-ellipsis cm-white-space-normal">{{detItem.internalComment}}</p>
+                              <button class="md-primary grid-button md-icon-button" ng-if="detItem.internalComment && detItem.internalComment !== '-'" ng-click="vm.showLineInternalComment(detItem, $event)">
+                                <md-icon md-font-icon="icon-eye" class="icon s18 m-0"></md-icon>
+                              </button>
+                            </div>
+                            <copy-text ng-if="detItem.internalComment && detItem.internalComment !== '-' && vm.showCommentField" label="vm.LabelConstant.SalesOrder.InternalNotesLine" text="detItem.internalComment"></copy-text>
+                          </td>
+                          <td class="amount-field">
+                            <span class="label-container"><b>TBD</b></span>
+                          </td>
+                          <td class="amount-field">
+                            <span class="label-container"><b>{{detItem.po_TBDQty | numberWithoutDecimal}}</b></span>
+                          </td>
+                          <td colspan="6" ng-if="!vm.showCommentField"></td>
+                          <td class="cm-copy-comment-icon" colspan="8" ng-dblclick="detItem.tbdCommentClicked=detItem.disableTBDComment?false:true;detItem.tbdCommentFocus=detItem.disableTBDComment?false:true;" ng-if="vm.showCommentField">
+                            <div ng-if="!detItem.tbdCommentClicked" ng-class="{'cm-empty-div': !detItem.tbdComment, 'cm-editable-triangle': !detItem.disableTBDComment}" class="cm-white-space-normal">
+                              <span>{{detItem.tbdComment}}</span>
+                            </div>
+                            <md-input-container ng-if="detItem.tbdCommentClicked" class="md-block" md-no-float>
+                              <!--<input ng-model="detItem.releaseLevelComment" md-select-on-focus placeholder="Type here to add comment" class="md-input p-0" type="text" />-->
+                              <textarea type="text" cols="300" max-rows="3" rows="1" id="TBDComment" name="TBDComment" ng-model="detItem.tbdComment"
+                                        custom-auto-focus="{{detItem.tbdCommentFocus}}"
+                                        placeholder="TBD Comments" ng-maxlength="vm.maxLengthForDescription" 
+                                        md-maxlength="{{vm.maxLengthForDescription}}" ng-disabled="detItem.disableTBDComment" ng-blur="vm.changePartLineData(detItem);detItem.tbdCommentClicked=false;detItem.tbdCommentFocus=false;"></textarea>
+                              <div ng-messages="vm.frmShipmentSummary.TBDComment.$error" role="alert">
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription, vm.frmShipmentSummary.TBDComment.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                            <copy-text ng-if="detItem.tbdComment" label="vm.LabelConstant.SalesOrder.TBDComment" text="detItem.tbdComment"></copy-text>
+                          </td>
+                        </tr>
+                        <tr class="md-grey-100-bg">
+                          <th>
+                            <p ng-if="vm.showCommentField" class="label-container" flex="none">Ship. Cmnt</p>
+                          </th>
+                          <td class="cm-copy-comment-icon" colspan="{{vm.showCommentField ? 3:2}}">
+                            <div layout class="pr-5" ng-if="vm.showCommentField">
+                              <p class="cm-multi-line-ellipsis cm-1-line-ellipsis cm-white-space-normal">{{detItem.shippingComment}}</p>
+                              <button class="md-primary grid-button md-icon-button" ng-if="detItem.shippingComment && detItem.shippingComment !== '-'" ng-click="vm.showLineShippingComment(detItem, $event)">
+                                <md-icon md-font-icon="icon-eye" class="icon s18 m-0"></md-icon>
+                              </button>
+                            </div>
+                            <copy-text ng-if="detItem.shippingComment && detItem.shippingComment !== '-'" label="vm.LabelConstant.SalesOrder.ShippingCommentsLine" text="detItem.shippingComment"></copy-text>
+                          </td>
+                          <td class="amount-field">
+                            <span class="label-container"><b>Total</b></span>
+                          </td>
+                          <td class="amount-field">
+                            <span class="label-container"><b>{{detItem.custPOQty | numberWithoutDecimal}}</b></span>
+                          </td>
+                          <td>
+                          </td>
+                          <td></td>
+                          <td class="amount-field">
+                            <span class="label-container"><b>{{detItem.shippedQty | numberWithoutDecimal}}</b></span>
+                          </td>
+                          <td></td>
+                          <td class="amount-field">
+                            <span class="label-container">{{detItem.shippedQty}}</span>
+                          </td>
+                          <td class="amount-field">
+                            <span class="label-container"><b>{{detItem.openPOQty | numberWithoutDecimal}}</b></span>
+                          </td>
+                          <!--<td colspan="{{vm.showCommentField ? 1 : 2}}"></td>-->
+                          <td ng-if="vm.showCommentField"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            </table>
+            <!--</div>-->
+            <!--</div>-->
+          </div>
+        </form>
+      </div>
+      <div ng-if="vm.customerNoDataFound" class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap>
+        <div class="emty-icon" flex="100">
+          <img ng-src="{{vm.EmptyMesssageSalesOrder.IMAGEURL}}" />
+        </div>
+        <p flex="100" class="empty-state-title">{{vm.EmptyMesssageSalesOrder.MESSAGE}}</p>
+        <!--<p flex="100">
+          {{vm.EmptyMesssageSalesOrder.ADDNEWMESSAGE}}
+        </p>-->
+        <p flex="100">
+          <md-button class="md-fab md-mini" aria-label="Add Sales Order" ng-click="vm.goToManageSalesOrder(0)"
+                     ng-auto-focus="true">
+            <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>            
+            <md-tooltip>Sales Order</md-tooltip>
+          </md-button>
+          <md-button class="md-fab md-mini" aria-label="Refresh Sales Order" ng-click="vm.refreshData()">
+            <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-refresh"></md-icon>
+            <md-tooltip>Refresh Sales Order Shipment Summary</md-tooltip>
+          </md-button>
+          <md-button class="md-fab md-mini" aria-label="Go To Sales Order" ng-click="vm.goToSalesOrderList()">
+            <md-icon role="img" md-font-icon="icon-eye" class="material-icons mat-icon icon-eye"></md-icon>
+            <md-tooltip>View Sales Order List</md-tooltip>
+          </md-button>
+        </p>
+      </div>
+      <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.searchNoDataFound">
+        <div class="emty-icon" flex="100">
+          <img ng-src="{{vm.EmptyMesssageSalesOrderSearch.IMAGEURL}}" />
+        </div>
+        <p flex="100" class="empty-state-title">{{vm.EmptyMesssageSalesOrderSearch.MESSAGE}}</p>
+        <p flex="100">
+          {{vm.EmptyMesssageSalesOrderSearch.ADDNEWMESSAGE}}
+        </p>
+        <p flex="100">
+          <md-button class="md-fab md-mini" aria-label="Add Sales Order" ng-click="vm.goToManageSalesOrder(0)">
+            <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+            <md-tooltip> Add Sales Order</md-tooltip>
+          </md-button>
+          <md-button class="md-fab md-mini" aria-label="Refresh Sales Order" ng-click="vm.refreshData()">
+            <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+            <md-tooltip>Refresh Open Sales Order & Shipment Summary</md-tooltip>
+          </md-button>
+        </p>
+      </div>
+    </md-content>
+  </div>
+  <div class="content text-ver-center padding-top-side" layout="row" layout-align="center center" flex="100" ng-if="vm.isShowPrint">
+    <div class="empty-state text-center full-height" layout-wrap>
+      <div class="emty-icon" flex="100">
+        <img ng-src="{{vm.CommingSoonEmptyMesssage.IMAGEURL}}" />
+      </div>
+      <p flex="100" class="empty-state-title">{{vm.CommingSoonEmptyMesssage.MESSAGE}}</p>
+      <p flex="100">
+        {{vm.CommingSoonEmptyMesssage.ADDNEWMESSAGE}}
+      </p>
+    </div>
+  </div>
+  <style>
+    .cm-multi-line-ellipsis {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 18px;
+    }
+
+    .cm-4-line-ellipsis {
+      -webkit-line-clamp: 4;
+    }
+
+    .cm-2-line-ellipsis {
+      -webkit-line-clamp: 2;
+    }
+
+    .cm-1-line-ellipsis {
+      -webkit-line-clamp: 1;
+    }
+    /*.infinit-scroll-container {
+      height: 150px;
+      overflow-y: scroll
+    }*/
+
+  </style>
+</div>

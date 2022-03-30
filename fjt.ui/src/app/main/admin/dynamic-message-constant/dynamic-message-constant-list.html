@@ -1,0 +1,341 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-dynamic-message" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+    <div class="header md-accent-bg" layout="row" layout-align="space-between center">
+        <div class="white-fg" layout="column" layout-align="start start">
+            <div class="h2" layout="row" layout-align="start center">
+                <pagetitle is-list="true" is-display-menu-name="true"></pagetitle>
+            </div>
+            <div layout="row" layout-align="start center" class="product-count">
+                <breadcrumbs></breadcrumbs>
+            </div>
+        </div>
+        <div class="disable-buttons" ng-if="vm.selectedTabIndex == 0 && vm.sourceData && vm.sourceData.length > 0">
+            <md-button class="md-primary md-raised" export export-data="vm.sourceData" export-filename="vm.exportFileNameForUIMessages" export-title="" export-keys="['index','moduleName','key','value']" export-headers="['#', 'Module Name','Message For', 'Message']">
+                Export Data
+            </md-button>
+            <md-button class="md-primary md-raised" ng-click="vm.isShowFilter = !vm.isShowFilter" ng-if="!vm.isShowFilter">
+                Search
+            </md-button>
+            <md-button class="md-primary md-raised" ng-if="vm.isShowFilter" ng-click="vm.clearFilter()">
+                Clear Filter
+            </md-button>
+        </div>
+        <div class="disable-buttons" ng-if="vm.selectedTabIndex == 1 && vm.empTimelineAllMessageList && vm.empTimelineAllMessageList.length > 0">
+            <md-button class="md-primary md-raised" export export-data="vm.empTimelineAllMessageList" export-filename="vm.exportFileNameForTimelineMessages" export-title="" export-keys="['index','primarykey','key','title','description']" export-headers="['#', 'Module Name','Message For', 'Message Title','Description']">
+                Export Data
+            </md-button>
+            <md-button class="md-primary md-raised" ng-click="vm.isShowFilterForEmpTimeline = !vm.isShowFilterForEmpTimeline" ng-if="!vm.isShowFilterForEmpTimeline">
+                Search
+            </md-button>
+            <md-button class="md-primary md-raised" ng-if="vm.isShowFilterForEmpTimeline" ng-click="vm.clearFilterForEmpTimeline()">
+                Clear Filter
+            </md-button>
+        </div>
+        <div class="disable-buttons" ng-if="vm.selectedTabIndex == 2 && vm.dynamicmessageSourceData ">
+            <md-button class="md-primary md-raised" ng-click="vm.generateJSON()" >
+                Generate
+            </md-button>
+        </div>
+    </div>
+    <div class="content-card padding-top-side" layout="column" flex>
+        <div layout="row" class="no-box-shadow">
+            <ms-form-wizard flex>
+                <md-tabs class="manage-customer-tabing cm-configurable-msg" md-dynamic-height md-selected="msWizard.selectedIndex">
+                    <md-tab md-on-select="vm.onTabChanges(msWizard)">
+                        <!--ng-click="vm.loadData()"-->
+                        <md-tab-label>
+                            <span class="ms-form-wizard-step-label">
+                                <span class="ms-form-wizard-step-number md-accent-bg">
+                                    <i class="icon-check s16"></i>
+                                </span>
+                                <span class="ms-form-wizard-step-text">UI Messages</span>
+                            </span>
+                        </md-tab-label>
+                        <md-tab-body>
+                            <md-content class="md-padding" layout="row" flex="100">
+                                <div class="content fullpage-datatable" layout="column" flex ng-if="vm.isMessagesAvailable">
+                                    <md-table-container flex="100">
+                                        <table md-table class="md-data-table table-row-select" md-row-select ng-model="vm.selectedItems">
+                                            <thead md-head md-order="vm.query.order">
+                                                <tr md-row>
+                                                    <th md-column width="5%">
+                                                        Action
+                                                    </th>
+                                                    <th md-column width="5%">
+                                                        #
+                                                    </th>
+                                                    <th width="20%">
+                                                        <div md-column>
+                                                            Message For
+                                                        </div>
+                                                        <div class="cm-clear-icon" layout="row" flex-xs="50" ng-if="vm.isShowFilter">
+                                                            <md-input-container class="md-block search-header margin-top-10 margin-bottom-0" md-no-float>
+                                                                <input type="text" ng-model="vm.query.search.key" ng-change="vm.searchData(vm.query.search.key,'key')"
+                                                                       ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Search">
+                                                                <md-button class="md-icon-button toolbar-button margin-0 cm-clr" aria-label="Clear" ng-if="vm.query.search.key" ng-click="vm.searchData(null,'key')">
+                                                                    <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                                                                </md-button>
+                                                            </md-input-container>
+                                                            <!--<md-button class="md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.query.search.key" ng-click="vm.searchData(null,'key')">
+                                                                <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                                                            </md-button>-->
+                                                        </div>
+                                                    </th>
+                                                    <th width="50%">
+                                                        <div md-column>
+                                                            Message
+                                                        </div>
+                                                        <div class="cm-clear-icon" layout="row" flex-xs="50" ng-if="vm.isShowFilter">
+                                                            <md-input-container class="md-block search-header margin-top-10 margin-bottom-0" md-no-float>
+                                                                <input type="text" ng-model="vm.query.search.value" ng-change="vm.searchData(vm.query.search.value,'value')"
+                                                                       ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Search">
+                                                                <md-button class="cm-clr md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.query.search.value" ng-click="vm.searchData(null,'value')">
+                                                                    <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                                                                </md-button>
+                                                            </md-input-container>
+                                                            <!--<md-button class="md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.query.search.value" ng-click="vm.searchData(null,'value')">
+                                                                <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                                                            </md-button>-->
+                                                        </div>
+                                                    </th>
+                                                    <th width="20%">
+                                                        <div md-column>
+                                                            Module Name
+                                                        </div>
+                                                        <div layout="row" flex-xs="50" ng-if="vm.isShowFilter" class="cm-clear-icon">
+                                                            <md-input-container class="md-block search-header margin-top-10 margin-bottom-0" md-no-float>
+                                                                <input type="text" ng-model="vm.query.search.moduleName" ng-change="vm.searchData(vm.query.search.moduleName,'moduleName')"
+                                                                       ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Search">
+                                                                <md-button class="cm-clr md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.query.search.moduleName" ng-click="vm.searchData(null,'moduleName')">
+                                                                    <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                                                                </md-button>
+                                                            </md-input-container>
+                                                            <!--<md-button class="md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.query.search.moduleName" ng-click="vm.searchData(null,'moduleName')">
+                                                                <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                                                            </md-button>-->
+                                                        </div>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody md-body>
+                                                <tr md-row ng-repeat="item in vm.sourceData
+                                                                | orderBy: vm.query.order
+                                                                | limitTo: vm.query.limit : (vm.query.page -1) * vm.query.limit track by $index">
+
+                                                    <td md-cell>
+                                                        <md-button class="md-primary grid-button md-icon-button bdrbtn" ng-click="vm.updateRecordUIMessages(item,$event)">
+                                                            <md-icon md-font-icon="icon-pencil" class="s16"></md-icon><md-tooltip>Update</md-tooltip>
+                                                        </md-button>
+                                                    </td>
+                                                    <td md-cell>{{item.index}}</td>
+                                                    <td md-cell>{{item.key}}</td>
+                                                    <td md-cell>{{item.value}}</td>
+                                                    <td md-cell>{{item.moduleName}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </md-table-container>
+                                    <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+                                         ng-if="vm.isSearchingUIMsg && vm.sourceData.length == 0">
+                                        <div class="emty-icon" flex="100">
+                                            <img ng-src="{{vm.emptyDataTable.IMAGEURL}}" />
+                                        </div>
+                                        <p class="empty-state-title" flex="100">{{vm.emptyDataTable.MESSAGE}}</p>
+                                    </div>
+                                    <md-table-pagination md-limit="vm.query.limit" md-limit-options="vm.limitOptions" md-page="vm.query.page"
+                                                         md-total="{{vm.sourceData.length}}"
+                                                         md-page-select md-boundary-links="true"
+                                                         ng-if="vm.sourceData.length > 0 && vm.query.isPagination">
+
+                                    </md-table-pagination>
+                                </div>
+                                <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                                     ng-if="!vm.isMessagesAvailable">
+                                    <div class="emty-icon" flex="100">
+                                        <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                                    </div>
+                                    <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+                                </div>
+                            </md-content>
+                        </md-tab-body>
+                    </md-tab>
+                    <md-tab md-on-select="vm.onTabChanges(msWizard)">
+                        <!--ng-click="vm.loadTimelineDynamicMessages()"-->
+                        <md-tab-label>
+                            <span class="ms-form-wizard-step-label">
+                                <span class="ms-form-wizard-step-number md-accent-bg">
+                                    <i class="icon-check s16"></i>
+                                </span>
+                                <span class="ms-form-wizard-step-text">Timeline Messages</span>
+                            </span>
+                        </md-tab-label>
+                        <md-tab-body>
+                            <md-content class="md-padding" layout="row" flex="100">
+                                <div class="content fullpage-datatable" layout="column" flex ng-if="vm.isMessagesAvailableForEmpTimeline">
+                                    <md-table-container flex="100">
+                                        <table md-table class="md-data-table table-row-select" md-row-select ng-model="vm.selectedItems">
+                                            <thead md-head md-order="vm.queryForEmpTimeline.order">
+                                                <tr md-row>
+                                                    <th md-column>
+                                                        Action
+                                                    </th>
+                                                    <th md-column>
+                                                        #
+                                                    </th>
+                                                    <th>
+                                                        <div md-column>
+                                                            Message For
+                                                        </div>
+                                                        <div class="cm-clear-icon" layout="row" flex-xs="50" ng-if="vm.isShowFilterForEmpTimeline">
+                                                            <md-input-container class="md-block search-header margin-top-10 margin-bottom-0" md-no-float>
+                                                                <input type="text" ng-model="vm.queryForEmpTimeline.search.key" ng-change="vm.searchDataForEmpTimeline(vm.queryForEmpTimeline.search.key,'key')"
+                                                                       ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Search">
+                                                                <md-button class="cm-clr md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.queryForEmpTimeline.search.key" ng-click="vm.searchDataForEmpTimeline(null,'key')">
+                                                                    <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                                                                </md-button>
+                                                            </md-input-container>
+                                                            <!--<md-button class="md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.queryForEmpTimeline.search.key" ng-click="vm.searchDataForEmpTimeline(null,'key')">
+                                                                <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                                                            </md-button>-->
+                                                        </div>
+                                                    </th>
+                                                    <th>
+                                                        <div md-column>
+                                                            Message Title
+                                                        </div>
+                                                        <div class="cm-clear-icon" layout="row" flex-xs="50" ng-if="vm.isShowFilterForEmpTimeline">
+                                                            <md-input-container class="md-block search-header margin-top-10 margin-bottom-0" md-no-float>
+                                                                <input type="text" ng-model="vm.queryForEmpTimeline.search.title" ng-change="vm.searchDataForEmpTimeline(vm.queryForEmpTimeline.search.title,'title')"
+                                                                       ng-model-options="{debounce: 200 }" placeholder="Search">
+                                                                <md-button class="cm-clr md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.queryForEmpTimeline.search.title" ng-click="vm.searchDataForEmpTimeline(null,'title')">
+                                                                    <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                                                                </md-button>
+                                                            </md-input-container>
+                                                            <!--<md-button class="md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.queryForEmpTimeline.search.title" ng-click="vm.searchDataForEmpTimeline(null,'title')">
+                                                                <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                                                            </md-button>-->
+                                                        </div>
+                                                    </th>
+                                                    <th>
+                                                        <div md-column>
+                                                            Description
+                                                        </div>
+                                                        <div class="cm-clear-icon" layout="row" flex-xs="50" ng-if="vm.isShowFilterForEmpTimeline">
+                                                            <md-input-container class="md-block search-header margin-top-10 margin-bottom-0" md-no-float>
+                                                                <input type="text" ng-model="vm.queryForEmpTimeline.search.description" ng-change="vm.searchDataForEmpTimeline(vm.queryForEmpTimeline.search.description,'description')"
+                                                                       ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Search">
+                                                                <md-button class="cm-clr md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.queryForEmpTimeline.search.description" ng-click="vm.searchDataForEmpTimeline(null,'description')">
+                                                                    <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                                                                </md-button>
+                                                            </md-input-container>
+                                                            <!--<md-button class="md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.queryForEmpTimeline.search.description" ng-click="vm.searchDataForEmpTimeline(null,'description')">
+                                                                <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                                                            </md-button>-->
+                                                        </div>
+                                                    </th>
+                                                    <th>
+                                                        <div md-column>
+                                                            Module Name
+                                                        </div>
+                                                        <div class="cm-clear-icon" layout="row" flex-xs="50" ng-if="vm.isShowFilterForEmpTimeline">
+                                                            <md-input-container class="md-block search-header margin-top-10 margin-bottom-0" md-no-float>
+                                                                <input type="text" ng-model="vm.queryForEmpTimeline.search.primarykey" ng-change="vm.searchDataForEmpTimeline(vm.queryForEmpTimeline.search.primarykey,'primarykey')"
+                                                                       ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Search">
+                                                                <md-button class="cm-clr md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.queryForEmpTimeline.search.primarykey" ng-click="vm.searchDataForEmpTimeline(null,'primarykey')">
+                                                                    <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                                                                </md-button>
+                                                            </md-input-container>
+                                                            <!--<md-button class="md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.queryForEmpTimeline.search.primarykey" ng-click="vm.searchDataForEmpTimeline(null,'primarykey')">
+                                                                <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                                                            </md-button>-->
+                                                        </div>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody md-body>
+                                                <tr md-row ng-repeat="item in vm.empTimelineAllMessageList
+                                                                | orderBy: vm.queryForEmpTimeline.order
+                                                                | limitTo: vm.queryForEmpTimeline.limit : (vm.queryForEmpTimeline.page -1) * vm.queryForEmpTimeline.limit track by $index">
+
+                                                    <td md-cell>
+                                                        <md-button class="md-primary grid-button md-icon-button bdrbtn" ng-click="vm.updateRecordOfEmpTimeline(item,$event)">
+                                                            <md-icon md-font-icon="icon-pencil" class="s16"></md-icon><md-tooltip>Update</md-tooltip>
+                                                        </md-button>
+                                                    </td>
+                                                    <td md-cell><span>{{item.index}}</span></td>
+                                                    <td md-cell><span>{{item.key}}</span></td> <!--class="cm-dt-text-wrap"-->
+                                                    <td md-cell><span>{{item.title}}</span></td><!--class="cm-dt-text-wrap"-->
+                                                    <td md-cell><span>{{item.description}}</span></td> <!--class="cm-dt-text-wrap"-->
+                                                    <td md-cell><span>{{item.primarykey}}</span></td>  <!--class="cm-dt-text-wrap"-->
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </md-table-container>
+                                    <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+                                         ng-if="vm.isSearchingTimelineMsg && vm.empTimelineAllMessageList.length == 0">
+                                        <div class="emty-icon" flex="100">
+                                            <img ng-src="{{vm.emptyDataTable.IMAGEURL}}" />
+                                        </div>
+                                        <p class="empty-state-title" flex="100">{{vm.emptyDataTable.MESSAGE}}</p>
+                                    </div>
+                                    <md-table-pagination md-limit="vm.queryForEmpTimeline.limit" md-limit-options="vm.limitOptions" md-page="vm.queryForEmpTimeline.page"
+                                                         md-total="{{vm.empTimelineAllMessageList.length}}"
+                                                         md-page-select md-boundary-links="true"
+                                                         ng-if="vm.empTimelineAllMessageList.length > 0 && vm.queryForEmpTimeline.isPagination">
+
+                                    </md-table-pagination>
+                                </div>
+                            </md-content>
+                            <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                                 ng-if="!vm.isMessagesAvailableForEmpTimeline">
+                                <div class="emty-icon" flex="100">
+                                    <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                                </div>
+                                <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+                            </div>
+                        </md-tab-body>
+                    </md-tab>
+                    <md-tab md-on-select="vm.onTabChanges(msWizard)">
+                        <!-- for dynamic messages from mongo db-->
+                        <md-tab-label>
+                            <span class="ms-form-wizard-step-label">
+                                <span class="ms-form-wizard-step-number md-accent-bg">
+                                    <i class="icon-check s16"></i>
+                                </span>
+                                <span class="ms-form-wizard-step-text">Message Configuration</span>
+                            </span>
+                        </md-tab-label>
+                        <md-tab-body>                            
+                                <div id="dynamicmessage-list" class="page-layout carded fullwidth breadcrumb-fixed " layout="row" ng-if="vm.selectedTabIndex==2">
+                                    <!-- CONTENT CARD  ng-if="!vm.isNoDataFound"-->
+                                    <div class="content-card " layout="column" flex  ng-show="!vm.isNoDataFound">  <!--ng-show="vm.isMessagesAvailableForConfiguration">--> 
+                                        <md-card layout="column" class="cm-dynamicmessage-grid" flex layout-align="space-between stretch">
+                                            <ui-grid-extention load-data="vm.loadDynamicMessages"
+                                                               grid-option="vm.gridOptions"
+                                                               header="vm.sourceHeader"
+                                                               grid-data="vm.dynamicmessageSourceData"
+                                                               total-data-count="vm.totalDataCount"
+                                                               reset-grid="vm.resetSourceGrid"
+                                                               selectted-rows="vm.selectedRowsList"
+                                                               paging-info="vm.pagingInfo"
+                                                               current-item="vm.currentdata"
+                                                               get-data-down="vm.getDataDown"
+                                                               empty-state="vm.emptyState"
+                                                               grid-id="vm.gridConfig.gridDynamicMessageList">
+                                        </md-card>
+                                    </div>
+                                    <!-- / CONTENT CARD -->
+                                    <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center" flex ng-if="vm.isNoDataFound">
+                                        <div class="emty-icon" flex="100">
+                                            <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                                        </div>
+                                        <p class="empty-state-title" flex="100">{{vm.EmptyMesssage.MESSAGE}}</p>
+                                    </div>
+                                </div>                            
+                        </md-tab-body>
+                    </md-tab>
+                </md-tabs>
+            </ms-form-wizard>
+        </div>
+    </div>
+</div>
+

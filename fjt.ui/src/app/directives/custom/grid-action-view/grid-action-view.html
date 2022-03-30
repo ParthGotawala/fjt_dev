@@ -1,0 +1,88 @@
+
+<md-button ng-repeat="item in visibleIcons" ng-disabled="item.isDisabled"
+           class="md-primary grid-button md-icon-button bdrbtn cm-grid-action-view-icon"
+           ng-class="{  'item-disabled': item.isDisabled,'cm-image-icon':item.image,
+                        'cm-feture-btn-color':item.isFeatureBase,
+                        'cm-pricing-button-icon':(item.icon=='icon-cloud')?true : false,
+                        'cm-cart-active-color': item.isCartOnline && !item.isDisabled,
+                        'bdrrcvbtn':item.ledColorCssClass,
+                       '{{item.ledColorCssClass}}':item.ledColorCssClass,
+                        'cm-sq-btn': item.isShowSqureIcon,
+                        'cm-sq-audit-btn': item.isAuditIconCss,
+                        'cm-sq-wTow-btn': item.iswToWIconCss,
+                        'has-bom-line-count' : item.hasBOMLineCount,
+                        'plan-release-button' : item.isShowRelease,
+                        'has-part-pricing-count' : item.hasPartPricing,
+                        'background-color-light-blue' : item.hasDatailData
+                    }" ng-click="item.isDisabled || item.callback($event)">
+  <md-icon role="img" ng-if="item.icon" md-font-icon="{{item.iconDisabled && item.isDisabled ? item.iconDisabled : item.icon}}"></md-icon>
+  <img role="img" ng-if="item.image" ng-src="{{item.image}}" />
+  <md-tooltip md-direction="top" ng-if="item.toolTip || item.name">{{item.toolTip || item.name}}</md-tooltip>
+</md-button>
+
+<md-button ng-if="uiGridMenuPricingItems && uiGridMenuPricingItems.isPricing && (!row.entity.pricing || row.entity.pricing.length == 0)"
+           class="md-primary grid-button md-icon-button bdrbtn item-disabled"
+           ng-disabled="true">
+  <md-icon role="img" md-font-icon="{{uiGridMenuPricingItems.icon}}" class="uigrid-icon margin-0"></md-icon>
+  <md-tooltip md-direction="top" ng-if="uiGridMenuPricingItems.name">{{uiGridMenuPricingItems.name}}</md-tooltip>
+</md-button>
+
+<md-menu ng-if="uiGridMenuPricingItems && uiGridMenuPricingItems.isPricing && row.entity.pricing.length > 0">
+  <md-button class="md-primary grid-button md-icon-button bdrbtn" ng-click="$mdMenu.open()"
+             ng-disabled="uiGridMenuPricingItems.isDisabled">
+    <md-icon role="img" md-font-icon="{{uiGridMenuPricingItems.icon}}" class="uigrid-icon margin-0"></md-icon>
+    <md-tooltip md-direction="top" ng-if="uiGridMenuPricingItems.name">{{uiGridMenuPricingItems.name}}</md-tooltip>
+  </md-button>
+  <md-menu-content class="padding-0" width="3">
+    <md-menu-item class="auto-pricing-title ">
+      <span>Auto Cloud Price Status</span>
+      <!--<span  ng-click="$mdMenu.close()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </span>-->
+      <md-button class="md-fab md-mini cm-fb-close" ng-click="$mdMenu.close()">
+        <md-icon role="img" md-font-icon="icon-close" class="color-black material-icons mat-icon icon-close" ng-mouseover="onmouse=true" ng-mouseleave="onmouse=false"></md-icon>
+        <md-tooltip md-direction="left" ng-if="onmouse">{{onmouse?'Close':''}}</md-tooltip>
+      </md-button>
+    </md-menu-item>
+    <md-menu-item class="uigrid-menu text-right" layout="row" flex="100" layout-wrap>
+      <div class="my-tooltip-parent" flex="30" ng-repeat="objPricing in row.entity.pricing | filter: {'consolidateID':row.entity.consolidateID}"
+           ng-click="uiGridMenuPricingItems.callback(objPricing, $event)"
+           ng-disabled="uiGridMenuPricingItems.isDisabled"
+           ng-class="{'item-disabled': uiGridMenuPricingItems.isDisabled}"
+           ng-mouseover="showPopover=true;" ng-mouseleave="showPopover=false;">
+        {{objPricing.pricingApiName}}
+        <md-progress-circular ng-if="objPricing.status == grid.appScope.$parent.vm.PRICING_STATUS.SendRequest"
+                              class="md-accent inline-block custom-popover-button padding-5"
+                              md-diameter="16"
+                              md-mode="indeterminate">
+        </md-progress-circular>
+        <md-icon class="icon s16 status custom-popover-button padding-5" ng-if="objPricing.status != grid.appScope.$parent.vm.PRICING_STATUS.SendRequest"
+                 ng-class="{'icon-checkbox-marked-circle green-fg': objPricing.status ==  grid.appScope.$parent.vm.PRICING_STATUS.Success,
+                                            'icon-cancel red-fg': objPricing.status ==  grid.appScope.$parent.vm.PRICING_STATUS.NotPricing}"></md-icon>
+        <div class="custom-popover" ng-show="showPopover">
+          {{objPricing.status ==  grid.appScope.$parent.vm.PRICING_STATUS.NotPricing?'Show failed reason':objPricing.pricingApiName}}
+        </div>
+      </div>
+    </md-menu-item>
+  </md-menu-content>
+</md-menu>
+
+<md-menu class="uigrid-menu" ng-if="uiGridMenuItems.length">
+  <md-button class="md-primary grid-button md-icon-button uigrid-act-btn" ng-click="$mdMenu.open()">
+    <md-icon role="img" md-font-icon="icon-dots-vertical" class="uigrid-icon margin-0"></md-icon>
+  </md-button>
+  <md-menu-content width="4">
+    <md-menu-item class="uigrid-menu" ng-repeat="item in uiGridMenuItems" ng-if="uiGridMenuItems.length">
+      <md-button class="md-primary grid-button uigrid-btn" ng-click="item.callback($event)"
+                 title="{{item.toolTip || item.name}}"
+                 ng-disabled="item.isDisabled"
+                 ng-class="{'item-disabled': item.isDisabled,'cm-feture-btn-color':item.isFeatureBase, 'cm-white-space-normal display-flex line-height-normal': grid.appScope.$parent.vm.ispoPartRequirement }">
+        <md-icon role="img" ng-if="item.icon" class="uigrid-icon s22" md-font-icon="{{item.icon}}"></md-icon>
+        <img role="img" ng-if="item.image" class="width-24 margin-right-16 vertical-middle-align" ng-src="{{item.image}}" />
+        {{item.name}}
+      </md-button>
+    </md-menu-item>
+  </md-menu-content>
+</md-menu>
+
+

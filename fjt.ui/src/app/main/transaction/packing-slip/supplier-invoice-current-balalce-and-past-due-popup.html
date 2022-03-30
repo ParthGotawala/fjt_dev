@@ -1,0 +1,171 @@
+<md-dialog aria-label="Current Balance and Past Due" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="85">
+  <form name="vm.formCurrentBalanceAndPastDue" class="md-inline-form">
+
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Supplier Current Balance and Past Due</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content class="padding-10">
+      <md-content>
+          <div layout="row">
+            <div flex="80">
+              <fieldset flex="100" class="container-box margin-left-5 margin-pro-rs-left-0 margin-top-3">
+                <legend class="margin-0">
+                  Due Date Filters
+                  <md-icon class="icon-question-mark-circle help-icon padding-left-0-imp margin-left-0">
+                    <md-tooltip md-direction="top" class="tooltip-height-auto">
+                      <span>{{vm.SUPPLIER_INVOICE_BALANCE_DUE_DATE_FILTERS_TOOLTIP}}</span>
+                    </md-tooltip>
+                  </md-icon>
+                </legend>
+                <div layout="row" flex="100">
+                  <div flex="45" class="container-box">
+                    <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                      <div class="input-wrapper pt-5" layout="column" flex="100" layout-align="start center">
+                        <table>
+                          <tr>
+                            <th>
+                              <p class="label-container font-weight-normal">Terms and Above Days (From Today)</p>
+                            </th>
+                            <td>
+                              <md-input-container flex="100" class="margin-bottom-0">
+                                <input type="number" id="termsAndAboveDays" name="termsAndAboveDays" min="0" max="999" maxlength="3"
+                                       ng-model="vm.termsAndAboveDays" placeholder="Terms and Above"
+                                       ng-disabled="vm.dueDate || vm.additionalDays || !vm.isApplyDueDateFilters" />
+                                <div ng-messages="vm.formCurrentBalanceAndPastDue.termsAndAboveDays.$error" md-auto-hide="false" role="alert">
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(3, vm.formCurrentBalanceAndPastDue.termsAndAboveDays.$viewValue.length)}}</span>
+                                  </div>
+                                  <div ng-message="min || max || number">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                  <div flex="10" layout="row" layout-align="center center">OR</div>
+                  <div flex="45" class="container-box">
+                    <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                      <div class="input-wrapper pt-5" layout="column" flex="100">
+                        <table>
+                          <tr>
+                            <th>
+                              <p class="label-container font-weight-normal">Due Date</p>
+                            </th>
+                            <td>
+                              <md-input-container class="datepicker" flex="100">
+                                <input type="text"
+                                       class="float-left"
+                                       name="dueDate"
+                                       ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                       ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                       datetime-picker="{{$root.dateDisplayFormat}}"
+                                       enable-time="false"
+                                       ng-model="vm.dueDate"
+                                       ng-change="vm.dueDateChanged()"
+                                       datepicker-options="vm.dueDateOptions"
+                                       ui-options="{clearOnBlur  : true}"
+                                       model-view-value="true"
+                                       is-open="vm.dueDateOptions.dueDateOpenFlag"
+                                       ng-disabled="vm.termsAndAboveDays || vm.termsAndAboveDays===0 || !vm.isApplyDueDateFilters" />
+                                <md-icon md-font-icon="icon-calendar calender-icon"
+                                         ng-click="vm.dueDateOptions.dueDateOpenFlag = !(vm.termsAndAboveDays || vm.termsAndAboveDays===0 || !vm.isApplyDueDateFilters)">
+                                </md-icon>
+                                <div ng-messages="vm.formCurrentBalanceAndPastDue.dueDate.$error" role="alert">
+                                  <div ng-message="valid || datetime">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                  <div ng-message="required">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container font-weight-normal">Additional Days</p>
+                            </th>
+                            <td>
+                              <md-input-container flex="100" class="margin-bottom-0">
+                                <input type="number" id="additionalDays" name="additionalDays" min="0" max="999"
+                                       ng-model="vm.additionalDays" placeholder="Additional Days"
+                                       ng-disabled="vm.termsAndAboveDays || vm.termsAndAboveDays===0 || !vm.dueDate || !vm.isApplyDueDateFilters" />
+                                <div ng-messages="vm.formCurrentBalanceAndPastDue.additionalDays.$error" md-auto-hide="false" role="alert">
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(3, vm.formCurrentBalanceAndPastDue.additionalDays.$viewValue.length)}}</span>
+                                  </div>
+                                  <div ng-message="min || max || number">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                  <div ng-message="required">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+            <div flex="20" layout="row" layout-align="end end">
+              <md-button class="md-primary md-raised md-ink-ripple mv-0 mr-0" ng-click="vm.loadData()">
+                Apply Filters
+              </md-button>
+            </div>
+          </div>
+          <div flex layout="column" class="mt-10">
+            <div flex layout="column" ng-show="!vm.isNoDataFound">
+              <md-card layout="column" class="margin-0" flex layout-align="space-between stretch">
+                <ui-grid-extention layout="column" flex class="cm-supplier-payment-balance-due-grid"
+                                   load-data="vm.loadData"
+                                   grid-option="vm.gridOptions"
+                                   header="vm.sourceHeader"
+                                   grid-data="vm.sourceData"
+                                   total-data-count="vm.totalSourceDataCount"
+                                   reset-grid="vm.resetSourceGrid"
+                                   selectted-rows="vm.selectedRowsList"
+                                   paging-info="vm.pagingInfo"
+                                   current-item="vm.currentdata"
+                                   get-data-down="vm.getDataDown"
+                                   empty-state="vm.emptyState"
+                                   delete-multiple-data="vm.deleteMultipleData"
+                                   grid-id="vm.gridConfig.gridSupplierBalanceDue">
+              </md-card>
+            </div>
+            <div class="empty-state text-center full-height packing-slip-empty-state" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound">
+              <div class="emty-icon" flex="15">
+                <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+              </div>
+              <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+              <p flex="100">
+                <md-button class="md-fab md-mini" aria-label="Refresh Packing Slip" ng-click="vm.loadData()">
+                  <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+                  <md-tooltip md-direction="top">Refresh Supplier Invoice Payment History</md-tooltip>
+                </md-button>
+              </p>
+            </div>
+          </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Close</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

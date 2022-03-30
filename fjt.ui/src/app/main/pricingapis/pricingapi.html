@@ -1,0 +1,216 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="header" layout="row" layout-align="space-between center">
+    <div layout="row">
+      <div class="white-fg" layout="column" layout-align="start start">
+        <div class="h2" layout="row" layout-align="start center">
+          <md-icon class="icon-cash-usd"></md-icon>&nbsp;
+          <span class="header-title">Pricing Apis</span>
+        </div>
+      </div>
+    </div>
+    <div layout-align="end center" layout="row">
+      <md-button class="md-primary md-raised margin-0" ng-click="vm.salesorderdet=!vm.salesorderdet" aria-label="Submit">{{(!vm.salesorderdet)?'Get Packing List Details':'Get Part Details'}} </md-button>
+    </div>
+  </div>
+  <div class="content-card padding-top-side" layout="column" flex>
+    <div layout="row" flex="100">
+      <ms-form-wizard flex>
+        <form name="vm.frmPricingDetails" layout="row" layout-wrap class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+          <div class="cm-section-main" flex="100">
+            <div class="cm-section-inner" flex="100">
+              <table cellpadding="0" cellspacing="0" class="cm-table-input-main" ng-if="!vm.salesorderdet">
+                <tr>
+                  <th><p class="label-container">MFR PN<span>&nbsp;*</span></p></th>
+                  <td>
+                    <md-input-container flex class="margin-bottom-0">
+                      <input type="text" name="partno" ng-model="vm.partno"
+                             class="input-text-uppercase"
+                             capitalize required placeholder="Mfg Part#">
+                      <div ng-messages="vm.frmPricingDetails.partno.$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th>
+                    <p class="label-container">{{vm.autoCompletePricingDist.placeholderName}}<span>&nbsp;*</span></p>
+                  </th>
+                  <td>
+                    <md-input-container ng-if="vm.autoCompletePricingDist" class="autocompletecustom margin-bottom-0" flex>
+                      <custom-auto-complete datalist="vm.SupplierList"
+                                            column-name="vm.autoCompletePricingDist.columnName"
+                                            key-column-name="vm.autoCompletePricingDist.keyColumnName"
+                                            input-name="vm.autoCompletePricingDist.inputName"
+                                            placeholder-name="vm.autoCompletePricingDist.placeholderName"
+                                            key-column-id="vm.autoCompletePricingDist.keyColumnId"
+                                            is-required="vm.autoCompletePricingDist.isRequired"
+                                            is-addnew="vm.autoCompletePricingDist.isAddnew"
+                                            on-select-callback-fn="vm.autoCompletePricingDist.onSelectCallbackFn">
+                      </custom-auto-complete>
+                    </md-input-container>
+                  </td>
+                  <td class="width-20p">
+                    <div layout="row" no-translate-class>
+                      <md-radio-group name="Sample" layout="row"
+                                      ng-model="vm.customprice">
+                        <md-radio-button ng-value="false">Standard Price</md-radio-button>
+                        <md-radio-button ng-value="true">Custom Price</md-radio-button>
+                      </md-radio-group>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <p class="label-container">Api URL</p>
+                  </th>
+                  <td colspan="4">
+                    <div layout="row">
+                      <md-input-container flex class="margin-bottom-0">
+                        <input type="text" name="apiurl" ng-model="vm.apiurl" ng-readonly="true"
+                               placeholder="Api URL">
+                      </md-input-container>
+                      <md-button class="md-primary md-raised margin-0" ng-click="vm.getpricingDetails()" aria-label="Submit" ng-disabled="!vm.frmPricingDetails.$valid">Get Response </md-button>
+                    </div>
+                  </td>
+                </tr>
+                <tr ng-if="vm.response">
+                  <td colspan="5">
+                    <div layout="row" layout-wrap>
+                      <md-input-container class="md-block margin-0" flex="100">
+                        <md-radio-group flex="100" flex-xs="100" ng-model="vm.viewtype" layout="row" class="margin-top-0">
+                          <md-radio-button name="requestFrom" value="1">
+                            View Response
+                          </md-radio-button>
+                          <md-radio-button name="requestFrom" value="2">
+                            Copy Response
+                          </md-radio-button>
+                        </md-radio-group>
+                      </md-input-container>
+                      <div layout="row" class="margin-top-0" flex="100" ng-if="vm.response && vm.viewtype==1">
+                        <json-formatter open="1" json="vm.response"></json-formatter>
+                      </div>
+                      <div layout="row" class="margin-top-0 border-solid" flex="100" ng-if="vm.response && vm.viewtype==2">
+                        <textarea name="jsonresponse" ng-model="vm.jsonresponse" id="myTextarea" cols="250" rows="28"></textarea>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">TEST MFR PN<span>&nbsp;*</span></p></th>
+                  <td>
+                    <md-input-container flex class="margin-bottom-0">
+                      <custom-auto-complete-search on-search-fn="vm.autoCompletePart.onSearchFn"
+                                                   column-name="vm.autoCompletePart.columnName"
+                                                   key-column-name="vm.autoCompletePart.keyColumnName"
+                                                   input-name="vm.autoCompletePart.inputName"
+                                                   placeholder-name="vm.autoCompletePart.placeholderName"
+                                                   key-column-id="vm.autoCompletePart.keyColumnId"
+                                                   is-required="vm.autoCompletePart.isRequired"
+                                                   is-addnew="vm.autoCompletePart.isAddnew"
+                                                   callback-fn="vm.autoCompletePart.callbackFn"
+                                                   on-select-callback-fn="vm.autoCompleteHelpBlogdetail.onSelectCallbackFn">
+                      </custom-auto-complete-search>
+                      <div ng-messages="vm.frmPricingDetails.partno.$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <td colspan="2"></td>
+                </tr>
+              </table>
+              <table cellpadding="0" cellspacing="0" class="cm-table-input-main" ng-if="vm.salesorderdet">
+                <tr>
+                  <th><p class="label-container">SalesOrder ID<span>&nbsp;*</span></p></th>
+                  <td>
+                    <md-input-container flex class="margin-bottom-0">
+                      <input type="number" name="salesorderID" ng-model="vm.salesorderID">
+                      <div ng-messages="vm.frmPricingDetails.salesorderID.$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th>
+                    <p class="label-container">{{vm.autoCompletePricingDist.placeholderName}}</p>
+                  </th>
+                  <td>
+                    <md-input-container flex class="margin-bottom-0">
+                      <span ng-show="false"> {{vm.supp='Digikey'}}</span>
+                      <input type="text" name="salesorderID" ng-model="vm.supp" ng-disabled="true">
+                    </md-input-container>
+                  </td>
+                  <td class="width-20p">
+                    <div layout="row" no-translate-class>
+                      <md-button class="md-primary md-raised margin-0" ng-click="vm.generateToken()" aria-label="Submit">Generate Token</md-button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <p class="label-container">Api URL</p>
+                  </th>
+                  <td colspan="4">
+                    <div layout="row">
+                      <md-input-container flex class="margin-bottom-0">
+                        <input type="text" name="apiurl" ng-model="vm.apiurl" ng-readonly="true"
+                               placeholder="Api URL">
+                      </md-input-container>
+                      <md-button class="md-primary md-raised margin-0" ng-click="vm.getpricingDetails()" aria-label="Submit" ng-disabled="!vm.frmPricingDetails.$valid">Get Response </md-button>
+                    </div>
+                  </td>
+                </tr>
+                <tr ng-if="vm.response">
+                  <td colspan="5">
+                    <div layout="row" layout-wrap>
+                      <md-input-container class="md-block margin-0" flex="100">
+                        <md-radio-group flex="100" flex-xs="100" ng-model="vm.viewtype" layout="row" class="margin-top-0">
+                          <md-radio-button name="requestFrom" value="1">
+                            View Response
+                          </md-radio-button>
+                          <md-radio-button name="requestFrom" value="2">
+                            Copy Response
+                          </md-radio-button>
+                        </md-radio-group>
+                      </md-input-container>
+                      <div layout="row" class="margin-top-0" flex="100" ng-if="vm.response && vm.viewtype==1">
+                        <json-formatter open="1" json="vm.response"></json-formatter>
+                      </div>
+                      <div layout="row" class="margin-top-0 border-solid" flex="100" ng-if="vm.response && vm.viewtype==2">
+                        <textarea name="jsonresponse" ng-model="vm.jsonresponse" id="myTextarea" cols="250" rows="28"></textarea>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </form>
+      </ms-form-wizard>
+    </div>
+  </div>
+</div>
+<style>
+  body {
+    padding: 3rem;
+    font-size: 16px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 30rem;
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  .border-solid {
+    border: 1px solid;
+  }
+</style>

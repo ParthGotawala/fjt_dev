@@ -1,0 +1,625 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common layout-align-start-start layout-row layout-wrap" cg-busy="{promise:vm.cgBusyLoading}">
+  <!--layout-align="start start" layout="row" layout-wrap -->
+  <div class="header md-accent-bg  layout-row layout-align-start-center flex-100">
+    <div class="white-fg layout-column layout-align-start-start">
+      <div class="h2 layout-row layout-align-start-center">
+        <pagetitle is-list="true" is-display-menu-name="true"></pagetitle>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+      </div>
+      <div class="layout-row layout-align-start-center">
+        <breadcrumbs></breadcrumbs>
+      </div>
+    </div>
+  </div>
+  <!-- / CONTENT HEADER -->
+  <!-- CONTENT CARD -->
+  <div class="content-card padding-top-side other-header-fixe  layout-column flex-100">
+    <div class="flex-100 layout-row  padding-vertical-1 padding-horizontal-15 layout-align-space-between-center layout-wrap-mob" ng-if="vm.selectedEmployee">
+      <div class="flex-25 layout-row flex-xs-100" ng-if="vm.selectedEmployee">
+        <div class="text-main">
+          <div class="avatar-wrapper padding-top-5 layout-row">
+            <img class="md-avatar avatar" ng-src="{{vm.selectedEmployee.profileImg}}" />
+          </div>
+        </div>
+        <div class="md-list-item-text" layout-wrap ng-if="vm.selectedEmployee">
+          <h3 class="name margin-bottom-0 md-primary-fg margin-top-5 flex-100"><b>{{(vm.selectedEmployee.firstName ? vm.selectedEmployee.firstName : "") + " " + (vm.selectedEmployee.lastName ? vm.selectedEmployee.lastName : "")}}</b> <span> {{vm.selectedEmployee.deptName ? "(" + vm.selectedEmployee.deptName + ")" : ""}}</span></h3>
+          <p class="last-message text-truncate margin-0">{{vm.selectedEmployee.titleName}}</p>
+        </div>
+      </div>
+      <div class="flex-35 layout-row flex-xs-100">
+      </div>
+      <div class="flex-40 layout-row layout-align-end-start layout-wrap-rs-1024 flex-xs-100">
+        <div class="last-message-time flex-xs-100"><b>Total Active Operations: </b> <span class="cm-answer-highlight">{{vm.activeOperations.length}}</span></div>&nbsp;&nbsp;
+        <div class="last-message-time mt-rs-5 flex-xs-100"><b>Total Work Orders: </b> <span class="cm-answer-highlight">{{vm.workorderDetails.length}}</span></div>&nbsp;&nbsp;
+        <div class="last-message-time mt-rs-5 flex-xs-100" ng-if="vm.operationDetails.length > 0 && !vm.selectedOperation"><b>Total Operations: </b> <span class="cm-answer-highlight">{{vm.operationDetails.length}}</span></div>
+      </div>
+    </div>
+    <div class="layout-row flex-100">
+      <!-- FORM WIZARD -->
+      <ms-form-wizard class="flex-100">
+        <form name="vm.StartupTaskForm">
+          <div class="padding-top-10 flex-100 layout-row layout-wrap-rs layout-wrap-mob advanced-filters">
+            <div class="padding-vertical-2 padding-horizontal-15 layout-align-start-center flex-70 layout-row flex-sm-100 layout-wrap-mob flex-xs-100">
+              <div class="input-wrapper layout-row flex-xs-100" flex="20">
+                <p class="label-container">Enter User ID<span>&nbsp;*</span></p>
+                <md-input-container class="cm-bottom-no-margin float-left">
+                  <input type="text" id="employeeCode" name="employeeCode"
+                         ng-model="vm.taskStepper.step1.employeeCode"
+                         ng-disabled="!vm.loginUserDetails.isUserAdmin" md-select-on-focus
+                         placeholder="Enter Logon Name" maxlength="255" no-special-character class="input-text-uppercase layout-column"
+                         capitalize required my-enter="vm.getEmployeeWorkorderDetails()">
+                  <div ng-messages="vm.StartupTaskForm.employeeCode.$error"
+                       ng-if="vm.StartupTaskForm.employeeCode.$touched"
+                       role="alert">
+                    <div ng-message="required">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </div>
+              <div class="input-wrapper layout-row flex-xs-100" flex="35">
+                <p class="label-container">Enter {{vm.LabelConstant.Assembly.MFGPN}} or {{vm.LabelConstant.Assembly.NickName}}</p>
+                <div class="layout-row" flex="90">
+                  <md-input-container class="cm-bottom-no-margin float-left">
+                    <input type="text" id="nickname" name="nickname"
+                           ng-model="vm.taskStepper.step1.nickname"
+                           placeholder="Enter Nickname" ng-maxlength="255" class="layout-column input-text-uppercase"
+                           ng-change="vm.getnicknameAssywiseFilterWo()" ng-model-options="{debounce: vm.debounceConstant.mdDataTable}" capitalize>
+                    <div ng-messages="vm.StartupTaskForm.nickname.$error"
+                         ng-if="vm.StartupTaskForm.nickname.$touched"
+                         role="alert">
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                      <div ng-message="maxlength">
+                        <span>{{vm.getMaxLengthValidation(255, vm.StartupTaskForm.nickname.$viewValue.length)}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </div>
+                <div layout="row" flex="10" ng-if="vm.taskStepper.step1.nickname">
+                  <md-button class="md-icon-button md-primary md-mini ml-0"
+                             ng-click="vm.taskStepper.step1.nickname =  '';vm.getnicknameAssywiseFilterWo()">
+                    <md-icon md-font-icon="icon-close" class="material-icons mat-icon mb-10 ml-0"></md-icon>
+                    <md-tooltip>Reset</md-tooltip>
+                  </md-button>
+                </div>
+              </div>
+              <div class="input-wrapper layout-row flex-xs-100" flex="25">
+                <p class="label-container">
+                  Enter WO#
+                  <span>&nbsp;*</span><scan-or-enter></scan-or-enter>
+                  <md-icon class="icon-question-mark-circle help-icon margin-right-0 mb-5">
+                    <md-tooltip md-direction="top">Pattern like WOXXXXX-XX</md-tooltip>
+                  </md-icon>
+                </p>
+                <md-input-container class="cm-bottom-no-margin float-left">
+                  <input type="text" id="woNumber" name="woNumber" ng-model="vm.taskStepper.step2.woNumber" class="input-text-uppercase"
+                         capitalize placeholder="Enter WO#" ng-pattern="vm.productionWONumberPatternConst"
+                         ng-change="vm.woChange();"
+                         my-enter="vm.getWorkorderOperationDetails(msWizard)" ng-maxlength="255" md-autofocus>
+                  <span><b>{{vm.LabelConstant.ScanOREnter.ScanWorkorderNum}}</b></span>
+                  <div ng-messages="vm.StartupTaskForm.woNumber.$error"
+                       ng-if="vm.StartupTaskForm.woNumber.$touched"
+                       role="alert">
+                    <div ng-message="required">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                    </div>
+                    <div ng-message="maxlength">
+                      <span>{{vm.getMaxLengthValidation(255, vm.StartupTaskForm.woNumber.$viewValue.length)}}</span>
+                    </div>
+                    <div ng-message="pattern">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </div>
+              <div class="input-wrapper layout-row flex-xs-100" flex="20">
+                <p class="label-container">Enter OP# <span>&nbsp;*</span><scan-or-enter></scan-or-enter></p>
+                <md-input-container class="cm-bottom-no-margin float-left">
+                  <input type="number" min="1" id="opNumber" name="opNumber" ng-model="vm.taskStepper.step3.opNumber"
+                         placeholder="Enter OP# " my-enter="vm.selectOperationForCheckIn()"
+                         maxlength="255" ng-disabled="!vm.selectedWorkorder || !vm.selectedEmployee">
+                  <span ng-if="vm.selectedWorkorder && vm.selectedEmployee"><b>{{vm.LabelConstant.ScanOREnter.ScanOperationNum}}</b></span>
+                  <div ng-messages="vm.StartupTaskForm.opNumber.$error"
+                       ng-if="vm.StartupTaskForm.opNumber.$touched"
+                       role="alert">
+                    <div ng-message="required">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                    </div>
+                    <div ng-message="number">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </div>
+            </div>
+            <div class="padding-10 flex-30 layout-row layout-align-end-center flex-sm-100 flex-xs-100 cm-square-icon-btn">
+              <md-button class="md-primary md-raised margin-pro-rs-left-0" ng-click="vm.showRackStatus($event);">
+                Show Rack Status
+              </md-button>
+              <md-button class="md-icon-button toolbar-button" ng-click="vm.ChangeListView(false,$event);">
+                <md-icon md-font-icon="icon-grid" ng-class="{'active-view': !vm.Show.listView}"></md-icon>
+                <md-tooltip md-direction="top">Grid View</md-tooltip>
+              </md-button>
+              <md-button class="md-icon-button toolbar-button" ng-click="vm.ChangeListView(true,$event);">
+                <md-icon md-font-icon="icon-format-list-numbers" ng-class="{'active-view': vm.Show.listView}"></md-icon>
+                <md-tooltip md-direction="top">List View</md-tooltip>
+              </md-button>
+              <md-button class="md-primary md-raised margin-pro-rs-right-0" ng-click="vm.getEmployeeWorkorderDetails()">
+                Refresh All
+              </md-button>
+              <md-button class="md-raised md-primary md-icon-button cm-width-40-rs" ng-click="vm.showColorLengend($event)">
+                <md-icon md-font-icon class="icon-palette"></md-icon>
+                <md-tooltip md-direction="top">Legend</md-tooltip>
+              </md-button>
+            </div>
+          </div>
+          <div class="layout-row flex-100" ng-if="!vm.Show.listView">
+            <div class="margin-top-0 layout-row flex-100">
+              <div class="padding-10 dodontmain layout-row flex-100 layout-wrap-mob">
+                <div ng-if="vm.Show.Workorder" class="flex-xs-100" ng-class="{'flex-100': !vm.Show.ActiveOperation, 'flex-50': vm.Show.ActiveOperation}">
+                  <div class="blog equipmenmain flex-100 layout-row layout-wrap flex-xs-100 cm-margin-right-0-mob">
+                    <div class="cm-section-main flex-100 layout-row layout-wrap">
+                      <div class="cm-section-header flex-100 layout-row layout-align-space-between-center">
+                        <div class="last-message-time"><b>Work Orders</b></div>&nbsp;
+                        <div>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.Workorder = !vm.Show.Workorder">
+                            <md-icon md-font-icon="icon-window-minimize"></md-icon><md-tooltip>Minimize</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.woList = !vm.Show.woList">
+                            <md-icon md-font-icon="icon-chevron-down" ng-if="!vm.Show.woList"></md-icon><md-tooltip ng-if="!vm.Show.woList">Expand</md-tooltip>
+                            <md-icon md-font-icon="icon-chevron-up" ng-if="vm.Show.woList"></md-icon><md-tooltip ng-if="vm.Show.woList">Collapse</md-tooltip>
+                          </md-button>
+                        </div>
+                      </div>
+                      <div class="cm-section-inner flex-100 layout-row layout-wrap" ng-if="vm.Show.woList">
+                        <div class="cm-workorder-section layout-row flex-50 flex-lg-50 flex-md-100 flex-sm-100 flex-xs-100"
+                             ng-repeat="item in vm.workorderDetails track by $index">
+                          <task-list-section-view item="item"
+                                                  ms-wizard="msWizard"
+                                                  on-click-select="vm.setItemActive(item,msWizard)" class="width-100p"></task-list-section-view>
+                          <!--show-when-loaded="item.activated"-->
+                        </div>
+                        <div class="empty-state text-center full-height flex-100 layout-row layout-align-center-center layout-wrap"
+                             ng-if="!vm.selectedEmployee || vm.workorderDetails.length == 0">
+                          <div class="emty-icon flex-100">
+                            <img ng-src="{{vm.WOEmptyMesssage.IMAGEURL}}" />
+                          </div>
+                          <p class="empty-state-title flex-100">{{vm.WOEmptyMesssage.MESSAGE}}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="cm-section-main margin-top-5 flex-100 layout-row layout-wrap">
+                      <div class="cm-section-header  layout-row flex-100 layout-align-space-between-center">
+                        <div class="last-message-time"><b>Operations</b></div>&nbsp;
+                        <div class="last-message-time">
+                          <span ng-if="vm.selectedWorkorder.woNumber" class="cm-answer-highlight">
+                            {{vm.LabelConstant.Workorder.WO}}: <span no-translate-class>
+                              {{vm.selectedWorkorder.woNumber}}-{{vm.selectedWorkorder.woVersion}}
+                            </span>
+                          </span>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.opList = !vm.Show.opList">
+                            <md-icon md-font-icon="icon-chevron-down" ng-if="!vm.Show.opList"></md-icon><md-tooltip ng-if="!vm.Show.opList">Expand</md-tooltip>
+                            <md-icon md-font-icon="icon-chevron-up" ng-if="vm.Show.opList"></md-icon><md-tooltip ng-if="vm.Show.opList">Collapse</md-tooltip>
+                          </md-button>
+                        </div>
+                      </div>
+                      <div class="cm-section-inner flex-100 layout-wrap layout-row" ng-if="vm.Show.opList">
+                        <div class="cm-workorder-section layout-row flex-50 flex-lg-50 flex-md-100 flex-sm-100 flex-xs-100" ng-repeat="item in vm.operationDetails track by $index">
+                          <task-list-section-view item="item"
+                                                  ms-wizard="msWizard"
+                                                  on-click-select="vm.setItemActive(item,msWizard)" class="width-100p"></task-list-section-view>
+                          <!--show-when-loaded="item.activated"-->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div ng-if="vm.Show.ActiveOperation" class="flex-xs-100" ng-class="{'flex-100': !vm.Show.Workorder, 'flex-50': vm.Show.Workorder}">
+                  <div class="cm-section-main layout-row flex-100 layout-wrap layout-align-space-between-center">
+                    <div class="cm-section-header layout-row flex-100 layout-align-space-between-center">
+                      <div class="last-message-time"><b>Active Operations</b></div>
+                      <div ng-click="vm.Show.ActiveOperation = !vm.Show.ActiveOperation">
+                        <md-button class="md-mini md-icon-button md-primary margin-0">
+                          <md-icon md-font-icon="icon-window-minimize"></md-icon><md-tooltip>Minimize</md-tooltip>
+                        </md-button>
+                      </div>
+                    </div>
+                    <div class="cm-section-inner flex-100 layout-wrap layout-row">
+                      <div ng-repeat="(key, value) in vm.activeOperations
+                                                   | groupBy:'fullWoNumber'" flex="100">
+                        <div class="workorder-separate" ng-if="value.length > 0">{{vm.LabelConstant.Workorder.WO}}: {{key}}</div>
+                        <div class="flex-100 layout-row layout-wrap">
+                          <div class="cm-workorder-section layout-row flex-50 flex-lg-50 flex-md-100 flex-sm-100 flex-xs-100" ng-repeat="item in value">
+                            <task-list-section-view item="item"
+                                                    ms-wizard="msWizard"
+                                                    on-click-select="vm.setItemActive(item,msWizard)"></task-list-section-view>
+                            <!--show-when-loaded="item.activated"-->
+                          </div>
+                        </div>
+                      </div>
+                      <div class="empty-state text-center full-height flex-100 layout-row layout-align-center-center layout-wrap"
+                           ng-if="!vm.selectedEmployee || vm.activeOperations.length == 0">
+                        <div class="emty-icon flex-100">
+                          <img ng-src="{{vm.WoActiveOpEmptyMesssage.IMAGEURL}}" />
+                        </div>
+                        <p class="empty-state-title flex-100">{{vm.WoActiveOpEmptyMesssage.MESSAGE}}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="footerfixedbutton tasksection layout-row flex-100 layout-wrap" ng-if="!vm.Show.ActiveOperation || !vm.Show.Workorder">
+              <div class="actionbtns layout-row layout-align-space-between-center">
+                <div class="sectionlable layout-row">
+                  <div class="chiplable cursor-pointer" ng-click="vm.Show.ActiveOperation = !vm.Show.ActiveOperation" ng-class="{'chiplableclose' : !vm.Show.ActiveOperation}" ng-if="!vm.Show.ActiveOperation">
+                    Active Operations
+                    <md-icon ng-if="!vm.Show.ActiveOperation" md-font-icon="icon-plus"></md-icon>
+                    <md-icon ng-if="vm.Show.ActiveOperation" md-font-icon="icon-minus"></md-icon>
+                  </div>
+                </div>
+              </div>
+              <div class="actionbtns layout-row layout-align-space-between-center">
+                <div class="sectionlable  layout-row">
+                  <div class="chiplable cursor-pointer" ng-click="vm.Show.Workorder = !vm.Show.Workorder" ng-class="{'chiplableclose' : !vm.Show.Workorder}" ng-if="!vm.Show.Workorder">
+                    Work Orders
+                    <md-icon ng-if="!vm.Show.Workorder" md-font-icon="icon-plus"></md-icon>
+                    <md-icon ng-if="vm.Show.Workorder" md-font-icon="icon-minus"></md-icon>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <md-tabs ng-if="vm.Show.listView" class="fielddetail startup-task-tabing custom-scroll cm-manage-task-tabs" md-dynamic-height md-selected="vm.selectedIndex"
+                   id="activeoperations-tabing">
+            <div ng-if="vm.workorderDetails.length > 0" class="layout-row layout-align-end-end">
+              <div class="layout-row flex-xs-50" ng-if="vm.selectedIndex == 0">
+                <md-input-container md-no-float class="md-block search-header margin-0 error-none pr-5">
+                  <input class="width-220" type="text" ng-model="vm.query.Active_op_search" ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Type here to search active operations">
+                </md-input-container>
+                <!--<md-button class="md-raised md-primary margin-0" aria-label="Search" ng-if="!vm.query.Active_op_search">
+                  <md-icon md-font-icon="icon-magnify" role="img"></md-icon>
+                </md-button>-->
+                <md-button class="md-raised md-primary margin-0" aria-label="Clear" ng-disabled="!vm.query.Active_op_search" ng-click="vm.query.Active_op_search = ''">
+                  Clear
+                </md-button>
+              </div>
+              <div layout="row" flex-xs="50" ng-if="vm.selectedEmployee && vm.workorderDetails.length > 0 && vm.selectedIndex == 1">
+                <md-input-container md-no-float class="md-block search-header margin-0 error-none pr-5">
+                  <input class="width-220" type="text" ng-model="vm.query.workorder_search" ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Type here to search work orders">
+                </md-input-container>
+                <!--<md-button class="md-raised md-primary margin-0" aria-label="Search" ng-if="!vm.query.workorder_search">
+                  <md-icon md-font-icon="icon-magnify" role="img"></md-icon>
+                </md-button>-->
+                <md-button class="md-raised md-primary margin-0" aria-label="Clear" ng-disabled="!vm.query.workorder_search" ng-click="vm.query.workorder_search = ''">
+                  Clear
+                </md-button>
+              </div>
+              <div class="layout-row flex-xs-50" ng-if="vm.selectedEmployee && vm.workorderDetails.length > 0 && vm.selectedIndex == 2">
+                <md-input-container md-no-float class="md-block search-header margin-0 error-none pr-5">
+                  <input type="text" class="width-220" ng-model="vm.query.operation_search" ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Type here to search operations">
+                </md-input-container>
+                <!--<md-button class="md-raised md-primary margin-0" aria-label="Search" ng-if="!vm.query.operation_search">
+                  <md-icon md-font-icon="icon-magnify" role="img"></md-icon>
+                </md-button>-->
+                <md-button class="md-raised md-primary margin-0" aria-label="Clear" ng-disabled="!vm.query.operation_search" ng-click="vm.query.operation_search = ''">
+                  Clear
+                </md-button>
+              </div>
+            </div>
+            <md-tab>
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-text">Active Operations</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <form name="ActiveOperationsForm" class="md-inline-form" ms-form-wizard-form novalidate>
+                  <div class="layout-row">
+                    <div class="content fullpage-datatable custom-scroll layout-column flex"
+                         ng-if="vm.activeOperations.length > 0">
+                      <md-table-container class="flex-100">
+                        <table md-table class="md-data-table task-list-table table-row-select" md-row-select ng-model="vm.selectedItems">
+                          <thead md-head md-order="vm.query.order">
+                            <tr md-row>
+                              <th width="5%" md-column>Actions</th>
+                              <th width="5%" md-column>#</th>
+                              <th width="7%" md-column class="padding-10" md-order-by="woNumber">{{vm.LabelConstant.Workorder.WO}}</th>
+                              <th width="5%" md-column class="padding-10" md-order-by="woVersion">{{vm.LabelConstant.Workorder.Version}}</th>
+                              <th width="15%" md-column class="padding-10" md-order-by="PIDCode">{{vm.LabelConstant.Assembly.PIDCode}}</th>
+                              <th width="10%" md-column class="padding-10" md-order-by="liveVersion">{{vm.LabelConstant.Assembly.InternalVersion}}</th>
+                              <th width="5%" md-column class="padding-10" md-order-by="opNumber">{{vm.LabelConstant.Operation.OP}}</th>
+                              <th width="7%" md-column class="padding-10" md-order-by="opVersion">{{vm.LabelConstant.Operation.Version}}</th>
+                              <th width="21%" md-column class="padding-10 padding-right-50" md-order-by="opName">{{vm.LabelConstant.Operation.Name}}</th>
+                              <th width="7%" md-column class="padding-10 padding-right-50" md-order-by="checkinTime">{{vm.LabelConstant.Traveler.CheckInTime}}</th>
+                              <th width="7%" md-column class="padding-10 padding-right-50" md-order-by="checkinTime">{{vm.LabelConstant.Traveler.PausedTime}}</th>
+                              <th width="6%" md-column class="padding-10 padding-right-50" md-order-by="totalAvailable">{{vm.LabelConstant.Traveler.AvailableRack}}</th>
+                            </tr>
+                          </thead>
+                          <tbody class="custom-scroll" md-body>
+                            <tr md-row ng-repeat="activeopitem in vm.activeOperations
+                                                       | filter: vm.query.Active_op_search
+                                                       | orderBy: vm.query.order" class="cursor-pointer"
+                                ng-click="vm.selectActiveOperationForCheckIn(activeopitem)"
+                                ng-class="{'is-assigned':(activeopitem.isAssigned), 'is-running':(activeopitem.isRunningOperation || activeopitem.isRunningWorkorder), 'stop-chip':(activeopitem.isStopOperation || activeopitem.isStopWorkorder), 'pause-chip':activeopitem.isPaused, 'active-chip': (activeopitem.currentlyActive || activeopitem.isActive), 'cm-operation-active-list': (activeopitem.currentlyActive)}">
+                              <td width="5%" md-cell>
+                                <md-button class="md-primary grid-button md-icon-button bdrbtn">
+                                  <md-icon md-font-icon="icon-hand-pointing-right" class="s16"></md-icon>
+                                  <md-tooltip>Go to activity</md-tooltip>
+                                </md-button>
+                              </td>
+                              <td width="5%" md-cell>{{$index+1}}</td>
+                              <td width="7%" md-cell>
+                                <span>
+                                  <a class="cm-text-decoration" tabindex="-1" ng-mousedown="vm.goToWorkorderDetails(activeopitem);$event.preventDefault();">
+                                    {{activeopitem.woNumber}}
+                                  </a>
+                                </span>
+                              </td>
+                              <td width="5%" md-cell>{{activeopitem.woVersion}}</td>
+                              <td width="15%" md-cell>
+                                <common-pid-code-label-link component-id="activeopitem.partID"
+                                                            label="vm.LabelConstant.Assembly.ID"
+                                                            value="activeopitem.PIDCode"
+                                                            is-copy="true"
+                                                            is-mfg="true"
+                                                            mfg-label="vm.LabelConstant.Assembly.MFGPN"
+                                                            mfg-value="activeopitem.mfgPN"
+                                                            rohs-icon="activeopitem.rohsIcon"
+                                                            rohs-status="activeopitem.rohsStatus"
+                                                            is-copy-ahead-label="true"
+                                                            is-assembly="true"
+                                                            is-custom-part="activeopitem.isCustom">
+                              </td>
+                              <td width="10%" md-cell>{{activeopitem.liveVersion}}</td>
+                              <td width="5%" md-cell>
+                                <span>
+                                  <a class="cm-text-decoration" tabindex="-1" ng-mousedown="vm.goToTravelerOperationDetails(activeopitem);$event.preventDefault();">
+                                    {{activeopitem.opNumber | threeDecimal}}
+                                  </a>
+                                </span>
+                              </td>
+                              <td width="7%" md-cell>{{activeopitem.opVersion}}</td>
+                              <td width="21%" md-cell>
+                                {{activeopitem.opName}}
+                                <span ng-if="activeopitem.isTeamOperation">
+                                  <md-icon md-font-icon="icon icon-account-switch"></md-icon>
+                                  <md-tooltip>{{vm.LabelConstant.Operation.TeamOperation}}</md-tooltip>
+                                </span>
+                              </td>
+                              <td width="7%" md-cell>{{activeopitem.checkinTime | date : vm.FullDateTimeFormat}}</td>
+                              <td width="7%" md-cell>{{activeopitem.pausedTime | date : vm.FullDateTimeFormat}}</td>
+                              <td width="6%" md-cell class="text-right">
+                                <span ng-if="activeopitem.totalAvailable > 0">
+                                  <a class="cm-text-decoration" tabindex="-1" ng-mousedown="vm.openAvailableRack(activeopitem);$event.preventDefault();">
+                                    {{activeopitem.totalAvailable}}
+                                  </a>
+                                  <md-tooltip>Show Available Racks</md-tooltip>
+                                </span>
+                                <span ng-if="activeopitem.totalAvailable == 0">
+                                  {{activeopitem.totalAvailable}}
+                                </span>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div class="empty-state full-height-90  margin-0 layout-row layout-wrap layout-align-center-center"
+                             ng-if="(vm.activeOperations  | filter: vm.query.Active_op_search).length == 0 ">
+                          <div class="emty-icon flex-100">
+                            <img ng-src="{{vm.emptySearch.IMAGEURL}}" />
+                          </div>
+                          <p class="empty-state-title flex-100">{{vm.emptySearch.MESSAGE}}</p>
+                        </div>
+                      </md-table-container>
+                    </div>
+                    <div class="empty-state text-center full-height flex-100 layout-row layout-align-center-center layout-wrap"
+                         ng-if="!vm.selectedEmployee || vm.activeOperations.length == 0">
+                      <div class="emty-icon  flex-100">
+                        <img ng-src="{{vm.WoActiveOpEmptyMesssage.IMAGEURL}}" />
+                      </div>
+                      <p class="empty-state-title flex-100">{{vm.WoActiveOpEmptyMesssage.MESSAGE}}</p>
+                    </div>
+                  </div>
+                </form>
+              </md-tab-body>
+            </md-tab>
+            <md-tab>
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-text">Work Orders</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <form name="WorkordersForm" class="md-inline-form" ms-form-wizard-form novalidate>
+                  <div class="layout-row">
+                    <div class="content fullpage-datatable custom-scroll layout-column flex"
+                         ng-if="vm.selectedEmployee && vm.workorderDetails.length > 0">
+                      <md-table-container class="flex-100 layout-row">
+                        <table md-table class="md-data-table task-list-table table-row-select cm-overflow-auto" md-row-select ng-model="vm.selectedItems">
+                          <thead md-head md-order="vm.query.order">
+                            <tr md-row>
+                              <th width="80" md-column>Actions</th>
+                              <th width="65" md-column>#</th>
+                              <th width="95" md-column class="padding-10 padding-right-50" md-order-by="woNumber">{{vm.LabelConstant.Workorder.WO}}</th>
+                              <th width="90" md-column class="padding-10 padding-right-50" md-order-by="woVersion">{{vm.LabelConstant.Workorder.Version}}</th>
+                              <th width="240" md-column class="padding-10 padding-right-50" md-order-by="PIDCode">{{vm.LabelConstant.Assembly.PIDCode}}</th>
+                              <th width="160" md-column class="padding-10 padding-right-50" md-order-by="nickName">{{vm.LabelConstant.Assembly.NickName}}</th>
+                              <th width="410" md-column class="padding-10 padding-right-50">{{vm.LabelConstant.Workorder.Standards}}</th>
+                              <th width="160" md-column class="padding-10 padding-right-50" md-order-by="poNumber">{{vm.LabelConstant.Workorder.PO}}</th>
+                              <th width="80" md-numeric md-column class="padding-10 padding-right-50" md-order-by="poQty">{{vm.LabelConstant.Workorder.POQty}}</th>
+                              <th width="110" md-numeric md-column class="padding-10 padding-right-50" md-order-by="buildQty">{{vm.LabelConstant.Workorder.BuildQty}}</th>
+                              <th width="250" md-column class="padding-10 padding-right-50">{{vm.LabelConstant.Workorder.Status}}</th>
+                            </tr>
+                          </thead>
+                          <tbody md-body class="custom-scroll">
+                            <tr md-row ng-repeat="workorder in vm.workorderDetails
+                                                        | filter: vm.query.workorder_search
+                                                        | orderBy: vm.query.order" class="cursor-pointer"
+                                ng-click="vm.SetWorkorderNumber(workorder,msWizard)"
+                                ng-class="{'is-assigned':(workorder.isAssigned), 'is-running':(workorder.isRunningOperation || workorder.isRunningWorkorder), 'stop-chip':(workorder.isStopOperation || workorder.isStopWorkorder), 'pause-chip':workorder.isPaused, 'active-chip': (workorder.currentlyActive || workorder.isActive), 'cm-operation-active-list': (workorder.currentlyActive)}">
+                              <td width="80" md-cell>
+                                <md-button class="md-primary grid-button md-icon-button bdrbtn"
+                                           ng-mousedown="vm.gotoWorkorderProfile(workorder.woID);$event.preventDefault();">
+                                  <md-icon md-font-icon="icon-eye" class="s16"></md-icon>
+                                  <md-tooltip>View Work Order Profile</md-tooltip>
+                                </md-button>
+                              </td>
+                              <td md-cell width="65">{{$index+1}}</td>
+                              <td md-cell width="95">
+                                <span>
+                                  <a class="cm-text-decoration" tabindex="-1" ng-mousedown="vm.goToWorkorderDetails(workorder);$event.preventDefault();">
+                                    {{workorder.woNumber}}
+                                  </a>
+                                </span>
+                              </td>
+                              <td md-cell width="90">{{workorder.woVersion}}</td>
+                              <td md-cell width="240">
+                                <common-pid-code-label-link component-id="workorder.partID"
+                                                            label="vm.LabelConstant.Assembly.ID"
+                                                            value="workorder.PIDCode"
+                                                            is-copy="true"
+                                                            is-mfg="true"
+                                                            mfg-label="vm.LabelConstant.Assembly.MFGPN"
+                                                            mfg-value="workorder.mfgPN"
+                                                            rohs-icon="workorder.rohsIcon"
+                                                            rohs-status="workorder.rohsStatus"
+                                                            is-copy-ahead-label="true"
+                                                            is-assembly="true"
+                                                            is-custom-part="workorder.isCustom">
+                              </td>
+                              <td md-cell width="160">{{workorder.nickName}}</td>
+                              <td md-cell width="410" class="cm-list-publish-status">
+                                <label class="margin-2 label-box"
+                                       ng-style="{'background-color': standardItem.colorCode}"
+                                       ng-repeat="standardItem in workorder.woAllStandardsWithClass track by $index">
+                                  {{standardItem.className}}
+                                </label>
+                              </td>
+                              <td md-cell width="160" class="cm-white-space-normal word-break">
+                                <a tabindex="-1" class="cm-text-decoration"
+                                   ng-mousedown="vm.showSalesOrderDetails($event,workorder);$event.preventDefault();"
+                                   ng-if="workorder.poNumber">
+                                  {{workorder.poNumber}}
+                                </a>
+                              </td>
+                              <td md-cell width="80">{{workorder.poQty | numberWithoutDecimal}}</td>
+                              <td md-cell width="110">{{workorder.buildQty | numberWithoutDecimal}}</td>
+                              <td md-cell width="250" class="cm-list-publish-status"><span class="label-box {{workorder.statusClassName}}">{{workorder.statusTxt}}</span></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </md-table-container>
+                      <div class="empty-state full-height-90 margin-0 layout-row layout-wrap layout-align-center-center"
+                           ng-if="(vm.workorderDetails  | filter: vm.query.workorder_search).length == 0 ">
+                        <div class="emty-icon flex-100">
+                          <img ng-src="{{vm.emptySearch.IMAGEURL}}" />
+                        </div>
+                        <p class="empty-state-title  flex-100">{{vm.emptySearch.MESSAGE}}</p>
+                      </div>
+                    </div>
+                    <div class="empty-state text-center full-height  flex-100 layout-row layout-align-center-center layout-wrap"
+                         ng-if="!vm.selectedEmployee || vm.workorderDetails.length == 0">
+                      <div class="emty-icon flex-100">
+                        <img ng-src="{{vm.WOEmptyMesssage.IMAGEURL}}" />
+                      </div>
+                      <p class="empty-state-title flex-100">{{vm.WOEmptyMesssage.MESSAGE}}</p>
+                    </div>
+                  </div>
+                </form>
+              </md-tab-body>
+            </md-tab>
+            <md-tab ng-if="vm.selectedEmployee && vm.operationDetails.length > 0">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-text">Operations</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <form name="OperationssForm" class="md-inline-form" ms-form-wizard-form novalidate>
+                  <div class="layout-row">
+                    <div class="content fullpage-datatable custom-scroll layout-column flex">
+                      <md-table-container>
+                        <table md-table class="md-data-table task-list-table table-row-select" md-row-select ng-model="vm.selectedItems">
+                          <thead md-head md-order="vm.query.order">
+                            <tr md-row>
+                              <th md-column width="5%">#</th>
+                              <th width="10%" md-column class="padding-10 padding-right-50" md-order-by="woNumber">{{vm.LabelConstant.Workorder.WO}}</th>
+                              <th width="5%" md-column class="padding-10 padding-right-50" md-order-by="woVersion">{{vm.LabelConstant.Workorder.Version}}</th>
+                              <th width="15%" md-column class="padding-10 padding-right-50" md-order-by="PIDCode">{{vm.LabelConstant.Assembly.PIDCode}}</th>
+                              <th width="10%" md-column class="padding-10 padding-right-50" md-order-by="nickName">{{vm.LabelConstant.Assembly.NickName}}</th>
+                              <th md-column width="7%" class="padding-10" md-order-by="opNumber">{{vm.LabelConstant.Operation.OP}}</th>
+                              <th md-column width="7%" class="padding-10" md-order-by="opVersion">{{vm.LabelConstant.Operation.Version}}</th>
+                              <th md-column width="20%" class="padding-10" md-order-by="opName">{{vm.LabelConstant.Operation.OP}}</th>
+                              <th md-column width="21%" class="padding-10">{{vm.LabelConstant.Operation.Status}}</th>
+                            </tr>
+                          </thead>
+                          <tbody md-body class="custom-scroll">
+                            <tr md-row ng-repeat="operation in vm.operationDetails
+                                                        | filter: vm.query.operation_search
+                                                        | orderBy: operationorder"
+                                ng-click="operation.opStatus == vm.opStatus.TERMINATED ? angular.noop :  vm.SetOperationNumber(operation)"
+                                ng-class="{'is-assigned':(operation.isAssigned), 'is-running':(operation.isRunningOperation || operation.isRunningWorkorder), 'stop-chip':(operation.isStopOperation || operation.isStopWorkorder), 'pause-chip':operation.isPaused, 'active-chip': (operation.currentlyActive || operation.isActive), 'cm-operation-active-list': (operation.currentlyActive), 'cursor-pointer': operation.opStatus != vm.opStatus.TERMINATED}">
+                              <td width="5%" md-cell>{{$index+1}}</td>
+                              <td md-cell width="10%">
+                                <span>
+                                  <a class="cm-text-decoration" tabindex="-1" ng-mousedown="vm.goToWorkorderDetails(operation);$event.preventDefault();">
+                                    {{operation.woNumber}}
+                                  </a>
+                                </span>
+                              </td>
+                              <td md-cell width="5%">{{operation.woVersion}}</td>
+                              <td md-cell width="15%">
+                                <common-pid-code-label-link component-id="operation.partID"
+                                                            label="vm.LabelConstant.Assembly.ID"
+                                                            value="operation.PIDCode"
+                                                            is-copy="true"
+                                                            is-mfg="true"
+                                                            mfg-label="vm.LabelConstant.Assembly.MFGPN"
+                                                            mfg-value="operation.mfgPN"
+                                                            rohs-icon="operation.rohsIcon"
+                                                            rohs-status="operation.rohsStatus"
+                                                            is-copy-ahead-label="true"
+                                                            is-assembly="true"
+                                                            is-custom-part="operation.isCustom">
+                              </td>
+                              <td md-cell width="10%">{{operation.nickName}}</td>
+                              <td width="7%" md-cell>
+                                <a class="cm-text-decoration" tabindex="-1" ng-mousedown="vm.goToTravelerOperationDetails(operation);$event.preventDefault();">
+                                  {{operation.opNumber | threeDecimal}}
+                                </a>
+                              </td>
+                              <td width="7%" md-cell>{{operation.opVersion}}</td>
+                              <td width="20%" md-cell>
+                                {{operation.opName}}
+                                <span ng-if="operation.isTeamOperation">
+                                  <md-icon md-font-icon="icon icon-account-switch"></md-icon>
+                                  <md-tooltip>{{vm.LabelConstant.Operation.TeamOperation}}</md-tooltip>
+                                </span>
+                              </td>
+                              <td width="21%" md-cell class="cm-list-publish-status"><span class="label-box {{operation.statusClassName}}">{{operation.statusTxt}}</span></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </md-table-container>
+                      <div class="empty-state full-height-90  margin-0  layout-row layout-wrap layout-align-center-center"
+                           ng-if="(vm.operationDetails  | filter: vm.query.operation_search).length == 0 ">
+                        <div class="emty-icon  flex-100">
+                          <img ng-src="{{vm.emptySearch.IMAGEURL}}" />
+                        </div>
+                        <p class="empty-state-title  flex-100">{{vm.emptySearch.MESSAGE}}</p>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </md-tab-body>
+            </md-tab>
+          </md-tabs>
+        </form>
+      </ms-form-wizard>
+    </div>
+  </div>
+</div>
+<!-- / CONTENT CARD -->

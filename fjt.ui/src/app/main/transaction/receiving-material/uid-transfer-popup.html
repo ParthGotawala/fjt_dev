@@ -1,0 +1,1047 @@
+<md-dialog class="cm-custom-label-common cm-uid-transfer-page max-height-95p" aria-label="UIDTransfer" cg-busy="{promise:vm.cgBusyLoading}" draggable flex-gt-md="{{vm.modalData.updateStock ? 95 : 75}}" flex="90">
+  <form name="vm.formUIDTransfer" class="md-inline-form" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools cm-smart-cart-user-transfer-header">
+        <h2>{{vm.modalData.updateStock ?  'Count Material' : vm.LabelConstant.UMIDManagement.TransferMaterial}}</h2>
+        <md-button ng-class="vm.ledcssColorClass" class="md-icon-button bdrrcvbtn cm-smart-cart-prompt mb-6 margin-left-10" ng-if="vm.ledcssColorClass" style="margin-left:10px !important">
+          <md-icon class="btn-icon mdi mdi-account color-white"></md-icon>
+          <md-tooltip>{{vm.userType}}</md-tooltip>
+        </md-button>
+        <span flex></span>
+        <smart-cart-user></smart-cart-user>
+        <span class="lableheader cm-header-label" layout="row" layout-align="start center" ng-if="vm.iscartCheckin && vm.currentTimerDiff">
+          <span>
+            Countdown Started:
+          </span>
+          <b class="cm-assbly-header-label">{{vm.currentTimerDiff}}</b>
+        </span>
+        <popup-header-label label-data="vm.headerData"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content class="transfer-material-modal no-padding custom-scroll" layout="column">
+      <md-content class="padding-10 mh-5">
+        <p ng-bind-html="vm.message" ng-if="vm.iscartCheckin">
+        </p>
+        <p class="label-danger no-bg padding-0" ng-bind-html="vm.stockErrorMessage" ng-if="vm.stockErrorMessage">
+        <p class="label-danger no-bg padding-0" ng-if="!vm.modalData.updateStock && vm.bulkTranferHint" ng-bind-html="vm.bulkTranferHint">
+        </p>
+        <div ng-if="vm.modalData.updateStock">
+          <!-- ENTRY & MATERIAL TYPE -->
+          <div layout="row" flex="100" layout-wrap>
+            <div class="cm-section-main margin-bottom-5 border-0" layout="row" flex>
+              <div class="cm-section-inner border" layout layout-wrap flex="75">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main width-100p cm-table-cell-height-auto">
+                  <tbody>
+                    <tr>
+                      <th></th>
+                      <td>
+                        <md-radio-group id="UMIDStockTypeGroup" name="UMIDStockTypeGroup" class="mv-0 margin-right-0"
+                                        ng-model="vm.umidStock" ng-disabled="vm.umidStockDisable" ng-change="vm.changeStockStatus()">
+                          <md-radio-button class="w-132" name="All" value="{{vm.UMIDStockType.All.key}}">{{vm.UMIDStockType.All.value}}</md-radio-button>
+                          <md-radio-button class="w-142" name="InternalStock" value="{{vm.UMIDStockType.InternalStock.key}}">{{vm.UMIDStockType.InternalStock.value}}</md-radio-button>
+                          <md-radio-button name="CustomerConsignedStock" value="{{vm.UMIDStockType.CustomerConsignedStock.key}}">{{vm.UMIDStockType.CustomerConsignedStock.value}}</md-radio-button>
+                        </md-radio-group>
+                      </td>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToCustomerList();">{{vm.autoCompleteCustomer.placeholderName}}</a><span ng-show="(vm.umidStock === vm.UMIDStockType.CustomerConsignedStock.key)">&nbsp;*</span>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container ng-if="vm.autoCompleteCustomer" id="customerAuto" class="autocompletecustom cm-custom-autocomplete margin-0 width-300">
+                          <custom-auto-complete datalist="vm.CustomerList"
+                                                column-name="vm.autoCompleteCustomer.columnName"
+                                                controller-name="vm.autoCompleteCustomer.controllerName"
+                                                view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                                input-name="vm.autoCompleteCustomer.inputName"
+                                                placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                                key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                                is-required="vm.autoCompleteCustomer.isRequired"
+                                                is-disabled="vm.umidStockDisable || !(vm.umidStock === vm.UMIDStockType.CustomerConsignedStock.key)"
+                                                is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                                add-data="vm.autoCompleteCustomer.addData"
+                                                callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                                on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr ng-if="vm.modalData.updateStock">
+                      <th><p class="label-container">Entry Type</p></th>
+                      <td colspan="3">
+                        <md-radio-group class="mv-0 margin-right-0" name="etryType" ng-model="vm.modalData.transferStockType" required ng-change="vm.changeEntryType()">
+                          <md-radio-button class="w-132" value="{{vm.transferStockType.Remaining}}" id="remainingTransferStockType" ng-disabled="vm.uidTransfer.binID === vm.CORE_SystemGenratedWarehouseBin.bin.EmptyBin.id">{{vm.transferStockType.Remaining}}</md-radio-button>
+                          <md-radio-button value="{{vm.transferStockType.Consumed}}" id="consumedTransferStockType" ng-disabled="vm.uidTransfer.binID === vm.CORE_SystemGenratedWarehouseBin.bin.EmptyBin.id">{{vm.transferStockType.Consumed}}</md-radio-button>
+                          <md-radio-button class="w-160" value="{{vm.transferStockType.ZeroOut}}" id="zeroOutTransferStockType" ng-disabled="vm.uidTransfer.binID === vm.CORE_SystemGenratedWarehouseBin.bin.EmptyBin.id">{{vm.transferStockType.ZeroOut}}</md-radio-button>
+                          <md-radio-button value="{{vm.transferStockType.Scrapped}}" id="scrappedTransferStockType" ng-disabled="vm.uidTransfer.binID === vm.CORE_SystemGenratedWarehouseBin.bin.EmptyBin.id">{{vm.transferStockType.Scrapped}}</md-radio-button>
+                          <md-radio-button value="{{vm.transferStockType.Expired}}" id="expiredTransferStockType" ng-disabled="vm.uidTransfer.binID === vm.CORE_SystemGenratedWarehouseBin.bin.EmptyBin.id">{{vm.transferStockType.Expired}}</md-radio-button>
+                          <md-radio-button value="{{vm.transferStockType.Adjust}}" id="adjustTransferStockType">{{vm.transferStockType.Adjust}}</md-radio-button>
+                        </md-radio-group>
+                      </td>
+                    </tr>
+                    <tr ng-if="vm.modalData.updateStock">
+                      <th><p class="label-container">Adjust Material Type</p></th>
+                      <td>
+                        <md-radio-group class="mv-0 margin-right-0" name="adjustMaterialTypeGroup" ng-model="vm.modalData.adjustMaterialType" ng-change="vm.changeAdjustmentType()" ng-disabled="vm.modalData.transferStockType !== vm.transferStockType.Adjust">
+                          <md-radio-button class="w-132" value="{{vm.adjustMaterialType.NewCount}}">Enter New Count</md-radio-button>
+                          <md-radio-button class="w-142" value="{{vm.adjustMaterialType.AddAppendCount}}">Add/Append Count</md-radio-button>
+                          <md-radio-button ng-disabled="vm.uidTransfer.binID === vm.CORE_SystemGenratedWarehouseBin.bin.EmptyBin.id" value="{{vm.adjustMaterialType.RemoveDeductCount}}">Remove/Deduct Count</md-radio-button>
+                        </md-radio-group>
+                      </td>
+                      <td class="text-right" colspan="2">
+                        <div layout="row" flex="100" layout-align="start start">
+                          <md-input-container class="margin-0">
+                            <md-checkbox ng-model="vm.uidTransfer.isSelectionMaterial" class="check-kit-return margin-0" aria-label="selectionMaterial" flex="100">
+                            </md-checkbox>
+                            <span class="font-size-18 vertical-middle-align">Keep selection until current screen is open</span>
+                          </md-input-container>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="pl-5" layout layout-wrap flex="25" ng-if="vm.modalData.updateStock">
+                <div class="border pl-5" flex>
+                  <div layout="row" flex="100" layout-align="start start">
+                    <md-input-container class="margin-0">
+                      <md-checkbox ng-model="vm.uidTransfer.isConformUponSaving" class="check-kit-return margin-0" id="confirmation-upon-saving" aria-label="confirmationUponSaving" flex="100">
+                      </md-checkbox>
+                      <span class="font-size-18">Confirmation upon saving</span><br />
+                      <b class="color-red p-35">[{{vm.Notes.CONFIRMATION_UPON_SAVING_NOTE}}]</b>
+                    </md-input-container>
+                  </div>
+                  <div layout="row" flex="100" layout-align="start start">
+                    <md-input-container class="margin-0">
+                      <md-checkbox ng-model="vm.uidTransfer.isMustSelectKit" ng-disabled="vm.isMustKitSelectDisable" class="check-kit-return margin-0" id="mustSelectKit" aria-label="mustSelectKit" flex="100" ng-change="vm.changeMustSelectKit();">
+                      </md-checkbox>
+                      <span class="font-size-18">Must Select Kit</span><br />
+                      <b class="color-red p-35">[{{vm.Notes.MUST_SELECT_KIT_NOTE}}]</b>
+                    </md-input-container>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- / ENTRY & MATERIAL TYPE -->
+          <!-- FROM BLOCK -->
+          <div flex="100" layout="row">
+            <div class="cm-section-main margin-bottom-5" flex="100">
+              <div class="cm-section-header" flex="100">
+                <h2>From</h2>
+                <div flex="100" layout="row" layout-align="start center" class="notification-condition ml-10">
+                  <div>
+                    <span class="border pl-5 pr-5 pv-3" ng-if="vm.uidTransfer.umidName">
+                      <b>UMID: {{vm.uidTransfer.umidName}}</b>
+                    </span>
+                    <span class="ml-10">
+                      <b class="color-red">[{{vm.Notes.DIFFRENT_DESTINATION_LOCATION_BIN_NOTE}}]</b>
+                    </span>
+                  </div>
+                  <h2 ng-if="vm.modalData.updateStock" class="margin-left-auto-imp"><span>Initial Count: {{vm.uidTransfer.originalStockClassId === vm.MEASUREMENT_TYPES_COUNT.ID ? (vm.uidTransfer.orgqty) : (vm.uidTransfer.orgqty |unit)}} | Units: {{ vm.uidTransfer.originalStockClassId === vm.MEASUREMENT_TYPES_COUNT.ID ? (vm.uidTransfer.orgPkgUnit) : (vm.uidTransfer.orgPkgUnit |unit)}}</span></h2>
+                </div>
+              </div>
+              <div class="cm-section-inner" layout layout-wrap>
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                  <tbody>
+                    <tr>
+                      <th class="padding-top-10" ng-if="vm.modalData.uid || vm.scanFromList">
+                        <p class="label-container font-size-20-imp">Scan to Verify UMID<span ng-if="!vm.scanVerifyUMIDDisable">&nbsp;*<scan-or-enter></scan-or-enter></span></p>
+                      </th>
+                      <td class="width-250 count-material-table" ng-if="vm.modalData.uid || vm.scanFromList">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" class="input-height-auto" name="ScanVerifyUMID" ng-model="vm.ScanVerifyUMID" capitalize ng-keypress="vm.scanVerifyUID($event);" id="ScanVerifyUMID" ng-maxlength="vm.UMID_MAX_LENGTH" ng-required="true"
+                                 ng-disabled="vm.scanVerifyUMIDDisable || !vm.uidTransfer.department">
+                          <span flex="100" class="font-size-10">
+                            <b>{{vm.LabelConstant.ScanOREnter.ScanUMID}}</b>
+                          </span>
+                          <div ng-messages="vm.formUIDTransfer.ScanVerifyUMID.$touched && vm.formUIDTransfer.ScanVerifyUMID.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div><div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.UMID_MAX_LENGTH,vm.formUIDTransfer.ScanVerifyUMID.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th class="padding-top-10" ng-if="!(vm.modalData.uid || vm.scanFromList)">
+                        <p class="label-container font-size-20-imp">Scan UMID<span ng-show="!vm.isUIDDisable">&nbsp;*<scan-or-enter></scan-or-enter></span></p>
+                      </th>
+                      <td class="width-250 count-material-table" ng-if="!(vm.modalData.uid || vm.scanFromList)">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input class="input-height-auto" type="text" name="ScanUID" capitalize ng-model="vm.uidTransfer.ScanUID" ng-keypress="vm.scanUID($event);" id="ScanUID" required ng-disabled="vm.isUIDDisable" ng-maxlength="vm.UMID_MAX_LENGTH" md-autofocus>
+                          <span flex="100" class="font-size-10" ng-show="!vm.modalData.uid">
+                            <b>{{vm.LabelConstant.ScanOREnter.ScanUMID}}</b>
+                          </span>
+                          <div ng-messages="vm.formUIDTransfer.ScanUID.$touched && vm.formUIDTransfer.ScanUID.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.UMID_MAX_LENGTH,vm.formUIDTransfer.ScanUID.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container font-size-15-imp">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToBinList();">{{vm.LabelConstant.TransferStock.Bin}}</a>
+                        </p>
+                      </th>
+                      <td class="cm-count-material-font">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" class="font-size-15-imp" name="bin" ng-model="vm.uidTransfer.bin" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container font-size-15-imp">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.WH}}</a>
+                        </p>
+                      </th>
+                      <td class="cm-count-material-font">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" class="font-size-15-imp" name="warehouse" ng-model="vm.uidTransfer.Warehouse" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container font-size-15-imp">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.ParentWH}}</a>
+                        </p>
+                      </th>
+                      <td class="cm-count-material-font">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" class="font-size-15-imp" name="department" ng-model="vm.uidTransfer.department" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="cm-section-main margin-bottom-5" flex="100" ng-if="vm.modalData.updateStock">
+                  <div class="cm-section-inner" layout layout-wrap>
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                      <tbody>
+                        <tr>
+                          <td rowspan="3" class="w-70">
+                            <img ng-if="vm.uidTransfer.imageURL" ng-src="{{vm.uidTransfer.imageURL}}" />
+                          </td>
+                          <th>
+                            <p class="label-container font-size-15-imp">
+                              <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToManufacturerList();">{{vm.LabelConstant.MFG.MFG}}</a>
+                            </p>
+                          </th>
+                          <td class="cm-count-material-font padding-top-4">
+                            <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToManufacturer();"><span class="cm-count-material-value">{{vm.uidTransfer.mfgCode}}</span></a>
+                          </td>
+                          <th>
+                            <p class="label-container font-size-15-imp">
+                              <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMountingTypeList();">Mounting Type</a>
+                            </p>
+                          </th>
+                          <td class="cm-count-material-font padding-top-4 w-300">
+                            <span class="cm-count-material-value">{{vm.uidTransfer.rfq_mountingType}}</span>
+                          </td>
+                          <th>
+                            <p class="label-container font-size-15-imp">
+                              <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToPackageCaseTypeList();">Package/Case(Shape) Type</a>
+                            </p>
+                          </th>
+                          <td class="cm-count-material-font padding-top-4 w-300">
+                            <span class="cm-count-material-value">{{vm.uidTransfer.rfq_packageCaseType}}</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container font-size-15-imp">
+                              <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToPartList();">{{vm.LabelConstant.MFG.MFGPN}}</a>
+                            </p>
+                          </th>
+                          <td class="cm-count-material-font padding-top-4">
+                            <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToAssyMaster();"> <span class="cm-count-material-value">{{vm.uidTransfer.mfgPN}}</span></a>
+                          </td>
+                          <td rowspan="2" colspan="4" class="padding-bottom-0 pl-5 vertical-bottom-align">
+                            <div class="cm-section-main current-stock-material-table" flex="100">
+                              <div class="cm-section-inner padding-0">
+                                <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                                  <tbody>
+                                    <tr class="cm-count-material-header-bg">
+                                      <th></th>
+                                      <th class="text-center">SPQ</th>
+                                      <th class="text-center">Count</th>
+                                      <th class="text-center">Units</th>
+                                      <th class="text-center"><a class="cm-text-decoration" ng-click="vm.goToUomList();" tabindex="-1">UOM</a></th>
+                                    </tr>
+                                    <tr>
+                                      <th class="text-center">Last Counted Stock</th>
+                                      <td class="text-right">{{vm.uidTransfer.originalStockClassId === vm.MEASUREMENT_TYPES_COUNT.ID ? (vm.uidTransfer.spq)  : (vm.uidTransfer.spq | unit)}}</td>
+                                      <td class="text-right">{{vm.uidTransfer.originalStockClassId === vm.MEASUREMENT_TYPES_COUNT.ID ? (vm.uidTransfer.pkgQty) : (vm.uidTransfer.pkgQty | unit)}}</td>
+                                      <td class="text-right">{{vm.uidTransfer.originalStockClassId === vm.MEASUREMENT_TYPES_COUNT.ID ? (vm.uidTransfer.pkgUnit) : (vm.uidTransfer.pkgUnit | unit)}}</td>
+                                      <td class="w-200 text-center">{{vm.uidTransfer.unitName}}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container font-size-15-imp">
+                              <span class="color-black">{{vm.LabelConstant.MFG.MFGPNDescription}}</span>
+                            </p>
+                          </th>
+                          <td class="cm-count-material-font padding-top-4">
+                            <span class="cm-count-material-value">{{vm.uidTransfer.mfgPNDescription}}</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- / FROM BLOCK -->
+          <!-- ALLOCATED TO KIT -->
+          <div flex="100" ng-if="vm.modalData.updateStock && vm.allocatedToKit.length > 0">
+            <div class="cm-section-main margin-bottom-5" flex>
+              <div class="cm-section-header" flex="100">
+                <div flex="70" layout="row">
+                  <h2>Allocated To Kit [{{vm.CORE_MESSAGE_CONSTANT.SELECT_KIT_TO_RETURN_NOTES}}]</h2>
+                </div>
+              </div>
+              <div class="cm-section-inner">
+                <table class="cm-table-input-main table-umid-allocated-kit">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>#</th>
+                      <th class="w-500">Kit</th>
+                      <th>{{vm.LabelConstant.KitAllocation.KitReleaseDate}}</th>
+                      <th>{{vm.LabelConstant.KitAllocation.KitReleaseStatus}}</th>
+                      <th>{{vm.LabelConstant.KitAllocation.AllocatedCount}}</th>
+                      <th>{{vm.LabelConstant.KitAllocation.AllocatedUnits}}</th>
+                      <th>{{vm.LabelConstant.KitAllocation.AllocatedUOM}}</th>
+                      <th>{{vm.LabelConstant.KitAllocation.ConsumedUnits}}</th>
+                      <th>{{vm.LabelConstant.KitAllocation.ReturnUnits}}</th>
+                      <th>{{vm.LabelConstant.KitAllocation.ScrappedUnits}}</th>
+                      <th>{{vm.LabelConstant.KitAllocation.ExpiredUnits}}</th>
+                      <th>UOM</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="item in vm.allocatedToKit">
+                      <td>
+                        <div layout="row" flex="100" layout-align="center center">
+                          <md-input-container class="margin-0 text-center">
+                            <md-checkbox ng-model="item.isReturn" class="check-kit-return" id="kit-allocation-checkbox" aria-label="packaging" flex="100" ng-change="vm.selectKitToReturn(false);" ng-disabled="vm.modalData.transferStockType === vm.transferStockType.Adjust || item.isDisable">
+                            </md-checkbox>
+                          </md-input-container>
+                        </div>
+                      </td>
+                      <td class="text-center">{{($index+1)}}</td>
+                      <td><a class="cm-text-decoration underline" ng-click="vm.goToKitList(item)">{{item.kitName}}</a></td>
+                      <td class="text-left w-130">{{item.kitReleaseDate | date:vm.dateTimeDisplayFormat}}</td>
+                      <td class="text-center w-160">
+                        <label class="cursor-pointer label-box mv-0" ng-class="{'label-warning':item.kitReleaseStatus == vm.Kit_Release_Status.NotReleased, 'label-info':item.kitReleaseStatus == vm.Kit_Release_Status.PartiallyReleased ,'label-success' :item.kitReleaseStatus == vm.Kit_Release_Status.FullReleased,'light-green-bg' :item.kitReleaseStatus == vm.Kit_Release_Status.ReadyToRelease }" ng-if="item.kitReleaseStatus">
+                          {{item.kitReleaseStatus}}
+                        </label>
+                      </td>
+                      <td class="text-right">{{item.uomClassID === vm.MEASUREMENT_TYPES_COUNT.ID ? item.allocatedQty :  (item.allocatedQty | unit)}}</td>
+                      <td class="text-right">{{item.uomClassID === vm.MEASUREMENT_TYPES_COUNT.ID ? item.allocatedUnit : (item.allocatedUnit | unit)}}</td>
+                      <td>{{item.allocatedUOM}}</td>
+                      <td class="text-right">{{item.uomClassID === vm.MEASUREMENT_TYPES_COUNT.ID ? (item.consumedUnits || 0) : ((item.consumedUnits | unit) || 0)}}</td>
+                      <td class="text-right">{{item.uomClassID === vm.MEASUREMENT_TYPES_COUNT.ID ? (item.returnUnits || 0) : ((item.returnUnits | unit) || 0)}}</td>
+                      <td class="text-right">{{ (vm.modalData.transferStockType === vm.transferStockType.Scrapped) ? item.uomClassID === vm.MEASUREMENT_TYPES_COUNT.ID ? (item.scrapExpiredUnits || 0) : ((item.scrapExpiredUnits || 0) | unit): 0}}</td>
+                      <td class="text-right">{{ (vm.modalData.transferStockType === vm.transferStockType.Expired)? item.uomClassID === vm.MEASUREMENT_TYPES_COUNT.ID ? (item.scrapExpiredUnits || 0) : ((item.scrapExpiredUnits || 0) | unit): 0}}</td>
+                      <td>{{vm.uidTransfer.consumedStockUOM.unitName}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- / ALLOCATED TO KIT -->
+          <!-- TO BLOCK -->
+          <div flex="100" layout="row">
+            <div class="cm-section-main margin-bottom-5" flex="100">
+              <div class="cm-section-inner" layout layout-wrap>
+                <!-- COUNT/UNIT AND UOM TABLE BLOCK -->
+                <div class="cm-section-main cm-count-material-popup margin-bottom-5" flex="60" ng-if="vm.modalData.updateStock">
+                  <div class="cm-section-inner count-material-table">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                      <tbody>
+                        <tr class="count-material-table-header">
+                          <th></th>
+                          <th class="text-center">Count</th>
+                          <th class="text-center">Units</th>
+                          <th class="text-center"><a class="cm-text-decoration" ng-click="vm.goToUomList();" tabindex="-1">UOM</a></th>
+                        </tr>
+                        <tr>
+                        <tr>
+                          <th class="pb-20 pl-10">Current Count</th>
+                          <th class="text-right pb-20 display-counts">{{vm.uidTransfer.remainingStockClassId === vm.MEASUREMENT_TYPES_COUNT.ID ? (vm.uidTransfer.currentPkgQty) : (vm.uidTransfer.currentPkgQty | unit)}}</th>
+                          <th class="text-right pb-20 display-counts">{{vm.uidTransfer.remainingStockClassId === vm.MEASUREMENT_TYPES_COUNT.ID ? (vm.uidTransfer.currentPkgUnit) : (vm.uidTransfer.currentPkgUnit | unit)}}</th>
+                          <th class="padding-bottom-20">{{vm.uidTransfer.remainingStockUOM.unitName}}</th>
+                        </tr>
+                        <tr ng-if="vm.modalData.transferStockType === vm.transferStockType.Remaining">
+                          <th class="pl-10">Enter New Count</th>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="number" id="remainingPkgQty" name="remainingPkgQty" ng-model="vm.uidTransfer.remainingPkgQty" placeholder="Count" onkeypress="return OnlyNumbersWithDot(event)" min="0" maxlength="19" max="{{vm.uidTransfer.pkgQty}}" step="{{$root.unitInputStep}}" ng-keydown="vm.setFocusForQty($event)" required ng-change="vm.changeRemainingQty()">
+                              <div ng-messages="vm.formUIDTransfer.remainingPkgQty.$error" ng-if="vm.formUIDTransfer.remainingPkgQty.$touched" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="min|| number || step || maxlength || decimalNumber">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="max">
+                                  <span>{{vm.stringFormat(vm.CORE_MESSAGE_CONSTANT.CURRENT_STOCK_LESS_THAN_LAST_COUNTED_STOCK,'Current','quantity')}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="number" id="remainingPkgUnit" name="remainingPkgUnit" ng-model="vm.uidTransfer.remainingPkgUnit" placeholder="Unit" min="0" maxlength="19" max="{{vm.uidTransfer.currentConvertedPkgUnit}}" step="{{$root.unitInputStep}}" required ng-keydown="vm.setFocusForQty($event)" ng-change="vm.changeRemainingUnit()" onkeypress="return OnlyNumbersWithDot(event)">
+                              <div ng-messages="vm.formUIDTransfer.remainingPkgUnit.$error" ng-if="vm.formUIDTransfer.remainingPkgUnit.$touched" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="min || number || step|| maxlength || decimalNumber">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="max">
+                                  <span>{{vm.stringFormat(vm.CORE_MESSAGE_CONSTANT.CURRENT_STOCK_LESS_THAN_LAST_COUNTED_STOCK,'Current','units')}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <td>
+                            <md-input-container flex="100" class="autocompletecustom min-width-initial margin-bottom-0" ng-if="vm.autoCompleteRemainingStockUOM">
+                              <custom-auto-complete datalist="vm.stockUOMList"
+                                                    class="count-material-autocomplete"
+                                                    column-name="vm.autoCompleteRemainingStockUOM.columnName"
+                                                    key-column-name="vm.autoCompleteRemainingStockUOM.keyColumnName"
+                                                    input-name="vm.autoCompleteRemainingStockUOM.inputName"
+                                                    placeholder-name="vm.autoCompleteRemainingStockUOM.placeholderName"
+                                                    key-column-id="vm.autoCompleteRemainingStockUOM.keyColumnId"
+                                                    is-addnew="vm.autoCompleteRemainingStockUOM.isAddnew"
+                                                    callback-fn="vm.autoCompleteRemainingStockUOM.callbackFn"
+                                                    on-select-callback-fn="vm.autoCompleteRemainingStockUOM.onSelectCallbackFn"
+                                                    is-required="vm.autoCompleteRemainingStockUOM.isRequired">
+                              </custom-auto-complete>
+                          </td>
+                        </tr>
+                        <tr ng-if="vm.modalData.transferStockType === vm.transferStockType.Consumed || vm.modalData.transferStockType === vm.transferStockType.Scrapped">
+                          <th class="pl-10">Enter {{ (vm.modalData.transferStockType === vm.transferStockType.Scrapped) ? 'Scrapped' : ((vm.modalData.transferStockType === vm.transferStockType.Expired) ? 'Expired' : 'Consumed')}} Count</th>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="number" id="consumedPkgQty" name="consumedPkgQty" ng-model="vm.uidTransfer.consumedPkgQty" placeholder="Count" onkeypress="return OnlyNumbersWithDot(event)" min="0" maxlength="19" max="{{vm.uidTransfer.pkgQty}}" step="{{$root.unitInputStep}}" ng-keydown="vm.setFocusForQty($event)" required ng-change="vm.changeConsumedQty()">
+                              <div ng-messages="vm.formUIDTransfer.consumedPkgQty.$error" ng-if="vm.formUIDTransfer.consumedPkgQty.$touched" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="min || number || step|| maxlength || decimalNumber">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="max">
+                                  <span>{{vm.stringFormat(vm.CORE_MESSAGE_CONSTANT.CURRENT_STOCK_LESS_THAN_LAST_COUNTED_STOCK,'Consume','quantity')}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="number" id="consumedPkgUnit" name="consumedPkgUnit" ng-model="vm.uidTransfer.consumedPkgUnit" placeholder="Count" min="0" maxlength="19" max="{{vm.uidTransfer.currentConvertedPkgUnit}}" step="{{$root.unitInputStep}}" required ng-keydown="vm.setFocusForQty($event)" ng-change="vm.changeConsumedUnit()" onkeypress="return OnlyNumbersWithDot(event)">
+                              <div ng-messages="vm.formUIDTransfer.consumedPkgUnit.$error" ng-if="vm.formUIDTransfer.consumedPkgUnit.$touched" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="min || number || step|| maxlength || decimalNumber">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="max">
+                                  <span>{{vm.stringFormat(vm.CORE_MESSAGE_CONSTANT.CURRENT_STOCK_LESS_THAN_LAST_COUNTED_STOCK,'Consume','units')}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <td>
+                            <md-input-container flex="100" class="autocompletecustom min-width-initial margin-bottom-0" ng-if="vm.autoCompleteConsumedStockUOM">
+                              <custom-auto-complete datalist="vm.stockUOMList"
+                                                    class="count-material-autocomplete"
+                                                    column-name="vm.autoCompleteConsumedStockUOM.columnName"
+                                                    key-column-name="vm.autoCompleteConsumedStockUOM.keyColumnName"
+                                                    input-name="vm.autoCompleteConsumedStockUOM.inputName"
+                                                    placeholder-name="vm.autoCompleteConsumedStockUOM.placeholderName"
+                                                    key-column-id="vm.autoCompleteConsumedStockUOM.keyColumnId"
+                                                    is-addnew="vm.autoCompleteConsumedStockUOM.isAddnew"
+                                                    callback-fn="vm.autoCompleteConsumedStockUOM.callbackFn"
+                                                    on-select-callback-fn="vm.autoCompleteConsumedStockUOM.onSelectCallbackFn"
+                                                    is-required="vm.autoCompleteConsumedStockUOM.isRequired">
+                              </custom-auto-complete>
+                          </td>
+                        </tr>
+                        <tr ng-if="vm.modalData.transferStockType === vm.transferStockType.Adjust">
+                          <th class="pl-10">{{vm.modalData.adjustMaterialType}} Count</th>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="number" id="remainingAdjustPkgQty" name="remainingAdjustPkgQty" ng-model="vm.uidTransfer.remainingAdjustPkgQty" placeholder="Count" onkeypress="return OnlyNumbersWithDot(event)" min="0"
+                                     max="{{vm.modalData.adjustMaterialType === vm.adjustMaterialType.RemoveDeductCount ? vm.uidTransfer.currentConvertedPkgUnit : null}}" maxlength="19" step="{{$root.unitInputStep}}" ng-keydown="vm.setFocusForQty($event)" required ng-change="vm.changeRemainingAdjustQty()">
+                              <div ng-messages="vm.formUIDTransfer.remainingAdjustPkgQty.$error" ng-if="vm.formUIDTransfer.remainingAdjustPkgQty.$touched" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="min|| number || step|| maxlength || decimalNumber">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-if="vm.modalData.adjustMaterialType === vm.adjustMaterialType.RemoveDeductCount" ng-message="max">
+                                  <span>{{vm.stringFormat(vm.CORE_MESSAGE_CONSTANT.CURRENT_STOCK_LESS_THAN_LAST_COUNTED_STOCK,'Adjust','units')}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="number" id="remainingAdjustPkgUnit" name="remainingAdjustPkgUnit" ng-model="vm.uidTransfer.remainingAdjustPkgUnit" placeholder="Count"
+                                     max="{{vm.modalData.adjustMaterialType === vm.adjustMaterialType.RemoveDeductCount ? vm.uidTransfer.currentConvertedPkgUnit : null}}" min="0" maxlength="19" step="{{$root.unitInputStep}}" required ng-change="vm.changeRemainingAdjustUnit()" ng-keydown="vm.setFocusForQty($event)" onkeypress="return OnlyNumbersWithDot(event)">
+                              <div ng-messages="vm.formUIDTransfer.remainingAdjustPkgUnit.$error" ng-if="vm.formUIDTransfer.remainingAdjustPkgUnit.$touched" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="min || number || step|| maxlength">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-if="vm.modalData.adjustMaterialType === vm.adjustMaterialType.RemoveDeductCount" ng-message="max">
+                                  <span>{{vm.stringFormat(vm.CORE_MESSAGE_CONSTANT.CURRENT_STOCK_LESS_THAN_LAST_COUNTED_STOCK,'Adjust','units')}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <td>
+                            <md-input-container flex="100" class="autocompletecustom min-width-initial margin-bottom-0" ng-if="vm.autoCompleteConsumedStockUOM">
+                              <custom-auto-complete datalist="vm.stockUOMList"
+                                                    class="count-material-autocomplete"
+                                                    column-name="vm.autoCompleteConsumedStockUOM.columnName"
+                                                    key-column-name="vm.autoCompleteConsumedStockUOM.keyColumnName"
+                                                    input-name="vm.autoCompleteConsumedStockUOM.inputName"
+                                                    placeholder-name="vm.autoCompleteConsumedStockUOM.placeholderName"
+                                                    key-column-id="vm.autoCompleteConsumedStockUOM.keyColumnId"
+                                                    is-addnew="vm.autoCompleteConsumedStockUOM.isAddnew"
+                                                    callback-fn="vm.autoCompleteConsumedStockUOM.callbackFn"
+                                                    on-select-callback-fn="vm.autoCompleteConsumedStockUOM.onSelectCallbackFn"
+                                                    is-required="vm.autoCompleteConsumedStockUOM.isRequired">
+                              </custom-auto-complete>
+                          </td>
+                        </tr>
+                        <tr ng-if="!(vm.modalData.transferStockType === vm.transferStockType.Consumed || vm.modalData.transferStockType === vm.transferStockType.Scrapped)">
+                          <th class="pl-10">{{(vm.modalData.transferStockType === vm.transferStockType.Expired) ? 'Expired Count' : (vm.modalData.transferStockType === vm.transferStockType.Adjust) ? 'Remaining Count' : 'Consumed Count'}}</th>
+                          <th class="text-right display-counts">{{vm.uidTransfer.consumedPkgQty ? (vm.uidTransfer.originalStockClassId === vm.MEASUREMENT_TYPES_COUNT.ID ? vm.uidTransfer.consumedPkgQty : ((vm.uidTransfer.consumedPkgQty) | unit)) : vm.uidTransfer.consumedPkgQty}}</th>
+                          <th class="text-right display-counts">{{vm.uidTransfer.consumedPkgUnit ? (vm.uidTransfer.originalStockClassId === vm.MEASUREMENT_TYPES_COUNT.ID ? vm.uidTransfer.consumedPkgUnit : ((vm.uidTransfer.consumedPkgUnit) | unit)) : vm.uidTransfer.consumedPkgUnit}}</th>
+                          <th>{{vm.uidTransfer.consumedStockUOM.unitName}}</th>
+                        </tr>
+                        <tr ng-if="!(vm.modalData.transferStockType === vm.transferStockType.Adjust)">
+                          <th class="pl-10">Remaining Count</th>
+                          <th class="text-right display-counts">{{vm.uidTransfer.remainingPkgQty ? (vm.uidTransfer.remainingStockClassId === vm.MEASUREMENT_TYPES_COUNT.ID ? vm.uidTransfer.remainingPkgQty : (vm.uidTransfer.remainingPkgQty | unit)) : vm.uidTransfer.remainingPkgQty}}</th>
+                          <th class="text-right display-counts">{{vm.uidTransfer.remainingPkgUnit ? (vm.uidTransfer.remainingStockClassId === vm.MEASUREMENT_TYPES_COUNT.ID ? vm.uidTransfer.remainingPkgUnit : (vm.uidTransfer.remainingPkgUnit | unit)) : vm.uidTransfer.remainingPkgUnit}}</th>
+                          <th>{{vm.uidTransfer.remainingStockUOM.unitName}}</th>
+                        </tr>
+                        <tr ng-if="vm.modalData.transferStockType === vm.transferStockType.Adjust">
+                          <th class="pl-20">Difference Adjusted</th>
+                          <th class="text-right display-counts">{{vm.uidTransfer.remainingAdjustPkgQtyDiff ? (vm.uidTransfer.remainingStockClassId === vm.MEASUREMENT_TYPES_COUNT.ID ? vm.uidTransfer.remainingAdjustPkgQtyDiff : (vm.uidTransfer.remainingAdjustPkgQtyDiff | unit)) : vm.uidTransfer.remainingAdjustPkgQtyDiff}}</th>
+                          <th class="text-right display-counts">{{vm.uidTransfer.remainingAdjustPkgUnitDiff ? (vm.uidTransfer.remainingStockClassId === vm.MEASUREMENT_TYPES_COUNT.ID ? vm.uidTransfer.remainingAdjustPkgUnitDiff : (vm.uidTransfer.remainingAdjustPkgQtyDiff | unit)) : vm.uidTransfer.remainingAdjustPkgUnitDiff}}</th>
+                          <th>{{vm.uidTransfer.remainingStockUOM.unitName}}</th>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <!-- / COUNT/UNIT AND UOM TABLE BLOCK -->
+                <!-- VALIDATION/COMMENT BLOCK -->
+                <div layout="row" flex="40" layout-wrap class="cm-custom-label-common">
+                  <div class="cm-section-main border-0" flex="100">
+                    <div class="cm-section-inner">
+                      <table cellpadding="0" cellspacing="0" class="cm-table-input-main cm-table-cell-height-auto">
+                        <tbody>
+                          <tr ng-if="vm.modalData.updateStock">
+                            <th class="width-100"><p class="label-container">Comment<span ng-if="vm.modalData.transferStockType === vm.transferStockType.Scrapped || vm.modalData.transferStockType === vm.transferStockType.Expired || vm.modalData.transferStockType === vm.transferStockType.Adjust">&nbsp;*</span></p></th>
+                            <td>
+                              <md-input-container flex="95" class="margin-bottom-0 margin-left-5-imp">
+                                <textarea id="updateMaterialNotes" name="updateMaterialNotes" ng-model="vm.uidTransfer.updateMaterialNotes" placeholder="Note" ng-maxlength="1000" ng-required="vm.modalData.transferStockType === vm.transferStockType.Scrapped || vm.modalData.transferStockType === vm.transferStockType.Expired || vm.modalData.transferStockType === vm.transferStockType.Adjust"></textarea>
+                                <div ng-messages="vm.formUIDTransfer.updateMaterialNotes.$error" role="alert">
+                                  <div ng-message="required">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                  </div>
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(1000, vm.formUIDTransfer.updateMaterialNotes.$viewValue.length)}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr ng-if="vm.warningMessage">
+                            <td>
+                              <div flex="100" layout="row" layout-align="center center" class="notification-condition">
+                                <span md-labeled-by-tooltip="md-tooltip-66">
+                                  <img class="shortage-idication-image ng-scope height-50" src="assets/images/etc/alert.png">
+                                </span>
+                              </div>
+                            </td>
+                            <td>
+                              <div flex="100" layout="row" layout-align="start" class="notification-condition font-size-17-imp color-red pt-5">
+                                <div class="title" ng-bind-html="vm.warningMessage"></div>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                <!-- / VALIDATION/COMMENT BLOCK -->
+                <!-- SCAN BIN BLOCK -->
+                <div flex="100" layout-row>
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                    <tbody>
+                      <tr>
+                        <th><p class="label-container">Scan Bin or Smart Cart<span>&nbsp;*<scan-or-enter></scan-or-enter></span></p></th>
+                        <td class="width-270">
+                          <div class="cm-scan-bin-warehouse">
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="text" name="ScanWHBin" capitalize ng-model="vm.uidTransfer.ScanWHBin" ng-keypress="vm.scanWHBin($event);" id="ScanWHBin" required ng-disabled="vm.isWHBinDisable || !vm.isUIDDisable || vm.isNotDisable" ng-maxlength="50">
+                              <span flex="100" class="font-size-10">
+                                <b>{{vm.LabelConstant.ScanOREnter.ScanBinOrSmartCart}}</b>
+                              </span>
+                              <div ng-messages="vm.formUIDTransfer.ScanWHBin.$touched && vm.formUIDTransfer.ScanWHBin.$error" role="alert" ng-show="!vm.isNotDisable">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(50,vm.formUIDTransfer.ScanWHBin.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </div>
+                        </td>
+                        <th><p class="label-container"><a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToBinList();">{{vm.LabelConstant.TransferStock.Bin}}</a></p></th>
+                        <td>
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="text" name="tobin" capitalize ng-model="vm.uidTransfer.toBin" ng-disabled="true">
+                          </md-input-container>
+                        </td>
+                        <th><p class="label-container"> <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.WH}}</a></p></th>
+                        <td>
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="text" name="towarehouse" capitalize ng-model="vm.uidTransfer.toWarehouse" ng-disabled="true">
+                          </md-input-container>
+                        </td>
+                        <th><p class="label-container"><a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.ParentWH}}</a></p></th>
+                        <td>
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="text" name="todepartment" capitalize ng-model="vm.uidTransfer.toDepartment" ng-disabled="true">
+                          </md-input-container>
+                        </td>
+                        <td rowspan="3" class="text-align-center width-150px" ng-if="vm.iscartCheckin">
+                          <div class="cm-transfer-block">
+                            <div class="cm-transfer-material-to bdrrcvbtn" ng-class="vm.promptColorDetails.ledColorCssClass">
+                              <md-icon class="btn-icon mdi mdi-account"></md-icon>
+                            </div>
+                            <div class="cm-online-offline"><img class="cm-scan-bin-warehouse-img margin-right-0" role="img" ng-if="vm.image" ng-src="{{vm.image}}" /></div>
+                          </div>
+                          <div layout="column" flex="100" layout-align="center-center">
+                            <span ng-if="vm.promptColorDetails"><b>{{vm.promptColorDetails.ledColorName}}</b></span>
+                            <span ng-if="vm.whSide">Reserved Side: <b>{{vm.whSide}}</b></span>
+                          </div>
+                        </td>
+                        <td class="text-right">
+                          <md-button class="md-default md-raised " ng-click="vm.cancel()">Cancel</md-button>
+                          <md-button class="md-default md-raised" id="resetButton" ng-click="vm.clearUMID()">Reset</md-button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <!-- / SCAN BIN BLOCK -->
+              </div>
+            </div>
+          </div>
+          <!-- / TO BLOCK -->
+        </div>
+        <div ng-if="!vm.modalData.updateStock" layout="row" flex="100" layout-wrap>
+          <div flex="50" layout="row" class="pr-5">
+            <div class="cm-section-main margin-bottom-5" flex>
+              <div class="cm-section-header" flex="100">
+                <h2>From</h2>
+              </div>
+              <div class="cm-section-inner">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                  <tbody>
+                    <tr>
+                      <th></th>
+                      <td class="cm-warehouse-type-td">
+                        <md-input-container layout-wrap layout="row" class="md-input-has-value">
+                          <md-radio-group id="UMIDStockTypeGroup" name="UMIDStockTypeGroup" layout="column" layout-wrap layout-gt-xs="row" flex layout-align="start start" class="margin-0"
+                                          ng-model="vm.umidStock" ng-disabled="vm.umidStockDisable">
+                            <md-radio-button name="All" value="{{vm.UMIDStockType.All.key}}">{{vm.UMIDStockType.All.value}}</md-radio-button>
+                            <md-radio-button name="InternalStock" value="{{vm.UMIDStockType.InternalStock.key}}">{{vm.UMIDStockType.InternalStock.value}}</md-radio-button>
+                            <md-radio-button name="CustomerConsignedStock" value="{{vm.UMIDStockType.CustomerConsignedStock.key}}">{{vm.UMIDStockType.CustomerConsignedStock.value}}</md-radio-button>
+                          </md-radio-group>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr ng-if="vm.umidStock === vm.UMIDStockType.CustomerConsignedStock.key">
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToCustomerList();">{{vm.autoCompleteCustomer.placeholderName}}</a><span ng-if="!vm.umidStockDisable">&nbsp;*</span>
+                        </p>
+                      </th>
+                      <td>
+                        <div layout="row">
+                          <md-input-container ng-if="vm.autoCompleteCustomer" id="customerAuto" class="autocompletecustom cm-custom-autocomplete margin-0">
+                            <custom-auto-complete datalist="vm.CustomerList"
+                                                  column-name="vm.autoCompleteCustomer.columnName"
+                                                  controller-name="vm.autoCompleteCustomer.controllerName"
+                                                  view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                                  key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                                  input-name="vm.autoCompleteCustomer.inputName"
+                                                  placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                                  key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                                  is-required="vm.autoCompleteCustomer.isRequired"
+                                                  is-disabled="vm.umidStockDisable"
+                                                  is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                                  add-data="vm.autoCompleteCustomer.addData"
+                                                  callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                                  on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn">
+                            </custom-auto-complete>
+                          </md-input-container>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">Scan UMID<span ng-show="!vm.isUIDDisable">&nbsp;*<scan-or-enter></scan-or-enter></span></p></th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="ScanUID" capitalize ng-model="vm.uidTransfer.ScanUID" ng-keypress="vm.scanUID($event);" id="ScanUID" required ng-disabled="vm.isUIDDisable" ng-maxlength="vm.UMID_MAX_LENGTH">
+                          <span flex="100" class="font-size-10" ng-show="!vm.modalData.uid" md-autofocus>
+                            <b>{{vm.LabelConstant.ScanOREnter.ScanUMID}}</b>
+                          </span>
+                          <div ng-messages="vm.formUIDTransfer.ScanUID.$touched && vm.formUIDTransfer.ScanUID.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.UMID_MAX_LENGTH,vm.formUIDTransfer.ScanUID.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container"><a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.WH}}</a></p></th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="warehouse" ng-model="vm.uidTransfer.Warehouse" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">   <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToBinList();">{{vm.LabelConstant.TransferStock.Bin}}</a></p></th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="bin" ng-model="vm.uidTransfer.bin" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container"><a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.ParentWH}}</a></p></th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="department" ng-model="vm.uidTransfer.department" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr ng-if="vm.modalData.uid || vm.scanFromList">
+                      <th><p class="label-container">Scan to Verify UMID<span ng-if="!vm.scanVerifyUMIDDisable">&nbsp;*<scan-or-enter></scan-or-enter></span></p></th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="ScanVerifyUMID" ng-model="vm.ScanVerifyUMID" capitalize ng-keypress="vm.scanVerifyUID($event);" id="ScanVerifyUMID" ng-maxlength="vm.UMID_MAX_LENGTH" ng-required="true" ng-disabled="vm.scanVerifyUMIDDisable || !vm.uidTransfer.department"> <!--ng-keyup="vm.scanVerifyUID($event);"-->
+                          <span flex="100" class="font-size-10">
+                            <b>{{vm.LabelConstant.ScanOREnter.ScanUMID}}</b>
+                          </span>
+                          <div ng-messages="vm.formUIDTransfer.ScanVerifyUMID.$touched && vm.formUIDTransfer.ScanVerifyUMID.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div><div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.UMID_MAX_LENGTH,vm.formUIDTransfer.ScanVerifyUMID.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div flex="50" layout="row">
+            <div class="cm-section-main margin-bottom-5" flex>
+              <div class="cm-section-header" flex="100">
+                <h2>To</h2>
+              </div>
+              <div class="cm-section-inner" layout-column layout-gt-md="row">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                  <tbody>
+                    <tr>
+                      <td ng-if="!(vm.modalData.uid || vm.scanFromList)" colspan="2">
+                        <div class="text-right">
+                          <md-input-container class="margin-0">
+                            <md-checkbox ng-model="vm.isLockBin" class="check-kit-return margin-0" id="isLockBin" aria-label="isLockBin" flex="100" ng-keypress="vm.changeLockBin();">
+                              <span class="font-size-17-imp">Lock Bin</span>
+                              <md-icon class="icon-question-mark-circle help-icon margin-top-2">
+                                <md-tooltip md-direction="top">
+                                  {{vm.CORE_MESSAGE_CONSTANT.TRANSFER_UMID_LOCK_BIN}}
+                                </md-tooltip>
+                              </md-icon>
+                            </md-checkbox>
+                          </md-input-container>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">Scan Bin or Smart Cart<span>&nbsp;*<scan-or-enter></scan-or-enter></span></p></th>
+                      <td>
+                        <div class="cm-scan-bin-warehouse">
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="text" name="ScanWHBin" capitalize ng-model="vm.uidTransfer.ScanWHBin" ng-keypress="vm.scanWHBin($event);" id="ScanWHBin" required ng-disabled="vm.isWHBinDisable || !vm.isUIDDisable || vm.isNotDisable" ng-maxlength="50">
+                            <span flex="100" class="font-size-10">
+                              <b>{{vm.LabelConstant.ScanOREnter.ScanBinOrSmartCart}}</b>
+                            </span>
+                            <div ng-messages="vm.formUIDTransfer.ScanWHBin.$touched && vm.formUIDTransfer.ScanWHBin.$error" role="alert" ng-show="!vm.isNotDisable">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(50,vm.formUIDTransfer.ScanWHBin.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container"> <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.WH}}</a></p></th>
+                      <td colspan="2">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="towarehouse" capitalize ng-model="vm.uidTransfer.toWarehouse" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container"><a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToBinList();">{{vm.LabelConstant.TransferStock.Bin}}</a></p></th>
+                      <td colspan="2">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="tobin" capitalize ng-model="vm.uidTransfer.toBin" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container"><a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.ParentWH}}</a></p></th>
+                      <td colspan="3">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="todepartment" capitalize ng-model="vm.uidTransfer.toDepartment" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div layout layout-align="end start" ng-if="vm.iscartCheckin" class="text-align-center">
+                  <div>
+                    <div class="cm-transfer-block w-150 margin-auto">
+                      <div class="cm-transfer-material-to bdrrcvbtn" ng-class="vm.promptColorDetails.ledColorCssClass">
+                        <md-icon class="btn-icon mdi mdi-account"></md-icon>
+                      </div>
+                      <div class="cm-online-offline"><img class="cm-scan-bin-warehouse-img margin-right-0" role="img" ng-if="vm.image" ng-src="{{vm.image}}" /></div>
+                    </div>
+                    <div layout="column" flex="100" layout-align="center-center">
+                      <span ng-if="vm.promptColorDetails"><b>{{vm.promptColorDetails.ledColorName}}</b></span>
+                      <span ng-if="vm.whSide">Reserved Side: <b>{{vm.whSide}}</b></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- UMID DETAIL BLOCK -->
+        <div flex="100" layout="row" ng-if="!vm.modalData.updateStock" class="cm-xfer-mat-umid-section">
+          <div class="cm-section-main margin-bottom-5" flex="100">
+            <div class="cm-section-header" flex="100">
+              <div flex="100" layout="row" layout-align="start center" class="notification-condition">
+                <div>
+                  <span class="border pl-5 pr-5 pv-3" ng-if="vm.uidTransfer.umidName">
+                    <b>UMID: {{vm.uidTransfer.umidName}}</b>
+                  </span>
+                </div>
+                <h2 class="margin-left-auto-imp"><span>Initial Count: {{vm.uidTransfer.originalStockClassId === -1 ? (vm.uidTransfer.orgqty) : (vm.uidTransfer.orgqty |unit)}} | Units: {{ vm.uidTransfer.originalStockClassId === -1 ? (vm.uidTransfer.orgPkgUnit) : (vm.uidTransfer.orgPkgUnit |unit)}}</span></h2>
+              </div>
+            </div>
+            <div class="cm-section-inner" layout layout-wrap>
+              <div class="cm-section-main margin-bottom-5" flex="100">
+                <div class="cm-section-inner" layout layout-wrap>
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                    <tbody>
+                      <tr>
+                        <td rowspan="3" class="w-70">
+                          <img ng-if="vm.uidTransfer.imageURL" ng-src="{{vm.uidTransfer.imageURL}}" />
+                        </td>
+                        <th>
+                          <p class="label-container font-size-15-imp">
+                            <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToManufacturerList();">{{vm.LabelConstant.MFG.MFG}}</a>
+                          </p>
+                        </th>
+                        <td class="cm-count-material-font padding-top-4">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToManufacturer();"><span class="cm-count-material-value">{{vm.uidTransfer.mfgCode}}</span></a>
+                        </td>
+                        <th>
+                          <p class="label-container font-size-15-imp">
+                            <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMountingTypeList();">Mounting Type</a>
+                          </p>
+                        </th>
+                        <td class="cm-count-material-font padding-top-4 w-300">
+                          <span class="cm-count-material-value">{{vm.uidTransfer.rfq_mountingType}}</span>
+                        </td>
+                        <th>
+                          <p class="label-container font-size-15-imp">
+                            <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToPackageCaseTypeList();">Package/Case(Shape) Type</a>
+                          </p>
+                        </th>
+                        <td class="cm-count-material-font padding-top-4 w-300">
+                          <span class="cm-count-material-value">{{vm.uidTransfer.rfq_packageCaseType}}</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container font-size-15-imp">
+                            <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToPartList();">{{vm.LabelConstant.MFG.MFGPN}}</a>
+                          </p>
+                        </th>
+                        <td class="cm-count-material-font padding-top-4">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToAssyMaster();"> <span class="cm-count-material-value">{{vm.uidTransfer.mfgPN}}</span></a>
+                        </td>
+                        <td rowspan="2" colspan="4" class="padding-bottom-0 pl-5 vertical-bottom-align">
+                          <div class="cm-section-main current-stock-material-table" flex="100">
+                            <div class="cm-section-inner padding-0">
+                              <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                                <tbody>
+                                  <tr class="cm-count-material-header-bg">
+                                    <th></th>
+                                    <th class="text-center">SPQ</th>
+                                    <th class="text-center">Count</th>
+                                    <th class="text-center">Units</th>
+                                    <th class="text-center"><a class="cm-text-decoration" ng-click="vm.goToUomList();" tabindex="-1">UOM</a></th>
+                                  </tr>
+                                  <tr>
+                                    <th class="text-center">Last Counted Stock</th>
+                                    <td class="text-right">{{vm.uidTransfer.originalStockClassId === -1 ? (vm.uidTransfer.spq)  : (vm.uidTransfer.spq | unit)}}</td>
+                                    <td class="text-right">{{vm.uidTransfer.originalStockClassId === -1 ? (vm.uidTransfer.pkgQty) : (vm.uidTransfer.pkgQty | unit)}}</td>
+                                    <td class="text-right">{{vm.uidTransfer.originalStockClassId === -1 ? (vm.uidTransfer.pkgUnit) : (vm.uidTransfer.pkgUnit | unit)}}</td>
+                                    <td class="w-200 text-center"> {{vm.uidTransfer.unitName}}</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container font-size-15-imp">
+                            <span class="color-black">{{vm.LabelConstant.MFG.MFGPNDescription}}</span>
+                          </p>
+                        </th>
+                        <td class="cm-count-material-font padding-top-4">
+                          <span class="cm-count-material-value">{{vm.uidTransfer.mfgPNDescription}}</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- / UMID DETAIL BLOCK -->
+        <!-- CANCEL AND RESET BUTTON -->
+        <div flex="100" layout="row" layout-align="end end" ng-if="!vm.modalData.updateStock">
+          <md-button class="md-default md-raised " ng-click="vm.cancel()">Cancel</md-button>
+          <md-button class="md-default md-raised" id="resetButton" ng-click="vm.clearUMID()">Reset</md-button>
+        </div>
+        <!-- / CANCEL AND RESET BUTTON -->
+        <!-- IN TRANSIT UMID SECTION -->
+        <div flex="100" class="margin-top-5 margin-left-0 m-8" ng-if="vm.transitUMIDList.length>0">
+          <span class="label-container"><b>In Transit UMIDs</b></span>
+          <div class="cm-labor-table">
+            <table md-table class="md-data-table border table-row-select traveler cm-intransit-umid-search" ms-responsive-table>
+              <thead md-head md-order="vm.query.order" class="inline-block">
+                <tr md-row>
+                  <th md-column class="cm-intransit-umid-table-action">Action</th>
+                  <th md-column class="cm-intransit-umid-table-num">#</th>
+                  <th md-column class="cm-intransit-umid-table-umid">UMID</th>
+                  <th md-column class="cm-intransit-umid-table-side ">Side</th>
+                  <th md-column class="cm-intransit-umid-table-location">Location/Bin</th>
+                  <th md-column class="cm-intransit-umid-table-warehouse">Warehouse</th>
+                  <th md-column class="cm-intransit-umid-table-department">Parent Warehouse</th>
+                </tr>
+              </thead>
+              <tbody md-body>
+                <tr md-row ng-repeat="item in vm.transitUMIDList track by $index">
+                  <td class="cm-intransit-umid-table-action" md-cell>
+                    <md-button class="md-primary grid-button md-icon-button bdrbtn bdrrcvbtn cm-grid-action-view-icon cm-sq-btn" ng-click="vm.transferInTransitUMID(item)">
+                      <md-icon role="img" md-font-icon="icons-transfer-material-2"></md-icon>
+                      <md-tooltip md-direction="top">Transfer {{item.umid}}</md-tooltip>
+                    </md-button>
+                  </td>
+                  <td class="cm-intransit-umid-table-num" md-cell style="padding-right:50px !important;text-align:right !important">{{$index+1}}</td>
+                  <td md-cell class="cm-intransit-umid-table-umid">
+                    {{item.umid}}
+                  </td>
+                  <td md-cell class="cm-intransit-umid-table-side">
+                    {{item.side}}
+                  </td>
+                  <td md-cell class="cm-intransit-umid-table-location">
+                    {{item.location}}
+                  </td>
+                  <td md-cell class="cm-intransit-umid-table-warehouse">
+                    {{item.warehouse}}
+                  </td>
+                  <td md-cell class="cm-intransit-umid-table-department">
+                    {{item.deptName}}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- / IN TRANSIT UMID SECTION -->
+        <!-- UMID STATUS LIST SECTION -->
+        <div flex="100" class="margin-top-5 margin-left-0 m-8">
+          <umid-status-list list="vm.assignUMIDList" screen-name="vm.screenName"></umid-status-list>
+        </div>
+        <!-- / UMID STATUS LIST SECTION -->
+      </md-content>
+    </md-dialog-content>
+  </form>
+</md-dialog>
+
+<style>
+  .md-open-menu-container {
+    max-height: 420px !important;
+  }
+</style>

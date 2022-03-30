@@ -1,0 +1,117 @@
+
+<form name="equipmentDetails" class="md-inline-form  cm-custom-label-common wo-details-list rs-manage-wo-details" novalidate>
+    <div layout="row" layout-align="space-between center" class="margin-bottom-10 overflow-auto-rs" layout-align-md="start-stretch" layout-align-sm="start-stretch">
+        <p class="margin-0" layout="row">
+            <md-button class="md-raised md-primary mv-0 ml-0" ng-click="vm.SelectAllEquipment($event)"
+                       ng-disabled="vm.SelectedEquipmentList.length == 0 || vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange">
+                {{vm.SelectAllEqp ? 'Deselect All' : 'Select All'}}
+            </md-button>
+            <md-button class="md-raised mv-0 ml-0 md-warn" ng-class="{'item-disabled':vm.getSelectedEquipmentCount() == 0}"
+                       ng-disabled="vm.getSelectedEquipmentCount() == 0 || vm.isWoInSpecificStatusNotAllowedToChange"
+                       ng-click="vm.DeleteEquipmentFromWorkorder(vm.selectedEqpList, 'Multiple',$event)">
+                Remove Selected
+            </md-button>
+        </p>
+        <div layout="row" layout-align="space-between center">
+            <div class="search searchbar" flex layout="row" layout-align="start center" 
+                        ng-if="vm.isDiplaySearFilterForWOEquipment">
+                <input id="SearchSelectedEquipmentTxt" class="search-input" type="text" placeholder="Type here to search equipments" 
+                       ng-model="vm.SearchSelectedEquipmentTxt"
+                       ng-keyup="vm.SearchSelectedEquipment(vm.SelectedEquipmentList, vm.SearchSelectedEquipmentTxt)"
+                       custom-blur="vm.SearchSelectedEquipment(vm.SelectedEquipmentList, vm.SearchSelectedEquipmentTxt)">
+            </div>
+            <md-button class="md-raised md-primary mv-0 margin-right-0" 
+                       ng-disabled="!vm.SearchSelectedEquipmentTxt"
+                       ng-click="vm.SearchSelectedEquipmentTxt='';vm.SearchSelectedEquipment(vm.SelectedEquipmentList, vm.SearchSelectedEquipmentTxt);"
+                       ng-if="vm.isDiplaySearFilterForWOEquipment">
+                Clear
+            </md-button>
+            <md-button class="md-raised md-primary mv-0 margin-right-0" ng-click="vm.AddNewEquipmentToWorkOrder($event)"
+                       ng-disabled="vm.SelectedEquipmentList.length == 0 || vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange"
+                       ng-if="vm.isDiplaySearFilterForWOEquipment">
+                Add Equipment
+            </md-button>
+            <md-button class="md-raised md-primary mv-0 margin-right-0" ng-click="vm.getWorkorderEquipmentList()">
+                Refresh
+            </md-button>
+        </div>
+    </div>
+    <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap
+         ng-if="vm.workorder.workorderOperation.length == 0">
+        <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.EmptyMesssageForOperationNotAdded.IMAGEURL}}" />
+        </div>
+        <p class="empty-state-title font-size-2 useadded-emptytxt">
+            {{vm.EmptyMesssageForOperationNotAdded.NO_SELECTED}}
+        </p>
+        <p flex="100">
+            <md-button class="md-primary md-raised margin-0" aria-label="Add Operation" ng-click="vm.moveToAddOperationsTab()">
+                Go to Operations
+            </md-button>
+        </p>
+    </div>
+    <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap 
+         ng-if="vm.SelectedEquipmentList.length == 0 && vm.workorder.workorderOperation.length > 0">
+        <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.EmptyMesssageEquipment.IMAGEURL}}" />
+        </div>
+        <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchSelectedEquipmentTxt == null && vm.SelectedEquipmentList.length == 0">
+            {{vm.EmptyMesssageEquipment.NO_SELECTED}}
+        </p>
+        <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchSelectedEquipmentTxt != null && vm.FilterSelectedEquipment != true">
+            {{vm.EmptyMesssageEquipment.EMPTY_SEARCH_MESSAGE}}
+        </p>
+        <p flex="100" ng-if="!vm.SearchSelectedEquipmentTxt">
+            <md-button class="md-fab md-mini" aria-label="Add Equipment" ng-click="vm.AddNewEquipmentToWorkOrder($event)" ng-hide="vm.isWOUnderTermination"
+                       ng-disabled="vm.isWoInSpecificStatusNotAllowedToChange">
+                <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+                <!--<md-tooltip>Add Equipment</md-tooltip>-->
+            </md-button>
+        </p>
+    </div>
+    <div class="cm-manage-wo-equip"> 
+    <div class="price-tables cm-Wo-eqp-list manage-standard" flex="100" layout="row" layout-wrap ng-if="vm.SelectedEquipmentList.length > 0">
+        <div class="templatelist style-1 md-whiteframe-1dp" layout="row" flex="100">
+            <md-list layout="row" layout-wrap layout-align="start start" flex="100">
+                <md-list-item class="overflow-auto-rs" ng-repeat="equipment in vm.SelectedEquipmentList | orderBy:'assetName'" flex="100">
+                    <div flex="100" layout="row" layout-align="space-between center" layout-align-sm="center-start"  layout-sm="column">
+                        <div layout="row" flex-sm="100">
+                            <md-checkbox class="margin-0 cm-manage-checkbox" ng-model="equipment.selected"
+                                         ng-disabled="vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange">
+                            </md-checkbox>
+                            <div flex class="text-main" layout="row" layout-align="center center">
+                                <i class="icon-checkbox-blank-circle-outline normal"></i>
+                                <i class="icon-check-circle checked"></i>
+                            </div>
+                            <div class="avatar-wrapper" layout="row">
+                                <img class="md-avatar avatar" ng-src="{{equipment.ProfilePic}}" />
+                            </div>
+                            <div class="md-list-item-text" layout="column" layout-wrap layout-align="center-start">
+                                <h3 class="name margin-0 padding-top-5 md-primary-fg underline inline-block width-fit-content"  ng-click="vm.goToManageEquipmentWorkstation(equipment);$event.stopPropagation();"><b>{{equipment.assetName}}</b>
+                                </h3>
+                                <p class="last-message text-truncate margin-0 padding-bottom-5">{{equipment.eqpMake != "null" ? equipment.eqpMake : '-'}} {{equipment.eqpModel != "null" ? "| " + equipment.eqpModel : '-'}} <span> {{equipment.eqpYear ? "| " + equipment.eqpYear : '-'}}</span></p>
+                            </div>
+                            <div class="last-message-time"></div>
+                        </div>
+                        <div layout="row" flex-sm="100" class="cm-align-items-center">
+                            <span class="label-box margin-2" ng-class="{'label-success':equipment.isOnline, 'label-danger':!equipment.isOnline}">
+                                {{ equipment.isOnline ? "Online" : "Offline" }}
+                            </span>
+                            <md-button class="md-raised md-primary margin-2" layout="column" layout-align="center center" ng-click="vm.ViewOperationByEquipmentFromWorkorder(equipment, $event)"
+                                       ng-disabled="vm.isWOUnderTermination">
+                                View Operation
+                            </md-button>
+                            <md-button class="md-raised md-warn margin-2" layout="column" layout-align="center center" ng-click="vm.DeleteEquipmentFromWorkorder(equipment, 'Single',$event)"
+                                       ng-disabled="vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange">
+                                Remove
+                            </md-button>
+                        </div>
+                    </div>
+                </md-list-item>
+            </md-list>
+        </div>
+    </div>
+    </div>
+</form>
+
+

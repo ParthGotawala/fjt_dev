@@ -1,0 +1,135 @@
+<md-dialog aria-label="manage-rfq-lineitem-headers cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="95">
+    <form name="vm.releaselineform" novalidate>
+        <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+        <md-toolbar ng-class="vm.themeClass">
+            <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+                <h2>Release Line Detail </h2>
+                <span flex></span>
+                <popup-header-label label-data="vm.headerdata"></popup-header-label>
+                <md-button class="md-icon-button" ng-click="vm.cancel()">
+                    <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content class="customer-modal no-padding" layout="column">
+            <md-content class="md-padding">
+                <div layout="row" flex="100" class="margin-vertical-5" layout-wrap>
+                    <div flex="100" layout="row" class="cm-overflow-auto">
+                        <div class="content fullpage-datatable cm-kit-release-table" layout="column" flex>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="w-100">Release#</th>
+                                        <th class="w-120">PO Release Working Status</th>
+                                        <th class="w-100">Qty<span class="color-red">*</span></th>
+                                        <th class="w-100">Received Qty</th>
+                                        <th class="w-120">Due Date<span class="color-red" ng-if="!vm.isdisabled && item.poLineWorkingStatus !=='C'">*</span></th>
+                                        <th class="w-120">{{vm.LabelConstant.PURCHASE_ORDER.SupplierPromisedDeliveryDate}}</th>
+                                        <th>Release Notes</th>
+                                        <th>Additional Notes</th>
+                                        <th class="text-center w-80">
+                                            Delete
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="item in vm.releaseLineDetail">
+                                        <td class="text-right padding-right-5 cursor-not-allow opecity-5 w-100">
+                                            <input type="text" id="releaseNumber{{$index}}" class="text-right" style="width:100%;" ng-model="item.releaseNumber" disabled>
+                                        </td>
+                                        <td class="text-right padding-right-5 cursor-not-allow opecity-5 w-100">
+                                            <input type="text" id="poworkingStatus{{$index}}" class="text-left" style="width:100%;" ng-model="item.poworkingStatus" disabled>
+                                        </td>
+                                        <td class="padding-right-5 w-100" ng-class="{'border-red':item.invalidqty,'cursor-not-allow opecity-5':(vm.isdisabled)}">
+                                            <input type="text" id="qty{{$index}}" min="1" maxlength="7" class="text-right" onkeypress="return OnlyNumeric(event, this)" style="width:100%;" ng-model="item.qty" custom-blur="vm.checkForNewLine(item)" ng-change="vm.changValue()" ng-blur="vm.checkPacingSlipQty(item)" ng-disabled="vm.isdisabled || item.poLineWorkingStatus=='C'">
+                                        </td>
+                                        <td class="text-right padding-right-5 cursor-not-allow opecity-5 w-100">
+                                            <input type="text" id="receivedQty{{$index}}" class="text-right" style="width:100%;" ng-model="item.receivedQty" disabled>
+                                        </td>
+                                        <td ng-class="{'border-red':item.invalidshipdate,'cursor-not-allow opecity-5':(vm.isdisabled)}" class="w-120">
+                                            <div layout="row">
+                                                <input type="text" class="float-left text-left"
+                                                       id="ship{{$index}}"
+                                                       name="ship{{$index}}"
+                                                       allow-past-date="true"
+                                                       allow-future-date="true"
+                                                       datetime-picker="{{$root.dateDisplayFormat}}"
+                                                       enable-time="false"
+                                                       ui-options="{clearOnBlur: true}"
+                                                       ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                                       ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                                       model-view-value="true"
+                                                       datepicker-options="item.shippingDateOptions"
+                                                       is-open="item.shippingDateOptions.shippingDateOpenFlag"
+                                                       ng-change="vm.changValue()"
+                                                       custom-blur="vm.checkForNewLine(item,true)"
+                                                       close-text="Close"
+                                                       ng-disabled="vm.isdisabled || item.poLineWorkingStatus=='C'"
+                                                       style="width:100%;" ng-model="item.shippingDate" />
+                                                <md-icon md-font-icon="icon-calendar calender-icon" ng-click="item.shippingDateOptions.shippingDateOpenFlag=!vm.isdisabled && item.poLineWorkingStatus !=='C'">
+                                                </md-icon>
+                                            </div>
+                                        </td>
+                                        <td ng-class="{'border-red':item.invalidpromiseddate,'cursor-not-allow opecity-5':(vm.isdisabled)}" class="w-120">
+                                            <div layout="row">
+                                                <input type="text" class="float-left text-left"
+                                                       id="promised{{$index}}"
+                                                       name="promised{{$index}}"
+                                                       allow-past-date="true"
+                                                       allow-future-date="true"
+                                                       datetime-picker="{{$root.dateDisplayFormat}}"
+                                                       enable-time="false"
+                                                       ui-options="{clearOnBlur: true}"
+                                                       ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                                       ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                                       model-view-value="true"
+                                                       ng-change="vm.changValue()"
+                                                       ng-disabled="vm.isdisabled || item.poLineWorkingStatus=='C'"
+                                                       custom-blur="vm.checkForNewLine(item,true)"
+                                                       datepicker-options="item.promisedDateOptions"
+                                                       is-open="item.promisedDateOptions.promisedDateOpenFlag"
+                                                       close-text="Close"
+                                                       style="width:100%;" ng-model="item.promisedShipDate" />
+                                                <md-icon md-font-icon="icon-calendar calender-icon" ng-click="item.promisedDateOptions.promisedDateOpenFlag=(vm.isdisabled || item.poLineWorkingStatus=='C')?false:true">
+                                                </md-icon>
+                                            </div>
+                                        </td>
+                                        <td class="padding-right-5" ng-class="{'border-red':item.invalidreleaseNote,'cursor-not-allow opecity-5':(vm.isdisabled)}">
+                                            <textarea name="releasenote{{$index}}" maxlength="255" ng-model="item.releaseNotes" rows="{{vm.TextAreaRows.ROWS}}" max-rows="{{vm.TextAreaRows.MAX_ROWS}}" style="width:100%;" custom-blur="vm.checkForNewLine(item)" ng-change="vm.changValue()" ng-disabled="vm.isdisabled || item.poLineWorkingStatus=='C'"></textarea>
+                                        </td>
+                                        <td class="padding-right-5" ng-class="{'border-red':item.invalidadditionalNotes,'cursor-not-allow opecity-5':(vm.isdisabled)}">
+                                            <textarea name="additionalNotes{{$index}}" maxlength="255" ng-model="item.additionalNotes" rows="{{vm.TextAreaRows.ROWS}}" max-rows="{{vm.TextAreaRows.MAX_ROWS}}" style="width:100%;" custom-blur="vm.checkForNewLine(item)" ng-change="vm.changValue()" ng-disabled="vm.isdisabled || item.poLineWorkingStatus=='C'"></textarea>
+                                        </td>
+                                        <td class="text-center w-80">
+                                            <md-button class="md-primary md-icon-button bdrbtn" ng-class="{'cursor-not-allow opecity-5':(vm.isdisabled || item.poLineWorkingStatus=='C' || item.receivedQty)}" ng-disabled="vm.isdisabled || item.poLineWorkingStatus=='C' || item.receivedQty || vm.isDisabledDelete" ng-click="vm.removeRow(item)"><md-icon role="img" md-font-icon="icon-trash"></md-icon><md-tooltip md-direction="top" ng-if="!item.isDisable">Delete</md-tooltip></md-button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th class="padding-right-5 text-right"><b>Total:</b></th>
+                                        <th class="text-right padding-right-5"></th>
+                                        <th class="text-right padding-right-5"><b>{{vm.totalQty()}}</b></th>
+                                        <th class="text-right padding-right-5">
+                                            <b ng-if="vm.totalReceivedQty() == 0">{{vm.totalReceivedQty()}}</b>
+                                            <a tabindex="-1" class="cm-text-decoration cursor-pointer" ng-if="vm.totalReceivedQty() > 0" ng-click="vm.openReceivedQtyDetailsPopup()"><b>{{vm.totalReceivedQty()}}</b></a>
+                                        </th>
+                                        <th class="text-right padding-right-5" colspan="3"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </md-content>
+        </md-dialog-content>
+
+        <md-dialog-actions layout="row">
+            <md-button class="md-default md-raised" ng-click="vm.ResetAll()">Reset</md-button>
+            <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+            <md-button class="md-primary md-raised" ng-class="{'md-formdirty':vm.ischange}" ng-click="vm.savePurchaseLineDetails(true)" ng-disabled="vm.isdisabled || vm.isbuttondisabled">Save</md-button>
+            <md-button class="md-primary md-raised" ng-class="{'md-formdirty':vm.ischange}" ng-click="vm.savePurchaseLineDetails()" ng-disabled="vm.isdisabled || vm.isbuttondisabled">Save and Exit</md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

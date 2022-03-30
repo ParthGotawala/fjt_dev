@@ -1,0 +1,173 @@
+<md-dialog aria-label="SelectPart" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="{{vm.restrictDetail && vm.restrictDetail.mfgPN && vm.restrictDetail.mfgPN.length > 21 ? 50 : 40 }}">
+
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>
+                <span ng-if="vm.UMIDDetail && (!vm.restrictDetail.restrictType && vm.UMIDDetail.id)">Unrestrict</span>
+                <span ng-if="vm.UMIDDetail && (vm.restrictDetail.restrictType && vm.UMIDDetail.id)">Restrict</span>
+                <span ng-if="vm.UMIDDetail && !vm.UMIDDetail.id">Restrict/Unrestrict</span>
+                UMID
+            </h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="vm.cancel()">
+                <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+
+    <md-dialog-content class="customer-modal no-padding custom-scroll" layout="column">
+        <md-content class="md-padding">
+
+            <div layout="row" flex="100" layout-wrap class="cm-custom-label-common">
+                <form name="vm.formRestrictUMID" flex layout="column" class="md-inline-form padding-bottom-0" novalidate>
+                    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+
+                    <div layout="row" class="cm-section-main border-0">
+                        <div flex="100" class="cm-section-inner">
+                            <md-input-container layout-wrap layout="row" class="md-input-has-value">
+                                <md-radio-group name="restrictTypeGroup" layout="column" layout-gt-xs="row" flex layout-align="start start" class="margin-0" ng-model="vm.restrictDetail.restrictType"
+                                                ng-disabled="(vm.UMIDDetail && vm.UMIDDetail.id) || vm.isScanUMID" custom-auto-focus="{{vm.UMIDDetail && !vm.UMIDDetail.id ? true : false}}">
+                                    <md-radio-button name="restrictType" ng-value="{{vm.restrictUMIDType[0].value}}">{{vm.restrictUMIDType[0].key}}</md-radio-button>
+                                    <md-radio-button name="restrictType" ng-value="{{vm.restrictUMIDType[1].value}}">{{vm.restrictUMIDType[1].key}}</md-radio-button>
+                                </md-radio-group>
+                            </md-input-container>
+                        </div>
+                    </div>
+
+                    <div flex layout="row" class="cm-section-main border-1 mb-10">
+                        <div flex="100" class="cm-section-inner">
+
+                            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                <tbody>
+
+                                    <tr>
+                                        <th>
+                                            <p class="label-container">
+                                                <a class="cm-text-decoration underline" ng-click="vm.goToUMIDList();" tabindex="-1">Scan UMID</a><span ng-if="!((vm.UMIDDetail && vm.UMIDDetail.id) || vm.isScanUMID)">&nbsp;*<scan-or-enter></scan-or-enter></span>
+                                            </p>
+                                        </th>
+                                        <td class="width-auto" layout="row">
+                                            <md-input-container class="md-block">
+                                                <input type="text" name="scanUMID" id="scanUMID" ng-model="vm.restrictDetail.scanUMID" 
+                                                       placeholder="Scan UMID" ng-maxlength="vm.UMID_MAX_LENGTH" 
+                                                       ng-required="true" ng-disabled="(vm.UMIDDetail && vm.UMIDDetail.id) || vm.isScanUMID"
+                                                       capitalize class="input-text-uppercase"
+                                                       ng-keypress="vm.scanUMIDDetail($event)">
+                                                <div ng-messages="vm.formRestrictUMID.scanUMID.$error" role="alert">
+                                                    <div ng-message="required">
+                                                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                    </div>
+                                                    <div ng-message="maxlength">
+                                                        <span>{{vm.getMaxLengthValidation(vm.UMID_MAX_LENGTH,vm.formRestrictUMID.scanUMID.$viewValue.length)}}</span>
+                                                    </div>
+                                                </div>
+                                            </md-input-container>
+                                            <md-button class="md-primary md-raised md-ink-ripple mt-0" tabindex="-1" ng-disabled="!vm.isScanUMID" ng-click="vm.reScan()" ng-if="vm.UMIDDetail && !vm.UMIDDetail.id">
+                                                Re-scan
+                                            </md-button>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="feeder-scan-details" ng-if="vm.restrictDetail && vm.restrictDetail.componentid">
+                                        <th>
+                                            <div class="avatar-wrapper float-right">
+                                                <img class="md-avatar avatar margin-top-0 margin-bottom-0 height-75 width-75" ng-src="{{vm.restrictDetail.imageURL}}" />
+                                            </div>
+                                        </th>
+                                        <td>
+                                            <table>
+                                                <tr>
+                                                    <th colspan="2">
+                                                        <span class="margin-0"><b>{{vm.restrictDetail.mfgCode}}</b></span>
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    <th colspan="2">
+                                                        <div layout="row" ng-if="vm.restrictDetail.mfgPN">
+                                                            <common-pid-code-label-link 
+                                                                        class="margin-0" ng-if="vm.restrictDetail.mfgPN"
+                                                                        component-id="vm.restrictDetail.componentid"
+                                                                        label="vm.LabelConstant.MFG.MFGPN"
+                                                                        value="vm.restrictDetail.mfgPN"
+                                                                        is-copy="true"
+                                                                        rohs-icon="vm.rohsImagePath + vm.restrictDetail.rohsIcon"
+                                                                        rohs-status="vm.restrictDetail.rohsStatus"
+                                                                        is-search-digi-key="true"
+                                                                        is-search-findchip="true">
+                                                            </common-pid-code-label-link>
+                                                            <span ng-if="vm.restrictDetail.pkgQty">(Package Qty: {{vm.restrictDetail.pkgQty}})</span>
+                                                        </div>
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    <th colspan="2">
+                                                        <div layout="row" ng-if="vm.restrictDetail.PIDCode">
+                                                            <common-pid-code-label-link 
+                                                                        class="margin-0" ng-if="vm.restrictDetail.PIDCode"
+                                                                        component-id="vm.restrictDetail.componentid"
+                                                                        label="vm.LabelConstant.MFG.PID"
+                                                                        value="vm.restrictDetail.PIDCode"
+                                                                        is-copy="true"
+                                                                        rohs-icon="vm.rohsImagePath + vm.restrictDetail.rohsIcon"
+                                                                        rohs-status="vm.restrictDetail.rohsStatus"
+                                                                        is-search-digi-key="true"
+                                                                        is-search-findchip="true">
+                                                            </common-pid-code-label-link>
+                                                        </div>
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" ng-if="vm.restrictDetail.mfgPNDescription">
+                                                        <div layout="row" flex="100" ng-if="vm.restrictDetail.mfgPNDescription">
+                                                            <span class="margin-0"><b>{{vm.restrictDetail.mfgPNDescription}}</b></span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>
+                                            <p class="label-container">Reason For <span ng-if="vm.restrictDetail.restrictType" class="color-black">&nbsp;Restriction</span><span ng-if="!vm.restrictDetail.restrictType" class="color-black">&nbsp;Unrestrict</span><span>&nbsp;*</span></p>
+                                        </th>
+                                        <td>
+                                            <md-input-container flex="100" class="margin-bottom-0">
+                                                <textarea id="reasonForRestrict" name="reasonForRestrict" ng-model="vm.restrictDetail.reasonForRestrict" ng-maxlength="1000" 
+                                                          placeholder="reasonForRestrict" ng-required="true" custom-auto-focus="{{vm.UMIDDetail && !vm.UMIDDetail.id ? false : true}}"></textarea>
+                                                <div ng-messages="vm.formRestrictUMID.reasonForRestrict.$error" role="alert">
+                                                    <div ng-message="required">
+                                                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                    </div>
+                                                    <div ng-message="maxlength">
+                                                        <span>{{vm.getMaxLengthValidation(1000,vm.formRestrictUMID.reasonForRestrict.$viewValue.length)}}</span>
+                                                    </div>
+                                                </div>
+                                            </md-input-container>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+        <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+        <md-button class="md-primary md-raised"
+                   ng-class="{'md-formdirty': vm.formRestrictUMID.$dirty}"
+                   ng-disabled="vm.saveBtnDisableFlag"
+                   ng-click="vm.restrictUMIDDetail();" aria-label="Submit">
+            <span ng-if="vm.UMIDDetail && (!vm.restrictDetail.restrictType && vm.UMIDDetail.id)">Unrestrict</span>
+            <span ng-if="vm.UMIDDetail && (vm.restrictDetail.restrictType && vm.UMIDDetail.id)">Restrict</span>
+            <span ng-if="vm.UMIDDetail && !vm.UMIDDetail.id">Save</span>
+        </md-button>
+    </md-dialog-actions>
+
+</md-dialog>

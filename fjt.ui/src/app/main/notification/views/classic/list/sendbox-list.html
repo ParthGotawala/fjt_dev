@@ -1,0 +1,111 @@
+<div class="empty-state text-center full-height" layout="row" layout-align="center center"
+     flex="100" layout-wrap
+     ng-if="!vm.isNotiFilterApplied && vm.notificationList.length == 0">
+    <div class="emty-icon" flex="100">
+        <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+    </div>
+    <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+</div>
+<div class="empty-state text-center full-height" layout="row" flex="100" layout-align="center center"
+     layout-wrap ng-if="vm.isNotiFilterApplied && vm.notificationList.length == 0">
+    <div class="emty-icon" flex="100">
+        <img ng-src="{{vm.CommonEmptyMesssage.IMAGEURL}}" />
+    </div>
+    <p flex="100" class="empty-state-title">{{vm.CommonEmptyMesssage.MESSAGE}}</p>
+</div>
+<div class="thread {{thread.status}}" md-ink-ripple
+     ng-if="!vm.loadingThreads"
+     ng-repeat="thread in vm.notificationList"
+     ng-click="vm.openThread(thread)">
+    <div layout="row" layout-align="start center">
+        <!--<md-checkbox class="no-label" ng-model="thread.isSelected">
+        </md-checkbox>-->
+      <div layout="row" flex="100">
+        <div flex-gt-lg="15" flex-lg="15" flex-md="15" flex-sm="15" layout-align="start-center" layout="row" ng-if="vm.loginUserDetails.isUserSuperAdmin && vm.isDisplayForAllUser">
+          <img class="avatar" alt="{{thread.fullNameForSender}}"
+               ng-src="{{thread.ProfilePicForSender}}" />
+          <span class="text-truncate" ng-class="{'cm-viewed-notification-emp':thread.isRead}">
+            {{thread.initialNameOfSender}}
+            <md-tooltip><span>Sender: {{thread.fullNameForSender}}</span></md-tooltip>
+          </span>
+        </div>
+        <div class="info margin-left-0" flex layout="column" layout-align="center-start">
+          <div class="subject">
+            <img class="wo-stop-image" ng-if="thread.isHaltWoOpNoti" src="assets/images/logos/stop.png" />
+            <span>{{thread.subject}}</span>
+          </div>
+          <div class="message" ng-bind-html="vm.sanitizeHtml(thread.message)">
+          </div>
+        </div>
+        <div layout="column" layout-align="space-between end" flex-gt-lg="10" flex-lg="15" flex-md="15" flex-sm="15">
+          <div class="time padding-top-5 font-weight-700">
+            {{thread.notificationDateAsMail}}
+            <md-tooltip><span>{{thread.convertedNotificationDate}}</span></md-tooltip>
+          </div>
+          <div class="actions" layout="row" layout-align="start center">
+            <span>
+              <a href="javascript:void(0)" ng-click="vm.viewReceivers(thread);">
+                {{thread.isDisplayReceiverList ? 'Hide ' : 'Show '}}{{thread.allReceiversText}}
+              </a>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-if="thread.allReceiversOfSenderNotification && thread.allReceiversOfSenderNotification.length > 0">
+        <div class="cm-section-main flex-100 layout-row layout-wrap">
+            <div class="cm-section-header flex-100 layout-row layout-align-space-between-center">
+                <div class="last-message-time"><b>All Receivers</b></div>&nbsp;
+                <div>
+                    <span>
+                        <md-button class="md-raised md-primary mv-0 margin-right-0"
+                                   ng-click="vm.refreshAllReceiversForSendbox(thread)">
+                            Refresh
+                        </md-button>
+                    </span>
+                    <!--<md-button class="height-30 width-30 md-mini md-icon-button md-primary margin-0 cm-noti-all-reciver" ng-click="thread.isDisplayReceiverList = !thread.isDisplayReceiverList">
+                        <md-icon md-font-icon="icon-chevron-down" ng-if="!thread.isDisplayReceiverList"></md-icon><md-tooltip ng-if="!thread.isDisplayReceiverList">Expand</md-tooltip>
+                        <md-icon md-font-icon="icon-chevron-up" ng-if="thread.isDisplayReceiverList"></md-icon><md-tooltip ng-if="thread.isDisplayReceiverList">Collapse</md-tooltip>
+                    </md-button>-->
+                </div>
+            </div>
+            <div class="cm-section-inner flex-100 layout-row layout-wrap" ng-if="thread.isDisplayReceiverList">
+                <div class="content fullpage-datatable padding-10-imp" layout="column" flex>
+                    <md-table-container flex="100">
+                        <table md-table class="md-data-table table-row-select" ng-model="vm.selectedItems">
+                            <thead md-head md-order="vm.query.order">
+                                <tr md-row>
+                                    <th md-column width="50">
+                                        #
+                                    </th>
+                                    <th md-column md-order-by="">
+                                        {{vm.LabelConstant.Personnel.PageName}}
+                                    </th>
+                                    <th md-column md-order-by="">
+                                        Read By Receiver
+                                    </th>
+                                    <th md-column md-order-by="" ng-if="thread.messageSubType == vm.notificationSubType.A">
+                                        Acknowledge By Receiver
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody md-body>
+                                <tr md-row ng-repeat="receiverItem in thread.allReceiversOfSenderNotification">
+                                    <td md-cell>{{$index+1}}</td>
+                                    <td md-cell>
+                                        <img class="avatar" alt="{{receiverItem.empNameFullDet}}" ng-src="{{receiverItem.ProfilePic}}" />
+                                        &nbsp;{{receiverItem.empNameFullDet}}
+                                    </td>
+                                    <td md-cell>{{receiverItem.isReadText}}</td>
+                                    <td md-cell ng-if="thread.messageSubType == vm.notificationSubType.A">
+                                        {{receiverItem.isAckText}}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </md-table-container>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

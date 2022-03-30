@@ -1,0 +1,278 @@
+<div flex="100" layout="row">
+  <div flex="100" layout="column" class="customerbox margin-right-5">
+    <!--ng-class="{'default-addresses': paramOtherDet.isManualSetDefaultAddrClass ? paramAddressDet.isDefault : true}"-->
+    <!--No Customer/Supplier Selected-->
+    <div class="empty-state border border-radius-4 padding-10-imp" layout layout-align="center center" flex ng-if="!paramOtherDet.customerId">
+      <div layout layout-align="center center">
+        <md-icon md-font-icon="" class="material-icons md-accent-fg mr-10" ng-class="vm.addrTypeIcon"></md-icon>
+        <p class="empty-state-title font-size-20-imp">{{vm.mfgEmptyState.NOT_SELECTED_MASSAGE}}</p>
+      </div>
+    </div>
+    <!--Address Block-->
+    <div class="address-detail-section" ng-if="paramOtherDet.customerId && paramAddressDet && !paramOtherDet.showAddressEmptyState">
+      <div layout="row" flex="100" class="row-main mb-5">
+        <div class="margin-bottom-0 pv-3" ng-if="vm.selectedRadioAddress || vm.selectedRadioAddress==0">
+          <div flex="100">
+            <md-radio-group layout="row" ng-model="vm.selectedRadioAddress" ng-change="vm.setAddress($event)" ng-disabled="!paramAddressDet.isActive">
+              <md-radio-button class="md-primary" value="{{paramAddressDet.id}}"></md-radio-button>
+            </md-radio-group>
+          </div>
+        </div>
+        <div class="margin-bottom-0 pv-3">
+          <div flex="100">
+            <a tabindex="-1" class="cm-text-decoration font-size-14 underline" ng-if="paramOtherDet.customerId" ng-click="vm.goToManageMfgMstAddress()">{{paramOtherDet.addressBlockTitle || 'Address'}}:</a>
+            <span ng-if="!paramOtherDet.customerId">>{{paramOtherDet.addressBlockTitle || 'Address'}}:</span>
+            <span ng-if="paramOtherDet.isMasterPage || vm.selectedRadioAddress || vm.selectedRadioAddress==0" class="ph-5 pv-1-imp border-radius-2 ml-5" ng-class="{'label-success':paramAddressDet.isActive, 'label-warning':!paramAddressDet.isActive}">
+              {{paramAddressDet.isActiveText}}
+            </span>
+          </div>
+          <div class="address-button customeractionbtn">
+            <span ng-if="paramAddressDet.defaultIntermediateAddressID" class="mr-5">
+              <md-icon md-font-icon="{{vm.defIntmdAddrTypeIcon}}" class="md-accent-fg">
+                <md-tooltip>Default Intermediate Address applied</md-tooltip>
+              </md-icon>
+            </span>
+            <span ng-if="paramAddressDet.defaultSelected || paramAddressDet.isDefault" class="ph-5 pv-1-imp border-radius-2 mr-5 label-default">
+              {{paramAddressDet.defaultSelected?'Current Selection':'Default'}}
+            </span>
+            <md-button class="md-icon-button margin-0 md-primary md-raised md-mini" ng-click="vm.selectAddress($event)"
+                       ng-if="paramAddrActionBtnDet.ApplyNew.isVisible"
+                       ng-disabled="paramAddrActionBtnDet.ApplyNew.isDisable">
+              <md-icon md-font-icon="icon-format-list-bulleted" class="material-icons mat-icon"></md-icon>
+              <md-tooltip>Apply New</md-tooltip>
+            </md-button>
+            <md-menu ng-if="paramAddrActionBtnDet.Duplicate.isVisible || paramAddrActionBtnDet.AddNew.isVisible || paramAddrActionBtnDet.Update.isVisible || paramAddrActionBtnDet.Delete.isVisible || paramAddrActionBtnDet.SetDefault.isVisible">
+              <md-button class="md-icon-button margin-0 md-primary md-raised md-mini"
+                         ng-click="$mdMenu.open($event)">
+                <md-icon md-menu-origin md-font-icon="icon-dots-vertical"></md-icon>
+              </md-button>
+              <md-menu-content class="md-dense" width="3">
+                <md-menu-item class="mv-5" ng-if="paramAddrActionBtnDet.Duplicate.isVisible">
+                  <md-button class="md-raised no-shadow" ng-click="vm.duplicateAddress($event)"
+                             ng-disabled="paramAddrActionBtnDet.Duplicate.isDisable">
+                    <md-icon md-font-icon="" class="material-icons mat-icon t-icons-duplicate-address add-icon"></md-icon>
+                    <span>Duplicate Address</span>
+                  </md-button>
+                </md-menu-item>
+                <md-menu-item class="mv-5" ng-if="paramAddrActionBtnDet.AddNew.isVisible">
+                  <md-button class="md-raised no-shadow" ng-click="vm.addEditAddress($event,null)"
+                             ng-disabled="paramAddrActionBtnDet.AddNew.isDisable">
+                    <md-icon md-font-icon="icon-plus" class="material-icons mat-icon"></md-icon>
+                    <span>Add</span>
+                  </md-button>
+                </md-menu-item>
+                <md-menu-item class="mv-5" ng-if="paramAddrActionBtnDet.Update.isVisible">
+                  <md-button class="md-raised no-shadow" ng-click="vm.addEditAddress($event,paramAddressDet)"
+                             ng-disabled="paramAddrActionBtnDet.Update.isDisable">
+                    <md-icon md-font-icon="icon-pencil" class="material-icons mat-icon"></md-icon>
+                    <span>Update</span>
+                  </md-button>
+                </md-menu-item>
+                <md-menu-item class="mv-5" ng-if="paramAddrActionBtnDet.Delete.isVisible">
+                  <md-button class="md-raised no-shadow" ng-class="{'cm-feture-btn-color':paramOtherDet.isMasterPage || vm.selectedRadioAddress || vm.selectedRadioAddress==0}"
+                             ng-click="vm.deleteAddress($event)"
+                             ng-disabled="paramAddrActionBtnDet.Delete.isDisable || (!vm.allowToDeleteAddress && paramOtherDet.isMasterPage)"
+                             title="{{(!vm.allowToDeleteAddress && paramOtherDet.isMasterPage) ? vm.LabelConstant.FeatureEnableText:''}}">
+                    <md-icon md-font-icon="icon-trash" class="material-icons mat-icon"></md-icon>
+                    <span>Delete</span>
+                  </md-button>
+                  <!--<md-tooltip ng-if="!vm.allowToDeleteAddress && paramOtherDet.isMasterPage">{{vm.LabelConstant.FeatureEnableText}}</md-tooltip>-->
+                </md-menu-item>
+                <md-menu-item class="mv-5" ng-if="paramAddrActionBtnDet.SetDefault.isVisible">
+                  <md-button class="md-raised no-shadow" ng-click="vm.setDefaultAddress($event)"
+                             ng-disabled="paramAddrActionBtnDet.SetDefault.isDisable || !paramAddressDet.isActive">
+                    <md-icon md-font-icon="{{paramAddressDet.isDefault ? 'icons-pin' : 'icons-unpin'}}" class="material-icons mat-icon"></md-icon>
+                    <span>{{paramAddressDet.isDefault ? vm.LabelConstant.Address.UnsetTheDefaultAddress : vm.LabelConstant.Address.SetAsDefaultAddress}}</span>
+                  </md-button>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </div>
+        </div>
+      </div>
+      <div class="row-main margin-bottom-0" layout="row" flex="100">
+        <label flex="20" class="text-right margin-right-5">{{vm.companyNameLbl}}:</label>
+        <p flex class="margin-0">{{paramAddressDet.companyName}}</p>
+      </div>
+      <div class="row-main margin-bottom-0" layout="row" flex="100"
+           ng-if="paramAddressDet.addressType === vm.addressTypeConst.PayToInformation">
+        <label flex="20" class="text-right margin-right-5">Remit To Name:</label>
+        <p class="margin-0" flex="80">{{paramAddressDet.bankRemitToName}}</p>
+      </div>
+      <div class="row-main margin-bottom-0" layout="row" flex="100">
+        <label flex="20" class="text-right margin-right-5">Address:</label>
+        <p class="margin-0" flex="100">{{paramAddressDet.street1}}{{paramAddressDet.street2 ? ", " + paramAddressDet.street2 : ""}}{{paramAddressDet.street3 ? ", " + paramAddressDet.street3 : ""}}</p>
+      </div>
+      <div class="row-main margin-bottom-0" layout="row" flex="100">
+        <label flex="20" class="text-right margin-right-5"></label>
+        <p class="margin-0" flex="100">
+          {{paramAddressDet.city}}{{paramAddressDet ? ',' : ''}} {{paramAddressDet.state}} {{paramAddressDet ? '-' : ''}} {{paramAddressDet.postcode}}{{paramAddressDet ? ',' : ''}} {{paramAddressDet.countryMst.countryName}}
+        </p>
+      </div>
+    </div>
+    <!--No Address Added-->
+    <div class="empty-state border border-radius-4 padding-10-imp" layout="column" layout-align="center center" flex ng-if="paramOtherDet.customerId && paramOtherDet.showAddressEmptyState">
+      <div layout="row" class="align-self-top row-main">
+        <a tabindex="-1" class="cm-text-decoration font-size-14 underline" ng-click="vm.goToManageMfgMstAddress()">{{paramOtherDet.addressBlockTitle || 'Address'}}</a>
+        <span ng-if="!paramOtherDet.customerId">>{{paramOtherDet.addressBlockTitle || 'Address'}}</span>:
+      </div>
+      <div layout="column" flex layout-align="center center">
+        <div layout="row" layout-align="center center" class="mb-5">
+          <md-icon md-font-icon="" class="material-icons md-accent-fg mr-10" ng-class="vm.addrTypeIcon"></md-icon>
+          <p class="empty-state-title font-size-20-imp">{{vm.addressEmptyStateObject.MESSAGE}}</p>
+        </div>
+        <div layout layout-align="center center">
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini"
+                     ng-click="vm.refreshAddress($event)"
+                     ng-if="paramAddrActionBtnDet.Refresh.isVisible"
+                     ng-disabled="paramAddrActionBtnDet.Refresh.isDisable">
+            <md-icon md-font-icon="icon-refresh" class="material-icons mat-icon"></md-icon>
+            <md-tooltip>Refresh</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini"
+                     ng-click="vm.addEditAddress($event,null)"
+                     ng-if="paramAddrActionBtnDet.AddNew.isVisible"
+                     ng-disabled="paramAddrActionBtnDet.AddNew.isDisable">
+            <md-icon md-font-icon="icon-plus" class="material-icons mat-icon"></md-icon>
+            <md-tooltip>Add</md-tooltip>
+          </md-button>
+        </div>
+      </div>
+    </div>
+    <!--No Address Selected-->
+    <div class="empty-state border border-radius-4 padding-10-imp" layout="column" layout-align="center center" flex ng-if="paramOtherDet.customerId && !paramAddressDet && !paramOtherDet.showAddressEmptyState">
+      <div layout="row" class="align-self-top row-main">
+        <a tabindex="-1" class="cm-text-decoration font-size-14 underline" ng-click="vm.goToManageMfgMstAddress()">{{paramOtherDet.addressBlockTitle || 'Address'}}</a>
+        <span ng-if="!paramOtherDet.customerId">>{{paramOtherDet.addressBlockTitle || 'Address'}}</span>:
+      </div>
+      <div layout="column" flex layout-align="center center">
+        <div layout="row" layout-align="center center" class="mb-5">
+          <md-icon md-font-icon="" class="material-icons md-accent-fg mr-10" ng-class="vm.addrTypeIcon"></md-icon>
+          <p class="empty-state-title font-size-20-imp">{{vm.addressEmptyStateObject.NOSELECTIONMESSAGE}}</p>
+        </div>
+        <div layout layout-align="center center">
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini"
+                     ng-click="vm.addEditAddress($event,null)"
+                     ng-if="paramAddrActionBtnDet.AddNew.isVisible"
+                     ng-disabled="paramAddrActionBtnDet.AddNew.isDisable">
+            <md-icon md-font-icon="icon-plus" class="material-icons mat-icon"></md-icon>
+            <md-tooltip>Add</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini"
+                     ng-click="vm.selectAddress($event)"
+                     ng-if="paramAddrActionBtnDet.ApplyNew.isVisible"
+                     ng-disabled="paramAddrActionBtnDet.ApplyNew.isDisable">
+            <md-icon md-font-icon="icon-format-list-bulleted" class="material-icons mat-icon"></md-icon>
+            <md-tooltip>Apply New</md-tooltip>
+          </md-button>
+        </div>
+      </div>
+    </div>
+    <!--Contact Person Block-->
+    <hr class="mv-5 border-bottom-gray width-100p" ng-if="!paramHideContactPersonSection && paramOtherDet.customerId && paramContactPersonDet && !paramOtherDet.showContPersonEmptyState" />
+    <div class="address-detail-section" ng-if="!paramHideContactPersonSection && paramOtherDet.customerId && paramContactPersonDet && !paramOtherDet.showContPersonEmptyState">
+      <div class="address-button customeractionbtn">
+        <span ng-if="paramContactPersonDet.isDefault" class="ph-5 pv-1-imp border-radius-2 mr-5 label-default">
+          Default
+        </span>
+        <span ng-if="paramContactPersonDet.isPrimary" class="ph-5 pv-1-imp border-radius-2 mr-5 label-primary">
+          Primary
+        </span>
+        <md-button class="md-icon-button margin-0 md-primary md-raised md-mini"
+                   ng-click="vm.selectContactPerson($event)"
+                   ng-if="paramContPersonActionBtnDet.ApplyNew.isVisible"
+                   ng-disabled="paramContPersonActionBtnDet.ApplyNew.isDisable">
+          <md-icon md-font-icon="icon-format-list-bulleted" class="material-icons mat-icon"></md-icon>
+          <md-tooltip>Apply New</md-tooltip>
+        </md-button>
+        <md-menu ng-if="paramContPersonActionBtnDet.AddNew.isVisible || paramContPersonActionBtnDet.Update.isVisible || paramContPersonActionBtnDet.Delete.isVisible">
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini"
+                     ng-click="$mdMenu.open($event)">
+            <md-icon md-menu-origin md-font-icon="icon-dots-vertical"></md-icon>
+          </md-button>
+          <md-menu-content class="md-dense" width="3">
+            <md-menu-item class="mv-5" ng-if="paramContPersonActionBtnDet.AddNew.isVisible">
+              <md-button class="md-raised no-shadow" ng-disabled="paramContPersonActionBtnDet.AddNew.isDisable" ng-click="vm.addEditContactPerson($event,null)">
+                <md-icon md-font-icon="icon-plus" class="material-icons mat-icon"></md-icon>
+                <span>Add</span>
+              </md-button>
+            </md-menu-item>
+            <md-menu-item class="mv-5" ng-if="paramContPersonActionBtnDet.Update.isVisible">
+              <md-button class="md-raised no-shadow" ng-disabled="paramContPersonActionBtnDet.Update.isDisable" ng-click="vm.addEditContactPerson($event,paramContactPersonDet)">
+                <md-icon md-font-icon="icon-pencil" class="material-icons mat-icon"></md-icon>
+                <span>Update</span>
+              </md-button>
+            </md-menu-item>
+            <md-menu-item class="mv-5" ng-if="paramContPersonActionBtnDet.Delete.isVisible">
+              <md-button class="md-raised no-shadow" ng-disabled="paramContPersonActionBtnDet.Delete.isDisable" ng-click="vm.deleteContactPerson($event)">
+                <md-icon md-font-icon="icon-trash" class="material-icons mat-icon"></md-icon>
+                <span>Delete</span>
+              </md-button>
+            </md-menu-item>
+          </md-menu-content>
+        </md-menu>
+      </div>
+      <div class="row-main margin-bottom-0 pv-3" layout="row" flex="100">
+        <a tabindex="-1" class="cm-text-decoration underline font-size-14" ng-if="paramOtherDet.customerId" ng-click="vm.goToCustomerContactPersonList()">Contact Person</a>
+        <span ng-if="!paramOtherDet.customerId" class="font-size-14">Contact Person</span>:
+      </div>
+      <div class="row-main margin-bottom-0" layout="row" flex="100">
+        <label flex="20" class="text-right margin-right-5 margin-bottom-0">Person:</label>
+        <p flex class="margin-0">{{paramContactPersonDet.personFullName}}</p>
+      </div>
+      <div class="row-main margin-bottom-0" layout="row" flex="100">
+        <label flex="20" class="text-right margin-right-5">Title:</label>
+        <p flex class="margin-0">{{paramContactPersonDet.title}}</p>
+        <label flex="20" class="text-right margin-right-5 margin-bottom-0">Department:</label>
+        <p flex class="margin-0">{{paramContactPersonDet.division}}</p>
+      </div>
+      <div class="row-main margin-bottom-0" layout="row" flex="100">
+        <label flex="20" class="text-right margin-right-5">Email:</label>
+        <p flex class="margin-0 word-break">{{paramContactPersonDet.emailList}}</p>
+      </div>
+      <div class="row-main margin-bottom-0" layout="row" flex="100" ng-repeat="phoneCategory in vm.phoneList">
+        <label flex="20" class="text-right margin-right-5">{{phoneCategory[0]}}:</label>
+        <p flex class="margin-0">{{phoneCategory[1]}}</p>
+      </div>
+    </div>
+    <!--No Contact Person Added-->
+    <div class="empty-state border border-radius-4 padding-10-imp" layout="column" layout-align="center center" flex ng-if="!paramHideContactPersonSection && paramOtherDet.customerId && paramOtherDet.showContPersonEmptyState">
+      <div layout layout-align="center center">
+        <md-icon md-font-icon="t-icons-contact-person" class="material-icons md-accent-fg mr-10"></md-icon>
+        <p class="empty-state-title font-size-20-imp">{{vm.contactPersonEmptyStateObj.MESSAGE}}</p>
+      </div>
+      <div layout layout-align="center center">
+        <md-button class="md-icon-button margin-0 md-primary md-raised md-mini"
+                   ng-click="vm.addEditContactPerson($event,null)"
+                   ng-if="paramContPersonActionBtnDet.AddNew.isVisible"
+                   ng-disabled="paramContPersonActionBtnDet.AddNew.isDisable">
+          <md-icon md-font-icon="icon-plus" class="material-icons mat-icon"></md-icon>
+          <md-tooltip>Add</md-tooltip>
+        </md-button>
+      </div>
+    </div>
+    <!--No Contact Person Selected-->
+    <div class="empty-state border border-radius-4 padding-10-imp" layout="column" layout-align="center center" flex ng-if="!paramHideContactPersonSection && paramOtherDet.customerId && paramAddressDet && !paramContactPersonDet && !paramOtherDet.showContPersonEmptyState">
+      <div layout layout-align="center center" class="mb-5">
+        <md-icon md-font-icon="t-icons-contact-person" class="material-icons md-accent-fg mr-10"></md-icon>
+        <p class="empty-state-title font-size-20-imp">{{vm.contactPersonEmptyStateObj.NO_PERSON_SELECTED}}</p>
+      </div>
+      <div layout layout-align="center center">
+        <md-button class="md-icon-button margin-0 md-primary md-raised md-mini"
+                   ng-click="vm.addEditContactPerson($event,null)"
+                   ng-if="paramContPersonActionBtnDet.AddNew.isVisible"
+                   ng-disabled="paramContPersonActionBtnDet.AddNew.isDisable">
+          <md-icon md-font-icon="icon-plus" class="material-icons mat-icon"></md-icon>
+          <md-tooltip>Add</md-tooltip>
+        </md-button>
+        <md-button class="md-icon-button margin-0 md-primary md-raised md-mini"
+                   ng-click="vm.selectContactPerson($event)"
+                   ng-if="paramContPersonActionBtnDet.ApplyNew.isVisible"
+                   ng-disabled="paramContPersonActionBtnDet.ApplyNew.isDisable">
+          <md-icon md-font-icon="icon-format-list-bulleted" class="material-icons mat-icon"></md-icon>
+          <md-tooltip>Apply New</md-tooltip>
+        </md-button>
+      </div>
+    </div>
+  </div>
+</div>

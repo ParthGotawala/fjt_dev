@@ -1,0 +1,176 @@
+<md-dialog aria-label="pricebreak" cg-busy="{promise:vm.cgBusyLoading}" class="flex-40"  draggable>
+  <form name="vm.priceBreakForm" novalidate>
+      <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>{{vm.pricebreakdetails.id == null ? 'Add':'Update'}} Part Price Break Details</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="no-padding cm-custom-label-common md-inline-form">
+      <md-content class="padding-10">
+        <div layout="row">
+          <div class="cm-section-main border-0" flex="100">
+            <div class="cm-section-inner">
+              <table class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        <a tabindex="-1" class="cm-text-decoration underline"
+                           ng-click="vm.goToMFGList();">{{vm.LabelConstant.MFG.MFG}}</a><span>&nbsp;*</span>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container ng-if="vm.autoCompletemfgCode"
+                                          class="autocompletecustom margin-bottom-0" flex="100" id="autoMFGCode">
+                        <custom-auto-complete-search class="min-width-initial"
+                                                     custom-auto-focus="true"
+                                                     on-search-fn="vm.autoCompletemfgCode.onSearchFn"
+                                                     column-name="vm.autoCompletemfgCode.columnName"
+                                                     controller-name="vm.autoCompletemfgCode.controllerName"
+                                                     view-template-url="vm.autoCompletemfgCode.viewTemplateURL"
+                                                     key-column-name="vm.autoCompletemfgCode.keyColumnName"
+                                                     input-name="vm.autoCompletemfgCode.inputName"
+                                                     placeholder-name="vm.autoCompletemfgCode.placeholderName"
+                                                     key-column-id="vm.autoCompletemfgCode.keyColumnId"
+                                                     is-required="vm.autoCompletemfgCode.isRequired"
+                                                     parent-column-name="vm.autoCompletemfgCode.parentColumnName"
+                                                     is-addnew="vm.autoCompletemfgCode.isAddnew"
+                                                     is-disabled="vm.requestID" add-data="vm.autoCompletemfgCode.addData"
+                                                     callback-fn="vm.autoCompletemfgCode.callbackFn"
+                                                     on-select-callback-fn="vm.autoCompletemfgCode.onSelectCallbackFn">
+                        </custom-auto-complete-search>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        <a tabindex="-1"
+                           class="cm-text-decoration underline"
+                           ng-click="vm.goToPartList();">{{vm.LabelConstant.MFG.MFGPN}}</a><span ng-hide="!vm.autoCompletemfgCode.keyColumnId || vm.requestID">&nbsp;*</span>
+                      </p>
+                    </th>
+                    <td colspan="3">
+                      <md-input-container ng-if="vm.autoCompletecomponent"
+                                          class="autocompletecustom margin-bottom-0" flex="100">
+                        <custom-auto-complete-search class="min-width-initial"
+                                                     on-search-fn="vm.autoCompletecomponent.onSearchFn"
+                                                     column-name="vm.autoCompletecomponent.columnName"
+                                                     controller-name="vm.autoCompletecomponent.controllerName"
+                                                     view-template-url="vm.autoCompletecomponent.viewTemplateURL"
+                                                     key-column-name="vm.autoCompletecomponent.keyColumnName"
+                                                     input-name="vm.autoCompletecomponent.inputName"
+                                                     placeholder-name="vm.autoCompletecomponent.placeholderName"
+                                                     key-column-id="vm.autoCompletecomponent.keyColumnId"
+                                                     is-required="vm.autoCompletecomponent.isRequired"
+                                                     is-addnew="vm.autoCompletecomponent.isAddnew"
+                                                     add-data="vm.autoCompletecomponent.addData"
+                                                     callback-fn="vm.autoCompletecomponent.callbackFn"
+                                                     on-select-callback-fn="vm.autoCompletecomponent.onSelectCallbackFn"
+                                                     is-disabled="vm.pricebreakdetails.id ||!vm.autoCompletemfgCode.keyColumnId ? true : false">
+                        </custom-auto-complete-search>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">Price Break<span>&nbsp;*</span></p>
+                    </th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">                      
+                        <input type="number" id="priceBreak" name="priceBreak"
+                               input-number-decimal-place
+                               ng-model="vm.pricebreakdetails.priceBreak"
+                               placeholder="Price break"
+                               onkeypress="return OnlyNumeric(event)"
+                               onblur="return OnlyNumeric(event)"
+                               min="0"
+                               maxlength="10"
+                               required
+                               ng-change="vm.priceBreakCalculation()"
+                               step="{{$root.unitInputStep}}">
+                        <div ng-messages="vm.priceBreakForm.priceBreak.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="min">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(10,vm.priceBreakForm.priceBreak.$viewValue.length)}}</span>
+                          </div>
+                          <div ng-message="step || number || max">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">Unit Price<span>&nbsp;*</span></p>
+                    </th>
+                    <td>
+                      <md-input-container flex="100">
+                        <input type="number" id="unitPrice" name="unitPrice"
+                               ng-model="vm.pricebreakdetails.unitPrice"
+                               input-number-decimal-place
+                               placeholder="Unit price"
+                               onkeypress="return OnlyNumbersWithDot(event)"
+                               min="0"
+                               step="{{$root.unitInputStep}}"
+                               maxlength="16"
+                               required
+                               ng-change="vm.priceBreakCalculation()">
+                        <div ng-messages="vm.priceBreakForm.unitPrice.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="min">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(16,vm.priceBreakForm.unitPrice.$viewValue.length)}}</span>
+                          </div>
+                          <div ng-message="step || number || max">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">Extended Price</p>
+                    </th>
+                    <td>
+                      <md-input-container class="md-block" flex="100">
+                        <input type="number" id="extendedPrice" name="extendedPrice"
+                               ng-model="vm.pricebreakdetails.extendedPrice"
+                               placeholder="Extended price" disabled>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </md-content>
+
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>      
+      <md-button class="md-primary md-raised" ng-click="vm.savePriceBreakdetails(true)" ng-class="{'md-formdirty': vm.priceBreakForm.$dirty}" aria-label="Submit">
+          <!--ng-disabled="!vm.priceBreakForm.$valid || !vm.checkFormDirty(vm.priceBreakForm,vm.checkFormDirty)"-->
+        Save
+      </md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

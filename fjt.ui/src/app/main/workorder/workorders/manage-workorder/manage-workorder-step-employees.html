@@ -1,0 +1,139 @@
+
+<form name="employeeDetails" class="md-inline-form cm-custom-label-common wo-details-list  rs-manage-wo-details" novalidate>
+  <div layout="row" layout-align="space-between center" class="padding-bottom-10 overflow-auto-rs" layout-align-md="start-stretch" layout-align-sm="start-stretch" layout-md="column" layout-sm="column">
+    <p class="margin-0">
+      <md-button class="md-raised md-primary mv-0 ml-0" ng-click="vm.SelectAllEmployee($event)"
+                 ng-disabled="vm.SelectedEmployeeList.length == 0 || vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange">
+        {{vm.SelectAllEmp ? 'Deselect All' : 'Select All'}}
+      </md-button>
+      <md-button class="md-raised md-warn mv-0 ml-0" aria-label="Remove Employee"
+                 ng-class="{'item-disabled':vm.getSelectedEmployeeCount() == 0}"
+                 ng-disabled="vm.getSelectedEmployeeCount() == 0 || vm.isWoInSpecificStatusNotAllowedToChange"
+                 ng-click="vm.DeleteEmployeeFromWorkorder(vm.selectedEmpList, 'Multiple',$event)">
+        Remove Selected
+      </md-button>
+    </p>
+    <div layout="row" layout-align="space-between center">
+      <div class="search searchbar" flex layout="row" layout-align="start center"
+           ng-if="vm.isDiplaySearFilterForWOEmployee">
+        <input id="SearchSelectedEmployeeTxt" class="search-input" type="text" placeholder="Type here to search personnel"
+               ng-model="vm.SearchSelectedEmployeeTxt"
+               ng-change="vm.SearchSelectedEmployee()"
+               ng-model-options="{debounce: vm.debounceTime }" max="255">
+      </div>
+      <md-button class="md-raised md-primary mv-0 margin-right-0"
+                 ng-disabled="!vm.SearchSelectedEmployeeTxt"
+                 ng-click="vm.SearchSelectedEmployeeTxt='';vm.SearchSelectedEmployee()"
+                 ng-if="vm.isDiplaySearFilterForWOEmployee">
+        Clear
+      </md-button>
+      <md-button class="md-raised md-primary mv-0 margin-right-0" ng-click="vm.AddNewEmployeeToWorkOrder($event)"
+                 ng-disabled="vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange"
+                 ng-if="vm.isDiplaySearFilterForWOEmployee">
+        Add Personnel
+      </md-button>
+      <md-button class="md-raised md-primary mv-0 margin-right-0" ng-click="vm.getWorkorderEmployeeList()"
+                 ng-if="vm.SelectedEmployeeList.length != 0 && vm.workorder.workorderOperation.length != 0">
+        Refresh
+      </md-button>
+    </div>
+  </div>
+  <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap
+       ng-if="vm.workorder.workorderOperation.length == 0">
+    <div class="emty-icon" flex="100">
+      <img ng-src="{{vm.EmptyMesssageForOperationNotAdded.IMAGEURL}}" />
+    </div>
+    <p class="empty-state-title font-size-2 useadded-emptytxt">
+      {{vm.EmptyMesssageForOperationNotAdded.NO_SELECTED}}
+    </p>
+    <p flex="100">
+      <md-button class="md-primary md-raised margin-0" aria-label="Add Operation" ng-click="vm.moveToAddOperationsTab()">
+        Go to Operations
+      </md-button>
+    </p>
+  </div>
+  <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap
+       ng-if="vm.SelectedEmployeeList.length == 0 && vm.workorder.workorderOperation.length > 0">
+    <div class="emty-icon" flex="100">
+      <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+    </div>
+    <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchSelectedEmployeeTxt == null && vm.SelectedEmployeeList.length == 0">
+      {{vm.EmptyMesssage.NO_SELECTED}}
+    </p>
+    <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchSelectedEmployeeTxt != null && vm.FilterSelectedEmployee != true">
+      {{vm.EmptyMesssage.EMPTY_SEARCH_MESSAGE}}
+    </p>
+    <p flex="100" ng-if="!vm.SearchSelectedEmployeeTxt">
+      <md-button class="md-fab md-mini" aria-label="Add Personnel" ng-click="vm.AddNewEmployeeToWorkOrder($event)" ng-hide="vm.isWOUnderTermination"
+                 ng-disabled="vm.isWoInSpecificStatusNotAllowedToChange">
+        <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+        <md-tooltip md-direction="top">Add New</md-tooltip>
+      </md-button>
+      <md-button class="md-fab md-mini" aria-label="Refresh Data Fields" ng-click="vm.getWorkorderEmployeeList()">
+        <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon"></md-icon>
+        <md-tooltip>Refresh</md-tooltip>
+      </md-button>
+    </p>
+  </div>
+  <div class="cm-manage-wo-emp">
+  <div class="price-tables cm-Wo-eqp-list manage-standard cm-wo-emp" flex="100" layout="row" layout-wrap ng-if="vm.SelectedEmployeeList.length > 0">
+    <div class="templatelist style-1 md-whiteframe-1dp" layout="row" flex="100">
+      <md-list layout="row" layout-wrap layout-align="start start" flex="100">
+        <md-list-item class="overflow-auto-rs" ng-repeat="employee in vm.SelectedEmployeeList | orderBy:'name'" flex="100">
+          <div flex="100" layout="row" layout-align="space-between center" layout-align-sm="center-start" layout-sm="column">
+            <div layout="row" flex-sm="100">
+              <md-checkbox class="margin-0" ng-model="employee.selected" ng-disabled="vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange">
+              </md-checkbox>
+              <div flex class="text-main" layout="row" layout-align="center center">
+                <i class="icon-checkbox-blank-circle-outline normal"></i>
+                <i class="icon-check-circle checked"></i>
+              </div>
+              <div class="avatar-wrapper" layout="row" layout-align="center-center">
+                <img class="md-avatar avatar" ng-src="{{employee.ProfilePic}}" />
+              </div>
+              <div class="md-list-item-text z-index-1" layout="row" layout-wrap layout-align="start-center">
+                <h3 class="name margin-0 md-primary-fg" flex="100">
+                  <!--padding-top-5-->
+                  <b>
+                    <a class="cm-text-decoration" ng-click="vm.goToUpdatePersonnel(employee.id);">
+                      {{'('+employee.initialName+') '}}{{(employee.firstName ? employee.firstName : "") + " " + (employee.lastName ? employee.lastName : "")}}
+                    </a>
+                  </b>
+                  <span ng-if="employee.gencCategoryName">
+                    {{'(' + employee.gencCategoryName + ')'}}
+                    <md-tooltip md-direction="top">Title</md-tooltip>
+                  </span>
+                  <span ng-if="employee.deptName">
+                    {{'(' + employee.deptName + ')'}}
+                    <md-tooltip md-direction="top">Default Department</md-tooltip>
+                  </span>
+                </h3>
+                <p class="last-message margin-0 padding-bottom-5"
+                   ng-if="employee.empCertificationDetList.length > 0">
+                  <!--text-truncate-->
+                  <label class="label-box margin-top-5 margin-left-2 cursor-pointer" ng-style="{'background-color': standardItem.colorCode}"
+                         ng-repeat="standardItem in employee.empCertificationDetList track by $index">
+                    {{standardItem.stdClassName}}
+                    <md-tooltip md-direction="top">Certified Standard</md-tooltip>
+                  </label>
+                </p>
+              </div>
+              <div class="last-message-time"></div>
+            </div>
+            <div layout="row" flex-sm="100">
+              <md-button class="md-raised md-primary" layout="column" layout-align="center center" ng-click="vm.ViewOperationByEmployeeFromWorkorder(employee, $event)"
+                         ng-disabled="vm.isWOUnderTermination">
+                View Operation
+              </md-button>
+              <md-button class="md-raised md-warn" layout="column" layout-align="center center" ng-click="vm.DeleteEmployeeFromWorkorder(employee, 'Single',$event)"
+                         ng-disabled="vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange">
+                Remove
+              </md-button>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+  </div>
+  </div>
+</form>

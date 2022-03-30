@@ -1,0 +1,1897 @@
+<div id="forms"
+     class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common cm-manage-supplier-invoice-slip"
+     layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+    <ms-form-wizard flex="100" layout="row">
+        <div class="header md-accent-bg overflow-auto-rs height-70" layout="row" flex="100" layout-align="space-between">
+
+            <div layout="row" layout-align="start center" flex-gt-lg="15">
+                <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button"
+                           aria-label="Go to Customerlist" ng-click="vm.goBack()">
+                    <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+                    </md-icon>
+                </md-button>
+                <div class="white-fg" layout="column" layout-align="start start">
+                    <div class="h2" layout="row" layout-align="start center">
+                        <pagetitle is-list="true" is-display-menu-name="true"></pagetitle>
+                    </div>
+                    <div layout="row" layout-align="start center">
+                        <breadcrumbs></breadcrumbs>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="vm.autoCompletePackagingSlip" class="margin-left-15 cm-header-search-add-container" flex="20">
+                <div>
+                    <md-input-container ng-if="vm.autoCompletePackagingSlip" class="width-100p autocompletecustom margin-0 widget-dashboard-search-area" flex="100" flex-gt-xs="100">
+                        <custom-auto-complete-search on-search-fn="vm.autoCompletePackagingSlip.onSearchFn"
+                                                     column-name="vm.autoCompletePackagingSlip.columnName"
+                                                     key-column-name="vm.autoCompletePackagingSlip.keyColumnName"
+                                                     key-column-id="vm.autoCompletePackagingSlip.keyColumnId"
+                                                     input-name="vm.autoCompletePackagingSlip.inputName"
+                                                     placeholder-name="vm.autoCompletePackagingSlip.placeholderName"
+                                                     is-required="vm.autoCompletePackagingSlip.isRequired" is-addnew="vm.autoCompletePackagingSlip.isAddnew"
+                                                     callback-fn="vm.autoCompletePackagingSlip.callbackFn"
+                                                     on-select-callback-fn="vm.autoCompletePackagingSlip.onSelectCallbackFn">
+                        </custom-auto-complete-search>
+                    </md-input-container>
+                </div>
+                    <div class="cm-square-icon-btn pt-2">
+                        <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-if="vm.packingSlipID" ng-click="vm.addPackingSlip()">
+                            <md-icon md-font-icon="t-icons-packing-slip add-icon" class="material-icons"></md-icon>
+                            <md-tooltip>Add Packing Slip In New Tab</md-tooltip>
+                        </md-button>
+                        <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-if="vm.packingSlipID" ng-click="vm.addPackingSlip(true)">
+                            <md-icon md-font-icon="t-icons-packing-slip add-icon same-tab-icon" class="material-icons"></md-icon>
+                            <md-tooltip>Add Packing Slip</md-tooltip>
+                        </md-button>
+                    </div>
+            </div>
+
+            <div layout="row" flex-gt-lg="45">
+                <div layout="row" flex="100" layout-wrap>
+                    <div flex layout="row" layout-wrap>
+                        <div flex="100" layout-wrap>
+                            <table cellspacing="0" cellpadding="0" class="cm-header-data-table relative">
+                                <tbody>
+                                    <tr>
+                                        <th>
+                                            <a class="cursor-pointer text-underline" ng-click="vm.goTopurchaseOrder();">PO#:</a>
+                                        </th>
+                                        <td>
+                                            <span class="cm-data">
+                                                <md-tooltip ng-if="vm.packingSlip.poNumber">{{vm.packingSlip.poNumber}}</md-tooltip>
+
+                                                <a ng-if="vm.packingSlip.refPurchaseOrderID" class="cursor-pointer color-black text-underline"
+                                                   ng-click="vm.goToPurchaseOrderDetail();">
+                                                    <b>
+                                                        {{vm.packingSlip.poNumber}}
+                                                    </b>
+                                                </a>
+                                                <b ng-if="!vm.packingSlip.refPurchaseOrderID">
+                                                    {{vm.packingSlip.poNumber}}
+                                                </b>
+                                            </span>
+                                            <copy-text ng-if="vm.packingSlip.poNumber" label="vm.LabelConstant.Purchase.PO"
+                                                       text="vm.packingSlip.poNumber"></copy-text>
+                                            <span class="label-box label-danger padding-0 width-100 cursor-pointer" ng-if="vm.isPOCanceled">
+                                                Canceled PO
+                                            </span>
+                                        </td>
+
+                                        <th>
+                                            <a class="cursor-pointer text-underline" ng-click="vm.goToPackingSlipList();">
+                                                Packing Slip#:
+                                            </a>
+                                        </th>
+                                        <td>
+                                            <span class="cm-data">
+                                                <md-tooltip ng-if="vm.packingSlip.packingSlipNumber">
+                                                    {{vm.packingSlip.packingSlipNumber}}
+                                                </md-tooltip>
+                                                <b>
+                                                    {{vm.packingSlip.packingSlipNumber}}
+                                                </b>
+                                            </span>
+                                            <copy-text ng-if="vm.packingSlip.packingSlipNumber" label="vm.LabelConstant.SupplierInvoice.PackingSlipNumber"
+                                                       text="vm.packingSlip.packingSlipNumber"></copy-text>
+                                        </td>
+
+                                        <th ng-if="vm.packingSlip.refInvoice && vm.packingSlip.refInvoice.invoiceNumber">
+                                            <a class="cursor-pointer text-underline" ng-click="vm.goToInvoiceList();">
+                                                Ref. Invoice#:
+                                            </a>
+                                        </th>
+                                        <td ng-if="vm.packingSlip.refInvoice && vm.packingSlip.refInvoice.invoiceNumber">
+                                            <span class="cm-data"
+                                                  ng-class="{'text-underline': vm.packingSlip.refInvoice.invoiceNumber, 'cursor-pointer': vm.packingSlip.refInvoice.invoiceNumber}"
+                                                  ng-click="vm.invoiceDetail()">
+                                                <md-tooltip ng-if="vm.packingSlip.refInvoice.invoiceNumber">
+                                                    {{vm.packingSlip.refInvoice.invoiceNumber}}
+                                                </md-tooltip>
+                                                <b>{{vm.packingSlip.refInvoice.invoiceNumber}}</b>
+                                            </span>
+                                            <copy-text ng-if="vm.packingSlip.refInvoice.invoiceNumber" label="vm.LabelConstant.SupplierInvoice.InvoiceNumber"
+                                                       text="vm.packingSlip.refInvoice.invoiceNumber"></copy-text>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            {{vm.CORE.LabelConstant.SalesOrder.SO}}:
+                                        </th>
+                                        <td>
+                                            <span class="cm-data">
+                                                <md-tooltip ng-if="vm.packingSlip.supplierSONumber">
+                                                    {{vm.packingSlip.supplierSONumber}}
+                                                </md-tooltip>
+                                                <b>
+                                                    {{vm.packingSlip.supplierSONumber}}
+                                                </b>
+                                            </span>
+                                            <copy-text ng-if="vm.packingSlip.supplierSONumber" label="vm.CORE.LabelConstant.SalesOrder.SO"
+                                                       text="vm.packingSlip.supplierSONumber"></copy-text>
+                                        </td>
+
+                                        <th>Packing Slip Date:</th>
+                                        <td>
+                                            <span class="cm-date">
+                                                <b>{{vm.packingSlip.packingSlipDate | date: vm.DefaultDateFormat}}</b>
+                                            </span>
+                                        </td>
+
+                                        <th ng-if="vm.packingSlip.refInvoice && vm.packingSlip.refInvoice.invoiceDate">Ref. Invoice Date:</th>
+                                        <td ng-if="vm.packingSlip.refInvoice && vm.packingSlip.refInvoice.invoiceDate">
+                                            <span class="cm-date">
+                                                <b>{{vm.packingSlip.refInvoice.invoiceDate | date: vm.DefaultDateFormat}}</b>
+                                            </span>
+                                        </td>
+
+
+
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <a class="cursor-pointer text-underline" ng-click="vm.goToSupplierList();">
+                                                Supplier:
+                                            </a>
+                                        </th>
+                                        <td>
+                                            <span class="cm-name" ng-class="{'text-underline': vm.packingSlip.mfgCodemst, 'cursor-pointer': vm.packingSlip.mfgCodemst}"
+                                                  ng-click="vm.packingSlip.mfgCodemst ? vm.goToSupplierDetail() : ''">
+                                                <md-tooltip class="tt-multiline cm-white-space-normal max-width-420 pv-5" ng-if="vm.packingSlip.mfgCode && vm.packingSlip.mfgFullName">
+                                                    {{vm.packingSlip.mfgFullName}}
+                                                </md-tooltip>
+                                                <b>{{vm.packingSlip.mfgFullName}}</b>
+                                            </span>
+                                        </td>
+
+                                        <th>Material Receipt Date:</th>
+                                        <td>
+                                            <span class="cm-date">
+                                                <b>{{vm.packingSlip.receiptDate | date: vm.DefaultDateFormat}}</b>
+                                            </span>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div layout="row" layout-align="end center" flex="nogrow" class="cm-square-icon-btn">
+                <div layout="row" layout-align="end-center" class="margin-right-10">
+                    <span class="label-box" ng-if="vm.packingSlip.statusText"
+                          ng-class="{'label-danger': vm.packingSlip.status === vm.PackingSlipStatus.Investigate,
+                        'label-warning': vm.packingSlip.status === vm.PackingSlipStatus.WaitingForInvoice,
+                        'label-info': vm.packingSlip.status === vm.PackingSlipStatus.InvoiceReceived,
+                        'label-success': vm.packingSlip.status === vm.PackingSlipStatus.Approved,
+                        'bg-purple': vm.packingSlip.status === vm.PackingSlipStatus.PartiallyPaid,
+                        'label-primary': vm.packingSlip.status === vm.PackingSlipStatus.Paid}">
+                        {{vm.packingSlip.statusText}}
+                    </span>
+                </div>
+                <div layout="row" layout-align="end-center" class="margin-right-10">
+                    <span class="label-box label-danger" ng-if="vm.packingSlip.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked">
+                        Locked
+                        <md-tooltip md-direction="bottom" class="tt-multiline">
+                            Locked By: {{vm.packingSlip.lockedByUser}} <br />
+                            Locked Date: {{vm.packingSlip.lockedAt}}
+                        </md-tooltip>
+                    </span>
+                </div>
+                <div class="cm-header-draft-btn" ng-if="vm.IsPackingTab">
+                    <md-menu-bar id="user-menu" class="padding-left-8 padding-right-8">
+                        <md-menu md-position-mode="left bottom">
+                            <md-button class="user-button" ng-click="$mdOpenMenu()"
+                                       ng-disabled="vm.packingSlipForm.$dirty || vm.packingSlip.status === vm.PackingSlipStatus.Paid || (vm.packingSlip.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin)">
+                                <div layout="row" layout-align="space-between center">
+                                    <span class="username">{{vm.getPackingSlipModeStatus(vm.packingSlip.packingSlipModeStatus)}}</span>
+                                    <md-icon md-font-icon="icon-chevron-down" class="icon s16"></md-icon>
+                                </div>
+                            </md-button>
+                            <md-menu-content width="3">
+                                <md-menu-item ng-repeat="status in vm.packingSlipModeStatus | orderBy:'DisplayOrder'">
+                                    <md-button ng-click="vm.changepackingSlipModeStatus(status)">{{status.Name}}</md-button>
+                                </md-menu-item>
+                            </md-menu-content>
+                        </md-menu>
+                    </md-menu-bar>
+                    <div layout="row" layout-align="center center">
+                        <span ng-if="vm.label" class="cm-font-10 padding-bottom-8"><b>{{vm.label}}</b></span>
+                    </div>
+                </div>
+                <div layout="row" layout-align="end-center" class="margin-right-10" ng-if="!vm.IsPackingTab">
+                    <span class="label-box"
+                          ng-class="vm.getPackingSlipModeStatusClass(vm.packingSlip.packingSlipModeStatus)">{{vm.getPackingSlipModeStatus(vm.packingSlip.packingSlipModeStatus)}}</span>
+                </div>
+                <div>
+                    <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.openPackingSlipHistory($event)" ng-if="vm.packingSlipID">
+                        <md-icon md-font-icon="t-icons-history-text" class="material-icons"></md-icon>
+                        <md-tooltip>Packing Slip Change History</md-tooltip>
+                    </md-button>
+                </div>
+                <div layout="row" ng-if="vm.IsPackingTab">
+                    <div layout="row" flex="100">
+                        <md-button class="md-primary md-raised md-mini"
+                                   ng-class="{'md-formdirty': vm.packingSlipForm.$dirty}" id="saveBtn" ng-click="vm.CheckStepAndAction();"
+                                   ng-if="msWizard.selectedIndex === 0 && vm.tabType === vm.Transaction.MaterialReceiveTabType.PackingSlip"
+                                   ng-disabled="vm.saveBtnDisableFlag || (vm.packingSlip.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin)">
+                            Save
+                        </md-button>
+                    </div>
+                </div>
+                <div layout="row" ng-if="vm.IsOtherDetailTab">
+                    <div layout="row" flex="100">
+                        <md-button class="md-primary md-raised margin-left-0 "
+                                   ng-class="{'md-formdirty': vm.packingSlipOtherDetail.$dirty}" id="saveBtn" ng-click="vm.finish()"
+                                   ng-disabled="(vm.packingSlip.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin)"
+                                   ng-if="vm.IsOtherDetailTab">Save</md-button>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <!-- / CONTENT HEADER -->
+        <div class="content-card padding-top-70" layout="column" flex="100">
+            <div layout="row" flex="100">
+                <div flex>
+                    <md-tabs validate-step="true" is-valid="vm.isStepValid"
+                             class="fielddetail manage-customer-tabing padding-bottom-0" md-dynamic-height
+                             md-selected="vm.selectedTabIndex" id="manage-customer-tabing">
+
+                        <md-tab md-on-select="vm.onTabChanges(vm.packingSlipTabName,msWizard)" ng-if="!vm.isDisablePackingSlip">
+                            <md-tab-label>
+                                <span class="ms-form-wizard-step-label">
+                                    <span class="ms-form-wizard-step-text">{{vm.Transaction.PackingSlipInvoiceTabName.PackingSlip}}</span>
+                                </span>
+                            </md-tab-label>
+                            <md-tab-body>
+                                <form name="vm.packingSlipForm" layout="row" layout-wrap class="md-inline-form padding-10-imp padding-bottom-0"
+                                      ms-form-wizard-form novalidate>
+                                    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+                                    <div flex="70" flex-gt-md="75" layout="row" ng-if="vm.IsPackingTab" flex-md="100" flex-sm="100">
+
+                                        <div class="cm-section-main margin-right-10" flex="50">
+                                            <div class="cm-section-inner" flex="100">
+                                                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                                  <tbody>
+                                                    <tr>
+                                                      <th>
+                                                        <p class="label-container">{{vm.LabelConstant.COMMON.SystemID}}</p>
+                                                      </th>
+                                                      <td colspan="3">
+                                                        <md-input-container flex="100" class="margin-bottom-0">
+                                                          <input type="text" name="systemId" id="systemId" ng-model="vm.packingSlip.systemId"
+                                                                 placeholder="{{vm.LabelConstant.COMMON.SystemID}}" disabled>
+                                                        </md-input-container>
+                                                      </td>
+                                                    </tr>
+                                                    <tr>
+                                                      <th>
+                                                        <p class="label-container">Scan Label<span ng-if="!(vm.isScanLabelPS || vm.packingSlip.scanLabel || vm.packingSlipDisable || vm.disableScanPS)"><scan-or-enter></scan-or-enter></span></p>
+                                                      </th>
+                                                      <td width="100" colspan="2">
+                                                        <md-input-container flex="100" class="margin-bottom-0">
+                                                          <input type="text" name="scanLabel" id="scanLabelPS"
+                                                                 ng-model="vm.packingSlip.scanLabelPS" placeholder="Scan Label"
+                                                                 ng-disabled="vm.isScanLabelPS || vm.packingSlip.scanLabel || vm.packingSlipDisable || vm.disableScanPS"
+                                                                 ng-keypress="vm.scanLabelPS($event)" ng-maxlength="1000" md-maxlength="1000" md-focus />
+                                                          <span class="font-size-10">
+                                                            <b>{{vm.LabelConstant.ScanOREnter.Scan1D2DLabel}}</b>
+                                                          </span>
+                                                          <div ng-messages="vm.packingSlipForm.scanLabel.$error" role="alert">
+                                                            <div ng-message="maxlength">
+                                                              <span>{{vm.getMaxLengthValidation(1000,vm.packingSlipForm.scanLabel.$viewValue.length)}}</span>
+                                                            </div>
+                                                          </div>
+                                                        </md-input-container>
+                                                      </td>
+                                                      <td>
+                                                        <md-button class="md-primary md-raised md-ink-ripple ml-0 mt-0" tabindex="-1"
+                                                                   ng-disabled="!vm.isScanLabelPS" ng-click="vm.reScan()">
+                                                          Re-scan
+                                                        </md-button>
+                                                      </td>
+                                                    </tr>
+                                                    <tr>
+                                                      <th>
+                                                        <p class="label-container">
+                                                          PO#<span ng-if="!(vm.packingSlipDisable || vm.disablePO)">
+                                                            &nbsp;*<check-unique-on-blur></check-unique-on-blur>
+                                                          </span>
+                                                        </p>
+                                                      </th>
+                                                      <td colspan="1">
+                                                        <md-input-container flex="100" class="margin-bottom-0 margin-right=0">
+                                                          <!--class="input-text-uppercase" capitalize-->
+                                                          <input type="text" name="poNumber" id="poNumber" ng-model="vm.packingSlip.poNumber"
+                                                                 capitalize placeholder="PO #" required ng-maxlength="50" md-maxlength="50"
+                                                                 custom-blur="vm.getPackingSlipDetByPO(false, true)"
+                                                                 ng-disabled="vm.packingSlipDisable || vm.disablePO ">
+                                                          <div ng-messages="vm.packingSlipForm.poNumber.$error" role="alert">
+                                                            <div ng-message="required">
+                                                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                            </div>
+                                                            <div ng-message="maxlength">
+                                                              <span>
+                                                                {{vm.getMaxLengthValidation(50,vm.packingSlipForm.poNumber.$viewValue.length)}}
+                                                              </span>
+                                                            </div>
+                                                          </div>
+                                                        </md-input-container>
+                                                      </td>
+                                                      <th class="margin-left-0">
+                                                        <p class="label-container">
+                                                          {{vm.LabelConstant.SalesOrder.PODate}}<span ng-if="!(vm.packingSlipDisable || vm.packingSlip.refPackingSlipNumberForInvoice || vm.packingSlip.refPurchaseOrderID)">&nbsp;*</span>
+                                                        </p>
+                                                      </th>
+                                                      <td>
+                                                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                                                          <input name="poDate"
+                                                                 type="text"
+                                                                 class="float-left"
+                                                                 id="poDate"
+                                                                 max-value="vm.poDateOptions.maxDate"
+                                                                 min-value="vm.poDateOptions.minDate"
+                                                                 max-value-is-today-date="true"
+                                                                 allow-past-date="true"
+                                                                 allow-future-date="false"
+                                                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                                                 ng-model="vm.packingSlip.poDate"
+                                                                 enable-time="false"
+                                                                 ui-options="{clearOnBlur  : false}"
+                                                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                                                 model-view-value="true"
+                                                                 datepicker-options="vm.poDateOptions"
+                                                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.poDate]"
+                                                                 ng-required="!(vm.packingSlipDisable || vm.packingSlip.refPackingSlipNumberForInvoice || vm.packingSlip.refPurchaseOrderID)"
+                                                                 ng-disabled="vm.packingSlipDisable || vm.packingSlip.refPackingSlipNumberForInvoice || vm.packingSlip.refPurchaseOrderID"
+                                                                 ng-change="vm.poDateOnChange()" />
+                                                          <md-icon md-font-icon="icon-calendar calender-icon"
+                                                                   ng-click="vm.IsPickerOpen[vm.DATE_PICKER.poDate] = ((vm.packingSlipDisable || vm.packingSlip.refPackingSlipNumberForInvoice || vm.packingSlip.refPurchaseOrderID) ? false : true)">
+                                                          </md-icon>
+                                                          <div ng-messages="vm.packingSlipForm.poDate.$error" role="alert">
+                                                            <div ng-message="maxvalue">
+                                                              <span>{{vm.getMaxDateValidation(vm.LabelConstant.SalesOrder.PODate, 'today date')}}</span>
+                                                            </div>
+                                                            <div ng-message="required">
+                                                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                            </div>
+                                                            <div ng-message="datetime || mask || parse">
+                                                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                            </div>
+                                                          </div>
+                                                        </md-input-container>
+                                                      </td>
+                                                    </tr>
+                                                    <tr>
+                                                      <th class="margin-left-0">
+                                                        <p class="label-container">
+                                                          SO#<span ng-if="!vm.disablePackingSlipDetSO">&nbsp;*</span>
+                                                        </p>
+                                                      </th>
+                                                      <td colspan="1">
+                                                        <md-input-container class="autocompletecustom margin-bottom-0" flex="100">
+                                                          <custom-auto-complete-search on-search-fn="vm.autoCompleteSO.onSearchFn"
+                                                                                       column-name="vm.autoCompleteSO.columnName"
+                                                                                       parent-column-name="vm.autoCompleteSO.parentColumnName"
+                                                                                       key-column-name="vm.autoCompleteSO.keyColumnName"
+                                                                                       input-name="vm.autoCompleteSO.inputName"
+                                                                                       placeholder-name="vm.autoCompleteSO.placeholderName"
+                                                                                       key-column-id="vm.autoCompleteSO.keyColumnId" is-required="true"
+                                                                                       search-text="vm.autoCompleteSO.searchText"
+                                                                                       on-select-callback-fn="vm.autoCompleteSO.onSelectCallbackFn"
+                                                                                       is-disabled="vm.disablePackingSlipDetSO"
+                                                                                       is-uppercase-search-text="vm.autoCompleteSO.isUppercaseSearchText"
+                                                                                       max-length="50"
+                                                                                       md-require-match="vm.autoCompleteSO.mdRequireMatch">
+                                                          </custom-auto-complete-search>
+                                                        </md-input-container>
+                                                      </td>
+                                                      <th class="margin-left-0">
+                                                        <p class="label-container">
+                                                          {{vm.LabelConstant.SalesOrder.SODate}}
+                                                        </p>
+                                                      </th>
+                                                      <td>
+                                                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                                                          <input type="text"
+                                                                 class="float-left"
+                                                                 name="soDate"
+                                                                 id="soDate"
+                                                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                                                 enable-time="false"
+                                                                 ng-model="vm.packingSlip.soDate"
+                                                                 datepicker-options="vm.soDateOptions"
+                                                                 ui-options="{clearOnBlur  : false}"
+                                                                 model-view-value="true"
+                                                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.soDate]"
+                                                                 max-value="vm.soDateOptions.maxDate"
+                                                                 min-value="vm.packingSlip.poDate"
+                                                                 max-value-is-today-date="true" allow-past-date="true"
+                                                                 allow-future-date="false"
+                                                                 ng-disabled="vm.packingSlipDisable || vm.packingSlip.refPackingSlipNumberForInvoice" />
+                                                          <md-icon md-font-icon="icon-calendar calender-icon"
+                                                                   ng-click="vm.IsPickerOpen[vm.DATE_PICKER.soDate] = ((vm.packingSlipDisable || vm.packingSlip.refPackingSlipNumberForInvoice) ? false : true)">
+                                                          </md-icon>
+                                                          <div ng-messages="vm.packingSlipForm.soDate.$error" role="alert">
+                                                            <div ng-message="maxvalue">
+                                                              <span>{{vm.getMaxDateValidation(vm.LabelConstant.SalesOrder.SODate, 'today date')}}</span>
+                                                            </div>
+                                                            <div ng-message="minvalue">
+                                                              <span>{{vm.getMinDateValidation(vm.LabelConstant.SalesOrder.SODate, vm.LabelConstant.SalesOrder.PODate)}}</span>
+                                                            </div>
+                                                            <div ng-message="datetime || mask || parse">
+                                                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                            </div>
+                                                          </div>
+                                                        </md-input-container>
+                                                      </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                      <th>
+                                                        <p class="label-container">
+                                                          <a class="cm-text-decoration" ng-click="vm.goToSupplier();"
+                                                             tabindex="-1">{{vm.autoCompleteSupplier.placeholderName}}</a><span ng-if="!(vm.disablePackingSlipDet || vm.packingSlipDisable)">&nbsp;*</span>
+                                                        </p>
+                                                      </th>
+                                                      <td colspan="3">
+                                                        <md-input-container ng-if="vm.autoCompleteSupplier"
+                                                                            class="autocompletecustom width-100p" flex="100">
+                                                          <custom-auto-complete datalist="vm.supplierList"
+                                                                                column-name="vm.autoCompleteSupplier.columnName"
+                                                                                controller-name="vm.autoCompleteSupplier.controllerName"
+                                                                                view-template-url="vm.autoCompleteSupplier.viewTemplateURL"
+                                                                                key-column-name="vm.autoCompleteSupplier.keyColumnName"
+                                                                                input-name="vm.autoCompleteSupplier.inputName"
+                                                                                placeholder-name="vm.autoCompleteSupplier.placeholderName"
+                                                                                key-column-id="vm.autoCompleteSupplier.keyColumnId"
+                                                                                is-required="vm.autoCompleteSupplier.isRequired"
+                                                                                is-addnew="vm.autoCompleteSupplier.isAddnew"
+                                                                                callback-fn="vm.autoCompleteSupplier.callbackFn"
+                                                                                add-data="vm.autoCompleteSupplier.addData"
+                                                                                on-select-callback-fn="vm.autoCompleteSupplier.onSelectCallbackFn"
+                                                                                is-disabled="vm.disablePackingSlipDet || vm.packingSlipDisable">
+                                                          </custom-auto-complete>
+                                                        </md-input-container>
+                                                      </td>
+                                                    </tr>
+                                                    <tr>
+                                                      <th>
+                                                        <p class="label-container">{{vm.LabelConstant.COMMON.GRIDHEADER_MODYFYBY}}</p>
+                                                      </th>
+                                                      <td class="pt-5">
+                                                        <a tabindex="-1" class="cm-text-decoration underline h4 text-bold" ng-click="vm.goToManagePersonal(vm.packingSlip.updatedEmployee.employeeID);" ng-if="vm.packingSlip && vm.packingSlip.updatedEmployee && vm.packingSlip.updatedEmployee.employee">
+                                                          {{vm.packingSlip.updatedEmployee.employee.initialName}}
+                                                          <md-icon class="icon-question-mark-circle help-icon margin-right-5" ng-if="vm.packingSlip.updatedAt">
+                                                            <md-tooltip class="cm-tooltip-table-data tooltip-height-auto pv-3" md-direction="top">
+                                                              <div>
+                                                                <table cellspacing="0" cellpadding="0" border="1">
+                                                                  <tr>
+                                                                    <th>
+                                                                      {{vm.LabelConstant.COMMON.GRIDHEADER_MODIFY_DATE}}
+                                                                    </th>
+                                                                    <td>
+                                                                      {{vm.packingSlip.updatedAt || '-'}}
+                                                                    </td>
+                                                                  </tr>
+                                                                </table>
+                                                              </div>
+                                                            </md-tooltip>
+                                                          </md-icon>
+                                                        </a>
+                                                        <md-input-container flex="100" class="margin-bottom-0" ng-if="!(vm.packingSlip && vm.packingSlip.updatedEmployee)">
+                                                          <input type="text" name="updatedBy" id="updatedBy" placeholder="Updated By" disabled />
+                                                        </md-input-container>
+                                                      </td>
+                                                      <th>
+                                                        <p class="label-container">{{vm.LabelConstant.COMMON.GRIDHEADER_CREATEDBY}}</p>
+                                                      </th>
+                                                      <td class="pt-5">
+                                                        <a tabindex="-1" class="cm-text-decoration underline h4 text-bold" ng-click="vm.goToManagePersonal(vm.packingSlip.createdEmployee.employeeID);"
+                                                           ng-if="vm.packingSlip && vm.packingSlip.createdEmployee && vm.packingSlip.createdEmployee.employee">
+                                                          {{vm.packingSlip.createdEmployee.employee.initialName}}
+                                                        </a>
+                                                        <md-input-container flex="100" class="margin-bottom-0" ng-if="!(vm.packingSlip && vm.packingSlip.updatedEmployee)">
+                                                          <input type="text" name="createdBy" id="createdBy" placeholder="Created By" disabled />
+                                                        </md-input-container>
+                                                      </td>
+                                                    </tr>
+                                                  </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <div class="cm-section-main margin-right-10 mt-rs-5 margin-pro-rs-right-0 margin-pro-rs-top-0"
+                                             flex="50">
+                                            <div class="cm-section-inner" flex="100">
+                                                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th>
+                                                                <p class="label-container">
+                                                                    Packing Slip#<span ng-if="!(vm.packingSlipDisable || vm.disablePackingSlipNumber || vm.packingSlip.refPackingSlipNumberForInvoice)">
+                                                                        &nbsp;*<check-unique-on-blur>
+                                                                        </check-unique-on-blur>
+                                                                    </span>
+                                                                </p>
+                                                            </th>
+                                                            <td colspan="3">
+                                                                <md-input-container flex="100" class="margin-bottom-0">
+                                                                    <input type="text" name="packingSlipNumber" id="packingSlipNumber" capitalize
+                                                                           ng-model="vm.packingSlip.packingSlipNumber" placeholder="Packing Slip#" required
+                                                                           ng-maxlength="50" custom-blur="vm.checkUniquePackingSlipNumber()" md-maxlength="50"
+                                                                           ng-disabled="vm.packingSlipDisable || vm.disablePackingSlipNumber || vm.packingSlip.refPackingSlipNumberForInvoice">
+                                                                    <div ng-messages="vm.packingSlipForm.packingSlipNumber.$error" role="alert">
+                                                                        <div ng-message="required">
+                                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                        </div>
+                                                                        <div ng-message="maxlength">
+                                                                            <span>
+                                                                                {{vm.getMaxLengthValidation(50,vm.packingSlipForm.packingSlipNumber.$viewValue.length)}}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </md-input-container>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>
+                                                                <p class="label-container">Packing Slip Date<span ng-if="!(vm.packingSlipDisable || vm.packingSlip.refPackingSlipNumberForInvoice)">&nbsp;*</span></p>
+                                                            </th>
+                                                            <td>
+                                                                <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                                                                    <input name="packingSlipDate" type="text" class="float-left" id="packingSlipDate"
+                                                                           max-value="vm.currentDate" max-value-is-today-date="true" allow-past-date="true"
+                                                                           allow-future-date="false" datetime-picker="{{$root.dateDisplayFormat}}"
+                                                                           ng-model="vm.packingSlip.packingSlipDate" enable-time="false"
+                                                                           ui-options="{clearOnBlur  : false}" ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                                                           ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                                                           model-view-value="true" datepicker-options="vm.packingSlipDateOptions"
+                                                                           ng-change="vm.checkDateValidation()"
+                                                                           is-open="vm.IsPickerOpen[vm.DATE_PICKER.packingSlipDate]" required
+                                                                           ng-disabled="vm.packingSlipDisable || vm.packingSlip.refPackingSlipNumberForInvoice" />
+                                                                    <md-icon md-font-icon="icon-calendar calender-icon"
+                                                                             ng-click="vm.IsPickerOpen[vm.DATE_PICKER.packingSlipDate] = ((vm.packingSlipDisable || vm.packingSlip.refPackingSlipNumberForInvoice) ? false : true)">
+                                                                    </md-icon>
+                                                                    <div ng-messages="vm.packingSlipForm.packingSlipDate.$error" role="alert">
+                                                                        <div ng-message="maxvalue">
+                                                                            <span>{{vm.getMaxDateValidation('Packing slip date', 'today date')}}</span>
+                                                                        </div>
+                                                                        <div ng-message="required">
+                                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                        </div>
+                                                                        <div ng-message="datetime || mask || parse">
+                                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </md-input-container>
+                                                            </td>
+                                                            <th>
+                                                                <p class="label-container">Material Receipt Date<span ng-if="!(vm.packingSlipDisable || vm.packingSlip.refPackingSlipNumberForInvoice)">&nbsp;*</span></p>
+                                                            </th>
+                                                            <td>
+                                                                <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                                                                    <input type="text" class="float-left" id="receiptDate" name="receiptDate"
+                                                                           max-value="vm.currentDate" max-value-is-today-date="true" allow-past-date="true"
+                                                                           allow-future-date="false" datetime-picker="{{$root.dateDisplayFormat}}"
+                                                                           ng-model="vm.packingSlip.receiptDate" enable-time="false"
+                                                                           ui-options="{clearOnBlur  : false}" ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                                                           ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                                                           model-view-value="true" datepicker-options="vm.receiptDateOptions"
+                                                                           is-open="vm.IsPickerOpen[vm.DATE_PICKER.receiptDate]"
+                                                                           ng-change="vm.checkDateValidation()" required
+                                                                           ng-disabled="vm.packingSlipDisable || vm.packingSlip.refPackingSlipNumberForInvoice" />
+                                                                    <md-icon md-font-icon="icon-calendar calender-icon"
+                                                                             ng-click="vm.IsPickerOpen[vm.DATE_PICKER.receiptDate] = ((vm.packingSlipDisable || vm.packingSlip.refPackingSlipNumberForInvoice) ? false : true)">
+                                                                    </md-icon>
+                                                                    <div ng-messages="vm.packingSlipForm.receiptDate.$error" role="alert">
+                                                                        <div ng-message="maxvalue">
+                                                                            <span>{{vm.getMaxDateValidation('Material receipt date', 'today date')}}</span>
+                                                                        </div>
+                                                                        <div ng-message="mindate">
+                                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.RECEIPT_DATE_GREATER_THAN_PACKING_SLIP_DATE}}</span>
+                                                                        </div>
+                                                                        <div ng-message="required">
+                                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                        </div>
+                                                                        <div ng-message="datetime || mask || parse">
+                                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </md-input-container>
+                                                            </td>
+                                                        </tr>
+
+
+                                                        <tr>
+                                                            <th>
+                                                                <p class="label-container">PS Internal Notes</p>
+                                                            </th>
+                                                            <td colspan="3">
+                                                                <md-input-container flex="100" class="margin-bottom-0">
+                                                                    <textarea name="internalNotes" id="internalNotes"
+                                                                              ng-model="vm.packingSlip.internalRemark"
+                                                                              ng-maxlength="vm.maxLengthForDescription" md-maxlength="vm.maxLengthForDescription"
+                                                                              ng-disabled="(vm.packingSlip.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin)"
+                                                                              rows="{{vm.CORE.TEXT_AREA_ROWS.ROWS}}" max-rows="{{vm.CORE.TEXT_AREA_ROWS.MAX_ROWS}}"
+                                                                              placeholder="PS Internal Notes"></textarea>
+                                                                    <div ng-messages="vm.packingSlipForm.internalNotes.$error" role="alert">
+                                                                        <div ng-message="maxlength">
+                                                                            <span>
+                                                                                {{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.packingSlipForm.internalNotes.$viewValue.length) }}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </md-input-container>
+                                                            </td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <th></th>
+                                                            <td class="pt-5">
+                                                                <md-checkbox ng-model="vm.packingSlip.isCustConsigned" name="isCustConsigned" flex="100" class="margin-0" 
+                                                                             ng-disabled="vm.packingSlip.refPurchaseOrderID || vm.packingSlipDisable" 
+                                                                             ng-click="vm.changePSCustConsigned(vm.packingSlip.isCustConsigned)">
+                                                                    <p class="label-container">
+                                                                        {{vm.LabelConstant.PACKING_SLIP.CustomerConsigned}}
+                                                                    </p>
+                                                                </md-checkbox>
+                                                            </td>
+                                                            <th>
+                                                                <p class="label-container">
+                                                                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToCustomerList();">{{vm.LabelConstant.PACKING_SLIP.Customer}}</a>
+                                                                    <span ng-if="vm.packingSlip.isCustConsigned && !vm.packingSlip.refPurchaseOrderID && !vm.packingSlipDisable">&nbsp;*</span>
+                                                                </p>
+                                                            </th>
+                                                            <td>
+                                                                <md-input-container ng-if="vm.autoCompleteCustomer" class="md-block autocompletecustom" flex="100">
+                                                                    <custom-auto-complete-search on-search-fn="vm.autoCompleteCustomer.onSearchFn"
+                                                                                                 column-name="vm.autoCompleteCustomer.columnName"
+                                                                                                 controller-name="vm.autoCompleteCustomer.controllerName"
+                                                                                                 view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                                                                                 key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                                                                                 input-name="vm.autoCompleteCustomer.inputName"
+                                                                                                 placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                                                                                 key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                                                                                 is-required="vm.packingSlip.isCustConsigned && !vm.packingSlipDisable && !vm.packingSlip.refPurchaseOrderID"
+                                                                                                 is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                                                                                 callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                                                                                 is-disabled="vm.packingSlipDisable || !vm.packingSlip.isCustConsigned || vm.packingSlip.refPurchaseOrderID"
+                                                                                                 add-data="vm.autoCompleteCustomer.addData"
+                                                                                                 on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn">
+                                                                    </custom-auto-complete-search>
+                                                                </md-input-container>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th></th>
+                                                            <td>
+                                                                <div layout="row">
+                                                                    <md-checkbox ng-model="vm.packingSlip.isNonUMIDStock" ng-click="vm.changePSNonUMIDStock(vm.packingSlip.isNonUMIDStock)"
+                                                                                 name="isNonUMIDStock" class="margin-0" ng-disabled="vm.packingSlipDisable || (vm.sourceData && vm.sourceData.length > 0)">
+                                                                        <p class="label-container">
+                                                                            {{vm.LabelConstant.PACKING_SLIP.NonUMIDStock}}
+                                                                        </p>
+                                                                    </md-checkbox>
+                                                                </div>
+                                                            </td>
+                                                            <th></th>
+                                                            <td>
+                                                                Contains {{vm.totalCustomerConsignedLines.length}} customer consigned lines
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div flex="45" flex-gt-md="25" layout-align="start start" layout="column"
+                                         ng-if="vm.IsPackingTab" flex-md="100" flex-sm="100">
+                                        <div class="cm-section-main mt-rs-5 margin-pro-rs-right-0 margin-bottom-10 width-100p">
+                                            <div class="cm-section-inner" flex="100">
+                                                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                                    <tbody>
+
+                                                        <tr>
+                                                            <th>
+                                                                <p class="label-container">Total Lines</p>
+                                                            </th>
+                                                            <td>
+                                                                <md-input-container flex="100" class="margin-bottom-0">
+                                                                    <input type="text" name="totalDetailLine" id="totalDetailLine"
+                                                                           ng-model="vm.packingSlip.totalDetailLine" placeholder="Total Lines" disabled
+                                                                           class="text-right">
+                                                                </md-input-container>
+                                                            </td>
+                                                            <th>
+                                                                <p class="label-container">Rejected Lines</p>
+                                                            </th>
+                                                            <td>
+                                                                <md-input-container flex="100" class="margin-bottom-0">
+                                                                    <input type="text" name="rejectedDetailLine" id="rejectedDetailLine"
+                                                                           ng-model="vm.packingSlip.rejectedDetailLine" placeholder="Rejected Lines"
+                                                                           disabled class="text-right">
+                                                                </md-input-container>
+                                                            </td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="cm-section-main width-100p" flex>
+                                            <div class="cm-normal-header" flex="100">
+                                                <h2>Tracking#</h2>
+                                            </div>
+                                            <div class="cm-section-inner" flex="100" layout="row" layout-wrap>
+                                                <div flex="100" layout="row">
+                                                    <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                                                        <input type="text" name="trackingNumber" id="trackingNumber"
+                                                               ng-model="vm.trackingNumberDet.trackNumber" placeholder="Enter Tracking#" last-element
+                                                               elementcondition="{{vm.packingSlipID ? false : true}}"
+                                                               ng-maxlength="100" md-maxlength="100"
+                                                               ng-disabled="(vm.packingSlip.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin) || vm.disableTrackingNumber"
+                                                               ng-keypress="vm.addTrackingNumberToList($event);">
+                                                        <!--custom-blur="vm.onBlurTrackNumber()"-->
+                                                        <!--ng-change="vm.checkUniqueTrackNumber()"-->
+                                                        <span class="font-size-10">
+                                                            <b>Type and press Enter.</b>
+                                                        </span>
+                                                        <div ng-messages="vm.packingSlipForm.trackingNumber.$error" role="alert">
+                                                            <div ng-message="maxlength">
+                                                                <span>
+                                                                    {{vm.getMaxLengthValidation(100,vm.packingSlipForm.trackingNumber.$viewValue.length) }}
+                                                                </span>
+                                                            </div>
+
+                                                        </div>
+                                                    </md-input-container>
+                                                </div>
+                                                <div ng-repeat="item in vm.packingSlip.packingSlipTrackNumber" layout="row"
+                                                     layout-align="start center" class="cm-tracking-chip-mian">
+                                                    <div class="tracking-number-chip" layout="row" layout-align="start center">
+                                                        <label ng-click="vm.editTrackingNumber(item)">{{item.trackNumber}}</label>
+                                                        <md-button class="md-icon-button md-primary md-mini"
+                                                                   ng-click="vm.removeTrackNumber(item, $index)"
+                                                                   ng-disabled="(vm.packingSlip.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin)">
+                                                            <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                                                            <md-tooltip>Remove Tracking#</md-tooltip>
+                                                        </md-button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div flex="50" flex-gt-md="50" layout="row" layout-align="start start" layout-wrap
+                                         ng-if="vm.IsPackingTab" flex-md="100" flex-sm="100">
+                                        <div class="cm-section-main mt-rs-5 margin-pro-rs-right-0 margin-top-10 margin-right-10" flex="100">
+                                            <div class="cm-section-inner" flex="100">
+                                                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                                    <tbody>
+
+                                                        <tr>
+                                                            <th>
+                                                                <p class="label-container">PO Internal Notes</p>
+                                                            </th>
+                                                            <td>
+                                                                <md-input-container flex="100" class="margin-bottom-0">
+                                                                    <!-- <input type="text" name="internalNotes" id="internalNotes"
+                                                                    ng-model="vm.packingSlip.poInternalNotes" placeholder="Internal Notes"
+                                                                    ng-disabled=true class="text-right"> -->
+
+                                                                    <textarea name="poInternalNotes" disabled ng-maxlength="vm.maxLengthForDescription" md-maxlength="vm.maxLengthForDescription"
+                                                                              ng-model="vm.packingSlip.poInternalNotesDisabledField" rows="{{vm.CORE.TEXT_AREA_ROWS.ROWS}}" max-rows="{{vm.CORE.TEXT_AREA_ROWS.MAX_ROWS}}"
+                                                                              placeholder="PO Internal Notes"></textarea>
+                                                                    <div ng-messages="vm.packingSlipForm.poInternalNotes.$error" role="alert">
+                                                                        <div ng-message="maxlength">
+                                                                            <span>
+                                                                                {{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.packingSlipForm.poInternalNotes.$viewValue.length) }}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </md-input-container>
+                                                            </td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div flex="50" flex-gt-md="50" layout="row" layout-align="start start" layout-wrap
+                                         ng-if="vm.IsPackingTab" flex-md="100" flex-sm="100">
+                                        <div class="cm-section-main mt-rs-5 margin-pro-rs-right-0 margin-top-10 " flex="100">
+                                            <div class="cm-section-inner" flex="100">
+                                                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                                    <tbody>
+
+                                                        <tr>
+                                                            <th>
+                                                                <p class="label-container">PO Comments</p>
+                                                            </th>
+                                                            <td>
+                                                                <md-input-container flex="100" class="margin-bottom-0">
+                                                                    <!-- <input type="text" name="internalNotes" id="internalNotes"
+                                                                    ng-model="vm.packingSlip.poComment" placeholder="Internal Notes" ng-disabled=true
+                                                                    class="text-right"> -->
+
+                                                                    <textarea name="poComment" disabled ng-maxlength="vm.maxLengthForDescription" md-maxlength="vm.maxLengthForDescription"
+                                                                              ng-model="vm.packingSlip.poCommentDisabledField" rows="{{vm.CORE.TEXT_AREA_ROWS.ROWS}}" max-rows="{{vm.CORE.TEXT_AREA_ROWS.MAX_ROWS}}"
+                                                                              placeholder="PO Comments"></textarea>
+                                                                    <div ng-messages="vm.packingSlipForm.poComment.$error" role="alert">
+                                                                        <div ng-message="maxlength">
+                                                                            <span>
+                                                                                {{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.packingSlipForm.poComment.$viewValue.length) }}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </md-input-container>
+                                                            </td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </form>
+                                <form name="vm.packingSlipDetForm" layout="row" layout-wrap class="md-inline-form padding-10-imp padding-bottom-0"
+                                      novalidate>
+                                    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+                                    <div layout="row" class="mb-10 layout-row" style="clear: both;" ng-if="!vm.packingSlipID">
+                                        <label class="label-danger no-bg padding-0 margin-0 font-size-20">
+                                            Note: Packing Slip details not
+                                            saved yet into Internal Database. Please save it first to add details into any of the following
+                                            sections.
+                                        </label>
+                                    </div>
+
+                                    <div flex="100" layout="row" layout-wrap ng-if="vm.IsPackingTab">
+                                        <div class="cm-section-main" layout="row" layout-wrap flex="100">
+                                            <div class="cm-section-header" flex="100">
+                                                <h2>{{vm.materialDetTitle}} Material Details </h2>
+                                                <md-button class="md-primary md-raised margin-left-10"
+                                                           id="fetchAllPOPartsBtn" ng-click="vm.FetchAllPOParts();"
+                                                           ng-disabled="(!vm.packingSlip.refPurchaseOrderID) || vm.packingSlipDisable || !vm.packingSlipID ">Select from PO</md-button>
+                                                <md-checkbox ng-model="vm.packingSlipDet.isNonUMIDStock"
+                                                             class=" margin-0"
+                                                             tabindex="-1"
+                                                             ng-disabled="(!vm.packingSlipID) || vm.packingSlipDisable || vm.packingSlipDet.isRMACreated || vm.packingSlipDet.TotalUMIDCount > 0 || vm.isView || vm.packingSlipDet.partType === vm.CORE.PartType.Other || vm.packingSlip.isNonUMIDStock"
+                                                             ng-click="vm.changeNonUmidStock(vm.packingSlipDet.isNonUMIDStock)">{{vm.LabelConstant.PACKING_SLIP.NonUMIDStock}}
+                                                </md-checkbox>
+                                            </div>
+
+                                            <div class="cm-section-inner" flex="100" layout-md="column" layout-sm="column" layout="row">
+
+                                                <div flex="45" flex-md="100" flex-sm="100"
+                                                     class="material-section-devider cm-material-section-devider-rs">
+                                                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                                        <tbody>
+
+                                                            <tr>
+                                                                <th>
+
+                                                                    <p class="label-container">
+                                                                        Scan Part#<span ng-if="!((!vm.packingSlipID) || vm.packingSlipDisable || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView)"><scan-or-enter></scan-or-enter></span>
+                                                                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                                                                            <md-tooltip md-direction="top">
+                                                                                {{vm.LabelConstant.MFG.MFGPN}}/{{vm.LabelConstant.MFG.SupplierPN}}/{{vm.LabelConstant.MFG.CPN}}.
+                                                                            </md-tooltip>
+                                                                        </md-icon>
+                                                                    </p>
+
+                                                                </th>
+                                                                <td width="100" colspan="3">
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="text" name="scanLabel" id="scanLabel"
+                                                                               ng-model="vm.packingSlipDet.scanLabel" placeholder="Scan Label"
+                                                                               ng-keypress="vm.scanLabel($event)"
+                                                                               ng-disabled="(!vm.packingSlipID) || vm.packingSlipDisable || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView"
+                                                                               ng-maxlength="1000" md-maxlength="1000" />
+                                                                        <span class="font-size-10">
+                                                                            <b>{{vm.LabelConstant.ScanOREnter.Scan1D2DLabel}}</b>
+                                                                        </span>
+                                                                        <div ng-messages="vm.packingSlipDetForm.scanLabel.$error" role="alert">
+                                                                            <div ng-message="maxlength">
+                                                                                <span>{{vm.getMaxLengthValidation(1000,vm.packingSlipDetForm.scanLabel.$viewValue.length)}}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        <a tabindex="-1" class="cm-text-decoration underline"
+                                                                           ng-click="vm.goToMFGPartList();">{{vm.LabelConstant.MFG.MFGPN}}/{{vm.LabelConstant.MFG.CPN}}</a>
+                                                                        <span ng-if="!(!vm.packingSlipID  || vm.packingSlipDet.scanLabel || vm.packingSlipDet.tempID || vm.packingSlipDisable || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView)">&nbsp;*</span>
+                                                                    </p>
+
+                                                                </th>
+                                                                <td colspan="3">
+                                                                    <md-input-container ng-if="vm.autoCompletecomponent"
+                                                                                        class="autocompletecustom margin-bottom-0" flex="100">
+                                                                        <custom-auto-complete-search class="min-width-initial"
+                                                                                                     custom-auto-focus="{{vm.autoFocusMfgPN}}"
+                                                                                                     on-search-fn="vm.autoCompletecomponent.onSearchFn"
+                                                                                                     column-name="vm.autoCompletecomponent.columnName"
+                                                                                                     controller-name="vm.autoCompletecomponent.controllerName"
+                                                                                                     view-template-url="vm.autoCompletecomponent.viewTemplateURL"
+                                                                                                     key-column-name="vm.autoCompletecomponent.keyColumnName"
+                                                                                                     input-name="vm.autoCompletecomponent.inputName"
+                                                                                                     placeholder-name="vm.autoCompletecomponent.placeholderName"
+                                                                                                     key-column-id="vm.autoCompletecomponent.keyColumnId"
+                                                                                                     is-required="!(!vm.packingSlipID  || vm.packingSlipDet.scanLabel || vm.packingSlipDet.tempID || vm.packingSlipDisable || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView)"
+                                                                                                     is-addnew="vm.autoCompletecomponent.isAddnew"
+                                                                                                     is-disabled="(!vm.packingSlipID  || vm.packingSlipDet.scanLabel || vm.packingSlipDet.tempID || vm.packingSlipDisable || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView)"
+                                                                                                     add-data="vm.autoCompletecomponent.addData"
+                                                                                                     callback-fn="vm.autoCompletecomponent.callbackFn"
+                                                                                                     on-select-callback-fn="vm.autoCompletecomponent.onSelectCallbackFn">
+                                                                        </custom-auto-complete-search>
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        <a tabindex="-1" class="cm-text-decoration underline"
+                                                                           ng-click="vm.goToMFGList();">{{vm.LabelConstant.MFG.MFG}}</a>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <div class="text-left">
+                                                                        <label class="padding-top-5"
+                                                                               ng-class="{'text-decoration-underline cursor-pointer':vm.packingSlipDet.mfgcodeID}"
+                                                                               ng-click="vm.packingSlipDet.mfgcodeID ? vm.goToManufacturerDetail(vm.packingSlipDet.mfgcodeID):''">
+                                                                            {{vm.packingSlipDet.mfgName?vm.packingSlipDet.mfgName : '-'}}
+                                                                        </label>
+                                                                    </div>
+                                                                </td>
+                                                                <th>
+                                                                </th>
+                                                                <td class="pl-5 pt-5">
+                                                                    <md-checkbox ng-model="vm.packingSlipDet.isReceivedWrongPart" class=" margin-0" 
+                                                                                 ng-disabled="(!vm.packingSlipID) || vm.packingSlipDisable || !vm.packingSlip.refPurchaseOrderID || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView" ng-click="vm.toggleReceivedStaus(vm.packingSlipDet.isReceivedWrongPart)">Received Wrong Part</md-checkbox>
+                                                                </td>
+                                                            </tr>
+                                                            <tr ng-if="vm.packingSlipDet.supplierMFGPNID">
+                                                                <th>
+                                                                    <p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToSupplierList();">{{vm.LabelConstant.MFG.SupplierCode}}</a></p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="text" name="suppliercode" id="suppliercode"
+                                                                               ng-model="vm.packingSlipDet.supplierCodeDisabled" placeholder="Supplier Code" disabled />
+                                                                    </md-input-container>
+                                                                </td>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        <a class="cm-text-decoration" ng-click="vm.goToSupplierPartList();">{{vm.LabelConstant.MFG.SupplierPN}}</a>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="text" name="supplierpn" id="supplierpn"
+                                                                               ng-model="vm.packingSlipDet.supplierPNDisabled" placeholder="Supplier PN" disabled />
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        Packing Slip Line# <span ng-if="!(!vm.packingSlipID || vm.packingSlipDisable || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView)">
+                                                                            &nbsp;*
+                                                                            <check-unique-on-blur></check-unique-on-blur>
+                                                                        </span>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="number" name="packingSlipSerialNumber" id="packingSlipSerialNumber"
+                                                                               custom-blur="vm.checkPackingSlipLine($event);"
+                                                                               ng-model="vm.packingSlipDet.packingSlipSerialNumber"
+                                                                               placeholder="Packing Slip Line#"
+                                                                               ng-required="!((!vm.packingSlipID) || vm.packingSlipDisable || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView)"
+                                                                               min="1" max="9999999999" step="1"
+                                                                               onkeypress="return OnlyNumeric(event)" ng-paste="$event.preventDefault()"
+                                                                               ng-disabled="(!vm.packingSlipID) || vm.packingSlipDisable || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView">
+                                                                        <div ng-messages="vm.packingSlipDetForm.packingSlipSerialNumber.$touched && vm.packingSlipDetForm.packingSlipSerialNumber.$error"
+                                                                             role="alert">
+                                                                            <div ng-message="required">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                            </div>
+                                                                            <div ng-message="min || max">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </md-input-container>
+                                                                </td>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        {{vm.LabelConstant.PACKING_SLIP.POLineID}}
+                                                                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                                                                            <md-tooltip md-direction="top">
+                                                                                Select PO line in case of backorder. Skip the entry in case of a new PO Line ID
+                                                                            </md-tooltip>
+                                                                        </md-icon>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container ng-if="vm.autoCompletePOLine && !vm.packingSlip.refPurchaseOrderID"
+                                                                                        class="autocompletecustom cm-custom-autocomplete margin-0">
+                                                                        <custom-auto-complete datalist="vm.poLineIDList"
+                                                                                              column-name="vm.autoCompletePOLine.columnName"
+                                                                                              key-column-name="vm.autoCompletePOLine.keyColumnName"
+                                                                                              input-name="vm.autoCompletePOLine.inputName"
+                                                                                              placeholder-name="vm.autoCompletePOLine.placeholderName"
+                                                                                              key-column-id="vm.autoCompletePOLine.keyColumnId"
+                                                                                              callback-fn="vm.autoCompletePOLine.callbackFn"
+                                                                                              on-select-callback-fn="vm.autoCompletePOLine.onSelectCallbackFn"
+                                                                                              is-disabled="(!vm.packingSlipID) || vm.packingSlipDisable || vm.packingSlipDet.refPOReleaseLineID || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView">
+                                                                        </custom-auto-complete>
+                                                                    </md-input-container>
+                                                                    <md-input-container flex="100" class="margin-bottom-0" ng-if="vm.packingSlip.refPurchaseOrderID">
+                                                                        <input type="text" name="poLineID" id="poLineID"
+                                                                               ng-model="vm.packingSlipDet.poLineID" placeholder="PO Release#"
+                                                                               ng-disabled="(!vm.packingSlipID) || vm.packingSlipDisable || vm.packingSlipDet.refPOReleaseLineID || vm.packingSlip.refPurchaseOrderID || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView"
+                                                                               ng-maxlength="1000" md-maxlength="1000" />
+                                                                        <div ng-messages="vm.packingSlipDetForm.poLineID.$touched && vm.packingSlipDetForm.poLineID.$error"
+                                                                             role="alert">
+                                                                            <div ng-message="maxlength">
+                                                                                <span>{{vm.getMaxLengthValidation(1000,vm.packingSlipDetForm.poLineID.$viewValue.length)}}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </md-input-container>
+                                                                </td>
+
+                                                            </tr>
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">MFR SPQ</p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="number" name="packageQty" id="packageQty" ng-model="vm.packingSlipDet.packageQtyDisabled"
+                                                                               placeholder="MFR SPQ" disabled input-number-decimal-place min="0"
+                                                                               step="{{$root.unitInputStep}}" />
+                                                                    </md-input-container>
+                                                                </td>
+                                                                <th>
+                                                                    <p class="label-container">PO Release#</p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="text" name="poReleaseNumber" id="poReleaseNumber"
+                                                                               ng-model="vm.packingSlipDet.poReleaseNumber" placeholder="PO Release#"
+                                                                               ng-disabled="(!vm.packingSlipID) || vm.packingSlipDisable || vm.packingSlipDet.refPOReleaseLineID || vm.packingSlip.refPurchaseOrderID || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated|| vm.isView"
+                                                                               ng-maxlength="1000" md-maxlength="1000" />
+                                                                        <div ng-messages="vm.packingSlipDetForm.poReleaseNumber.$touched && vm.packingSlipDetForm.poReleaseNumber.$error"
+                                                                             role="alert">
+                                                                            <div ng-message="maxlength">
+                                                                                <span>{{vm.getMaxLengthValidation(1000,vm.packingSlipDetForm.poReleaseNumber.$viewValue.length)}}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </md-input-container>
+                                                                </td>
+
+
+                                                            </tr>
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">UMID SPQ</p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="number" name="spq" id="spq" ng-model="vm.packingSlipDet.spqDisabled"
+                                                                               placeholder="SPQ" disabled input-number-decimal-place min="0"
+                                                                               step="{{$root.unitInputStep}}" />
+                                                                    </md-input-container>
+                                                                </td>
+
+                                                                <th>
+                                                                    <p class="label-container">Internal Ref#<span ng-if="!(!(vm.packingSlipID && !vm.packingSlipDisable && vm.packingSlipDet.partType !== 4) || vm.packingSlipDet.refPOReleaseLineID || vm.packingSlip.refPurchaseOrderID || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView)"><scan-or-enter></scan-or-enter></span></p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="text" name="internalRef" id="internalRef"
+                                                                               ng-model="vm.packingSlipDet.internalRef" placeholder="Internal Ref#"
+                                                                               ng-keypress="vm.getNicknameFromInternalRef($event)"
+                                                                               ng-maxlength="50"
+                                                                               md-maxlength="50"
+                                                                               ng-disabled="!(vm.packingSlipID && !vm.packingSlipDisable && vm.packingSlipDet.partType !== 4) || vm.packingSlipDet.refPOReleaseLineID || vm.packingSlip.refPurchaseOrderID || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView" />
+                                                                        <span class="font-size-10" ng-if="!vm.packingSlip.refPurchaseOrderID">
+                                                                            <b>{{vm.LabelConstant.ScanOREnter.ScanInternalRefNum}} </b>
+                                                                        </span>
+                                                                        <div ng-messages="vm.packingSlipDetForm.internalRef.$touched && vm.packingSlipDetForm.internalRef.$error"
+                                                                             role="alert">
+                                                                            <div ng-message="maxlength">
+                                                                                <span>{{vm.getMaxLengthValidation(50,vm.packingSlipDetForm.internalRef.$viewValue.length)}}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </md-input-container>
+                                                                </td>
+
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">Unit</p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="number" name="unit" id="unit" ng-model="vm.packingSlipDet.unitDisabled"
+                                                                               placeholder="Unit" disabled step="{{$root.unitInputStep}}"
+                                                                               input-number-decimal-place />
+                                                                    </md-input-container>
+                                                                </td>
+                                                                <th>
+                                                                    <p class="label-container">Nickname</p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container ng-if="vm.autoCompleteAssyNickname"
+                                                                                        class="autocompletecustom cm-custom-autocomplete margin-0">
+                                                                        <custom-auto-complete-search on-search-fn="vm.autoCompleteAssyNickname.onSearchFn"
+                                                                                                     column-name="vm.autoCompleteAssyNickname.columnName"
+                                                                                                     key-column-name="vm.autoCompleteAssyNickname.keyColumnName"
+                                                                                                     input-name="vm.autoCompleteAssyNickname.inputName"
+                                                                                                     placeholder-name="vm.autoCompleteAssyNickname.placeholderName"
+                                                                                                     key-column-id="vm.autoCompleteAssyNickname.keyColumnId"
+                                                                                                     is-required="vm.autoCompleteAssyNickname.isRequired"
+                                                                                                     is-addnew="vm.autoCompleteAssyNickname.isAddnew"
+                                                                                                     on-select-callback-fn="vm.autoCompleteAssyNickname.onSelectCallbackFn"
+                                                                                                     callback-fn="vm.autoCompleteAssyNickname.callbackFn"
+                                                                                                     search-text="vm.autoCompleteAssyNickname.searchText" md-require-match="false"
+                                                                                                     max-length="50"
+                                                                                                     is-uppercase-search-text="vm.autoCompleteAssyNickname.isUppercaseSearchText"
+                                                                                                     is-disabled="!(vm.packingSlipID && !vm.packingSlipDisable && vm.packingSlipDet.partType !== 4 ) || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView">
+                                                                        </custom-auto-complete-search>
+                                                                    </md-input-container>
+                                                                </td>
+
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        <a class="cm-text-decoration" ng-click="vm.goToUomList();" tabindex="-1">UOM</a>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="text" name="uomName" id="uomName" ng-model="vm.packingSlipDet.uomNameDisabled"
+                                                                               placeholder="UOM" disabled />
+                                                                    </md-input-container>
+                                                                </td>
+
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        <a class="cm-text-decoration underline" ng-click="vm.goToRoHSStatusList();"
+                                                                           tabindex="-1">RoHS Requirement</a><span ng-if="!(vm.packingSlip.refPurchaseOrderID || vm.packingSlipDisable || !vm.packingSlipID || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView)">&nbsp;*</span>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container class="autocompletecustom cm-custom-autocomplete" flex="100" ng-if="vm.autoCompleteRohsStatus">
+                                                                        <custom-auto-complete datalist="vm.RohsList"
+                                                                                              column-name="vm.autoCompleteRohsStatus.columnName"
+                                                                                              key-column-name="vm.autoCompleteRohsStatus.keyColumnName"
+                                                                                              input-name="vm.autoCompleteRohsStatus.inputName"
+                                                                                              placeholder-name="vm.autoCompleteRohsStatus.placeholderName"
+                                                                                              key-column-id="vm.autoCompleteRohsStatus.keyColumnId"
+                                                                                              is-addnew="vm.autoCompleteRohsStatus.isAddnew"
+                                                                                              callback-fn="vm.autoCompleteRohsStatus.callbackFn"
+                                                                                              on-select-callback-fn="vm.autoCompleteRohsStatus.onSelectCallbackFn"
+                                                                                              controller-name="vm.autoCompleteRohsStatus.controllerName"
+                                                                                              is-required="!(vm.packingSlip.refPurchaseOrderID || vm.packingSlipDisable || !vm.packingSlipID || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView)"
+                                                                                              is-disabled="vm.packingSlip.refPurchaseOrderID || vm.packingSlipDisable || !vm.packingSlipID || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView"
+                                                                                              view-template-url="vm.autoCompleteRohsStatus.viewTemplateURL"
+                                                                                              add-data="vm.autoCompleteRohsStatus.addData">
+                                                                        </custom-auto-complete>
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        <a tabindex="-1" class="cm-text-decoration underline"
+                                                                           ng-click="vm.goToPackaging();">Packaging</a><span ng-if="!((!vm.packingSlipID) || vm.packingSlipDisable || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView)">&nbsp;*</span>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" ng-if="vm.autoPackaging"
+                                                                                        class="autocompletecustom min-width-initial margin-bottom-0"
+                                                                                        custom-auto-focus="{{vm.focusOnPackaging ? true : false}}">
+                                                                        <custom-auto-complete datalist="vm.packagingList"
+                                                                                              column-name="vm.autoPackaging.columnName"
+                                                                                              controller-name="vm.autoPackaging.controllerName"
+                                                                                              view-template-url="vm.autoPackaging.viewTemplateURL"
+                                                                                              key-column-name="vm.autoPackaging.keyColumnName"
+                                                                                              input-name="vm.autoPackaging.inputName"
+                                                                                              placeholder-name="vm.autoPackaging.placeholderName"
+                                                                                              key-column-id="vm.autoPackaging.keyColumnId"
+                                                                                              is-required="!((!vm.packingSlipID) || vm.packingSlipDisable || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView)"
+                                                                                              is-addnew="vm.autoPackaging.isAddnew"
+                                                                                              add-data="vm.autoPackaging.addData" callback-fn="vm.autoPackaging.callbackFn"
+                                                                                              on-select-callback-fn="vm.autoPackaging.onSelectCallbackFn"
+                                                                                              is-disabled="(!vm.packingSlipID) || vm.packingSlipDisable || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView">
+                                                                        </custom-auto-complete>
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        PO Description
+                                                                    </p>
+                                                                </th>
+                                                                <td colspan="3">
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <textarea type="text" id="poDescription" name="poDescription" rows="{{vm.CORE.TEXT_AREA_ROWS.ROWS}}" max-rows="{{vm.CORE.TEXT_AREA_ROWS.MAX_ROWS}}"
+                                                                                  ng-model="vm.packingSlipDet.poDescriptionDisabled" disabled
+                                                                                  placeholder="PO Description">
+                                                                        </textarea>
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th></th>
+                                                                <td>
+                                                                    <md-checkbox ng-model="vm.packingSlipDet.isLineCustConsigned" class=" margin-0" name="isLineCustConsigned" id="isLineCustConsigned"
+                                                                                 ng-disabled="(!vm.packingSlipID) || vm.packingSlipDisable || vm.packingSlip.refPurchaseOrderID || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView || vm.packingSlip.isCustConsigned || vm.packingSlipDet.partType === vm.CORE.PartType.Other"
+                                                                                 ng-click="vm.changeLineCustConsigned(vm.packingSlipDet.isLineCustConsigned)">
+                                                                        {{vm.LabelConstant.PACKING_SLIP.CustomerConsigned}}
+                                                                    </md-checkbox>
+                                                                </td>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToCustomerList();">{{vm.LabelConstant.PACKING_SLIP.Customer}}</a>
+                                                                        <span ng-if="vm.packingSlipDet.isLineCustConsigned && !vm.packingSlipDisable && !vm.packingSlip.refPurchaseOrderID && !vm.packingSlipDet.TotalUMIDCount && !vm.packingSlipDet.isRMACreated && !vm.isView && !vm.packingSlip.isCustConsigned && !vm.isdisableLineCustomer">&nbsp;*</span>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container ng-if="vm.autoCompleteLineCustomer" class="md-block autocompletecustom" flex="100">
+                                                                        <custom-auto-complete-search on-search-fn="vm.autoCompleteLineCustomer.onSearchFn"
+                                                                                                     column-name="vm.autoCompleteLineCustomer.columnName"
+                                                                                                     controller-name="vm.autoCompleteLineCustomer.controllerName"
+                                                                                                     view-template-url="vm.autoCompleteLineCustomer.viewTemplateURL"
+                                                                                                     key-column-name="vm.autoCompleteLineCustomer.keyColumnName"
+                                                                                                     input-name="vm.autoCompleteLineCustomer.inputName"
+                                                                                                     placeholder-name="vm.autoCompleteLineCustomer.placeholderName"
+                                                                                                     key-column-id="vm.autoCompleteLineCustomer.keyColumnId"
+                                                                                                     is-required="vm.packingSlipDet.isLineCustConsigned && !vm.packingSlipDisable && !vm.packingSlip.refPurchaseOrderID && !vm.packingSlipDet.TotalUMIDCount && !vm.packingSlipDet.isRMACreated && !vm.isView && !vm.packingSlip.isCustConsigned && !vm.isdisableLineCustomer"
+                                                                                                     is-addnew="vm.autoCompleteLineCustomer.isAddnew"
+                                                                                                     callback-fn="vm.autoCompleteLineCustomer.callbackFn"
+                                                                                                     is-disabled="!vm.packingSlipDet.isLineCustConsigned || vm.packingSlipDisable || vm.packingSlip.refPurchaseOrderID || vm.isView || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.packingSlip.isCustConsigned"
+                                                                                                     add-data="vm.autoCompleteLineCustomer.addData"
+                                                                                                     on-select-callback-fn="vm.autoCompleteLineCustomer.onSelectCallbackFn">
+                                                                        </custom-auto-complete-search>
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                <div flex="20" flex-md="100" flex-sm="100"
+                                                     class="material-section-devider cm-material-section-devider-rs">
+                                                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                                        <tbody>
+
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        <a tabindex="-1" class="cm-text-decoration underline"
+                                                                           ng-click="vm.goToBinList();">{{vm.LabelConstant.TransferStock.Bin}}</a>
+                                                                        <span ng-if="!(!(vm.packingSlipID && !vm.packingSlipDisable && vm.packingSlipDet.partType !== vm.CORE.PartType.Other) || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView || vm.packingSlipDet.isNonUMIDStock || vm.packingSlip.isNonUMIDStock)">
+                                                                            &nbsp;*
+                                                                            <scan-or-enter></scan-or-enter>
+                                                                        </span>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                                                                        <input type="text" name="packingSlipBinName" id="packingSlipBinName" capitalize
+                                                                               ng-model="vm.packingSlipDet.bin"
+                                                                               ng-required="!(!(vm.packingSlipID && !vm.packingSlipDisable && vm.packingSlipDet.partType !== vm.CORE.PartType.Other) || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView || vm.packingSlipDet.isNonUMIDStock || vm.packingSlip.isNonUMIDStock)"
+                                                                               maxlength="50" md-maxlength="50"
+                                                                               ng-disabled="!(vm.packingSlipID && !vm.packingSlipDisable && vm.packingSlipDet.partType !== vm.CORE.PartType.Other) || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView || vm.packingSlipDet.isNonUMIDStock || vm.packingSlip.isNonUMIDStock"
+                                                                               ng-keypress="vm.scanBin($event,true)" custom-blur="vm.scanBin($event,false)"
+                                                                               custom-auto-focus="{{vm.focusOnBinAuto ? true : false}}">
+                                                                        <span flex="100" class="font-size-10">
+                                                                            <b>{{vm.LabelConstant.ScanOREnter.ScanBin}}</b>
+                                                                        </span>
+                                                                        <div ng-messages="vm.packingSlipDetForm.packingSlipBinName.$touched && vm.packingSlipDetForm.packingSlipBinName.$error"
+                                                                             role="alert">
+                                                                            <div ng-message="required">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                            </div>
+                                                                            <div ng-message="maxlength">
+                                                                                <span>{{vm.getMaxLengthValidation(50,vm.packingSlipDetForm.packingSlipBinName.$viewValue.length)}}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        <a tabindex="-1" class="cm-text-decoration underline"
+                                                                           ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.WH}}</a>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="text" name="warehouse" id="warehouse" capitalize
+                                                                               ng-model="vm.packingSlipDet.warehouseDisabled" placeholder="Warehouse" disabled>
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        <a tabindex="-1" class="cm-text-decoration underline"
+                                                                           ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.ParentWH}}</a>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="text" name="parentWarehouse" id="parentWarehouse" capitalize
+                                                                               ng-model="vm.packingSlipDet.parentWarehouseDisabled" placeholder="Parent Warehouse"
+                                                                               disabled>
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+
+                                                    <div flex="100" layout="row" layout-wrap>
+                                                        <fieldset flex class="container-box">
+                                                            <legend class="margin-0">Bulk Item Receipt</legend>
+                                                            <div class="cm-section-inner" flex="100" layout-md="column" layout-sm="column" layout="row">
+                                                                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <th>
+                                                                                <p class="label-container">
+                                                                                    {{vm.LabelConstant.PACKING_SLIP.TotalLines}}
+                                                                                    <span ng-if="vm.packingSlipDet.isReceiveBulkItem && !vm.isView">&nbsp;*</span>
+                                                                                </p>
+                                                                            </th>
+                                                                            <td>
+                                                                                <md-input-container flex="100" class="margin-bottom-0">
+                                                                                    <input type="number"
+                                                                                           name="totalLines"
+                                                                                           id="totalLines"
+                                                                                           ng-model="vm.packingSlipDet.totalLines"
+                                                                                           placeholder="Total Lines"
+                                                                                           ng-disabled="!vm.packingSlipDet.isReceiveBulkItem || vm.isView"
+                                                                                           min="1" max="9999999999" step="1"
+                                                                                           ng-required="vm.packingSlipDet.isReceiveBulkItem && !vm.isView"
+                                                                                           onkeypress="return OnlyNumeric(event)"
+                                                                                           custom-blur="vm.changeLineLevelStatus()" />
+                                                                                    <div ng-messages="vm.packingSlipDetForm.totalLines.$touched && vm.packingSlipDetForm.totalLines.$error"
+                                                                                         role="alert">
+                                                                                        <div ng-message="required">
+                                                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                                        </div>
+                                                                                        <div ng-message="min || max">
+                                                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                                        </div>
+                                                                                        <div ng-message="totalLinesMismatch">
+                                                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.TOTAL_LINES_MISMATCH}}</span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </md-input-container>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th>
+                                                                                <p class="label-container">
+                                                                                    {{vm.LabelConstant.PACKING_SLIP.RejectedLines}}
+                                                                                    <span ng-if="vm.packingSlipDet.totalLines && !vm.isView">&nbsp;*</span>
+                                                                                </p>
+                                                                            </th>
+                                                                            <td>
+                                                                                <md-input-container flex="100" class="margin-bottom-0">
+                                                                                    <input type="number"
+                                                                                           name="rejectedLines"
+                                                                                           id="rejectedLines"
+                                                                                           ng-model="vm.packingSlipDet.rejectedLines"
+                                                                                           placeholder="Rejected Lines"
+                                                                                           ng-disabled="!vm.packingSlipDet.totalLines || vm.isView"
+                                                                                           min="0" max="9999999999" step="1"
+                                                                                           ng-required="vm.packingSlipDet.totalLines && !vm.isView"
+                                                                                           custom-blur="vm.changeLineLevelStatus()"
+                                                                                           onkeypress="return OnlyNumeric(event)" />
+                                                                                    <div ng-messages="vm.packingSlipDetForm.rejectedLines.$touched && vm.packingSlipDetForm.rejectedLines.$error"
+                                                                                         role="alert">
+                                                                                        <div ng-message="required">
+                                                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                                        </div>
+                                                                                        <div ng-message="min || max">
+                                                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </md-input-container>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th>
+                                                                                <p class="label-container">{{vm.LabelConstant.PACKING_SLIP.AcceptedWithDeviationLines}}</p>
+                                                                            </th>
+                                                                            <td>
+                                                                                <md-input-container flex="100" class="margin-bottom-0">
+                                                                                    <input type="number"
+                                                                                           name="acceptedWithDeviationLines"
+                                                                                           id="acceptedWithDeviationLines"
+                                                                                           ng-model="vm.packingSlipDet.acceptedWithDeviationLines"
+                                                                                           placeholder="Accepted with Deviation Lines"
+                                                                                           ng-disabled="!vm.packingSlipDet.totalLines || vm.isView"
+                                                                                           min="0" max="9999999999" step="1"
+                                                                                           custom-blur="vm.changeLineLevelStatus()"
+                                                                                           onkeypress="return OnlyNumeric(event)" />
+                                                                                    <div ng-messages="vm.packingSlipDetForm.acceptedWithDeviationLines.$touched && vm.packingSlipDetForm.acceptedWithDeviationLines.$error"
+                                                                                         role="alert">
+                                                                                        <div ng-message="min || max">
+                                                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </md-input-container>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th>
+                                                                                <p class="label-container">{{vm.LabelConstant.PACKING_SLIP.PendingLines}}</p>
+                                                                            </th>
+                                                                            <td>
+                                                                                <md-input-container flex="100" class="margin-bottom-0">
+                                                                                    <input type="number"
+                                                                                           name="pendingLines"
+                                                                                           id="pendingLines"
+                                                                                           ng-model="vm.packingSlipDet.pendingLines"
+                                                                                           placeholder="Pending Lines"
+                                                                                           ng-disabled="!vm.packingSlipDet.totalLines || vm.isView"
+                                                                                           min="0" max="9999999999" step="1"
+                                                                                           custom-blur="vm.changeLineLevelStatus()"
+                                                                                           onkeypress="return OnlyNumeric(event)" />
+                                                                                    <div ng-messages="vm.packingSlipDetForm.pendingLines.$touched && vm.packingSlipDetForm.pendingLines.$error"
+                                                                                         role="alert">
+                                                                                        <div ng-message="min || max">
+                                                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </md-input-container>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th>
+                                                                                <p class="label-container">{{vm.LabelConstant.PACKING_SLIP.AcceptedLines}}</p>
+                                                                            </th>
+                                                                            <td>
+                                                                                <md-input-container flex="100" class="margin-bottom-0">
+                                                                                    <input type="number"
+                                                                                           name="acceptedLines"
+                                                                                           id="acceptedLines"
+                                                                                           ng-model="vm.packingSlipDet.acceptedLinesDisabled"
+                                                                                           onkeypress="return OnlyNumeric(event)"
+                                                                                           placeholder="Accepted Lines"
+                                                                                           disabled />
+                                                                                </md-input-container>
+                                                                                <span flex="100" class="font-size-10">
+                                                                                    <b>i.e. {{vm.LabelConstant.PACKING_SLIP.TotalLines}} - ({{vm.LabelConstant.PACKING_SLIP.RejectedLines}} + {{vm.LabelConstant.PACKING_SLIP.AcceptedWithDeviationLines}} + {{vm.LabelConstant.PACKING_SLIP.PendingLines}})</b>
+                                                                                </span>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </fieldset>
+                                                    </div>
+                                                </div>
+
+                                                <div flex="35" flex-md="100" flex-sm="100">
+                                                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                                                        <tbody>
+
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        {{vm.LabelConstant.PACKING_SLIP.OrderedQty}}<span ng-if="!((!vm.packingSlipDet.isReceivedWrongPart) && (!vm.packingSlipID || vm.packingSlipDisable || vm.packingSlipDet.refPOReleaseLineID || vm.packingSlip.refPurchaseOrderID || vm.isDisabledOrderQty || vm.isView))">
+                                                                            &nbsp;*
+                                                                            <check-unique-on-blur></check-unique-on-blur>
+                                                                        </span>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="number" name="orderedQty" id="orderedQty"
+                                                                               ng-model="vm.packingSlipDet.orderedQty" onkeypress="return OnlyNumeric(event)"
+                                                                               placeholder="{{vm.LabelConstant.PACKING_SLIP.OrderedQty}}" min="1" step="{{vm.unitInputStep}}"
+                                                                               ng-required="!((!vm.packingSlipDet.isReceivedWrongPart) && (!vm.packingSlipID || vm.packingSlipDisable || vm.packingSlipDet.refPOReleaseLineID || vm.packingSlip.refPurchaseOrderID || vm.isDisabledOrderQty || vm.isView))"
+                                                                               ng-disabled="(!vm.packingSlipDet.isReceivedWrongPart) && (!vm.packingSlipID || vm.packingSlipDisable || vm.packingSlipDet.refPOReleaseLineID || vm.packingSlip.refPurchaseOrderID || vm.isDisabledOrderQty || vm.isView)"
+                                                                               custom-blur="vm.changeOrderQty()" />
+                                                                        <div ng-messages="vm.packingSlipDetForm.orderedQty.$touched && vm.packingSlipDetForm.orderedQty.$error"
+                                                                             role="alert">
+                                                                            <div ng-message="required">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                            </div>
+                                                                            <div ng-message="min || max || number || step">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </md-input-container>
+                                                                </td>
+                                                                <th>
+                                                                    <p class="label-container rec-qty">
+                                                                        <b>{{vm.LabelConstant.PACKING_SLIP.ReceivedQty}}</b><span ng-if="!(!vm.packingSlipID || vm.packingSlipDisable || vm.isView)">
+                                                                            &nbsp;*
+                                                                            <check-unique-on-blur></check-unique-on-blur>
+                                                                        </span>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <div flex="100" layout>
+                                                                        <div flex="80">
+                                                                            <md-input-container flex="100" class="margin-bottom-0 rec-qty cm-rec">
+                                                                                <input type="number" name="receivedQty" id="receivedQty"
+                                                                                       ng-model="vm.packingSlipDet.receivedQty"
+                                                                                       onkeypress="return OnlyNumeric(event)" placeholder="{{vm.LabelConstant.PACKING_SLIP.ReceivedQty}}" min="1"
+                                                                                       step="1" input-number-decimal-place
+                                                                                       ng-required="vm.packingSlipID && !vm.packingSlipDisable && !vm.isView"
+                                                                                       ng-disabled="(!vm.packingSlipID) || vm.packingSlipDisable || vm.isView"
+                                                                                       custom-blur="vm.changeReceivedQty()"
+                                                                                       ng-change="vm.packingSlipDet.isConfirmMissMatchQty = false; vm.isReceivedQtyValueChange = true;" />
+                                                                                <div ng-messages="vm.packingSlipDetForm.receivedQty.$touched && vm.packingSlipDetForm.receivedQty.$error"
+                                                                                     role="alert">
+                                                                                    <div ng-message="required">
+                                                                                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                                    </div>
+                                                                                    <div ng-message="number || step || min">
+                                                                                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </md-input-container>
+                                                                        </div>
+                                                                        <div flex="20">
+                                                                            <md-button class="md-primary md-icon-button md-raised md-mini"
+                                                                                       ng-disabled="(!vm.packingSlipID) || vm.packingSlipDisable || vm.isView"
+                                                                                       ng-click="vm.addReceivedQty($event)">
+                                                                                <md-icon md-font-icon="icon-plus"></md-icon>
+                                                                                <md-tooltip>Add {{vm.LabelConstant.PACKING_SLIP.ReceivedQty}}</md-tooltip>
+                                                                            </md-button>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        {{vm.LabelConstant.PACKING_SLIP.PackingSlipQty}}<span ng-if="!(!vm.packingSlipID || vm.packingSlipDisable || vm.isView)">&nbsp;*</span>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="number" name="packingSlipQty" id="packingSlipQty"
+                                                                               ng-model="vm.packingSlipDet.packingSlipQty" onkeypress="return OnlyNumeric(event)"
+                                                                               placeholder="{{vm.LabelConstant.PACKING_SLIP.PackingSlipQty}}" min="1"
+                                                                               ng-required="vm.packingSlipID && !vm.packingSlipDisable && !vm.isView"
+                                                                               step="{{vm.unitInputStep}}" input-number-decimal-place
+                                                                               custom-blur="vm.checkMissmatchInQty()"
+                                                                               ng-disabled="(!vm.packingSlipID) || vm.packingSlipDisable ||vm.isView"
+                                                                               ng-change="vm.packingSlipDet.isConfirmMissMatchQty = false" />
+                                                                        <div ng-messages="vm.packingSlipDetForm.packingSlipQty.$touched && vm.packingSlipDetForm.packingSlipQty.$error"
+                                                                             role="alert">
+                                                                            <div ng-message="required">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                            </div>
+                                                                            <div ng-message="number || step || min">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </md-input-container>
+                                                                </td>
+                                                                <th>
+                                                                    <p class="label-container">Qty Received against PO</p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="number" name="totalReceivedQty" id="totalReceivedQty"
+                                                                               ng-model="vm.packingSlipDet.totalReceivedQtyDisabled"
+                                                                               onkeypress="return OnlyNumeric(event)" min="0"
+                                                                               placeholder="Qty Received against PO" step="{{$root.unitInputStep}}" disabled />
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">Backorder Qty</p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="text" name="pendingQty" id="pendingQty" class="text-right"
+                                                                               ng-model="vm.packingSlipDet.pendingQtyDisabled" onkeypress="return OnlyNumeric(event)"
+                                                                               placeholder="Backorder Qty" disabled />
+                                                                    </md-input-container>
+                                                                    <span flex="100" class="font-size-10">
+                                                                        <b>i.e. {{vm.LabelConstant.PACKING_SLIP.OrderedQty}} - {{vm.LabelConstant.PACKING_SLIP.PackingSlipQty}}</b>
+                                                                    </span>
+                                                                </td>
+                                                                <th>
+                                                                    <p class="label-container">Disputed Qty
+                                                                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                                                                            <md-tooltip md-direction="top">
+                                                                                Positive is a shortage, Negative is overage.
+                                                                            </md-tooltip>
+                                                                        </md-icon>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <input type="text" name="disputeQty" id="disputeQty" class="text-right"
+                                                                               ng-model="vm.packingSlipDet.disputeQtyDisabled" onkeypress="return OnlyNumeric(event)"
+                                                                               placeholder="Dispute Qty" disabled />
+                                                                    </md-input-container>
+                                                                    <span flex="100" class="font-size-10">
+                                                                        <b>i.e. {{vm.LabelConstant.PACKING_SLIP.PackingSlipQty}} - {{vm.LabelConstant.PACKING_SLIP.ReceivedQty}}</b>
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr ng-if="vm.packingSlipDet.id && !vm.packingSlipDet.isDisableMaterialReceivePartInstructionDetail && !vm.packingSlipDet.isReceiveBulkItem && !vm.isView">
+                                                                <td colspan="4">
+                                                                    <p class="label-container red cm-white-space-normal m-0">
+                                                                        Note: This part requires to check
+                                                                        Purchase Inspection Requirement(s), please click on action button in grid to check
+                                                                        it.
+                                                                    </p>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr ng-if="(!vm.packingSlipDet.id) && vm.purchaseRequirementList && vm.purchaseRequirementList.length > 0 && !vm.packingSlipDet.isReceiveBulkItem && !vm.isView">
+                                                                <td colspan="4">
+                                                                    <p class="label-container red cm-white-space-normal m-0">
+                                                                        Note: Complete the verification
+                                                                        of Inspection Requirement(s) Process by clicking Action button in the grid.
+                                                                    </p>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">Received Decision</p>
+                                                                </th>
+                                                                <td colspan="3">
+                                                                    <md-input-container layout-wrap layout="row" class="md-input-has-value">
+                                                                        <md-radio-group name="receivedStatusGroup" id="receivedStatusGroup" layout="column" layout-gt-xs="row" flex
+                                                                                        layout-align="start start" class="margin-0"
+                                                                                        ng-model="vm.packingSlipDet.receivedStatus" ng-disabled="vm.packingSlipDisable || vm.packingSlipDet.isReceivedWrongPart || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView"
+                                                                                        ng-change="vm.changeReceivedStatus()">
+                                                                            <md-radio-button name="receivedStatus"
+                                                                                             value="{{vm.packingSlipReceivedStatus[0].value}}"
+                                                                                             ng-disabled="vm.isPOCanceled || vm.isDisabledPendingStatus">
+                                                                                {{vm.packingSlipReceivedStatus[0].key}}
+                                                                            </md-radio-button>
+                                                                            <md-radio-button name="receivedStatus"
+                                                                                             value="{{vm.packingSlipReceivedStatus[1].value}}"
+                                                                                             ng-disabled="vm.isPOCanceled || vm.isDisabledAcceptedStatus">
+                                                                                {{vm.packingSlipReceivedStatus[1].key}}
+                                                                            </md-radio-button>
+                                                                            <md-radio-button name="receivedStatus"
+                                                                                             value="{{vm.packingSlipReceivedStatus[3].value}}">
+                                                                                {{vm.packingSlipReceivedStatus[3].key}}
+                                                                            </md-radio-button>
+                                                                            <md-radio-button name="receivedStatus"
+                                                                                             value="{{vm.packingSlipReceivedStatus[2].value}}">
+                                                                                {{vm.packingSlipReceivedStatus[2].key}}
+                                                                            </md-radio-button>
+                                                                        </md-radio-group>
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        Line Comment<span ng-if="((vm.packingSlipDet.id && vm.packingSlipDet.receivedStatus !== vm.packingSlipReceivedStatus[1].value) || (!vm.packingSlipDet.id && vm.purchaseRequirementList.length === 0 && vm.packingSlipDet.receivedStatus !== vm.packingSlipReceivedStatus[1].value) || (!vm.packingSlipDet.id && vm.packingSlipDet.isReceiveBulkItem && vm.packingSlipDet.receivedStatus !== vm.packingSlipReceivedStatus[1].value)) && !(vm.packingSlipDisable || !vm.packingSlipID || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView)">&nbsp;*</span>
+                                                                    </p>
+                                                                </th>
+                                                                <td colspan="3">
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <textarea type="text" id="remark" name="remark" rows="{{vm.CORE.TEXT_AREA_ROWS.ROWS}}" max-rows="{{vm.CORE.TEXT_AREA_ROWS.MAX_ROWS}}"
+                                                                                  ng-model="vm.packingSlipDet.remark"
+                                                                                  ng-maxlength="vm.maxLengthForDescription" md-maxlength="vm.maxLengthForDescription"
+                                                                                  ng-disabled="vm.packingSlipDisable || !vm.packingSlipID || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView"
+                                                                                  placeholder="Line Comment"
+                                                                                  ng-required="((vm.packingSlipDet.id && vm.packingSlipDet.receivedStatus !== vm.packingSlipReceivedStatus[1].value) || (!vm.packingSlipDet.id && vm.purchaseRequirementList.length === 0 && vm.packingSlipDet.receivedStatus !== vm.packingSlipReceivedStatus[1].value) || (!vm.packingSlipDet.id && vm.packingSlipDet.isReceiveBulkItem && vm.packingSlipDet.receivedStatus !== vm.packingSlipReceivedStatus[1].value)) && !(vm.packingSlipDisable || !vm.packingSlipID || vm.packingSlipDet.TotalUMIDCount > 0 || vm.packingSlipDet.isRMACreated || vm.isView)">
+                                                                        </textarea>
+                                                                        <div ng-messages="vm.packingSlipDetForm.remark.$touched && vm.packingSlipDetForm.remark.$error"
+                                                                             role="alert">
+                                                                            <div ng-message="required">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                            </div>
+                                                                            <div ng-message="maxlength">
+                                                                                <span>
+                                                                                    {{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.packingSlipDetForm.remark.$viewValue.length) }}
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">
+                                                                        PO Line Internal Notes
+                                                                        <!-- originally was PO Internal Comment-->
+                                                                    </p>
+                                                                </th>
+                                                                <td colspan="3">
+                                                                    <md-input-container flex="100" class="margin-bottom-0">
+                                                                        <textarea type="text" id="poInternalComment" name="poInternalComment" rows="{{vm.CORE.TEXT_AREA_ROWS.ROWS}}" max-rows="{{vm.CORE.TEXT_AREA_ROWS.MAX_ROWS}}"
+                                                                                  ng-model="vm.packingSlipDet.poInternalCommentDisabledfield" disabled
+                                                                                  placeholder="PO Line Internal Notes">
+                                                                        </textarea>
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+                                                            <tr ng-if="vm.purchaseCommentList && vm.purchaseCommentHtmlStr">
+                                                                <td colspan="4">
+                                                                    <fieldset flex="100" class="container-box padding-right-0-imp">
+                                                                        <legend class="margin-0">Part Purchase Comment</legend>
+                                                                        <div class="cm-puchase-comment-div max-height-140">
+                                                                            <ng-bind-html ng-bind-html="vm.purchaseCommentHtmlStr"></ng-bind-html>
+                                                                        </div>
+                                                                    </fieldset>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <td class="text-right" colspan="4">
+                                                                    <md-button class="md-primary md-raised"
+                                                                               ng-click="vm.materialReceivePartInstructionDetail(vm.packingSlipDet)" id="requirementBtn"
+                                                                               ng-if="vm.packingSlipDet.id && !vm.packingSlipDet.isDisableMaterialReceivePartInstructionDetail">
+                                                                        Inspection Requirement(s) & Verification
+                                                                    </md-button>
+
+                                                                    <md-button class="md-primary md-raised"
+                                                                               ng-class="{'md-formdirty': vm.packingSlipDetForm.$dirty}" aria-label="receive"
+                                                                               ng-click="vm.savePackingSlipMaterialDet()" id="btnAddDet"
+                                                                               ng-disabled="(!vm.packingSlipID) || vm.saveBtnDisableFlag || vm.packingSlipDisable || vm.isView">
+                                                                        {{vm.materialDetTitle}}
+                                                                    </md-button>
+
+                                                                    <md-button class="md-default md-raised" aria-label="receive"
+                                                                               ng-click="vm.resetPackingSlipMaterialDet()" id="btnResetDet"
+                                                                               ng-disabled="(!vm.packingSlipID) || vm.packingSlipDisable">
+                                                                        Reset
+                                                                    </md-button>
+                                                                </td>
+                                                            </tr>
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                                <div flex="100" layout="row" layout-wrap ng-if="vm.IsPackingTab">
+                                    <md-card layout="column" flex layout-align="space-between stretch" class="mh-10">
+                                        <ui-grid-extention class="" grid-id="vm.CORE.gridConfig.gridManagePackingSlipMaterial"
+                                                           load-data="vm.loadData" grid-option="vm.gridOptions" header="vm.sourceHeader"
+                                                           grid-data="vm.sourceData" total-data-count="vm.totalSourceDataCount"
+                                                           reset-grid="vm.resetSourceGrid" selectted-rows="vm.selectedRowsList" paging-info="vm.pagingInfo"
+                                                           current-item="vm.currentdata" get-data-down="vm.getDataDown" empty-state="vm.emptyState"
+                                                           delete-multiple-data="vm.deleteRecord">
+                                    </md-card>
+                                </div>
+
+                            </md-tab-body>
+                        </md-tab>
+
+                        <md-tab md-on-select="vm.onTabChanges(vm.documentTabName,msWizard)" ng-disabled="!vm.packingSlipID">
+                            <md-tab-label>
+                                <span class="ms-form-wizard-step-label">
+                                    <span class="ms-form-wizard-step-text">Documents&nbsp;<b>({{vm.documentCount || 0}})</b></span>
+                                </span>
+                            </md-tab-label>
+                            <md-tab-body>
+                                <form name="vm.packingSlipDocument"
+                                      class="padding-10-imp cm-component-customer-popup cm-packing-slip-doc" ms-form-wizard-form novalidate>
+                                    <div flex="100" layout="row" layout-wrap ng-if="vm.IsDocumentTab">
+                                        <div layout="column" flex layout-align="space-between stretch" class="packing-slip-document">
+                                            <documents entity="vm.entityName" class="padding-5" ref-trans-id="vm.packingSlipID"
+                                                       is-title="null" is-hide-display-tree="true"
+                                                       is-protected="(vm.packingSlip.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin)">
+                                            </documents>
+                                        </div>
+                                    </div>
+                                </form>
+                            </md-tab-body>
+                        </md-tab>
+
+
+                        <md-tab md-on-select="vm.onTabChanges(vm.OtherDetailTabName,msWizard)" ng-disabled="!vm.packingSlipID">
+                            <md-tab-label>
+                                <span class="ms-form-wizard-step-label">
+                                    <span class="ms-form-wizard-step-text">{{vm.OtherDetailTitle}}</span>
+                                </span>
+                            </md-tab-label>
+                            <md-tab-body>
+                                <form name="vm.packingSlipOtherDetail" class="md-inline-form padding-10-imp" ms-form-wizard-form
+                                      novalidate>
+                                    <div class="cm-section-main" layout="row" layout-wrap flex="100">
+                                        <div class="cm-section-header" flex="100">
+                                            <h2>Packing Slip {{vm.OtherDetailTitle}}</h2>
+                                        </div>
+                                        <div class="cm-section-inner" flex="100">
+                                            <div layout="column" class="cm-tab-misc" layout-gt-xs="100" ng-if="vm.IsOtherDetailTab">
+                                                <view-data-element entity="{{vm.Entity}}" dataelement-list="vm.dataElementList"
+                                                                   ref-trans-id="{{vm.packingSlipID}}" entity-id="vm.entityID" file-list="vm.fileList"
+                                                                   curr-active-form="vm.packingSlipOtherDetail"
+                                                                   is-protected="(vm.packingSlip.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin)">
+                                                </view-data-element>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </md-tab-body>
+                        </md-tab>
+
+                        <div>
+                            <md-button class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-right-5" type="button"
+                                       ng-click="vm.goToNonUMIDStockList(false)" ng-disabled="!vm.packingSlipID">
+                                <span>{{vm.LabelConstant.UMIDManagement.UMIDPendingParts}}</span>
+                            </md-button>
+                            <md-button class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-right-5" type="button"
+                                       ng-click="vm.scanDocument()" ng-disabled="(!vm.packingSlipID) || vm.packingSlipDisable">
+                                <span>Scan Document</span>
+                            </md-button>
+                        </div>
+
+                    </md-tabs>
+
+                </div>
+            </div>
+        </div>
+    </ms-form-wizard>
+</div>
+<!-- / CENTER -->
+<!--</div>-->

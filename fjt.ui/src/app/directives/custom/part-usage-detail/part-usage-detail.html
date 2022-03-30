@@ -1,0 +1,394 @@
+<form name="vm.PartUsageDetailForm" cg-busy="{promise:vm.cgBusyLoading}">
+  <div layout="row" flex>
+    <md-content flex>
+      <div flex="100" layout="row" layout-wrap class="part-master-detail">
+        <div class="stock-status-section part-attribute-detail" layout-wrap layout="row" layout-align="start start"
+             flex="100">
+          <div flex="100" layout="row" class="padding-top-10 " layout-wrap>
+            <div flex="40" layout="row" class="cm-section-main" layout-wrap>
+              <fieldset flex="100" class="container-box margin-5">
+                <legend class="margin-0">Filter Usage Details</legend>
+                <div flex="100" layout="row" layout-wrap>
+                  <div flex="50" layout="row" class="input-wrapper">
+                    <p flex="30" flex-lg="40" class="margin-top-0 margin-bottom-0 label-container" layout-align="start start" layout="row">
+                      From Date<span>&nbsp;*</span>
+                    </p>
+                    <md-input-container flex="70" flex-lg="60" class="datepicker">
+                      <label class="datepickerlfetlable">From Date </label>
+                      <input type="text" class="float-left"
+                             name="fromDate"
+                             datetime-picker="{{$root.dateDisplayFormat}}"
+                             enable-date="true"
+                             enable-time="false"
+                             ng-model="vm.fromDate"
+                             ng-change="vm.fromDateChanged()"
+                             datepicker-options="vm.fromDateOptions"
+                             ui-options="{clearOnBlur  : false}"
+                             ng-required="true"
+                             ui-mask="{{$root.uimaskFormat.date.mask}}"
+                             ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                             model-view-value="true"
+                             is-open="vm.fromDateOptions.fromDateOpenFlag" />
+                      <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.fromDateOptions.fromDateOpenFlag = true">
+                      </md-icon>
+                      <div ng-messages="vm.PartUsageDetailForm.fromDate.$error" role="alert">
+                        <div ng-message="mindate">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="valid">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="mask">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="datetime">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </div>
+                  <div flex="50" layout="row" class="input-wrapper">
+                    <p flex="30" flex-lg="40" class="margin-top-0 margin-bottom-0 label-container" layout-align="start start" layout="row">
+                      To Date<span>&nbsp;*</span>
+                    </p>
+                    <md-input-container flex="70" flex-lg="60" class="datepicker">
+                      <label class="datepickerlfetlable">To Date </label>
+                      <input type="text" class="float-left"
+                             name="toDate"
+                             datetime-picker="{{$root.dateDisplayFormat}}"
+                             enable-date="true"
+                             enable-time="false"
+                             ng-model="vm.toDate"
+                             ng-required="vm.reportData.fromDate == vm.REPORT_FILTER_FIELD_OPTIONS.Mendatory"
+                             ng-change="vm.toDateChanged()"
+                             datepicker-options="vm.toDateOptions"
+                             ui-options="{clearOnBlur  : false}"
+                             ui-mask="{{$root.uimaskFormat.date.mask}}"
+                             ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                             model-view-value="true"
+                             is-open="vm.toDateOptions.toDateOpenFlag" />
+                      <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.toDateOptions.toDateOpenFlag = true">
+                      </md-icon>
+                      <div ng-messages="vm.PartUsageDetailForm.toDate.$error" role="alert">
+                        <div ng-message="mindate">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="valid">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="mask">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="datetime">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </div>
+                  <div layout-align="end center" layout="row" flex="100">
+                    <md-button class="md-primary md-raised md-ink-ripple" id="saveBtn" ng-click="vm.getpartUsageDetails()">
+                      Search
+                    </md-button>
+                    <md-button class="md-primary md-raised md-ink-ripple" id="saveBtn" ng-click="vm.GenerateReport()">
+                      Print Report
+                    </md-button>
+                    <md-button class="md-primary md-raised md-ink-ripple" id="saveBtn" ng-click="vm.GenerateReport(true)">
+                      Export Report
+                    </md-button>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+            <div flex="60" layout="row" layout-wrap ng-if="vm.partusageDetail.length>0">
+              <div class="cm-section-main" flex="100">
+                <div class="cm-section-inner">
+                  <div layout="row" id="chart-body" flex="100" layout-align="center center">
+                    <div flex="100">
+                      <table border="1" width="100%" class="padding-5 opration-table text-center">
+                        <tr>
+                          <td colspan="7" class="padding-5">
+                            Usage Details
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="padding-5">
+                            Buy Qty
+                          </td>
+                          <td class="padding-5">
+                            Usage Qty
+                          </td>
+                          <td class="padding-5">
+                            Usage Units
+                          </td>
+                          <td class="padding-5">
+                            UOM
+                          </td>
+                          <td class="padding-5">
+                            Usage Qty With Packaging Alias
+                          </td>
+                          <td class="padding-5">
+                            Usage Units With Packaging Alias
+                          </td>
+                          <td class="padding-5">
+                            Scrap Qty
+                          </td>
+                        </tr>
+                        <tr ng-repeat="item in vm.partusageDetail">
+                          <td class="padding-5">
+                            <span class="value">
+                              {{item.BuyQty | numberWithoutDecimal}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{item.UsageQuantity| numberWithoutDecimal}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{item.UsageUnits| numberWithoutDecimal}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{item.UOM}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{item.WithPackagingUsageQty| numberWithoutDecimal}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{item.WithPackagingUsageUnits| numberWithoutDecimal}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{item.ScrapedQty| numberWithoutDecimal}}
+                            </span>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div flex="100" layout="row" class="padding-top-10" layout-wrap ng-if="vm.partusageDetail.length>0">
+            <div flex="50" layout="row" layout-wrap>
+              <div class="cm-section-main" flex="100">
+                <div class="cm-section-inner">
+                  <table border="1" width="100%" class="padding-5 opration-table text-center">
+                    <tr>
+                      <td colspan="8" class="padding-5">
+                        Assembly Wise Usage Details
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="padding-5">
+                        {{vm.LabelConstant.Assembly.ID}}
+                      </td>
+                      <!--<td class="padding-5">
+                          Buy Qty
+                      </td>-->
+                      <td class="padding-5">
+                        Usage Qty
+                      </td>
+                      <td class="padding-5">
+                        Usage Units
+                      </td>
+                      <td class="padding-5">
+                        UOM
+                      </td>
+                      <td class="padding-5">
+                        Usage Qty With Packaging Alias
+                      </td>
+                      <td class="padding-5">
+                        Usage Units With Packaging Alias
+                      </td>
+                      <td class="padding-5">
+                        Scrap Qty
+                      </td>
+                    </tr>
+                    <tr ng-repeat="item in vm.assyWiseUsageDetail">
+                      <td class="text-right padding-5">
+                        <span class="value">
+                          <common-pid-code-label-link component-id="item.assypartID"
+                                                      label="vm.LabelConstant.Assembly.ID"
+                                                      value="item.assyID"
+                                                      is-assembly="true"
+                                                      mfg-label="vm.LabelConstant.Assembly.MFGPN"
+                                                      mfg-value="item.assyPN"
+                                                      rohs-icon="vm.rohsImagePath+item.assyRohsIcon"
+                                                      rohs-status="item.assyRohsName"
+                                                      is-copy="true"
+                                                      is-mfg ="true"
+                                                      is-copy-ahead-label="true"
+                                                      redirection-disable="false">
+                          </common-pid-code-label-link>
+                        </span>
+                      </td>
+                      <!--<td class="padding-5">
+                          <span class="value">
+                              {{item.BuyQty | numberWithoutDecimal}}
+                          </span>
+                      </td>-->
+                      <td class="text-right padding-5">
+                        <span class="value">
+                          {{item.UsageQuantity| numberWithoutDecimal}}
+                        </span>
+                      </td>
+                      <td class="text-right padding-5">
+                        <span class="value">
+                          {{item.UsageUnits| numberWithoutDecimal}}
+                        </span>
+                      </td>
+                      <td class="text-right padding-5">
+                        <span class="value">
+                          {{item.UOM}}
+                        </span>
+                      </td>
+                      <td class="text-right padding-5">
+                        <span class="value">
+                          {{item.WithPackagingUsageQty| numberWithoutDecimal}}
+                        </span>
+                      </td>
+                      <td class="text-right padding-5">
+                        <span class="value">
+                          {{item.WithPackagingUsageUnits| numberWithoutDecimal}}
+                        </span>
+                      </td>
+                      <td class="text-right padding-5">
+                        <span class="value">
+                          {{item.ScrapedQty| numberWithoutDecimal}}
+                        </span>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div flex="50" layout="row" layout-wrap>
+              <div class="cm-section-main" flex="100">
+                <div class="cm-section-inner">
+                  <table border="1" width="100%" class="padding-5 opration-table text-center">
+                    <tr>
+                      <td colspan="8" class="padding-5">
+                        Month Wise Usage Details
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="padding-5">
+                        Month
+                      </td>
+                      <td class="padding-5">
+                        Buy Qty
+                      </td>
+                      <td class="padding-5">
+                        Usage Qty
+                      </td>
+                      <td class="padding-5">
+                        Usage Units
+                      </td>
+                      <td class="padding-5">
+                        UOM
+                      </td>
+                      <td class="padding-5">
+                        Usage Qty With Packaging Alias
+                      </td>
+                      <td class="padding-5">
+                        Usage Units With Packaging Alias
+                      </td>
+                      <td class="padding-5">
+                        Scrap Qty
+                      </td>
+                    </tr>
+                    <tr ng-repeat="item in vm.monthWiseUsageDetail">
+                      <td class="text-right padding-5">
+                        <span class="value">
+                          {{item.usageMonthYear}}
+                        </span>
+                      </td>
+                      <td class="padding-5">
+                        <span class="value">
+                          {{item.BuyQty | numberWithoutDecimal}}
+                        </span>
+                      </td>
+                      <td class="text-right padding-5">
+                        <span class="value">
+                          {{item.UsageQuantity| numberWithoutDecimal}}
+                        </span>
+                      </td>
+                      <td class="text-right padding-5">
+                        <span class="value">
+                          {{item.UsageUnits| numberWithoutDecimal}}
+                        </span>
+                      </td>
+                      <td class="text-right padding-5">
+                        <span class="value">
+                          {{item.UOM}}
+                        </span>
+                      </td>
+                      <td class="text-right padding-5">
+                        <span class="value">
+                          {{item.WithPackagingUsageQty| numberWithoutDecimal}}
+                        </span>
+                      </td>
+                      <td class="text-right padding-5">
+                        <span class="value">
+                          {{item.WithPackagingUsageUnits| numberWithoutDecimal}}
+                        </span>
+                      </td>
+                      <td class="text-right padding-5">
+                        <span class="value">
+                          {{item.ScrapedQty| numberWithoutDecimal}}
+                        </span>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div flex="100" layout="row" class="padding-top-10" layout-wrap ng-if="vm.partusageDetail.length>0">
+            <div flex="50" layout="row" layout-wrap>
+              <div class="cm-section-main" flex="100">
+                <div class="cm-section-inner" flex="100" layout-wrap>
+                  <div layout="row" id="chart-body" flex="100" layout-align="center center">
+                    <part-usage-chart chart-data-list="vm.assywiseUsagechartObj"></part-usage-chart>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div flex="50" layout="row" layout-wrap>
+              <div class="cm-section-main" flex="100">
+                <div class="cm-section-main" flex="100">
+                  <div class="cm-section-inner" flex="100" layout-wrap>
+                    <div layout="row" id="chart-body" flex="100" layout-align="center center">
+                      <part-usage-chart chart-data-list="vm.MonthwiseUsagechartObj"></part-usage-chart>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="empty-state text-center" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.partusageDetail.length==0">
+            <div class="emty-icon" flex="100">
+              <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+            </div>
+            <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+          </div>
+        </div>
+      </div>
+    </md-content>
+  </div>
+</form>

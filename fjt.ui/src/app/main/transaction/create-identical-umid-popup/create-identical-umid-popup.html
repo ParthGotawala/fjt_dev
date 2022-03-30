@@ -1,0 +1,532 @@
+<md-dialog aria-label="Search Material Print Label" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="95">
+  <form name="vm.formIdenticalUMID" novalidate>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{vm.popupLabel}}</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerData"></popup-header-label>
+        <md-button class="md-icon-button margin-0 md-primary md-raised md-mini" id="headerAddBtn"
+                   ng-click="vm.addNew()">
+          <md-icon md-font-icon="t-icons-umid-identical add-icon" class="material-icons"></md-icon>
+          <md-tooltip>{{vm.LabelConstant.UMIDManagement.IdenticalUMID}}</md-tooltip>
+        </md-button>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding max-height-100p" layout="column">
+      <md-content class="padding-10">
+        <div layout="row" layout-wrap>
+          <!-- FROM UMID SECTION -->
+          <div flex="70" layout="row" class="pr-5">
+            <div class="cm-section-main margin-bottom-5" flex>
+              <div class="cm-section-inner">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th>
+                        <p class="label-container">Scan UMID<span ng-if="!vm.isUIDDisable">&nbsp;*<scan-or-enter></scan-or-enter></span></p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="uid" capitalize ng-model="vm.modelUID.uid"
+                                 ng-keypress="vm.scanUID($event);" id="uid" ng-disabled="vm.isUIDDisable" required
+                                 ng-maxlength="vm.UMID_MAX_LENGTH">
+                          <span flex="100" class="font-size-10" md-autofocus>
+                            <b>{{vm.LabelConstant.ScanOREnter.ScanUMID}}</b>
+                          </span>
+                          <div ng-messages="vm.formIdenticalUMID.uid.$touched && vm.formIdenticalUMID.uid.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.UMID_MAX_LENGTH,vm.formIdenticalUMID.uid.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToLocationList();">
+                            From {{vm.LabelConstant.TransferStock.Bin}}
+                          </a>
+                        </p>
+                      </th>
+                      <td class="text-right">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="fromBinName" ng-model="vm.modelUID.fromBinName" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToPartList();">
+                            {{vm.LabelConstant.MFG.CustomerPN}}/{{vm.LabelConstant.MFG.MFGPN}}
+                          </a>
+                        </p>
+                      </th>
+                      <td class="text-right">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="mfgPN" ng-model="vm.modelUID.mfgPN" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGList();">
+                            {{vm.LabelConstant.MFG.MFG}}
+                          </a>
+                        </p>
+                      </th>
+                      <td class="text-left">
+                        <label class="padding-top-5 text-decoration-underline cursor-pointer"
+                               ng-click="vm.goToManufacturerDetail(vm.modelUID.mfgcodeID)">
+                          {{vm.modelUID.mfgCodeName}}
+                        </label>
+                      </td>
+                      <th>
+                        <p class="label-container">{{vm.LabelConstant.MFG.MFGPNDescription}}</p>
+                      </th>
+                      <td class="text-right">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="mfgPNDescription" ng-model="vm.modelUID.mfgPNDescription"
+                                 ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">Unit</p>
+                      </th>
+                      <td>
+                        <div layout="row" flex="100">
+                          <div flex="40">
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="number" id="componentUnit" name="componentUnit"
+                                     ng-model="vm.modelUID.componentUnit" placeholder="Unit" ng-disabled="true">
+                            </md-input-container>
+                          </div>
+                          <div flex="15">
+                            <p class="label-container">
+                              <a tabindex="-1" class="cm-text-decoration underline margin-top-5"
+                                 ng-click="vm.goToUOMList();">UOM</a>
+                            </p>
+                          </div>
+                          <div flex="45">
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="text" id="unitName" name="unitName" ng-model="vm.modelUID.unitName"
+                                     ng-disabled="true">
+                            </md-input-container>
+                          </div>
+                        </div>
+                      </td>
+                      <th>
+                        <p class="label-container">
+                          COFC<md-icon class="icon-question-mark-circle help-icon mr-5">
+                            <md-tooltip md-direction="top">
+                              {{vm.CORE_MESSAGE_CONSTANT.UMID_COFC_NOTE}}
+                            </md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td>
+                        <div class="text-left">
+                          <label class="padding-top-5"
+                                 ng-class="{'text-decoration-underline cursor-pointer': vm.modelUID.cofcCode}"
+                                 ng-click="vm.modelUID.cofcCode ? vm.goToCofC():''">
+                            {{vm.modelUID.cofcCode ? vm.modelUID.cofcCode : '-'}}
+                          </label>
+                        </div>
+                      </td>
+                      <th>
+                        <p class="label-container">
+                          {{vm.LabelConstant.PartAttribute.PackageCase}}
+                          <md-icon class="icon-question-mark-circle help-icon">
+                            <md-tooltip md-direction="top">External</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td>
+                        <div layout>
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input ng-disabled="true" type="text" name="packageCaseExternal"
+                                   ng-model="vm.modelUID.externalPartPackage"
+                                   placeholder="{{vm.LabelConstant.PartAttribute.PackageCase}}(External)" />
+                          </md-input-container>
+                          <p class="label-container width-auto">
+                            <md-icon class="icon-question-mark-circle help-icon">
+                              <md-tooltip md-direction="top">Internal</md-tooltip>
+                            </md-icon>
+                          </p>
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input ng-disabled="true" type="text" name="packageCaseExternal"
+                                   ng-model="vm.modelUID.partPackage"
+                                   placeholder="{{vm.LabelConstant.PartAttribute.PackageCase}}(Internal)" />
+                          </md-input-container>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">Count</p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="number" id="orgQty" name="orgQty" input-number-decimal-place
+                                 ng-model="vm.modelUID.orgQty" placeholder="Count" ng-disabled="true" />
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">Units</p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="number" id="orgPkgUnit" name="orgPkgUnit" ng-model="vm.modelUID.orgPkgUnit"
+                                 placeholder="Units" ng-disabled="true" input-number-decimal-place />
+                          <span flex="100" class="font-size-10">
+                            <b>i.e. Unit * Count</b>
+                          </span>
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">UMID SPQ</p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="number" name="spq" ng-model="vm.modelUID.spq" placeholder="UMID SPQ"
+                                 ng-disabled="true" input-number-decimal-place />
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToLocationList();">
+                            Current {{vm.LabelConstant.TransferStock.Bin}}
+                          </a>
+                        </p>
+                      </th>
+                      <td class="text-right">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="currentBinName" ng-model="vm.modelUID.currentBinName"
+                                 ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline"
+                             ng-click="vm.goToPackaging();">Packaging</a>
+                          <md-icon class="icon-question-mark-circle help-icon mr-5"
+                                   ng-if="vm.modelUID.stockInventoryType !== vm.InventoryType[0].value">
+                            <md-tooltip md-direction="top">
+                              {{vm.CORE_MESSAGE_CONSTANT.UMID_PACKAGING_NOTE}}
+                            </md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td class="text-right">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="packagingName" ng-model="vm.modelUID.packagingName"
+                                 ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline"
+                             ng-click="vm.goToCostCategoryList();">Cost Category</a>
+                        </p>
+                      </th>
+                      <td class="text-right">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="costCategoryName" ng-model="vm.modelUID.costCategoryName"
+                                 ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          {{vm.LabelConstant.MFG.MFRDateCode}}
+                          <md-icon class="icon-question-mark-circle help-icon"
+                                   ng-if="!vm.modelUID.mfrDateCodeFormatID && vm.modelUID.mfgcodeID">
+                            <md-tooltip md-direction="top">
+                              {{vm.MFR_DATE_CODE_FORMAT_NOT_FOUND}}
+                            </md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td class="text-right">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="mfrDateCode" ng-model="vm.modelUID.mfrDateCode" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">Internal Date Code</p>
+                      </th>
+                      <td class="text-right">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="dateCode" ng-model="vm.modelUID.dateCode" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">Lot Code</p>
+                      </th>
+                      <td class="text-right">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="lotCode" ng-model="vm.modelUID.lotCode" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">MSL</p>
+                      </th>
+                      <td class="text-right">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="mslLevel" ng-model="vm.modelUID.mslLevel" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">Seal Date</p>
+                      </th>
+                      <td class="text-right">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="sealDate" ng-model="vm.modelUID.sealDate" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">PCB Per Array</p>
+                      </th>
+                      <td class="text-right">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="pcbPerArray" ng-model="vm.modelUID.pcbPerArray" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration underline" ng-click="vm.goToRoHSStatusList();" tabindex="-1">
+                            RoHS Status
+                          </a>
+                        </p>
+                      </th>
+                      <td class="text-right">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="umidRohsName" ng-model="vm.modelUID.umidRohsName" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">Special Note</p>
+                      </th>
+                      <td class="text-right" colspan="3">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="specialNote" ng-model="vm.modelUID.specialNote" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- / FROM UMID SECTION -->
+          <!-- PRINT AND TO BIN SECTION -->
+          <div flex layout="row">
+            <div class="cm-section-main margin-bottom-5" flex>
+              <div class="cm-section-inner">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th>
+                        <p class="label-container">Number of UMID<span>&nbsp;*</span></p>
+                      </th>
+                      <td>
+                        <md-input-container flex="{{vm.modelUID.stockInventoryType === vm.InventoryType[1].value ? 60 : 100}}" class="margin-bottom-0">
+                          <input type="number" id="uidQty" name="uidQty" ng-model="vm.modelUID.uidQty"
+                                 placeholder="Count" onkeypress="return OnlyNumbersWithDot(event)" min="1"
+                                 custom-blur="vm.changeUMIDQty()" required>
+                          <div ng-messages="vm.formIdenticalUMID.uidQty.$error"
+                               ng-if="vm.formIdenticalUMID.uidQty.$touched" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="number || step || min">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th ng-if="vm.modelUID.stockInventoryType === vm.InventoryType[0].value || vm.modelUID.stockInventoryType === vm.InventoryType[2].value">
+                        <p class="label-container">Possible UMID within From Bin</p>
+                      </th>
+                      <td ng-if="vm.modelUID.stockInventoryType === vm.InventoryType[0].value || vm.modelUID.stockInventoryType === vm.InventoryType[2].value">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="number" name="maxPossibleUMID" ng-model="vm.modelUID.maxPossibleUMID" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">Number of Labels Per UMID<span>&nbsp;*</span></p>
+                      </th>
+                      <td>
+                        <md-input-container class="margin-bottom-0 md-block" flex="{{vm.modelUID.stockInventoryType === vm.InventoryType[1].value ? 60 : 100}}">
+                          <input type="number" name="noprint" id="noprint" ng-model="vm.modelUID.noprint"
+                                 placeholder="No of print" min="1" required maxlength="3">
+                          <div ng-messages="vm.formIdenticalUMID.noprint.$touched && vm.formIdenticalUMID.noprint.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="number || min">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToLocationList();">
+                            To {{vm.LabelConstant.TransferStock.Bin}}
+                          </a><span>&nbsp;*</span>
+                          <scan-or-enter></scan-or-enter>
+                        </p>
+                      </th>
+                      <td colspan="3">
+                        <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                          <input type="text" name="toBinName" id="toBinName" capitalize ng-model="vm.modelUID.toBinName"
+                                 required maxlength="50" ng-keydown="vm.scanBin($event, vm.getCurrentBinDetail)"/>
+                          <span flex="100" class="font-size-10">
+                            <b>{{vm.LabelConstant.ScanOREnter.ScanBin}}</b>
+                          </span>
+                          <div ng-messages="vm.formIdenticalUMID.toBinName.$touched && vm.formIdenticalUMID.toBinName.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(50,vm.formIdenticalUMID.toBinName.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWHList();">
+                            {{vm.LabelConstant.TransferStock.WH}}
+                          </a>
+                        </p>
+                      </th>
+                      <td class="text-right" colspan="3">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="warehouseName" ng-model="vm.modelUID.warehouseName"
+                                 ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWHList();">
+                            {{vm.LabelConstant.TransferStock.ParentWH}}
+                          </a>
+                        </p>
+                      </th>
+                      <td class="text-right" colspan="3">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="parentWHName" ng-model="vm.modelUID.parentWHName" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration underline" ng-click="vm.goToPrinterList();"
+                             tabindex="-1">{{vm.autoCompletePrinter.placeholderName}}</a><span>&nbsp;*</span>
+                        </p>
+                      </th>
+                      <td colspan="3">
+                        <md-input-container ng-if="vm.autoCompletePrinter" class="autocompletecustom margin-bottom-0"
+                                            flex="100">
+                          <custom-auto-complete datalist="vm.PrinterList"
+                                                column-name="vm.autoCompletePrinter.columnName"
+                                                controller-name="vm.autoCompletePrinter.controllerName"
+                                                view-template-url="vm.autoCompletePrinter.viewTemplateURL"
+                                                key-column-name="vm.autoCompletePrinter.keyColumnName"
+                                                input-name="vm.autoCompletePrinter.inputName" input-id="vm.autoCompletePrinter.inputId"
+                                                placeholder-name="vm.autoCompletePrinter.placeholderName"
+                                                key-column-id="vm.autoCompletePrinter.keyColumnId"
+                                                is-required="vm.autoCompletePrinter.isRequired" is-addnew="vm.autoCompletePrinter.isAddnew"
+                                                callback-fn="vm.autoCompletePrinter.callbackFn" add-data="vm.autoCompletePrinter.addData"
+                                                on-select-callback-fn="vm.autoCompletePrinter.onSelectCallbackFn"
+                                                on-blur-callback-fn="vm.onBlurCallbackFn">
+                          </custom-auto-complete>
+                          <span flex="100" class="font-size-12">
+                            <b>{{vm.CORE_MESSAGE_CONSTANT.NOTE_NETWORK_PRINTER}}</b>
+                          </span>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration underline" ng-click="vm.goToPrinterLabelList();"
+                             tabindex="-1">{{vm.autoCompleteLabelTemplate.placeholderName}}</a><span>&nbsp;*</span>
+                        </p>
+                      </th>
+                      <td colspan="2">
+                        <md-input-container ng-if="vm.autoCompleteLabelTemplate" class="autocompletecustom" flex="100">
+                          <custom-auto-complete datalist="vm.LabelTemplateList"
+                                                column-name="vm.autoCompleteLabelTemplate.columnName"
+                                                controller-name="vm.autoCompleteLabelTemplate.controllerName"
+                                                view-template-url="vm.autoCompleteLabelTemplate.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteLabelTemplate.keyColumnName"
+                                                input-name="vm.autoCompleteLabelTemplate.inputName"
+                                                placeholder-name="vm.autoCompleteLabelTemplate.placeholderName"
+                                                key-column-id="vm.autoCompleteLabelTemplate.keyColumnId"
+                                                is-required="vm.autoCompleteLabelTemplate.isRequired"
+                                                is-addnew="vm.autoCompleteLabelTemplate.isAddnew"
+                                                callback-fn="vm.autoCompleteLabelTemplate.callbackFn"
+                                                on-select-callback-fn="vm.autoCompleteLabelTemplate.onSelectCallbackFn">
+                          </custom-auto-complete>
+                          <span flex="100" class="font-size-12">
+                            <b>{{vm.CORE_MESSAGE_CONSTANT.NOTE_VERIFY_PRINTFORMAT}}</b>
+                          </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th></th>
+                      <td colspan="3">
+                        <div layout="row" layout-align="end">
+                          <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+                          <md-button class="md-default md-raised" ng-click="vm.reset()">Reset</md-button>
+                          <md-button class="md-primary md-raised" ng-click="vm.validationForSaveUMID()" ng-disabled="vm.saveBtnDisableFlag" aria-label="Submit" id="saveIdenticalBtn" data-focusButton="headerAddBtn" last-element elementcondition="true">Save & Print Label</md-button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- / PRINT AND TO BIN SECTION -->
+          </div>
+        </div>
+        <!-- UMID LIST SECTION -->
+        <div flex layout="column" class="margin-top-5 margin-left-0 m-8">
+          <generated-umid-list list="vm.generatedUMIDList" is-show-print-label="true"></generated-umid-list>
+        </div>
+        <!-- / UMID LIST SECTION -->
+      </md-content>
+    </md-dialog-content>
+  </form>
+</md-dialog>

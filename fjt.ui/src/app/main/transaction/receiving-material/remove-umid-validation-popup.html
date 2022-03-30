@@ -1,0 +1,96 @@
+<md-dialog aria-label="Remove UID Validation" class="cm-custom-label-common" draggable>
+  <form name="vm.removeUIDValidationForm" id="removeUIDValidationForm">
+    <md-dialog-content class="md-dialog-content">
+      <md-content>
+        <h2 class="md-title">{{vm.errorMessage.messageType}}: {{vm.errorMessage.messageCode}}</h2>
+        <div flex="100" layout="row" layout-align="start start" class="pv-5">
+          <div class="dynamic-msg-content">
+            <div class="title" ng-bind-html="vm.errorMessage.message"></div>
+          </div>
+        </div>
+        <div flex="100" ng-if="vm.uidModel.errorCode === 3 && vm.uidModel.selectedUIDs">
+          <div class="cm-section-main margin-bottom-5" flex>
+            <table cellpadding="0" cellspacing="0" class="cm-table-input-main width-100p">
+              <tbody>
+                <tr class="cm-height-auto cm-section-header">
+                  <th>Selected UMID(s)</th>
+                </tr>
+                <tr>
+                  <td class="p-5">{{vm.uidModel.selectedUIDs}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div flex="100" layout="row" layout-align="start start" class="pb-5" ng-if="vm.uidModel.errorCode === 2 || vm.uidModel.errorCode === 3">
+          <div>
+            {{vm.CORE_MESSAGE_CONSTANT.UMID_REMOVE_SUGGESTION_MESSAGE}}
+          </div>
+        </div>
+        <div flex="100" ng-if="vm.uidModel.UIDList.length > 0">
+          <div class="cm-section-main margin-bottom-5" flex>
+            <div class="cm-section-header" flex="100">
+              <div flex="70" layout="row">
+                <h2>{{vm.uidModel.errorCode === 3 ? 'Pending UMID Stock': 'Packing Slip'}}</h2>
+              </div>
+            </div>
+            <div class="cm-section-inner">
+              <table class="cm-table-input-main table-umid-allocated-kit">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>{{vm.LabelConstant.MFG.PID}}</th>
+                    <th ng-if="vm.uidModel.errorCode === 2 || vm.uidModel.errorCode === 3">Bin</th>
+                    <th ng-if="vm.uidModel.errorCode === 2 || vm.uidModel.errorCode === 3">{{vm.LabelConstant.UMIDManagement.Packaging}}</th>
+                    <th>{{vm.LabelConstant.UMIDManagement.PackingSlipNumber}}</th>
+                    <th ng-if="vm.uidModel.errorCode === 1">{{vm.LabelConstant.UMIDManagement.PSSupplier}}</th>
+                    <th ng-if="vm.uidModel.errorCode === 1 || vm.uidModel.errorCode === 2">Total UMID</th>
+                  </tr>
+                </thead>
+                <tbody ng-repeat="item in vm.uidModel.UIDList">
+                  <tr>
+                    <td class="text-center">{{($index+1)}}</td>
+                    <td>
+                      <common-pid-code-label-link component-id="item.partId"
+                                                  label="vm.LabelConstant.MFG.PID"
+                                                  value="item.pidCode"
+                                                  is-custom-part="true"
+                                                  is-copy="true">
+                      </common-pid-code-label-link>
+                    </td>
+                    <td ng-if="vm.uidModel.errorCode === 2 || vm.uidModel.errorCode === 3">{{item.binName}}</td>
+                    <td ng-if="vm.uidModel.errorCode === 2 || vm.uidModel.errorCode === 3">{{item.packagingName}}</td>
+                    <td>
+                      <a class="cm-text-decoration underline cursor-pointer" ng-click="vm.goToManagePackingSlipDetail(item.packingSlipId)">{{item.packingSlipNumber}}</a>
+                      <copy-text label="vm.LabelConstant.UMIDManagement.PackingSlipNumber" ng-if="item.packingSlipNumber" text="item.packingSlipNumber"></copy-text>
+                    </td>
+                    <td ng-if="vm.uidModel.errorCode === 1">{{item.supplierName}}</td>
+                    <td ng-if="vm.uidModel.errorCode === 1 || vm.uidModel.errorCode === 2" class="text-right"><a ng-class="{'underline':item.uidCount>0}" class="underline"><span ng-click="item.isopen=!item.isopen">{{item.uidCount}}<md-tooltip>{{item.isopen?'Collapse':'Expand'}}</md-tooltip></span></a></td>
+                  </tr>
+                  <tr ng-if="item.isopen" class="umid-header-color">
+                    <th><b>#</b></th>
+                    <th><b>{{vm.LabelConstant.UMIDManagement.UMID}}</b></th>
+                    <th><md-button class="md-primary md-raised m-0" ng-click="item.isopen=!item.isopen">collapse</md-button></th>
+                  </tr>
+                  <tr ng-repeat="data in item.selectedUIdList" ng-if="item.isopen">
+                    <td>{{($index+1)}}</td>
+                    <td colspan="2">
+                      <a ng-if="data.id" ng-click="vm.goToUMIDManagement(data)" class="cm-text-decoration underline cursor-pointer">{{data.uid || "-"}}</a>
+                      <copy-text label="vm.LabelConstant.UMIDManagement.UMID" ng-if="data.uid" text="data.uid"></copy-text>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </md-content>
+
+    </md-dialog-content>
+    <md-dialog-actions layout="row" class="toolbar-45">
+      <md-button class="md-default md-button md-ink-ripple md-raised" ng-click="vm.cancel()">
+        OK
+      </md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

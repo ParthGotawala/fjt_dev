@@ -1,0 +1,553 @@
+<div class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="content-card" layout="column" flex="100">
+    <div layout="row" flex="100">
+      <div flex="100">
+        <form name="vm.supplierRefundDetailForm" layout="row" layout-wrap class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+          <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+          <fieldset flex="100" class="container-box margin-bottom-5">
+            <div class="cm-section-main border-0" flex="100">
+              <div class="cm-section-inner p-0-imp" layout="row" flex="100" layout-wrap>
+                <div flex="35" layout="column" class="flex-rs-md-50">
+                  <div layout="row" flex="100" class="material-section-devider">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-cust-payment-info">
+                      <tbody>
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToSupplierList();"
+                                 tabindex="-1">Supplier</a><span ng-if="!(vm.paymentId || vm.isReadOnly)">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td colspan="3">
+                            <md-input-container flex="100" ng-if="vm.autoCompleteSupplier" class="autocompletecustom margin-bottom-0" md-no-float>
+                              <custom-auto-complete datalist="vm.supplierList"
+                                                    controller-name="vm.autoCompleteSupplier.controllerName"
+                                                    view-template-url="vm.autoCompleteSupplier.viewTemplateURL"
+                                                    column-name="vm.autoCompleteSupplier.columnName"
+                                                    key-column-name="vm.autoCompleteSupplier.keyColumnName"
+                                                    input-name="vm.autoCompleteSupplier.inputName"
+                                                    placeholder-name="vm.autoCompleteSupplier.placeholderName"
+                                                    key-column-id="vm.autoCompleteSupplier.keyColumnId"
+                                                    is-required="vm.autoCompleteSupplier.isRequired"
+                                                    is-addnew="vm.autoCompleteSupplier.isAddnew"
+                                                    add-data="vm.autoCompleteSupplier.addData"
+                                                    callback-fn="vm.autoCompleteSupplier.callbackFn"
+                                                    on-select-callback-fn="vm.autoCompleteSupplier.onSelectCallbackFn"
+                                                    is-disabled="vm.paymentId || vm.isReadOnly">
+                              </custom-auto-complete>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToTransactionModeList();"
+                                 tabindex="-1">{{vm.LabelConstant.SupplierInvoice.TransactionMode}}</a><span ng-if="!(vm.paymentId || vm.isReadOnly)">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td colspan="3">
+                            <md-input-container ng-if="vm.autoCompleteTransactionMode" class="autocompletecustom cm-custom-autocomplete margin-0" flex="100">
+                              <custom-auto-complete datalist="vm.transactionModeList"                                                
+                                                    column-name="vm.autoCompleteTransactionMode.columnName"
+                                                    key-column-name="vm.autoCompleteTransactionMode.keyColumnName"
+                                                    input-name="vm.autoCompleteTransactionMode.inputName"
+                                                    placeholder-name="vm.autoCompleteTransactionMode.placeholderName"
+                                                    key-column-id="vm.autoCompleteTransactionMode.keyColumnId"
+                                                    is-required="vm.autoCompleteTransactionMode.isRequired"
+                                                    is-addnew="vm.autoCompleteTransactionMode.isAddnew"
+                                                    is-add-from-route="vm.autoCompleteTransactionMode.isAddFromRoute"
+                                                    route-name="vm.autoCompleteTransactionMode.routeName"
+                                                    add-data="vm.autoCompleteTransactionMode.addData"
+                                                    callback-fn="vm.autoCompleteTransactionMode.callbackFn"
+                                                    on-select-callback-fn="vm.autoCompleteTransactionMode.onSelectCallbackFn"
+                                                    is-disabled="vm.paymentId || vm.isReadOnly">
+                              </custom-auto-complete>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">Refund Amount ($)<span ng-if="!(vm.paymentId || vm.isReadOnly)">&nbsp;*</span></p>
+                          </th>
+                          <td>
+                            <md-input-container flex="100" class="input-with-usd-symbol padding-left-0-imp margin-top-4 cm-invoice-amt-diff-font width-auto">
+                              <md-icon md-font-icon="icon-currency-usd" class="usdicon"></md-icon>
+                              <input type="number" id="paymentAmount" name="paymentAmount" class="font-weight-700"
+                                     ng-model="vm.paidPackingSlip.paymentAmount"
+                                     min="0.01" step="{{vm.amountInputStep}}" maxlength="10"
+                                     ng-disabled="vm.paymentId || vm.isReadOnly"
+                                     custom-blur="vm.calculateVarianceAmount()"
+                                     placeholder="Refund Amount ($)" ng-required="!(vm.paymentId || vm.isReadOnly)">
+                              <div ng-messages="vm.supplierRefundDetailForm.paymentAmount.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="invalid || max || min || number || step || maxlength">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container pt-2">Refund Date<span ng-if="!(vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked || vm.isReadOnly)">&nbsp;*</span></p>
+                          </th>
+                          <td>
+                            <md-input-container class="datepicker padding-right-0-imp margin-bottom-0">
+                              <input name="paymentDate" type="text" class="float-left"
+                                     id="paymentDate"
+                                     datetime-picker="{{$root.dateDisplayFormat}}"
+                                     ng-model="vm.paidPackingSlip.paymentDate"
+                                     enable-time="false"
+                                     ui-options="{clearOnBlur: true}"
+                                     ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                     ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                     model-view-value="true"
+                                     datepicker-options="vm.chequeDateOptions"
+                                     is-open="vm.IsPickerOpen[vm.DATE_PICKER.paymentDate]"
+                                     ng-required="!(vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked || vm.isReadOnly)"
+                                     ng-disabled="vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked || vm.isReadOnly"/>
+                              <md-icon md-font-icon="icon-calendar calender-icon"
+                                       ng-click="vm.IsPickerOpen[vm.DATE_PICKER.paymentDate] = ((vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked) ? false : true)">
+                              </md-icon>
+                              <div ng-messages="vm.supplierRefundDetailForm.paymentDate.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="datetime">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">Payment# or Check#<span ng-if="!(vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked || vm.isReadOnly)">&nbsp;*</span><check-unique-on-blur></check-unique-on-blur></p>
+                          </th>
+                          <td colspan="3">
+                            <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                              <input type="text" id="paymentNumber" name="paymentNumber"
+                                     ng-model="vm.paidPackingSlip.paymentNumber" placeholder="Payment# or Check#"
+                                     ng-required="!(vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked || vm.isReadOnly)" ng-disabled="vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked || vm.isReadOnly"
+                                     ng-maxlength="50" md-maxlength="50" autocomplete="off" capitalize class="input-text-uppercase"
+                                     custom-blur="vm.validateDuplicateSupplierRefundCheckNumber()">
+                              <div ng-messages="vm.supplierRefundDetailForm.paymentNumber.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(50,vm.supplierRefundDetailForm.paymentNumber.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div flex="35" layout="column" class="flex-rs-md-50">
+                  <div layout="row" flex="100" class="material-section-devider">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-cust-payment-info">
+                      <tbody>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToSupplierBillTo();"
+                                 ng-if="vm.autoCompleteSupplier.keyColumnId"
+                                 tabindex="-1">Account Reference</a>
+                              <span class="color-black" ng-if="!vm.autoCompleteSupplier.keyColumnId">Account Reference</span>
+                              <md-icon class="icon-question-mark-circle help-icon margin-top-2 margin-right-5">
+                                <md-tooltip md-direction="top" class="tooltip-height-auto">
+                                  <span>{{vm.SUPPLIER_INVOICE_ACCOUNT_REFERENCE_TOOLTIP}}</span>
+                                </md-tooltip>
+                              </md-icon><span ng-if="!(vm.paidPackingSlip.accountReference || vm.isReadOnly)">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td colspan="3">
+                            <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                              <input type="text" id="accountReference" name="accountReference" ng-model="vm.paidPackingSlip.accountReference"
+                                     placeholder="Account Reference" ng-maxlength="50" md-maxlength="50" ng-required="!(vm.paidPackingSlip.accountReference || vm.isReadOnly)"
+                                     disabled autocomplete="off">
+                              <div layout="row" class="autocomplete-refresh-icons" layout-align="center center"
+                                   ng-if="!(vm.paymentId || vm.isReadOnly)">
+                                <md-button class="margin-0 md-icon-button md-ink-ripple" tabindex="-1"
+                                           ng-click="vm.refreshAccountReference()"><md-icon class="mdi mdi-refresh"></md-icon></md-button>
+                              </div>
+                              <div ng-messages="vm.supplierRefundDetailForm.accountReference.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(50,vm.supplierRefundDetailForm.accountReference.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2 cm-white-space-normal">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToBankList();"
+                                 tabindex="-1">{{vm.LabelConstant.Bank.RefundToBankAccountCode}}</a><span ng-if="!vm.autoCompleteBankAccountNumber.keyColumnId && !(vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked || vm.isReadOnly)">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td colspan="3">
+                            <md-input-container ng-if="vm.autoCompleteBankAccountNumber" class="autocompletecustom cm-custom-autocomplete margin-0" flex="100">
+                              <custom-auto-complete datalist="vm.bankList"
+                                                    column-name="vm.autoCompleteBankAccountNumber.columnName"
+                                                    controller-name="vm.autoCompleteBankAccountNumber.controllerName"
+                                                    view-template-url="vm.autoCompleteBankAccountNumber.viewTemplateURL"
+                                                    key-column-name="vm.autoCompleteBankAccountNumber.keyColumnName"
+                                                    input-name="vm.autoCompleteBankAccountNumber.inputName"
+                                                    placeholder-name="vm.autoCompleteBankAccountNumber.placeholderName"
+                                                    key-column-id="vm.autoCompleteBankAccountNumber.keyColumnId"
+                                                    is-required="!vm.autoCompleteBankAccountNumber.keyColumnId && !(vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked || vm.isReadOnly)"
+                                                    callback-fn="vm.autoCompleteBankAccountNumber.callbackFn"
+                                                    on-select-callback-fn="vm.autoCompleteBankAccountNumber.onSelectCallbackFn"
+                                                    add-data="vm.autoCompleteBankAccountNumber.addData"
+                                                    is-addnew="vm.autoCompleteBankAccountNumber.isAddnew"
+                                                    is-disabled="vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked || vm.isReadOnly">
+                              </custom-auto-complete>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToPaymentMethodList();"
+                                 tabindex="-1">Payment Method</a><span ng-if="!(vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked || vm.isReadOnly)">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container ng-if="vm.autoCompletePaymentMethodType" class="autocompletecustom cm-custom-autocomplete margin-0" flex="100">
+                              <custom-auto-complete datalist="vm.paymentMethodTypeList"
+                                                    controller-name="vm.autoCompletePaymentMethodType.controllerName"
+                                                    view-template-url="vm.autoCompletePaymentMethodType.viewTemplateURL"
+                                                    column-name="vm.autoCompletePaymentMethodType.columnName"
+                                                    key-column-name="vm.autoCompletePaymentMethodType.keyColumnName"
+                                                    input-name="vm.autoCompletePaymentMethodType.inputName"
+                                                    placeholder-name="vm.autoCompletePaymentMethodType.placeholderName"
+                                                    key-column-id="vm.autoCompletePaymentMethodType.keyColumnId"
+                                                    is-required="!(vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked || vm.isReadOnly)"
+                                                    is-addnew="vm.autoCompletePaymentMethodType.isAddnew"
+                                                    add-data="vm.autoCompletePaymentMethodType.addData"
+                                                    callback-fn="vm.autoCompletePaymentMethodType.callbackFn"
+                                                    on-select-callback-fn="vm.autoCompletePaymentMethodType.onSelectCallbackFn"
+                                                    is-disabled="vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked || vm.isReadOnly">
+                              </custom-auto-complete>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container pt-2">Deposit Batch#</p>
+                          </th>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                              <input type="number" id="depositBatchNumber" name="depositBatchNumber"
+                                     ng-model="vm.paidPackingSlip.depositBatchNumber"
+                                     input-number-decimal-place
+                                     onkeypress="return OnlyNumbersWithDot(event)"
+                                     oninput="validateTwoDecimalOnly(this.value)"
+                                     min="0" step="0.01" max="9999.99" placeholder="Deposit Batch#"
+                                     ng-disabled="vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked || vm.isReadOnly">
+                              <div ng-messages="vm.supplierRefundDetailForm.depositBatchNumber.$error" role="alert">
+                                <div ng-message="invalid || min || number || max">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(50,vm.supplierRefundDetailForm.depositBatchNumber.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">Offset Refund Amount ($)</p>
+                          </th>
+                          <td>
+                            <md-input-container flex="100" class="input-with-usd-symbol padding-left-0-imp margin-top-4">
+                              <md-icon md-font-icon="icon-currency-usd" class="usdicon"></md-icon>
+                              <input type="number" id="offsetAmount" name="offsetAmount"
+                                     step="{{vm.amountInputStep}}" maxlength="10"
+                                     custom-blur="vm.calculateVarianceAmount()"
+                                     ng-disabled="vm.paidPackingSlip.isPaymentVoided || vm.isVoidAndReIssuePayment || vm.isRefundLocked || vm.isReadOnly"
+                                     ng-model="vm.paidPackingSlip.offsetAmount" placeholder="Offset Refund Amount ($)">
+                              <div ng-messages="vm.supplierRefundDetailForm.offsetAmount.$error" role="alert">
+                                <div ng-message="invalid || max || min || number || step || maxlength">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                              </div>
+                              <span class="font-size-10">
+                                <b>Hint: Use Negative amount to reduce refund amount.</b>
+                              </span>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container pt-2" ng-if="vm.autoCompleteTransactionMode.keyColumnId === vm.refundReceivableCMRefund.id">Variance ($)</p>
+                          </th>
+                          <td class="min-width-140-imp">
+                            <span class="text-bold font-size-20" ng-class="{'color-red': vm.paidPackingSlip.varianceAmount}"
+                                  ng-if="vm.autoCompleteTransactionMode.keyColumnId === vm.refundReceivableCMRefund.id">
+                            {{vm.paidPackingSlip.varianceAmount | amount}}</span>
+                          </td>
+                        </tr>
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div flex="30" layout="row" layout-wrap class="flex-rs-md-100">
+                  <div layout="row" flex="100">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-cust-payment-info">
+                      <tbody>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToBankList();"
+                                 tabindex="-1">Bank Name</a><span ng-if="!(vm.paidPackingSlip.bankName || vm.isReadOnly)">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                              <input type="text" id="bankName" name="bankName" ng-model="vm.paidPackingSlip.bankName" placeholder="Bank Name"
+                                     ng-required="!(vm.paidPackingSlip.bankName || vm.isReadOnly)" ng-maxlength="255"
+                                     disabled
+                                     autocomplete="off">
+                              <div ng-messages="vm.supplierRefundDetailForm.bankName.$error" role="alert">
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(255,vm.supplierRefundDetailForm.bankName.$viewValue.length)}}</span>
+                                </div>
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container">{{vm.LabelConstant.COMMON.SystemID}}</p>
+                          </th>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                              <input type="text" name="systemId" id="systemId" ng-model="vm.paidPackingSlip.systemId" placeholder="{{vm.LabelConstant.COMMON.SystemID}}" disabled>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">Comment</p>
+                          </th>
+                          <td colspan="5">
+                            <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                              <div layout-align="start center">
+                                <textarea name="remark"
+                                          ng-model="vm.paidPackingSlip.remark"
+                                          ng-maxlength="255" md-maxlength="255"
+                                          max-rows="4"
+                                          ng-disabled="vm.paidPackingSlip.isPaymentVoided || vm.isRefundLocked || vm.isReadOnly"
+                                          placeholder="Comment"></textarea>
+                              </div>
+                              <div ng-messages="vm.supplierRefundDetailForm.remark.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(255, vm.supplierRefundDetailForm.remark.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">
+                              <a class="cm-text-decoration" ng-click="vm.goChartOfAccountsList();"
+                                 tabindex="-1">COA</a>
+                            </p>
+                          </th>
+                          <td colspan="3">
+                            <md-input-container ng-if="vm.autoCompleteCOA" class="autocompletecustom cm-custom-autocomplete" flex="100">
+                              <custom-auto-complete-search column-name="vm.autoCompleteCOA.columnName"
+                                                           controller-name="vm.autoCompleteCOA.controllerName"
+                                                           view-template-url="vm.autoCompleteCOA.viewTemplateURL"
+                                                           key-column-name="vm.autoCompleteCOA.keyColumnName"
+                                                           input-name="vm.autoCompleteCOA.inputName"
+                                                           placeholder-name="vm.autoCompleteCOA.placeholderName"
+                                                           key-column-id="vm.autoCompleteCOA.keyColumnId"
+                                                           is-required="vm.autoCompleteCOA.isRequired"
+                                                           is-addnew="vm.autoCompleteCOA.isAddnew"
+                                                           callback-fn="vm.autoCompleteCOA.callbackFn"
+                                                           on-select-callback-fn="vm.autoCompleteCOA.onSelectCallbackFn"
+                                                           on-search-fn="vm.autoCompleteCOA.onSearchFn"
+                                                           is-disabled="vm.paidPackingSlip.isPaymentVoided || vm.isVoidAndReIssuePayment || vm.isRefundLocked || vm.isReadOnly">
+                              </custom-auto-complete-search>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <div flex="100" layout="row">
+            <fieldset layout="row" flex="100" layout-wrap>
+              <md-table-container layout="row" flex="100" layout-wrap
+                                  ng-if="vm.autoCompleteSupplier.keyColumnId && vm.supplierMemoRefundList.length > 0">
+                <div flex="100" layout-wrap id="cm-table-payment-details" class="display-flex cm-overflow-hidden" layout="row">
+                  <div flex-xl="100" flex-lg="100" layout="column" class="cm-scroll-table flex-rs-md-100">
+                    <fieldset flex class="container-box cm-overflow-auto">
+                      <table md-table class="md-data-table table-row-select cm-cust-payment-table cm-data-table-word-break" flex="100">
+                        <thead md-head md-order="vm.query.order">
+                          <tr md-row class="cm-height-auto">
+                            <th md-column class="width-40 text-center">
+                              <md-checkbox ng-model="vm.isAllSelectFromSupplierInvoicePaymentList"
+                                           ng-change="vm.selectAllInvoice()"
+                                           ng-disabled="vm.paidPackingSlip.isPaymentVoided || vm.isVoidAndReIssuePayment || vm.isRefundLocked || vm.isReadOnly">
+                              </md-checkbox>
+                            </th>
+                            <th md-column class="width-40">
+                              #
+                            </th>
+                            <th md-column md-order-by="systemId" class="width-110 cm-white-space-normal">
+                              {{vm.LabelConstant.COMMON.SystemID}}
+                            </th>
+                            <th md-column md-order-by="memoType" class="width-110 cm-white-space-normal">
+                              Type
+                            </th>
+                            <th md-column md-order-by="memoNumber" class="width-170 cm-white-space-normal">
+                              CM/DM#
+                            </th>
+                            <th md-column md-order-by="memoDate" class="width-100 cm-white-space-normal">
+                              CM/DM Date
+                            </th>
+                            <th md-column md-order-by="markedForRefundAmt" class="width-140 cm-white-space-normal">
+                              Org. Amount ($)
+                            </th>
+                            <th md-column md-order-by="totalRefundAmount" class="width-140 cm-white-space-normal">
+                              Past Payment ($)
+                            </th>
+                            <th md-column md-order-by="balanceToRefundAmt" class="width-140 cm-white-space-normal">
+                              Outstanding Amount ($)
+                            </th>
+                            <th md-column md-order-by="" class="width-140">
+                              Payment ($)
+                            </th>
+                            <th md-column class="width-150 cm-white-space-normal">
+                              Reason
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody md-body class="max-height-300">
+                          <tr md-row ng-repeat="invItem in vm.supplierMemoRefundList | orderBy: vm.query.order">
+                            <td md-cell class="width-40 text-center">
+                              <md-checkbox ng-model="invItem.isSelected"
+                                           name="isSelected_{{invItem.id}}"
+                                           id="isSelected_{{invItem.id}}"
+                                           ng-disabled="vm.paidPackingSlip.isPaymentVoided || vm.isVoidAndReIssuePayment || vm.isRefundLocked || vm.isReadOnly"
+                                           ng-change="vm.selectSingleInvoice(invItem)" class="margin-top-10 margin-bottom-10"
+                                           last-element elementcondition="{{(vm.supplierMemoRefundList.length - 1) === $index && (!invItem.isSelected)}}">
+                              </md-checkbox>
+                            </td>
+                            <td md-cell class="width-40">{{$index+1}}</td>
+                            <td md-cell class="width-110">{{invItem.systemId}}</td>
+                            <td md-cell class="width-110">{{invItem.memoType}}</td>
+                            <td md-cell class="width-170">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToCreditDebitMemoDetail(invItem);">{{invItem.memoNumber}}</a>
+                              <copy-text label="'CM/DM#'" text="invItem.memoNumber"></copy-text>
+                            </td>
+                            <td md-cell class="width-100">{{invItem.memoDate | date:vm.DefaultDateFormat}}</td>
+                            <td md-cell class="text-right width-140 cm-amount">{{invItem.markedForRefundAmt | amount}}</td>
+                            <td md-cell class="text-right width-140 cm-amount">{{invItem.totalRefundAmount | amount}}</td>
+                            <td md-cell class="text-right width-140 cm-amount">{{invItem.balanceToRefundAmt | amount}}</td>
+                            <td md-cell class="text-right width-140 padding-left-0-imp">
+                              <md-input-container flex="100" class="input-with-usd-symbol padding-left-0-imp margin-bottom-0 width-100p">
+                                <md-icon md-font-icon="icon-currency-usd" class="usdicon"></md-icon>
+                                <input type="number" id="paymentAmountForSelectedInvoice_{{invItem.refPackingslipInvoiceID}}"
+                                       name="paymentAmountForSelectedInvoice_{{invItem.refPackingslipInvoiceID}}" class="font-weight-600"
+                                       ng-model="invItem.paymentAmountForSelectedInvoice"
+                                       ng-maxlength="13"
+                                       min="{{(invItem.markedForRefundAmt === 0 || !invItem.isSelected) ? 0 : 0.01}}"
+                                       max="{{vm.paymentId ? invItem.balanceToRefundAmtEditCase : invItem.balanceToRefundAmt}}"
+                                       onkeypress="return OnlyNumbersWithDot(event)"
+                                       oninput="validateTwoDecimalOnly(this.value)"
+                                       custom-blur="vm.calculateVarianceAmount()"
+                                       step="{{$root.amountInputStep}}"
+                                       last-element elementcondition="{{(vm.supplierMemoRefundList.length - 1) === $index}}"
+                                       placeholder="" ng-change="vm.paymentAmountChangeForSelectedInvoice(invItem)"
+                                       ng-model-options="{ debounce: vm.debounceTimeIntervalConst }"
+                                       ng-disabled="!invItem.isSelected || vm.paidPackingSlip.isPaymentVoided || vm.isVoidAndReIssuePayment || vm.isRefundLocked || vm.isReadOnly">
+                                <div ng-messages="vm.supplierRefundDetailForm['paymentAmountForSelectedInvoice_'+invItem.refPackingslipInvoiceID].$error" role="alert">
+                                  <div ng-message="min || max">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(13,vm.supplierRefundDetailForm['paymentAmountForSelectedInvoice_'+invItem.refPackingslipInvoiceID].$viewValue.length)}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </td>
+                            <td md-cell class="width-150 text-right">{{invItem.reason}}</td>
+                          </tr>
+                        </tbody>
+                        <tfoot md-foot>
+                          <tr md-row>
+                            <td md-cell class="width-40">
+                            </td>
+                            <td md-cell class="width-260" colspan="3">
+                              <span class="ml-10">
+                                Selected CM/DM(s): {{vm.getSelectedRecordCount()}}
+                              </span>
+                            </td>
+                            <td md-cell class="width-170">
+                            </td>
+                            <td md-cell class="text-right width-100"><strong>Total:</strong></td>
+                            <td md-cell class="text-right width-140 cm-amount"><strong>{{vm.getTotalMarkedForRefundAmt() | amount}}</strong></td>
+                            <td md-cell class="text-right width-140 cm-amount"><strong>{{vm.getTotalRefundAmount() | amount}}</strong></td>
+                            <td md-cell class="text-right width-140 cm-amount"><strong>{{vm.getTotalBalanceToRefundAmt() | amount}}</strong></td>
+                            <td md-cell class="text-right width-140 cm-amount"><strong>{{vm.getTotalPaymentAmountForSelectedInvoice() | amount}}</strong></td>
+                            <td md-cell class="text-right width-140"></td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </fieldset>
+                  </div>
+                </div>
+              </md-table-container>
+              <div layout="row" ng-if="!vm.autoCompleteSupplier.keyColumnId || !vm.autoCompleteTransactionMode.keyColumnId" flex="100">
+                <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap>
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.TRANSACTION.TRANSACTION_EMPTYSTATE.SUPPLIER_INVOICE_REFUND.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title">{{vm.TRANSACTION.TRANSACTION_EMPTYSTATE.SUPPLIER_INVOICE_REFUND.SUPPLIER_NOT_SELECTED_MESSAGE}}</p>
+                </div>
+              </div>
+              <div layout="row" flex="100"
+                   ng-if="vm.autoCompleteSupplier && vm.autoCompleteSupplier.keyColumnId && vm.autoCompleteTransactionMode && vm.autoCompleteTransactionMode.keyColumnId === vm.refundReceivableCMRefund.id && (!vm.supplierMemoRefundList || vm.supplierMemoRefundList.length==0)">
+                <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap>
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.TRANSACTION.TRANSACTION_EMPTYSTATE.SUPPLIER_INVOICE_REFUND.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title">{{vm.TRANSACTION.TRANSACTION_EMPTYSTATE.SUPPLIER_INVOICE_REFUND.SUPPLIER_CM_DM_FOR_REFUND_NOT_FOUND_MESSAGE}}</p>
+                  <p flex="100">
+                    <md-button class="md-fab md-mini" aria-label="Refresh Payment Details"
+                               ng-click="vm.getSupplierMemoListForRefund()"
+                               ng-disabled="vm.paidPackingSlip.isPaymentVoided"
+                               last-element elementcondition="true">
+                      <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus">
+                        <md-tooltip>Refresh</md-tooltip>
+                      </md-icon>
+                    </md-button>
+                  </p>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

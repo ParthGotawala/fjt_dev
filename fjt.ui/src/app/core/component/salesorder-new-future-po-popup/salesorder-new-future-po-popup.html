@@ -1,0 +1,496 @@
+<md-dialog aria-label="coustomer-confirmation" flex="90" class="copy-bom-select cm-custom-label-common cm-copy-assy-popup" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.frmSalesOrderPopupDetails" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>
+          <span>Add Sales Order</span>
+        </h2>
+        <span flex></span>
+        <div layout="row" layout-align="end center" layout-wrap class="mv-5">
+          <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        </div>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll mh-5" layout="column">
+      <md-content class="padding-10">
+        <div class="cm-section-main border-0 margin-bottom-5">
+          <div class="cm-section-inner">
+            <div layout>
+              <div>
+                <p class="label-container"><b>Note:</b></p>
+              </div>
+              <div class="pl-10">
+                <ul class="pl-15">
+                  <li><b>A new Sales Order will be created as a Draft.</b></li>
+                </ul>
+              </div>
+            </div>
+            <div layout>
+              <div flex class="cm-section-main p-5 mr-5">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                  <tbody>
+                    <tr>
+                      <th><p class="label-container">{{vm.LabelConstant.SalesOrder.SODate}}<span>&nbsp;*</span></p></th>
+                      <td>
+                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                          <input type="text" class="float-left"
+                                 custom-auto-focus="true"
+                                 min-value="vm.salesorder.poDate"
+                                 id="sodate"
+                                 name="soDate"
+                                 max-value="vm.todayDate"
+                                 required
+                                 max-value-is-today-date="true"
+                                 allow-past-date="true"
+                                 allow-future-date="false"
+                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                 ng-model="vm.salesorder.soDate"
+                                 ng-change="vm.onChangesoDate(vm.salesorder.soDate)"
+                                 enable-time="false"
+                                 ui-options="{clearOnBlur  : true}"
+                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                 model-view-value="true"
+                                 datepicker-options="vm.soDateOptions"
+                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.soDate]"
+                                 close-text="Close" />
+                          <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.soDate] =true">
+                          </md-icon>
+                          <div ng-messages="vm.frmSalesOrderPopupDetails.soDate.$error" role="alert">
+                            <div ng-message="maxvalue">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_SALES_ORDER_DATE}}</span>
+                            </div>
+                            <div ng-message="minvalue">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_SALES_ORDER_DATE}}</span>
+                            </div>
+                            <div ng-message="valid">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="datetime">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">SO Version</p>
+                      </th>
+                      <td class="width-60">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" ng-disabled="true" name="revision" ng-model="vm.salesorder.revision" 
+                                 class="input-text-uppercase"
+                                  placeholder="Revision">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <!--PO Detail-->
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goTosalesOrderList();">{{vm.LabelConstant.SalesOrder.PO}}</a><span>&nbsp;*</span><check-unique-on-blur></check-unique-on-blur>
+                        </p>
+                      </th>
+                      <td>
+                        <div layout="row">
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="text"
+                                   name="poNumber"
+                                   id="ponumber"
+                                   md-maxlength="100"
+                                   ng-blur="vm.checkUniqueCustomerPONumber()"
+                                   ng-model="vm.salesorder.poNumber"
+                                   class="input-text-uppercase"
+                                   capitalize placeholder="PO#"
+                                   required ng-maxlength="100">
+                            <div ng-messages="vm.frmSalesOrderPopupDetails.poNumber.$error"
+                                 role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength" class="cm-white-space-normal">
+                                <span>{{vm.getMaxLengthValidation(100, vm.frmSalesOrderPopupDetails.poNumber.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </div>
+                      </td>
+                      <th><p class="label-container">{{vm.LabelConstant.SalesOrder.PODate}}<span>&nbsp;*</span></p></th>
+                      <td>
+                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-100">
+                          <input type="text" class="float-left"
+                                 name="poDate"
+                                 max-value="vm.salesorder.soDate"
+                                 allow-past-date="true"
+                                 required
+                                 allow-future-date="false"
+                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                 ng-change="vm.onChangePoDate(vm.salesorder.poDate)"
+                                 ng-model="vm.salesorder.poDate"
+                                 enable-time="false"
+                                 ui-options="{clearOnBlur  : true}"
+                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                 model-view-value="true"
+                                 datepicker-options="vm.poDateOptions"
+                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.poDate]" />
+                          <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.poDate]=true">
+                          </md-icon>
+                          <div ng-messages="vm.frmSalesOrderPopupDetails.poDate.$error" role="alert">
+                            <div ng-message="valid">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxvalue">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.MAX_PURCHASE_ORDER_DATE}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          PO Rev.
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text"
+                                 name="poRevision"
+                                 id="poRevision"
+                                 md-maxlength="8"
+                                 ng-model="vm.salesorder.poRevision"
+                                 ng-blur="!vm.salesorder.poRevision?vm.salesorder.poRevisionDate=null:null"
+                                 class="input-text-uppercase"
+                                 capitalize placeholder="PO Revision"
+                                 ng-maxlength="8">
+                          <div ng-messages="vm.frmSalesOrderPopupDetails.poRevision.$error"
+                               role="alert">
+                            <div ng-message="maxlength" class="cm-white-space-normal">
+                              <span>{{vm.getMaxLengthValidation(8, vm.frmSalesOrderPopupDetails.poRevision.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th><p class="label-container">PO Rev. Date<span ng-if="vm.salesorder.poRevision">&nbsp;*</span></p></th>
+                      <td>
+                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                          <input type="text" class="float-left"
+                                 name="poRevisionDate"
+                                 min-value="vm.salesorder.poDate"
+                                 max-value="vm.todayDate"
+                                 allow-past-date="true"
+                                 ng-disabled="!vm.salesorder.poRevision"
+                                 ng-required="vm.salesorder.poRevision?true:false"
+                                 allow-future-date="false"
+                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                 ng-model="vm.salesorder.poRevisionDate"
+                                 enable-time="false"
+                                 ui-options="{clearOnBlur  : true}"
+                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                 model-view-value="true"
+                                 datepicker-options="vm.poRevisionDateOptions"
+                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.poRevisionDate]" />
+                          <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.poRevisionDate]=true">
+                          </md-icon>
+                          <div ng-messages="vm.frmSalesOrderPopupDetails.poRevisionDate.$error" role="alert">
+                            <div ng-message="valid">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="minvalue">
+                              <span>{{vm.messageCompareMessage}}</span>
+                            </div>
+                            <div ng-message="maxvalue">
+                              <span>{{vm.pomessageCompareMessage}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div flex class="cm-section-main mr-5 p-5">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                  <tbody>
+                    <tr>
+                      <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToCustomerType();" tabindex="-1">Customer</a></th>
+                      <td colspan="5">
+                        <md-input-container flex="100" ng-if="vm.autoCompleteCustomer" class="autocompletecustom margin-bottom-0" flex-xs="100">
+                          <custom-auto-complete datalist="vm.CustomerList"
+                                                column-name="vm.autoCompleteCustomer.columnName"
+                                                controller-name="vm.autoCompleteCustomer.controllerName"
+                                                view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                                input-name="vm.autoCompleteCustomer.inputName"
+                                                is-disabled="true"
+                                                placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                                key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                                is-required="vm.autoCompleteCustomer.isRequired"
+                                                is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                                callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                                add-data="vm.autoCompleteCustomer.addData"
+                                                on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container mb-0">Sales </p>
+                        <p class="label-container">
+                          Commission&nbsp;<a class="cm-text-decoration" tabindex="-1" ng-click="vm.employeelist();">To</a>
+                        </p>
+                      </th>
+                      <td colspan="3">
+                        <md-input-container ng-if="vm.autoCompleteSalesCommosssionTo" class="md-block autocompletecustom" flex="100">
+                          <custom-auto-complete datalist="vm.SalesCommissionEmployeeList"
+                                                column-name="vm.autoCompleteSalesCommosssionTo.columnName"
+                                                controller-name="vm.autoCompleteSalesCommosssionTo.controllerName"
+                                                view-template-url="vm.autoCompleteSalesCommosssionTo.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteSalesCommosssionTo.keyColumnName"
+                                                input-name="vm.autoCompleteSalesCommosssionTo.inputName"
+                                                placeholder-name="vm.autoCompleteSalesCommosssionTo.placeholderName"
+                                                key-column-id="vm.autoCompleteSalesCommosssionTo.keyColumnId"
+                                                is-required="vm.autoCompleteSalesCommosssionTo.isRequired"
+                                                is-addnew="vm.autoCompleteSalesCommosssionTo.isAddnew"
+                                                is-disabled="!vm.autoCompleteCustomer.keyColumnId "
+                                                callback-fn="vm.autoCompleteSalesCommosssionTo.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="!vm.autoCompleteSalesCommosssionTo">
+                          <input type="text" ng-disabled="true" name="autoCompleteSalesCommosssionTo">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration" ng-click="vm.goPaymentTermList(); " tabindex="-1">Terms</a><span>&nbsp;*</span>
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Auto derived from selected customer</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container ng-if="vm.autoCompleteTerm" class="autocompletecustom margin-bottom-0">
+                          <custom-auto-complete datalist="vm.TermsList"
+                                                column-name="vm.autoCompleteTerm.columnName"
+                                                controller-name="vm.autoCompleteTerm.controllerName"
+                                                view-template-url="vm.autoCompleteTerm.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteTerm.keyColumnName"
+                                                input-name="vm.autoCompleteTerm.inputName"
+                                                placeholder-name="vm.autoCompleteTerm.placeholderName"
+                                                key-column-id="vm.autoCompleteTerm.keyColumnId"
+                                                is-disabled="false"
+                                                is-required="vm.autoCompleteTerm.isRequired"
+                                                is-addnew="vm.autoCompleteTerm.isAddnew"
+                                                add-data="vm.autoCompleteTerm.addData"
+                                                on-select-callback-fn="vm.autoCompleteTerm.onSelectCallbackFn"
+                                                callback-fn="vm.autoCompleteTerm.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration" ng-click="vm.goShippingMethodList();" tabindex="-1">{{vm.autoCompleteShipping.placeholderName}}</a><span>&nbsp;*</span>
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Auto derived from selected customer</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container ng-if="vm.autoCompleteShipping" class="autocompletecustom margin-bottom-0" flex>
+                          <custom-auto-complete datalist="vm.ShippingTypeList"
+                                                column-name="vm.autoCompleteShipping.columnName"
+                                                controller-name="vm.autoCompleteShipping.controllerName"
+                                                view-template-url="vm.autoCompleteShipping.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteShipping.keyColumnName"
+                                                input-name="vm.autoCompleteShipping.inputName"
+                                                placeholder-name="vm.autoCompleteShipping.placeholderName"
+                                                key-column-id="vm.autoCompleteShipping.keyColumnId"
+                                                is-required="vm.autoCompleteShipping.isRequired"
+                                                is-addnew="vm.autoCompleteShipping.isAddnew"
+                                                add-data="vm.autoCompleteShipping.addData"
+                                                on-select-callback-fn="vm.autoCompleteShipping.onSelectCallbackFn"
+                                                callback-fn="vm.autoCompleteShipping.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div flex class="cm-section-main p-5">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                  <tbody>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration" ng-click="vm.goTocarrierList();" tabindex="-1">{{vm.autoCompleteCarriers.placeholderName}}</a><span ng-if="vm.autoCompleteCarriers">&nbsp;*</span>
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Auto derived from selected customer</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td colspan="3">
+                        <md-input-container ng-if="vm.autoCompleteCarriers" class="autocompletecustom margin-bottom-0" flex="100">
+                          <custom-auto-complete datalist="vm.carrierList"
+                                                column-name="vm.autoCompleteCarriers.columnName"
+                                                controller-name="vm.autoCompleteCarriers.controllerName"
+                                                view-template-url="vm.autoCompleteCarriers.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteCarriers.keyColumnName"
+                                                input-name="vm.autoCompleteCarriers.inputName"
+                                                placeholder-name="vm.autoCompleteCarriers.placeholderName"
+                                                key-column-id="vm.autoCompleteCarriers.keyColumnId"
+                                                is-addnew="vm.autoCompleteCarriers.isAddnew"
+                                                is-required="vm.autoCompleteCarriers.isRequired"
+                                                is-disabled="vm.isDisable"
+                                                add-data="vm.autoCompleteCarriers.addData"
+                                                callback-fn="vm.autoCompleteCarriers.callbackFn"
+                                                on-select-callback-fn="vm.autoCompleteCarriers.onSelectCallbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          Carrier Account#
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Auto derived from selected customer</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td colspan="3">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input name="carrierAccountNumber" ng-model="vm.salesorder.carrierAccountNumber" placeholder="Carrier Account#" ng-maxlength="50" md-maxlength="50" ng-disabled="vm.isDisable" />
+                          <div ng-messages="vm.frmSalesOrderPopupDetails.carrierAccountNumber.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(50, vm.frmSalesOrderPopupDetails.carrierAccountNumber.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration" ng-click="vm.goToFOBList();">FOB</a>
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Free On Board</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container ng-if="vm.autoCompleteFOB" class="autocompletecustom margin-bottom-0" flex="100">
+                          <custom-auto-complete datalist="vm.FOBList"
+                                                column-name="vm.autoCompleteFOB.columnName"
+                                                controller-name="vm.autoCompleteFOB.controllerName"
+                                                view-template-url="vm.autoCompleteFOB.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteFOB.keyColumnName"
+                                                input-name="vm.autoCompleteFOB.inputName"
+                                                placeholder-name="vm.autoCompleteFOB.placeholderName"
+                                                key-column-id="vm.autoCompleteFOB.keyColumnId"
+                                                is-disabled="vm.isDisable"
+                                                is-addnew="vm.autoCompleteFOB.isAddnew"
+                                                callback-fn="vm.autoCompleteFOB.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div layout class="mt-5">
+              <div flex class="cm-section-main p-5 mr-5">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                  <tbody>
+                    <!--Comment Section-->
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          Header Internal Notes
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Auto derived from Customer Internal Comments</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td colspan="3">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <textarea type="text"  cols="300" rows="2" max-rows="4" name="internalComment" ng-model="vm.salesorder.internalComment"
+                                    class="blue" placeholder="Internal Notes" ng-maxlength="vm.maxLengthForDescription" md-maxlength="vm.maxLengthForDescription"></textarea>
+                          <div>
+                            <span>Hint: Internal only, Will not print on sales order</span>
+                          </div>
+                          <div ng-messages="vm.frmSalesOrderPopupDetails.internalComment.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription, vm.frmSalesOrderPopupDetails.internalComment.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div flex class="cm-section-main p-5">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                  <tbody>
+                    <!--Comment Section-->
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          Header Shipping Comments<md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Header Shipping Comments will be derived from Customer's Comments Tab</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <textarea type="text"  cols="300" rows="2" max-rows="4" name="shippingComment" ng-model="vm.salesorder.shippingComment"
+                                    placeholder="Shipping Comment" ng-maxlength="vm.maxLengthForDescription" md-maxlength="vm.maxLengthForDescription"
+                                    data-focusButton="btnCancel" last-element elementcondition="{{vm.frmSalesOrderPopupDetails.$dirty ? true : false}}"></textarea>
+                          <div>
+                            <span>Hint: Will print on sales order and packing slip, Invoice</span>
+                          </div>
+                          <div ng-messages="vm.frmSalesOrderPopupDetails.shippingComment.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription, vm.frmSalesOrderPopupDetails.shippingComment.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </md-content>
+
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" id="btnCancel" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button id="btnSave" class="md-primary md-raised md-formdirty" ng-disabled="vm.isbuttondisabled" ng-class="{'md-formdirty': vm.frmSalesOrderPopupDetails.$dirty}" ng-click="vm.addSalesOrderDetail()" aria-label="Submit">SAVE</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

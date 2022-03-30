@@ -1,0 +1,226 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <ms-form-wizard flex>
+    <div class="header md-accent-bg" layout="row" layout-align="start center">
+      <div class="white-fg" layout="row" layout-align="space-between center" flex="100">
+        <div layout="column">
+          <div class="h2" layout="row" layout-align="start center">
+            <pagetitle is-list="true" is-display-menu-name="true"></pagetitle>
+          </div>
+          <div layout="row" layout-align="start center" class="product-count">
+            <md-icon md-font-icon="icon-home" ng-click="vm.GoToHome()" class="s16 cursor-pointer md-accent homelink"></md-icon>
+            <md-icon md-font-icon="icon-chevron-right" class="s16 separator"></md-icon>
+            <a class="breadcrumbs-link">Company Profile</a>
+          </div>
+        </div>
+        <div flex layout="row" layout-align="end center">
+          <md-button class="md-raised md-primary" ng-click="vm.CheckStepAndAction(msWizard, true,true,$event);" id="saveBtn" ng-disabled="vm.saveDisable"
+                     ng-class="{'md-formdirty': vm.checkFormDirty(msWizard.currentStepForm()) || vm.ischange}" ng-if="vm.isDetailTab || vm.isCompanyPreferenceTab">
+            Save
+          </md-button>
+          <!--<md-button class="md-raised md-primary" aria-label="Add Billing Address" ng-if="vm.isBillToTab"
+             ng-click="vm.addEditAddress(vm.addressType.BillingAddress,$event)">
+    Add Billing Address
+  </md-button>
+  <md-button class="md-raised md-primary" aria-label="Add Shipping Address" ng-if="vm.isShippingAddressTab"
+             ng-click="vm.addEditAddress(vm.addressType.ShippingAddress,$event)">
+    Add Shipping Address
+  </md-button>-->
+        </div>
+      </div>
+    </div>
+    <div class="content-card padding-top-side cm-custom-label-common" layout="column" flex>
+      <div layout="row" flex="100" class="no-box-shadow">
+
+        <md-tabs flex="100" validate-step="true" is-valid="vm.isStepValid" class="manage-customer-tabing padding-bottom-0" md-dynamic-height md-selected="vm.selectedTabIndex">
+
+          <md-tab label="Company Profile Details" md-on-select="vm.onTabChanges(vm.DetailsTabName,msWizard)" ng-disabled="!vm.pageTabRights.DetailTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+                <span class="ms-form-wizard-step-number md-accent-bg">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Details</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.companyDetailsTabForm" class="padding-10-imp" ms-form-wizard-form novalidate>
+                <div layout="row">
+                  <div flex="100">
+                    <div ng-if="vm.isDetailTab">
+                      <company-profile-detail></company-profile-detail>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+
+          <md-tab label="Company Profile Addresses" md-on-select="vm.onTabChanges(vm.addressesTabName,msWizard)" ng-disabled="!vm.pageTabRights.AddressesTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+                <span class="ms-form-wizard-step-number md-accent-bg">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">{{vm.addressesTabName.Name}}</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.companyAddressesTabForm" class="padding-10-imp" ms-form-wizard-form novalidate>
+                <div layout="row" flex="100" ng-if="vm.isAddressesTab && vm.mfgCodeId && vm.customer">
+                  <split-pane class="cm-bill-to-tab-split-pane-height" data-split-pane-properties="splitPaneFirstProperties">
+                    <split-pane-component width="50%" class="min-width-50">
+                      <div>
+                        <split-pane class="cm-bill-to-tab-split-pane-height" data-split-pane-properties="splitSubPaneFirstProperties">
+                          <split-pane-component height="50%" class="min-height-50 padding-right-10 pb-10" layout>
+                            <div class="cm-section-main" flex layout="column">
+                              <div class="cm-section-header">
+                                <label>{{vm.LabelConstant.Address.BusinessAddress}}</label>
+                              </div>
+                              <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex>
+                                <select-address-view address-data="vm.businessAddressData"></select-address-view>
+                              </div>
+                            </div>
+                          </split-pane-component>
+                          <split-pane-divider height="5px"></split-pane-divider>
+                          <split-pane-component height="50%" class="min-height-50 padding-right-10 pb-10" layout>
+                            <div class="cm-section-main mt-10" flex layout="column">
+                              <div class="cm-section-header">
+                                <label>{{vm.LabelConstant.Address.ShippingAddress}}</label>
+                              </div>
+                              <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex>
+                                <select-address-view address-data="vm.shippingAddressData"></select-address-view>
+                              </div>
+                            </div>
+                          </split-pane-component>
+                        </split-pane>
+                      </div>
+                    </split-pane-component>
+                    <split-pane-divider width="5px"></split-pane-divider>
+                    <split-pane-component width="50%" class="min-width-50">
+                      <div>
+                        <split-pane class="cm-bill-to-tab-split-pane-height" data-split-pane-properties="splitSubPaneSecondProperties">
+                          <split-pane-component height="50%" class="min-height-50 pl-10 pb-10" layout>
+                            <div class="cm-section-main" flex layout="column">
+                              <div class="cm-section-header">
+                                <label>{{vm.LabelConstant.Address.BillingAddress}}</label>
+                              </div>
+                              <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex>
+                                <select-address-view address-data="vm.billingAddressData"></select-address-view>
+                              </div>
+                            </div>
+                          </split-pane-component>
+                          <split-pane-divider height="5px"></split-pane-divider>
+                          <split-pane-component height="50%" class="min-height-50 pl-10 pb-10" layout>
+                            <div class="cm-section-main mt-10" flex layout="column">
+                              <div class="cm-section-header">
+                                <label>{{vm.LabelConstant.Address.MarkForAddress}}</label>
+                              </div>
+                              <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex>
+                                <select-address-view address-data="vm.markForAddressData"></select-address-view>
+                              </div>
+                            </div>
+                          </split-pane-component>
+                        </split-pane>
+                      </div>
+                    </split-pane-component>
+                  </split-pane>
+                </div>
+                <!--<div layout="row">
+            <div flex="100">
+              <div ng-if="vm.isAddressesTab && vm.mfgCodeId">
+                <company-profile-billto mfgcode-id="vm.mfgCodeId"></company-profile-billto>
+              </div>
+            </div>
+          </div>-->
+              </form>
+            </md-tab-body>
+          </md-tab>
+
+          <md-tab label="Company Profile Remittance Address" md-on-select="vm.onTabChanges(vm.remittanceAddressTabName,msWizard)" ng-disabled="!vm.pageTabRights.RemittanceAddressTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+                <span class="ms-form-wizard-step-number md-accent-bg">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">{{vm.remittanceAddressTabName.Name}}</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.companyShippingTabForm" class="padding-10-imp" ms-form-wizard-form novalidate>
+                <div ng-if="vm.isRemittanceAddressTab && vm.mfgCodeId && vm.customer">
+                  <div class="cm-section-main" flex layout="column">
+                    <div class="cm-section-header">
+                      <label>{{vm.LabelConstant.Address.RemitTo}}</label>
+                    </div>
+                    <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex>
+                      <select-address-view address-data="vm.payToAddressData"></select-address-view>
+                    </div>
+                  </div>
+                </div>
+                <!--<div layout="row">
+            <div flex="100">
+              <div ng-if="vm.isRemittanceAddressTab && vm.mfgCodeId">
+                <company-profile-shippingadress mfgcode-id="vm.mfgCodeId"></company-profile-shippingadress>
+              </div>
+            </div>
+          </div>-->
+              </form>
+            </md-tab-body>
+          </md-tab>
+
+          <md-tab label="Company Profile Contacts" md-on-select="vm.onTabChanges(vm.contactsTabName,msWizard)" ng-disabled="!vm.pageTabRights.ContactsTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+                <span class="ms-form-wizard-step-number md-accent-bg">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">{{vm.contactsTabName.Name}}</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.companyShippingTabForm" class="padding-10-imp" ms-form-wizard-form novalidate>
+                <div ng-if="vm.isContactsTab && vm.mfgCodeId && vm.customer">
+                  <fieldset flex="100" class="container-box">
+                    <legend class="ml-15 mb-5">Contacts</legend>
+                    <div class="content fullpage-datatable md-inline-form" layout="row" flex="100" layout-wrap ng-if="vm.contactPersonDetail">
+                      <select-contact-person-view contact-person-data="vm.contactPersonDetail"></select-contact-person-view>
+                    </div>
+                  </fieldset>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+
+          <md-tab label="Company Profile Company Preferences" md-on-select="vm.onTabChanges(vm.companyPreferenceTabName,msWizard)" ng-disabled="!vm.pageTabRights.CompanyPreferenceTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+                <span class="ms-form-wizard-step-number md-accent-bg">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Company Preferences</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.companyPreferenceTabForm" class="padding-10-imp" ms-form-wizard-form novalidate>
+                <div layout="row">
+                  <div flex="100">
+                    <div ng-if="vm.isCompanyPreferenceTab">
+                      <company-profile-preference></company-profile-preference>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+
+        </md-tabs>
+
+      </div>
+    </div>
+  </ms-form-wizard>
+</div>

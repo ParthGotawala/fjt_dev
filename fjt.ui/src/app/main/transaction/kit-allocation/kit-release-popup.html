@@ -1,0 +1,323 @@
+<md-dialog aria-label="KitRelease" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="95">
+
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>
+        <span>{{vm.kitDetail.isForViewOnly ? vm.LabelConstant.KitAllocation.KitDetails : vm.LabelConstant.KitAllocation.ReleaseReturnKit}}</span>
+      </h2>
+      <span flex></span>
+      <popup-header-label label-data="vm.headerdata"></popup-header-label>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-dialog-content class="no-padding custom-scroll">
+    <md-content class="padding-10" layout="row" flex="100">
+      <div flex="100" layout="row" class="cm-section-main border-0">
+        <div flex="100" class="cm-section-inner">
+
+          <div flex="100" layout="row" layout-wrap>
+            <div flex="30">
+              <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        <a tabindex="-1" class="cm-text-decoration underline md-default-theme"
+                           ng-click="vm.goToAssy();"> {{vm.autoCompleteAssembly.placeholderName}}</a><span ng-if="!vm.autoCompleteAssembly.isDisable">&nbsp;*</span>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container flex="100" class="autocompletecustom min-width-initial margin-bottom-0"
+                                          ng-if="vm.autoCompleteAssembly">
+                        <custom-auto-complete datalist="vm.assyList" column-name="vm.autoCompleteAssembly.columnName"
+                                              key-column-name="vm.autoCompleteAssembly.keyColumnName"
+                                              input-name="vm.autoCompleteAssembly.inputName"
+                                              placeholder-name="vm.autoCompleteAssembly.placeholderName"
+                                              key-column-id="vm.autoCompleteAssembly.keyColumnId"
+                                              is-addnew="vm.autoCompleteAssembly.isAddnew" callback-fn="vm.autoCompleteAssembly.callbackFn"
+                                              on-select-callback-fn="vm.autoCompleteAssembly.onSelectCallbackFn"
+                                              is-required="vm.autoCompleteAssembly.isRequired"
+                                              is-disabled="vm.autoCompleteAssembly.isDisable">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div flex layout="row" layout-wrap layout-align="end center" class="cm-btn-group">
+              <md-button class="md-primary md-raised md-ink-ripple" ng-click="vm.releaseReturnHistory()">
+                History
+              </md-button>
+              <md-button class="md-primary md-raised md-ink-ripple" ng-click="vm.deallocatedUMID()">
+                {{vm.LabelConstant.KitAllocation.DeallocatedMaterial}}
+              </md-button>
+              <md-button class="md-primary md-raised md-ink-ripple" ng-disabled="vm.isInitiateReturn.isDisable || vm.kitDetail.isForViewOnly"
+                         ng-if="!vm.isInitiateReturn.isHidden" ng-click="vm.initiateKitReturn()">
+                {{vm.LabelConstant.KitAllocation.InitiateKitReturn}}
+              </md-button>
+              <md-button class="md-primary md-raised md-ink-ripple" ng-disabled="vm.isReturnKit.isDisable || vm.kitDetail.isForViewOnly"
+                         ng-if="!vm.isReturnKit.isHidden" ng-click="vm.returnKitConfirmation()">
+                {{vm.LabelConstant.KitAllocation.ReturnKit}}
+              </md-button>
+              <md-button class="md-primary md-raised md-ink-ripple" ng-click="vm.AssyAtGlance()">
+                {{vm.LabelConstant.BOM.AssyAtGlance}}
+              </md-button>
+              <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.changePlan($event)"
+                         ng-disabled="vm.kitDetail.isForViewOnly"
+                         ng-if="vm.kitReleasePlanList.length > 0 && vm.KitReleaseDetail.selectedAssy.assyID === vm.KitReleaseDetail.mainAssyID">
+                {{vm.LabelConstant.KitAllocation.ChangePlanning}}
+              </md-button>
+              <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.checkFeasibility()">
+                {{vm.LabelConstant.KitAllocation.CheckBuildFeasibility}}
+              </md-button>
+              <md-button class="md-primary md-raised mr-0" ng-click="vm.viewAssemblyStockStatus()">
+                View Assembly Stock Details
+              </md-button>
+              <md-button class="md-primary md-raised mr-0" ng-click="vm.updatekitmrpqty()" ng-disabled="vm.kitDetail.isForViewOnly">
+                Modify MRP/Kit Qty
+              </md-button>
+            </div>
+            <div flex="100" flex-xs="100" layout-align="space-between start" class="content dodontmain mv-5"
+                 layout="row">
+              <div flex="55" layout="row" ng-if="vm.isPOHalt || vm.isKAHalt || vm.isKRHalt ">
+                <div layout="row" class="mr-10">
+                  <img class="stop-icon-image md-raised md-warn md-icon-button"
+                       src="../../../../../assets/images/logos/stop.png" />
+                </div>
+                <div layout="row" flex="80" layout-wrap>
+                  <div flex="100" ng-if="vm.isPOHalt">
+                    <div class="color-red width-704 md-truncate">
+                      {{vm.haltResumePopUp.POHaltLabel}}:<span>
+                        {{vm.poHalt.reason}}<md-tooltip md-direction="top">
+                          {{vm.poHalt.reason}}
+                        </md-tooltip>
+                      </span>
+                    </div>
+                    <small flex ng-if="vm.poHalt.empInitialName">
+                      by {{vm.poHalt.empInitialName}}
+                    </small>
+                    <small flex ng-if="vm.poHalt.startDate">
+                      on {{vm.poHalt.startDate}}
+                    </small>
+                  </div>
+                  <div flex="100" ng-if="vm.isKAHalt">
+                    <div class="color-red width-704 md-truncate">
+                      {{vm.haltResumePopUp.KitAllocationHaltLabel}}: <span>
+                        {{vm.kaHalt.reason}}<md-tooltip md-direction="top">{{vm.kaHalt.reason}}</md-tooltip>
+                      </span>
+                    </div>
+                    <small flex ng-if="vm.kaHalt.empInitialName">
+                      by {{vm.kaHalt.empInitialName}}
+                    </small>
+                    <small flex ng-if="vm.kaHalt.startDate">
+                      on {{vm.kaHalt.startDate}}
+                    </small>
+                  </div>
+                  <div flex="100" ng-if="vm.isKRHalt">
+                    <div class="color-red width-704 md-truncate">
+                      {{vm.haltResumePopUp.kitReleaseHaltLabel}}:<span>
+                        {{vm.krHalt.reason}}<md-tooltip md-direction="top">{{vm.krHalt.reason}}</md-tooltip>
+                      </span>
+                    </div>
+                    <small flex ng-if="vm.krHalt.empInitialName">
+                      by {{vm.krHalt.empInitialName}}
+                    </small>
+                    <small flex ng-if="vm.krHalt.startDate">
+                      on {{vm.krHalt.startDate}}
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div layout="row" class="mb-10" flex="100" layout-align="space-between center"
+               ng-if="vm.allocatedUMIDCount === 0">
+            <label class="label-danger no-bg padding-0 margin-0">{{vm.releaseKitInformationMessage.NOT_ALLOCATE}}</label>
+          </div>
+          <div layout="row" class="mb-10" flex="100" layout-align="space-between center"
+               ng-if="vm.isShowMismatchCountMessage && vm.allocatedUMIDCount !== 0">
+            <label class="label-danger no-bg padding-0 margin-0">{{vm.releaseKitInformationMessage.MISAMATCH_COUNT}}</label>
+          </div>
+          <div layout="row" class="mb-10" flex="100" layout-align="space-between center"
+               ng-if="vm.kitReleasePlanList.length > 0">
+            <label class="label-danger no-bg padding-0 margin-0">{{vm.sOCanceledMesaage}}</label>
+          </div>
+          <div flex="100">
+            <div flex="100" ng-if="vm.kitReleasePlanList.length > 0">
+              <div class="content fullpage-datatable cm-kit-release-table cm-overflow-auto" flex>
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="w-110">Action</th>
+                      <th class="w-130">{{vm.LabelConstant.SalesOrder.KitReleasedStatus}}</th>
+                      <th class="w-160">{{vm.LabelConstant.SalesOrder.KitReturnedStatus}}</th>
+                      <th>{{vm.LabelConstant.SalesOrder.PlannKit}}</th>
+                      <th>{{vm.LabelConstant.SalesOrder.RushJob}}</th>
+                      <th>Mismatched Item/Bin</th>
+                      <th>{{vm.LabelConstant.SalesOrder.POOrderQty}}</th>
+                      <th>{{vm.LabelConstant.SalesOrder.KitReleaseQty}}</th>
+                      <th>{{vm.LabelConstant.SalesOrder.PODueDate}}</th>
+                      <th>{{vm.LabelConstant.SalesOrder.MFGLeadTime}}</th>
+                      <th>{{vm.LabelConstant.SalesOrder.KitReleaseDate}}</th>
+                      <th>{{vm.LabelConstant.SalesOrder.MaterialDockDate}}</th>
+                      <th class="w-120">{{vm.LabelConstant.SalesOrder.RealTimeFeasibility}}</th>
+                      <th>{{vm.LabelConstant.SalesOrder.Shortage}}</th>
+                      <th>{{vm.LabelConstant.SalesOrder.ShortageLines}}</th>
+                      <th>{{vm.LabelConstant.SalesOrder.ReleaseKitNumber}}</th>
+                      <th class="w-150">{{vm.LabelConstant.SalesOrder.ActualKitReleaseDate}}</th>
+                      <th>{{vm.LabelConstant.SalesOrder.ReleaseBy}}</th>
+                      <th class="w-120">{{vm.LabelConstant.SalesOrder.ReleaseTimeFeasibility}}</th>
+                      <th class="w-90">{{vm.LabelConstant.Workorder.WO}}</th>
+                      <th>{{vm.LabelConstant.SalesOrder.ReleasedComment}}</th>
+                      <th class="w-150">{{vm.LabelConstant.SalesOrder.KitReturnedDate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="item in vm.kitReleasePlanList">
+                      <td class="text-center">
+                        <md-button class="bdrbtn m-0 md-icon-button md-raised"
+                                   ng-disabled="item.kitStatus !== vm.Kit_Release_Status.R.value || vm.kitDetail.isForViewOnly"
+                                   ng-click="vm.startRelease(item,true)">
+                          <md-icon role="img" md-font-icon="icon-pencil" aria-label="icon-pencil"></md-icon>
+                          <md-tooltip>Change WO and Released Comment</md-tooltip>
+                        </md-button>
+                        <md-button class="bdrbtn m-0 md-icon-button md-raised"
+                                   ng-class="{'green-400-bg': !(vm.allocatedUMIDCount === 0 || item.mismatchItem > 0 || item.woID || vm.isPOHalt || vm.isKAHalt || vm.isKRHalt)}"
+                                   ng-click="vm.allocatedUMIDCount === 0 || vm.checkPOKITQtyAndStartRelease(item)"
+                                   ng-disabled="vm.kitDetail.isForViewOnly || vm.allocatedUMIDCount === 0 || item.mismatchItem > 0 || item.woID ||
+                                                (!item.woID
+                                                        && ((item.kitStatus === vm.Kit_Release_Status.R.value && item.kitReturnStatus === vm.KIT_RETURN_STATUS.NR.value) ||
+                                                            (item.kitStatus === vm.Kit_Release_Status.R.value && item.kitReturnStatus === vm.KIT_RETURN_STATUS.RR.value) ||
+                                                            (item.kitStatus === vm.Kit_Release_Status.R.value && item.kitReturnStatus === vm.KIT_RETURN_STATUS.FR.value) ||
+                                                            (item.kitStatus === vm.Kit_Release_Status.R.value && item.kitReturnStatus === vm.KIT_RETURN_STATUS.RS.value)||
+                                                            (item.kitStatus === vm.Kit_Release_Status.P.value && item.kitReturnStatus === vm.KIT_RETURN_STATUS.NA.value))
+                                                        &&  (vm.releasePlan.id !== item.id)) ||
+                                                vm.isPOHalt || vm.isKAHalt || vm.isKRHalt">
+                          <img role="img" ng-src="{{vm.releaseImagePath}}" aria-label="icon-pencil" class="mt-5" />
+                          <md-tooltip>Release</md-tooltip>
+                        </md-button>
+                      </td>
+                      <td class="text-center">
+                        <label class="label-box cursor-pointer mv-0"
+                               ng-class="{'label-warning': item.kitStatus == vm.Kit_Release_Status.P.value, 'label-success': item.kitStatus == vm.Kit_Release_Status.R.value}"
+                               ng-if="item.kitStatus">
+                          {{vm.Kit_Release_Status[item.kitStatus].name}}
+                        </label>
+                      </td>
+                      <td class="text-center">
+                        <label class="label-box cursor-pointer mv-0"
+                               ng-class="{'label-primary-gray': item.kitReturnStatus == vm.KIT_RETURN_STATUS.NA.value, 'label-warning': item.kitReturnStatus == vm.KIT_RETURN_STATUS.NR.value,'light-green-bg':item.kitReturnStatus == vm.KIT_RETURN_STATUS.RR.value,'label-primary':item.kitReturnStatus == vm.KIT_RETURN_STATUS.RS.value, 'label-success': item.kitReturnStatus == vm.KIT_RETURN_STATUS.FR.value}">
+                          {{item.kitReturnStatus ? vm.KIT_RETURN_STATUS[item.kitReturnStatus].name: 'N/A'}}
+                        </label>
+                      </td>
+                      <td class="text-center">{{item.plannKitNumber}}</td>
+                      <td class="text-center">
+                        <img ng-src="../../../../assets/images/etc/hot-job.png" class="hot-job-icon ml-5"
+                             ng-if="item.rushJob || (item.kitStatus === vm.Kit_Release_Status.R.value && item.Shortage > 0)" />
+                      </td>
+                      <td class="text-right">
+                        <a class="cursor-pointer color-red" ng-if="item.isRelease && item.mismatchItem > 0" ng-disabled="vm.kitDetail.isForViewOnly"
+                           ng-click="vm.kitReleaseMismatchDetail(item)">{{item.mismatchItem}}</a>
+                        <span ng-if="!(item.isRelease && item.mismatchItem > 0)">0</span>
+                      </td>
+                      <td class="text-right">{{item.poQty | numberWithoutDecimal}}</td>
+                      <td class="text-right">{{item.kitReleaseQty | numberWithoutDecimal}}</td>
+                      <td class="text-left">{{item.poDueDate | date: vm.DefaultDateFormat}}</td>
+                      <td class="text-right">{{item.mfrLeadTime | numberWithoutDecimal}}</td>
+                      <td class="text-left">{{item.kitReleaseDate | date: vm.DefaultDateFormat}}</td>
+                      <td class="text-left">{{item.materialDockDate | date: vm.DefaultDateFormat}}</td>
+                      <td class="text-right">{{item.buildFeasibility | numberWithoutDecimal}}</td>
+                      <td class="text-right"
+                          ng-class="{'text-danger text-bold': item.kitStatus === vm.Kit_Release_Status.R.value && item.Shortage > 0}">
+                        {{item.Shortage | numberWithoutDecimal}}
+                      </td>
+                      <td class="text-right">
+                        <a ng-click="vm.checkFeasibility(item.calculatedKitQty)" class="cursor-pointer">
+                          <span>{{item.shortageLines | numberWithoutDecimal}}</span>
+                        </a>
+                      </td>
+                      <td>{{item.releaseKitNumber}}</td>
+                      <td class="text-center">{{item.actualKitReleaseDate}}</td>
+                      <td>{{item.releasedByName}}</td>
+                      <td class="text-right">
+                        <span ng-if="item.kitStatus === vm.Kit_Release_Status.R.value">
+                          {{item.releaseTimeFeasibility | numberWithoutDecimal}}
+                        </span>
+                      </td>
+                      <td>{{item.workorderNumber}}</td>
+                      <td class="text-center">
+                        <md-button class="md-warn md-hue-1 margin-0" ng-disabled="!item.releasedNote"
+                                   ng-if="item.kitStatus == vm.Kit_Release_Status.R.value"
+                                   ng-click="vm.showReasonForTransaction(item, $event)">View</md-button>
+                      </td>
+                      <td class="text-center">{{item.kitReturnDate}}</td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <th class="padding-right-5 text-right" colspan="6"><b>TBD:</b></th>
+                      <th class="text-right padding-right-5"><b>{{vm.getRemainPOQty() | numberWithoutDecimal}}</b></th>
+                      <th class="text-right padding-right-5"><b>{{vm.getRemainkitQty() | numberWithoutDecimal}}</b></th>
+                      <th class="text-right padding-right-5" colspan="17"></th>
+                    </tr>
+                    <tr>
+                      <th class="padding-right-5 text-right" colspan="6"><b>Total Qty:</b></th>
+                      <th class="text-right padding-right-5"><b>{{vm.totalPOQty() | numberWithoutDecimal}}</b></th>
+                      <th class="text-right padding-right-5"><b>{{vm.totalKitQty() | numberWithoutDecimal}}</b></th>
+                      <th class="text-right padding-right-5" colspan="17"></th>
+                    </tr>
+                    <tr>
+                      <th class="padding-right-5 text-right" colspan="6"><b>Total PO & Kit Qty:</b></th>
+                      <th class="text-right">
+                        {{(vm.kitDetail.salesOrderDetail.SubPOQty ? vm.kitDetail.salesOrderDetail.SubPOQty : vm.kitDetail.salesOrderDetail.poQty) | numberWithoutDecimal}}
+                      </th>
+                      <th class="text-right">
+                        {{(vm.kitDetail.salesOrderDetail.SubKitQty ?vm.kitDetail.salesOrderDetail.SubKitQty : vm.kitDetail.salesOrderDetail.kitQty) | numberWithoutDecimal}}
+                      </th>
+                      <th class="padding-right-5 text-right" colspan="4">Total:</th>
+                      <th class="text-right">{{vm.kitPlanTotal.buildFeasibility | numberWithoutDecimal}}</th>
+                      <th class="text-right">{{vm.kitPlanTotal.shortage | numberWithoutDecimal}}</th>
+                      <th colspan="10"></th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+            <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center"
+                 layout-wrap ng-if="vm.noPlanFound">
+              <div class="emty-icon" flex="100">
+                <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+              </div>
+              <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+              <p flex="100">
+                {{(vm.KitReleaseDetail.assyID !== vm.KitReleaseDetail.mainAssyID) ? vm.EmptyMesssage.SUB_ASSY_MESSAGE : vm.EmptyMesssage.ADDNEWMESSAGE}}
+              </p>
+              <p flex="100">
+                <md-button class="md-fab md-mini" aria-label="Add Plan Kit"
+                           ng-if="!(vm.KitReleaseDetail.assyID !== vm.KitReleaseDetail.mainAssyID)"
+                           ng-click="vm.addRecord($event)" ng-disabled="vm.kitDetail.isForViewOnly">
+                  <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+                  <md-tooltip> Add Plan Kit</md-tooltip>
+                </md-button>
+                <md-button class="md-fab md-mini" aria-label="Refresh Plan Kit" ng-click="vm.getKitReleasePlanDetail()" ng-disabled="vm.kitDetail.isForViewOnly">
+                  <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+                  <md-tooltip>Refresh Plan Kit</md-tooltip>
+                </md-button>
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </md-content>
+  </md-dialog-content>
+  <md-dialog-actions layout="row">
+    <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+  </md-dialog-actions>
+</md-dialog>

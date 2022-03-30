@@ -1,0 +1,139 @@
+<div id="analytic-detail" class="page-layout fullwidth simple left-sidenav breadcrumb-fixed" layout="column" ng-class="{'cm-back-drop':vm.ispriceSelectorSideNavOpen}">
+  <div class="content pos-rel full-height padding-0 cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+    <div layout="row" class="cm-bom-header-main cm-bom-header-table-auto" layout-wrap>
+      <div layout="row" flex="100" class="cm-bom-bak-color" layout-wrap>
+        <div layout="column">
+          <md-button class="goto-rfq-button md-icon-button cm-back-btn-p-m" type="button" aria-label="Go to RFQ List" ng-click="vm.goBack()">
+            <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+            </md-icon>
+            <md-tooltip>Back to RFQ List</md-tooltip>
+          </md-button>
+          <div ng-show="false">
+            <pagetitle is-list="false"
+                       is-display-menu-name="true"
+                       prefix-page-title="vm.bom.PIDCode">
+            </pagetitle>
+          </div>
+          <div class="white-fg pl-10">
+            <div class="margin-bottom-5 cm-bom-change-error" role="alert" ng-if="vm.bom.quoteFinalStatus != vm.QuoteStatus.COMPLETED.VALUE && vm.isCustomerAccess">
+              <label flex="100" layout-align="start center" layout="row"
+                     class="label-box label-warning" ng-if="vm.CostingActivityStart">
+                {{vm.currentTimerCositngDiff}}
+                <md-tooltip md-direction="right">
+                  <span ng-if="vm.currentTimerCositngDiff && vm.CostingActivityStart" class="text-right pr-5">
+                    Costing Activity Started At
+                    <span>
+                      <b>{{vm.CostingActivityStartedAt  | date : vm.FullDateTimeFormat}}</b>
+                    </span>
+                    By <b>{{vm.CostingActivityStartedByUserName}}</b>.
+                  </span>
+                </md-tooltip>
+              </label>
+              <div class="mt-5">
+                <md-button class="md-raised md-primary md-ink-ripple margin-vertical-0 margin-left-0 margin-top-m2" ng-click="vm.startCostingActivity(true)" ng-if="!vm.CostingActivityStart">
+                  Start Costing Activity
+                  <md-tooltip>
+                    <span ng-if="!vm.CostingActivityStart" class="text-right pr-5">
+                      You can start costing process by clicking on <b>Start Costing Activity</b> button.
+                    </span>
+                  </md-tooltip>
+                </md-button>
+                <md-button class="md-raised md-primary md-ink-ripple margin-vertical-0 margin-left-0 margin-top-m2" ng-click="vm.startCostingActivity(false)" ng-if="vm.CostingActivityStart" ng-disabled="vm.loginUserId != vm.CostingActivityStartedBy && !vm.loginUser.isUserSuperAdmin">
+                  Stop Costing Activity
+                </md-button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div layout="row" flex ng-if="vm.customerID && vm.bom.partID" class="cm-bom-head">
+          <bom-header flex="100" rfq-assyid="vm.assyid" partid="vm.bom.partID" customerid="vm.customerID">
+          </bom-header>
+        </div>
+
+      </div>
+    </div>
+
+    <div flex="100" layout="row">
+      <md-content flex="100" layout="column">
+        <ms-form-wizard flex>
+          <md-tabs validate-step="true" is-valid="vm.isStepValid" md-dynamic-height md-border-bottom md-selected="vm.activeTab" class=" manage-customer-tabing padding-0" ng-class="{'cm-pastcost-tab':vm.activeTab == 2,'cm-partcost-tab-document':vm.activeTab == 6}">
+            <md-input-container ng-if="(vm.activeTab == 1 || vm.activeTab == 2 || vm.activeTab == 3 || vm.activeTab == 4) && vm.isCustomerAccess" class="padding-right-10 cm-BOM-lavels-alias-cost">
+              <b>Quoted Internal Version:&nbsp;{{vm.bom.partCostingBOMInternalVersion}}</b>
+            </md-input-container>
+            <md-input-container class="margin-0 cm-BOM-lavels-alias pt-5" ng-if="(vm.activeTab == 2 || vm.activeTab == 1) && vm.isCustomerAccess">
+              <!--flex="100"-->
+              <md-checkbox ng-model="vm.packaging" class="padding-right-5 margin-0" aria-label="packaging" flex="100" ng-change="vm.showPackaging(vm.packaging)">
+                <b>Show With Packaging Alias</b>
+              </md-checkbox>
+            </md-input-container>
+            <div class="inline-block cm-progressbar-part-costing padding-right-5" ng-if="vm.activeTab == 2 && vm.assyLoading && vm.status != null && vm.isCustomerAccess">
+              <span class="font-size-12">Pricing In-Progress</span>
+              <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+              <md-tooltip ng-if="vm.remainTime">{{vm.LabelConstant.COMMON.TimeRemain}}: {{vm.remainTime}}</md-tooltip>
+            </div>
+            <!--<md-button class="md-raised md-primary md-button md-ink-ripple text-white margin-top-imp" ng-class="{'item-disabled':vm.bom.isSummaryComplete}" ng-if="vm.activeTab == 4 && !vm.isShowSummarySave" ng-click="vm.assQuoteAttributes($event)" ng-disabled="vm.bom.isSummaryComplete">Add Quote Attributes</md-button>-->
+            <!-- Save button for summary tab -->
+            <!--<md-button class="md-raised md-primary md-button md-ink-ripple text-white" ng-if="vm.activeTab == 4 && vm.bom.isSummaryComplete" ng-click="vm.revisedQuote($event)" ng-disabled="!vm.bom.isSummaryComplete || (vm.bom.quoteFinalStatus == vm.QuoteStatus.COMPLETED.VALUE)">Revise Quote</md-button>-->
+            <md-button ng-if="(vm.activeTab == 4) && !vm.isShowSummarySave && vm.isCustomerAccess"
+                       class="md-raised md-icon-button part-cost-button custom-tab-button cm-cost-btn"
+                       ng-click="vm.exportSummary($event)">
+              <md-tooltip md-direction="top">Export</md-tooltip>
+              <md-icon class="icon-export"></md-icon>
+            </md-button>
+            <!--<md-button class="md-raised md-primary md-button md-ink-ripple text-white margin-top-imp" ng-class="{'item-disabled':!vm.bom.isSummaryComplete}" ng-if="(vm.activeTab == 4) && !vm.isShowSummarySave && vm.isCustomerAccess" ng-click="vm.pushQuoteToPartMaster($event)" ng-disabled="!vm.bom.isSummaryComplete || !vm.rfqAssyDetail || !vm.rfqAssyDetail.quoteNumber">Push Quote data to Part Master</md-button>-->
+            <md-button class="md-raised md-primary md-button md-ink-ripple text-white" ng-class="{'item-disabled':vm.bom.isSummaryComplete}" ng-if="(vm.activeTab == 4) && !vm.isShowSummarySave && vm.isCustomerAccess" ng-click="vm.submitPricingAll($event,true)" ng-disabled="vm.bom.isSummaryComplete || vm.bom.isSubmitDisable || !vm.CostingActivityStart || vm.clickedSubmit">Submit Quote</md-button>
+
+            <md-button class="md-raised md-primary md-button md-ink-ripple text-white" ng-class="{'item-disabled':vm.bom.isSummaryComplete}" ng-if="(vm.activeTab == 4) && !vm.isShowSummarySave && vm.isCustomerAccess" ng-click="vm.submitPricingAll($event,false)" ng-disabled="vm.bom.isSummaryComplete || !vm.CostingActivityStart || vm.clickedSubmit">Save Draft</md-button>
+
+            <md-tab ui-sref="{{item.src}}" ng-repeat="item in vm.tabList" ng-disabled="item.isDisabled" md-on-select="vm.onTabChanges(item)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-text">
+                    {{item.title}}
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div ng-class="[item.viewsrc=='summary'?'bom-price-table custom-scroll':'']" ng-if="vm.isCustomerAccess || item.id == 0" class="" ui-view="{{item.viewsrc}}">
+                </div>
+                <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="!vm.isCustomerAccess && vm.activeTab != 0">
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.EmptyMesssage.PERSONNAL_CUSTOMER_UNAUTHORIZE_ACCESS.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title" ng-bind-html="vm.EmptyMesssage.PERSONNAL_CUSTOMER_UNAUTHORIZE_ACCESS.MESSAGE"></p>
+                  <p flex="100">
+                    {{vm.EmptyMesssage.PERSONNAL_CUSTOMER_UNAUTHORIZE_ACCESS.CONTACT_ADMINISTRATOR}}
+                  </p>
+                </div>
+              </md-tab-body>
+            </md-tab>
+          </md-tabs>
+          <md-sidenav md-disable-backdrop md-disable-close-events class="md-sidenav-right md-whiteframe-4dp price-select" md-component-id="price-selector" style="position:fixed;">
+            <price-selector ng-if="vm.ispriceSelectorSideNavOpen && vm.isCustomerAccess" lineitem="vm.row"></price-selector>
+          </md-sidenav>
+        </ms-form-wizard>
+      </md-content>
+    </div>
+  </div>
+  <!-- / CONTENT -->
+</div>
+
+<style type="text/css">
+  .md-select-menu-container {
+    z-index: 80 !important;
+  }
+
+  md-backdrop.md-select-backdrop {
+    z-index: 80 !important;
+  }
+
+  .htContextMenu:not(.htGhostTable) {
+    z-index: 80 !important;
+  }
+
+  /*.htContextMenu:not(.htContextMenuSub_Add_MFR, .htContextMenuSub_Add_Supplier) {
+    top: auto !important;
+    bottom: 14% !important;
+  }*/
+</style>

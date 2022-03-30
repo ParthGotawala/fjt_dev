@@ -1,0 +1,157 @@
+<md-dialog aria-label="Employee" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.checkInForm" class="md-inline-form" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{vm.data.title}}: {{vm.data.opData.opName}}<span class="cursor-pointer" ng-if="vm.readyStockData.currentIsLoopOperation"><md-icon md-font-icon="icon-rotate-3d"></md-icon><md-tooltip>Loop Operation</md-tooltip></span></h2>
+        <span flex></span>
+        <div layout="row" layout-align="center center">
+          <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        </div>
+        <div class="timer-div">
+          <timer-clock></timer-clock>
+        </div>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding" layout="column">
+      <md-content class="padding-10 mh-5">
+        <div layout="row" layout-align="start start" layout-wrap>
+          <div ng-if="vm.data.opTransCount === 0 && (vm.data.opData.qtyControl || vm.data.opData.isIssueQty
+               || vm.data.opData.isRework || vm.data.opData.isTeamOperation
+               || vm.data.opData.isParallelOperation || vm.data.opData.isLoopOperation
+               || vm.data.opData.isPlacementTracking || vm.data.opData.isPreProgrammingComponent)" flex="100" class="" layout-align="space-between center" layout-wrap
+               layout="row">
+            <span flex="100" class="margin-top-5 margin-bottom-5"><b>{{vm.NOTES_FIRST_TRANSACTION_INFORMATION.message}}</b></span>
+            <div flex="100">
+              <label ng-if="vm.data.opData.qtyControl" class="margin-2 label-box label-primary" layout="row">
+                {{vm.LabelConstant.Operation.QtyTrackingRequired}}
+              </label>
+              <label ng-if="vm.data.opData.isIssueQty" class="margin-2 label-box label-primary" layout="row">
+                {{vm.LabelConstant.Operation.IssueQtyRequired}}
+              </label>
+              <label ng-if="vm.data.opData.isRework" class="margin-2 label-box label-primary" layout="row">
+                {{vm.LabelConstant.Operation.ReWork}}
+              </label>
+              <label ng-if="vm.data.opData.isTeamOperation" class="margin-2 label-box label-primary" layout="row">
+                {{vm.LabelConstant.Operation.TeamOperation}}
+              </label>
+              <label ng-if="vm.data.opData.isParallelOperation" class="margin-2 label-box label-primary" layout="row">
+                {{vm.LabelConstant.Operation.ParallelOperation}}
+              </label>
+              <label ng-if="vm.data.opData.isLoopOperation" class="margin-2 label-box label-primary" layout="row">
+                {{vm.LabelConstant.Operation.LoopOperation}}
+              </label>
+              <label ng-if="vm.data.opData.isPlacementTracking" class="margin-2 label-box label-primary" layout="row">
+                {{vm.LabelConstant.Operation.BasicPlacementTracking}}
+              </label>
+              <label ng-if="vm.data.opData.isPreProgrammingComponent" class="margin-2 label-box label-primary" layout="row">
+                {{vm.LabelConstant.Operation.PreProgramming}}
+              </label>
+            </div>
+          </div>
+          <div flex="100" class="" layout-align="space-between center" layout-wrap
+               layout="row">
+            <div flex="60">
+              <md-radio-group class="margin-0" layout="row" layout-align="start start" layout-wrap
+                              name="isSetup" ng-model="vm.data.isSetup" ng-if="!vm.data.isSingleEmployee" ng-change="vm.ChangeActivity();">
+                <md-radio-button ng-repeat="item in vm.RadioGroup.Activity.array"
+                                 ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+              </md-radio-group>
+            </div>
+          </div>
+          <div class="cm-section-main border-0" flex="100" ng-if="(vm.autoCompleteWorkstation && vm.WorkstationList.length > 0) || (vm.autoCompleteEquipment && vm.EquipmentList.length > 0) || (vm.data.isSingleEmployee) || (vm.data.opData.qtyControl && vm.data.opData.isIssueQty)">
+            <div class="cm-section-inner">
+              <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                <tbody>
+                  <tr ng-if="vm.data.isSingleEmployee" class="display-flex" layout-align="start-center">
+                    <th class="width-100">
+                      <p class="label-container">Password<span>&nbsp;*</span></p>
+                    </th>
+                    <td>
+                      <md-input-container>
+                        <input type="password" name="Password" ng-model="vm.data.password" placeholder="Password" ng-maxlength="100"
+                               required ng-disabled="!vm.data.employeeID">
+                        <div ng-messages="vm.checkInForm.Password.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{::vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr class="display-flex" layout-align="start-center">
+                    <th ng-if="!vm.data.isSetup && vm.data.opData.qtyControl && vm.data.opData.isIssueQty && !vm.data.isSingleEmployee" class="width-100">
+                      <p class="label-container">Issue Qty<span>&nbsp;*</span></p>
+                    </th>
+                    <td ng-if="!vm.data.isSetup && vm.data.opData.qtyControl && vm.data.opData.isIssueQty && !vm.data.isSingleEmployee" class="width-30p">
+                      <md-input-container>
+                        <input type="number" name="issueQty" ng-model="vm.data.issueQty" min="0"
+                               max="{{vm.readyStockData.totalValidQty}}"
+                               placeholder="Issue Qty" required onkeypress="return OnlyNumeric(event)">
+                        <div ng-messages="vm.checkInForm.issueQty.$error"
+                             role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="max">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.NOT_MORE_THAN_READYSTOCKQTY}}</span>
+                          </div>
+                          <div ng-message="number">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <th ng-if="vm.autoCompleteWorkstation && vm.WorkstationList.length > 0" class="width-100">
+                      <p class="label-container">{{vm.autoCompleteWorkstation.placeholderName}}<span ng-if="vm.autoCompleteWorkstation.isRequired">&nbsp;*</span></p>
+                    </th>
+                    <td ng-if="vm.autoCompleteWorkstation && vm.WorkstationList.length > 0" class="width-30p">
+                      <md-input-container class="autocompletecustom">
+                        <custom-auto-complete datalist="vm.WorkstationList"
+                                              column-name="vm.autoCompleteWorkstation.columnName"
+                                              key-column-name="vm.autoCompleteWorkstation.keyColumnName"
+                                              key-column-id="vm.autoCompleteWorkstation.keyColumnId"
+                                              input-name="vm.autoCompleteWorkstation.inputName"
+                                              placeholder-name="vm.autoCompleteWorkstation.placeholderName"
+                                              is-required="vm.autoCompleteWorkstation.isRequired"
+                                              callback-fn="vm.autoCompleteWorkstation.callbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                    <th ng-if="vm.autoCompleteEquipment && vm.EquipmentList.length > 0" class="width-100">
+                      <p class="label-container">{{vm.autoCompleteEquipment.placeholderName}}<span ng-if="vm.autoCompleteEquipment.isRequired">&nbsp;*</span></p>
+                    </th>
+                    <td ng-if="vm.autoCompleteEquipment && vm.EquipmentList.length > 0" class="width-30p">
+                      <md-input-container class="autocompletecustom margin-bottom-0">
+                        <custom-auto-complete datalist="vm.EquipmentList"
+                                              column-name="vm.autoCompleteEquipment.columnName"
+                                              key-column-name="vm.autoCompleteEquipment.keyColumnName"
+                                              key-column-id="vm.autoCompleteEquipment.keyColumnId"
+                                              input-name="vm.autoCompleteEquipment.inputName"
+                                              placeholder-name="vm.autoCompleteEquipment.placeholderName"
+                                              is-required="vm.autoCompleteEquipment.isRequired"
+                                              callback-fn="vm.autoCompleteEquipment.callbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!--<hr/>-->
+          <active-operation-list ng-if="vm.data.objectEmployee.employeeID || vm.data.employeeID" employee-id="vm.data.isSingleEmployee ? vm.data.objectEmployee.employeeID : vm.data.employeeID" operation-title="vm.data.title" flex="100" class="cm-start-activity"></active-operation-list>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.CheckIn()"
+                 ng-class="{'md-formdirty': vm.checkInForm.$dirty}"
+                 ng-disabled="vm.saveBtnDisableFlag">Start Activity</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

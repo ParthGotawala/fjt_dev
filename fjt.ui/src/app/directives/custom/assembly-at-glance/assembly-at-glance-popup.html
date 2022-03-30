@@ -1,0 +1,576 @@
+<md-dialog aria-label="coustomer-confirmation" flex="90" flex-lg="90" class="rfq_errorcode_popup_width copy-bom-select cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.CopyAssyBOMForm">
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>Assembly At Glance</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll mh-5" layout="column">
+      <md-content layout="column" class="padding-10">
+        <div layout="row">
+          <div layout="row" flex="100" class="work-order-bg-main" layout-wrap>
+            <div layout="row" layout-wrap flex="100">
+              <table width="100%" class="opration-table">
+                <tr>
+                  <td colspan="4">
+                    <h4 class="margin-top-5 margin-bottom-5">
+                      <strong>Assy Description:</strong>
+                      <span class="value">
+                        {{vm.assembly.mfgPNDescription}}
+                      </span>
+                    </h4>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="4">
+                    <h4 class="margin-top-5 margin-bottom-5">
+                      <strong><a tabindex="-1" class="cursor-pointer text-underline" ng-click="vm.goToStandardList()">{{vm.labelConstant.BOM.Standards}}</a>:</strong>
+                      <span>
+                        <label ng-repeat="standard in vm.standardClassList" class="margin-5 label-box" ng-style="{'background-color': standard.colorCode}">{{standard.standardName + (standard.className?(' '+ standard.className):'')}}</label>
+                      </span>
+                    </h4>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <h4 class="margin-top-5 margin-bottom-5">
+                      <strong class="inline-block">Total Solder Points:</strong>
+                      <span class="inline-block">{{vm.assembly.totalSolderPoints}}</span>
+                    </h4>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="cm-section-main padding-5 margin-top-10" layout="column" ng-if="!vm.noDataAvailable" ng-repeat="assy in vm.assyArray">
+          <div layout="row" flex="100" layout-wrap>
+            <div layout="row" layout-wrap flex="100">
+              <table width="100%" class="opration-table">
+                <tr>
+                  <td>
+                    <h4 class="margin-top-5 margin-bottom-5">
+                      <strong class="underline inline-block" ng-click="vm.goToAssyList()">{{vm.labelConstant.Assembly.ID}}</strong><strong>:</strong>
+                      <span class="underline inline-block" ng-click="vm.goToAssyMaster(assy.partID)">{{assy.assyID}}</span>
+                      <span ng-if="assy.rohsIcon" class="margin-right-5">
+                        <img class="rohs-bom-image" ng-src="{{assy.rohsIcon}}">
+                        <md-tooltip>{{assy.rohsName}}</md-tooltip>
+                      </span>
+                      <copy-text label="vm.labelConstant.Assembly.ID" text="assy.assyID"></copy-text>
+                    </h4>
+                  </td>
+                  <td>
+                    <h4 class="margin-top-5 margin-bottom-5">
+                      <strong class="underline inline-block" ng-click="vm.goToAssyList()">{{vm.labelConstant.Assembly.MFGPN}}</strong><strong>:</strong>
+                      <span class="underline inline-block" ng-click="vm.goToAssyMaster(assy.partID)">{{assy.assyPN}}</span>
+                      <span ng-if="assy.rohsIcon" class="margin-right-5">
+                        <img class="rohs-bom-image" ng-src="{{assy.rohsIcon}}">
+                        <md-tooltip>{{assy.rohsName}}</md-tooltip>
+                      </span>
+                      <copy-text label="vm.labelConstant.Assembly.MFGPN" text="assy.assyPN"></copy-text>
+                    </h4>
+                  </td>
+                  <td>
+                    <h4 class="margin-top-5 margin-bottom-5">
+                      <strong class="underline inline-block" ng-click="vm.goToAssyTypeList()">Assy Type</strong><strong>:</strong>
+                      <span class="inline-block">{{assy.assyType}}</span>
+                    </h4>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div flex="100" layout="row" class="padding-top-10" layout-wrap>
+            <div flex="50" layout="row" layout-wrap>
+              <div class="cm-section-main" flex="100">
+                <div class="cm-section-inner">
+                  <div class="cm-common-table-ui">
+                    <table border="1" width="100%" class="padding-5 opration-table text-center">
+                      <thead>
+                        <tr>
+                          <td colspan="7" class="padding-5">
+                            Assembly Detail by Mounting Type
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-right padding-5">
+                            SR#
+                          </td>
+                          <td class="text-left padding-5">
+                            Mounting Type
+                          </td>
+                          <td class="text-right padding-5">
+                            Item Count
+                          </td>
+                          <td class="text-right padding-5">
+                            QPA
+                          </td>
+                          <td class="text-right padding-5">
+                            DNP Item Count
+                          </td>
+                          <td class="text-right padding-5 border-0" layout-align="end center" layout="row">
+                            DNP QPA
+                            <div class="icon-question-mark-circle help-icon">
+                              <md-tooltip md-direction="top">{{ vm.EmptyMesssage.DNP_QPA_COUNT_MSG}}</md-tooltip>
+                            </div>
+                          </td>
+                          <td class="text-right padding-5">
+                            Kit Item Count
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="data in assy.PartMountingTypeList.mountingTypeList">
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{$index+1}}
+                            </span>
+                          </td>
+                          <td class="text-left padding-5">
+                            <span class="value font-size-17-imp">
+                              {{data.mountingType?data.mountingType:(vm.mountingTypeList.length== ($index+1)?'Mismatched':'Unknown')}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{data.ItemCount?data.ItemCount:0}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{data.QPA?data.QPA:0}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{data.DNPItemCount?data.DNPItemCount:0}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{data.DNPQPA?data.DNPQPA:0}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{data.kitItemCount?data.kitItemCount:0}}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td colspan="2" class="padding-5">
+                            Total Count
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{assy.PartMountingTypeList.MTTotalLine}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{assy.PartMountingTypeList.MTTotalQPA}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{assy.PartMountingTypeList.MTTotalDNPLine}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{assy.PartMountingTypeList.MTTotalDNPQPA}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{assy.PartMountingTypeList.MTTotalKitItemCount}}
+                            </span>
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div flex="50" layout="row" layout-wrap>
+              <div class="cm-section-main" flex="100">
+                <div class="cm-section-inner">
+                  <div class="cm-common-table-ui">
+                    <table border="1" width="100%" class="opration-table text-center">
+                      <thead>
+                        <tr>
+                          <td colspan="7" class="padding-5">
+                            Item Detail by RoHS Type (Compare RoHS status within Item)
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-right padding-5">
+                            SR#
+                          </td>
+                          <td class="text-left padding-5">
+                            RoHS Status
+                          </td>
+                          <td class="text-right padding-5">
+                            Item Count
+                          </td>
+                          <td class="text-right padding-5">
+                            QPA
+                          </td>
+                          <td class="text-right padding-5">
+                            DNP Item Count
+                          </td>
+                          <td class="text-right padding-5 border-0" layout-align="end center" layout="row">
+                            DNP QPA
+                            <div class="icon-question-mark-circle help-icon">
+                              <md-tooltip md-direction="top">{{vm.EmptyMesssage.DNP_QPA_COUNT_MSG}}</md-tooltip>
+                            </div>
+                          </td>
+                          <td class="text-right padding-5">
+                            Kit Item Count
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="data in assy.PartRoHSTypeList.RoHSTypeList">
+                          <td class="padding-5 text-right">
+                            <span class="value font-size-17-imp">
+                              {{$index+1}}
+                            </span>
+                          </td>
+                          <td class="text-left padding-5">
+                            <span class="value font-size-17-imp">
+                              {{data.RoHSStatus?data.RoHSStatus:'Unknown'}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{data.ItemCount?data.ItemCount:0}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{data.QPA?data.QPA:0}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{data.DNPItemCount?data.DNPItemCount:0}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{data.DNPQPA?data.DNPQPA:0}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{data.kitItemCount?data.kitItemCount:0}}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td colspan="2" class="padding-5">
+                            Total Count
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{assy.PartRoHSTypeList.RoHSTotalLine}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{assy.PartRoHSTypeList.RoHSTotalQPA}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{assy.PartRoHSTypeList.RoHSTotalDNPLine}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{assy.PartRoHSTypeList.RoHSTotalDNPQPA}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{assy.PartRoHSTypeList.RoHSTotalKitItemCount}}
+                            </span>
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div flex="100" layout="row" class="padding-top-10" layout-wrap>
+            <div flex="50" layout="row" layout-wrap>
+              <div class="cm-section-main" flex="100">
+                <div class="cm-section-inner">
+                  <div layout="row" id="chart-body" flex="100" ng-if="assy.PartMountingTypeList.mountingTypeList.length>0" layout-align="center center">
+                    <div flex="100">
+                      <all-chart-assy-glance chart-data-list="assy.MTchartObj"></all-chart-assy-glance>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div flex="50" layout="row" layout-wrap>
+              <div class="cm-section-main" flex="100">
+                <div class="cm-section-inner">
+                  <div layout="row" id="chart-body" flex="100" ng-if="assy.PartRoHSTypeList.RoHSTypeList.length>0" layout-align="center center">
+                    <div flex="100">
+                      <all-chart-assy-glance chart-data-list="assy.RoHSchartObj"></all-chart-assy-glance>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div flex="100" layout="row" class="padding-top-10" layout-wrap>
+            <div flex="50" layout="row" layout-wrap>
+              <div class="cm-section-main" flex="100">
+                <div class="cm-section-inner">
+                  <div class="cm-common-table-ui">
+                    <table border="1" width="100%" class="opration-table text-center">
+                      <thead>
+                        <tr>
+                          <td colspan="7" class="padding-5">
+                            RoHS Status by Part (Compared to Assembly {{assy.rohsName}} Requirement)
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-right padding-5">
+                            SR#
+                          </td>
+                          <td class="text-left padding-5">
+                            RoHS Status
+                          </td>
+                          <td class="text-right padding-5">
+                            Part Count
+                          </td>
+                          <td class="text-left padding-5">
+                            Compliant With Assembly RoHS Requirement
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="objRoHSByPart in assy.rohsByPartobj.RoHSListByPart">
+                          <td class="padding-5 text-right">
+                            <span class="value font-size-17-imp">
+                              {{$index+1}}
+                            </span>
+                          </td>
+                          <td class="text-left padding-5">
+                            <span class="value font-size-17-imp">
+                              {{objRoHSByPart.RoHSStatus ? objRoHSByPart.RoHSStatus : 'Unknown'}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp" ng-style="{'color':objRoHSByPart.complientWithAssy === 'No' ? '#f53931':'#028c00'}">
+                              {{objRoHSByPart.partCount ? objRoHSByPart.partCount: 0}}
+                            </span>
+                          </td>
+                          <td class="text-left padding-5">
+                            <span class="value font-size-17-imp">
+                              {{objRoHSByPart.complientWithAssy}}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td colspan="2" class="padding-5">
+                            Total Count
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value font-size-17-imp">
+                              {{assy.rohsByPartobj.TotalPartCount}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div flex="50" layout="row" layout-wrap>
+              <div flex="100" layout="row" layout-wrap>
+                <div class="cm-section-main" flex="100">
+                  <div class="cm-section-inner">
+                    <div class="cm-common-table-ui">
+                      <table border="1" width="100%" class="opration-table text-center">
+                        <thead>
+                          <tr>
+                            <td colspan="7" class="padding-5">
+                              RoHS Status by Item With All Compliant Parts Within Item (Compared to Assembly {{assy.rohsName}} Requirement)
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-right padding-5">
+                              SR#
+                            </td>
+                            <td class="text-left padding-5">
+                              RoHS Status
+                            </td>
+                            <td class="text-right padding-5">
+                              Item Count
+                            </td>
+                            <td class="text-left padding-5">
+                              Compliant With Assembly RoHS Requirement
+                            </td>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr ng-repeat="objAllItemRoHSByPart in assy.rohsByAllPartInItemWithComAssyRoHSobj.RoHSListByItem">
+                            <td class="padding-5 text-right">
+                              <span class="value font-size-17-imp">
+                                {{$index+1}}
+                              </span>
+                            </td>
+                            <td class="text-left padding-5">
+                              <span class="value font-size-17-imp" ng-style="{'color':objAllItemRoHSByPart.rohs === vm.MisMatchedText ? '#f53931':'#028c00'}">
+                                {{objAllItemRoHSByPart.rohs ? objAllItemRoHSByPart.rohs : 'Unknown'}}
+                              </span>
+                            </td>
+                            <td class="text-right padding-5">
+                              <span class="value font-size-17-imp" ng-style="{'color':objAllItemRoHSByPart.complientWithAssy === 'No' ? '#f53931':'#028c00'}">
+                                {{objAllItemRoHSByPart.ItemCount ? objAllItemRoHSByPart.ItemCount : 0}}
+                              </span>
+                            </td>
+                            <td class="text-left padding-5">
+                              <span class="value font-size-17-imp">
+                                {{objAllItemRoHSByPart.complientWithAssy}}
+                              </span>
+                            </td>
+                          </tr>
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td colspan="2" class="padding-5">
+                              Total Count
+                            </td>
+                            <td class="text-right padding-5">
+                              <span class="value font-size-17-imp">
+                                {{assy.rohsByAllPartInItemWithComAssyRoHSobj.TotalItemCount}}
+                              </span>
+                            </td>
+                            <td class="text-right padding-5">
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div flex="100" layout="row" layout-wrap>
+                <div class="cm-section-main" flex="100">
+                  <div class="cm-section-inner">
+                    <div class="cm-common-table-ui">
+                      <table border="1" width="100%" class="opration-table text-center">
+                        <thead>
+                          <tr>
+                            <td colspan="7" class="padding-5">
+                              RoHS Status by Item With Minimum One Compliant Part Within Item (Compared to Assembly {{assy.rohsName}} Requirement)
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-right padding-5">
+                              SR#
+                            </td>
+                            <td class="text-left padding-5">
+                              RoHS Status
+                            </td>
+                            <td class="text-right padding-5">
+                              Item Count
+                            </td>
+                            <td class="text-left padding-5">
+                              Compliant With Assembly RoHS Requirement
+                            </td>
+                            <td class="text-right padding-5">
+                              Item Count With RoHS Deviation (Allowed w/ Eng. Approval)
+                            </td>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr ng-repeat="objOneItemRoHSByPart in assy.rohsByOnePartInItemWithComAssyRoHSobj.RoHSListByItem">
+                            <td class="padding-5 text-right">
+                              <span class="value font-size-17-imp">
+                                {{$index+1}}
+                              </span>
+                            </td>
+                            <td class="text-left padding-5">
+                              <span class="value font-size-17-imp" ng-style="{'color':objOneItemRoHSByPart.rohs === vm.MisMatchedText ? '#f53931':'#028c00'}">
+                                {{objOneItemRoHSByPart.rohs ? objOneItemRoHSByPart.rohs : 'Unknown'}}
+                              </span>
+                            </td>
+                            <td class="text-right padding-5">
+                              <span class="value font-size-17-imp" ng-style="{'color':objOneItemRoHSByPart.complientWithAssy === 'No' ? '#f53931':'#028c00'}">
+                                {{objOneItemRoHSByPart.ItemCount ? objOneItemRoHSByPart.ItemCount : 0}}
+                              </span>
+                            </td>
+                            <td class="text-left padding-5">
+                              <span class="value font-size-17-imp">
+                                {{objOneItemRoHSByPart.complientWithAssy}}
+                              </span>
+                            </td>
+                            <td class="text-right padding-5">
+                              <span class="value font-size-17-imp">
+                                {{objOneItemRoHSByPart.deviationApproveCount}}
+                              </span>
+                            </td>
+                          </tr>
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td colspan="2" class="padding-5">
+                              Total Count
+                            </td>
+                            <td class="text-right padding-5">
+                              <span class="value font-size-17-imp">
+                                {{assy.rohsByOnePartInItemWithComAssyRoHSobj.TotalItemCount}}
+                              </span>
+                            </td>
+                            <td class="text-right padding-5">
+                            </td>
+                            <td class="text-right padding-5">
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="empty-state text-center full-height" layout="row" layout-align="center center" flex="100" layout-wrap ng-if="vm.noDataAvailable">
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+          </div>
+          <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.NO_BOM_UPLOADED}}</p>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Close</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

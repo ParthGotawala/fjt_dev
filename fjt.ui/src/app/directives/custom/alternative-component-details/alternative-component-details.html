@@ -1,0 +1,137 @@
+<div>
+  <div layout="row" style="padding:5px;height: 100%;overflow: hidden; white-space: nowrap;" class="height-grid ui-grid-cell-contents">
+    <div style="width: 100%; overflow: hidden; height: auto !important;" ng-if="isExpand">
+      <div ng-repeat="item in mfgAlterparts" layout layout-align="start center" class="padding-left-5 cm-pid-code-with-icon" ng-class="{'background-red':item.isEpoxy}" ng-style="{'background-color': item.partStatusColor}">
+
+        <copy-text label="Label.MFGPN" text="item.mfgpartNumber"></copy-text>
+        <span class="underline cm-pid-code-number">
+          <span ng-click="goToPartMaster(item)"
+                ng-class="{'text-line-through':!isHistory && (isCPNRestrict
+                          || item.bomRestrictStep
+                          || !item.restrictPermenentlystep
+                          || !item.restrictwithPermissionStep
+                          || item.restrictUseInBOMExcludingAliasStep
+                          || !item.restrictUseExcludingAliasStep
+                          || !item.restrictUseExcludingAliasWithPermissionStep
+                          ),'text-double-line-through':!isHistory && (item.restrictUseInBOMWithPermissionStep || item.restrictUseInBOMExcludingAliasWithPermissionStep )}">
+            {{isExpand ? item.part : ($index>1 ? "" : item.part)}}
+            <md-tooltip md-direction="top" ng-if="item.mfgPNDescription">{{item.mfgPNDescription}}</md-tooltip>
+          </span>
+        </span>
+
+        <span ng-if="item.rohsIcon" class="margin-right-5">
+          <img class="rohs-bom-image" ng-src="{{item.rohsIcon}}">
+          <md-tooltip md-direction="top">{{item.rohsName}}</md-tooltip>
+        </span>
+        <span class="api-icons"></span>
+        <span ng-click="vm.gotoSupplier(item.mfgpartNumber,vm.apiConstant.DIGIKEY,item)" class="margin-right-5" ng-hide="item.isCustom || item.componentID < 0">
+          <img role="img" class="price-select-icons cm-digikey-icon" ng-src="{{vm.apiConstant.DKimage}}" />
+          <md-tooltip md-direction="top">Search on Digikey</md-tooltip>
+        </span>
+
+        <span ng-click="vm.gotoSupplier(item.mfgpartNumber,vm.apiConstant.FINDCHIPS,item)" class="margin-right-5" ng-hide="item.isCustom  || item.componentID < 0">
+          <img role="img" class="price-select-icons" ng-src="{{vm.apiConstant.FindChipImage}}" />
+          <md-tooltip md-direction="top">Search on FindChip</md-tooltip>
+        </span>
+        <span class="margin-right-7" ng-hide="item.isCustom  || item.componentID < 0"
+              ng-click="vm.gotoSupplier(item.mfgpartNumber,vm.apiConstant.GOOGLE,item)">
+          <img role="img" class="price-select-icons" ng-src="{{vm.apiConstant.GOOGLE_IMAGE}}" />
+          <md-tooltip md-direction="top">Search Google</md-tooltip>
+        </span>
+        <span ng-if="item.leadTime >= 0" class="margin-right-5">
+          <span>{{item.leadTime}}WK</span>
+          <md-tooltip md-direction="top">
+            Std. Lead Time (In week)
+          </md-tooltip>
+        </span>
+        <md-icon class="icon-package-variant-closed cursor-pointer color-black padding-top-5" ng-if="!isHistory" style="min-width: 16px;width: 16px;" ng-click="vm.packagingAlias(item,$event)">
+          <md-tooltip md-direction="top">
+            Packaging alias
+          </md-tooltip>
+        </md-icon>
+        <md-icon class="icon-folder-upload cursor-pointer color-black padding-top-5" style="min-width: 16px;width: 16px;" ng-if="(item.LOAStatus != '1' && !isHistory) && !vm.isHideLoa" ng-click="vm.ImportLOA(item,$event)">
+          <md-tooltip md-direction="top">
+            Upload LOA
+          </md-tooltip>
+        </md-icon>
+        <md-icon class="icon-folder-plus cursor-pointer color-black padding-top-5" style="min-width: 16px;width: 16px" ng-if="(item.LOAStatus == '1' && item.componentID && !isHistory) && !vm.isHideLoa" ng-click="vm.ImportLOA(item,$event)">
+          <md-tooltip md-direction="top">
+            Upload LOA
+          </md-tooltip>
+        </md-icon>
+        <span ng-if="item.partIssue && !vm.isHideLoa">
+          <img role="img" class="price-select-icons" ng-src="{{erroricon}}" />
+          <md-tooltip md-direction="top" class="pv-5 max-width-420 tt-multiline cm-white-space-normal">
+            <span ng-bind-html="item.partIssue"></span>
+          </md-tooltip>
+        </span>
+        <copy-text label="PID" text="item.part"></copy-text>
+        <copy-part-text label="PID" text="item.custAssyPN" ng-hide="!item.isCustom  || item.componentID < 0"></copy-part-text>
+        <span class="cm-tbd-icon" ng-if="item.partTBDDetails">
+          <img role="img" ng-src="{{tbdicon}}">
+          <md-tooltip md-direction="top" class="tooltip-height-auto" ng-bind-html="item.partTBDDetails">
+          </md-tooltip>
+        </span>
+        <md-icon class="icon-tag cursor-pointer color-black padding-top-5 margin-0" style="min-width: 16px;width: 16px" ng-if="item.priced && !item.isPriceFetched && !isHistory">
+          <md-tooltip md-direction="top">
+            Not priced
+          </md-tooltip>
+        </md-icon>
+        <span ng-if="!item.mismatchMountingTypeStep">
+          <img role="img" class="price-select-icons mr-5" ng-src="{{mismatchMountingTypeIcon}}" />
+          <md-tooltip md-direction="top" class="tooltip-height-auto">
+            Mismatched Mounting Type
+          </md-tooltip>
+        </span>
+        <span ng-if="!item.mismatchFunctionalCategoryStep">
+          <img role="img" class="price-select-icons mr-5" ng-src="{{mismatchFunctionalTypeIcon}}" />
+          <md-tooltip md-direction="top" class="tooltip-height-auto">
+            Mismatched Functional Type
+          </md-tooltip>
+        </span>
+        <span ng-if="item.approvedMountingType">
+          <img role="img" class="price-select-icons mr-5" ng-src="{{approveMountingTypeIcon}}" />
+          <md-tooltip md-direction="top" class="tooltip-height-auto" ng-if="!item.MountingType && !item.FunctionaType">
+            Approved Mounting Type & Functional Type
+          </md-tooltip>
+          <md-tooltip md-direction="top" class="tooltip-height-auto" ng-if="item.MountingType && item.FunctionaType">
+            {{item.MountingType}} & {{item.FunctionaType}}
+          </md-tooltip>
+        </span>
+        <md-tooltip md-direction="right" ng-if="item.partStatus">{{item.partStatus}}</md-tooltip>
+        <md-tooltip md-direction="bottom" ng-if="item.isEpoxy && item.Epoxy">{{item.Epoxy}}</md-tooltip>
+      </div>
+    </div>
+    <div style="width: 100%; overflow: hidden; height: auto !important;" ng-if="!isExpand">
+      <div ng-repeat="item in mfgAlterparts" layout layout-align="start center" class="padding-left-5 cm-pid-code-with-icon">
+        <copy-text label="PID" text="item.part"></copy-text>
+        <copy-part-text label="PID" text="item.part"></copy-part-text>
+        <span class="underline" style="text-decoration-color:#000 !important">
+          <!--<span ng-click="goToPartMaster(item)" ng-class="{'text-line-through': (item.restrictUseInBOMStep|| (!item.restrictUseWithPermissionStep && item.lineLevelCustomerApproval!='A') ||!item.restrictUsePermanentlyStep||!item.rfqLevelRestrictCPNUsePermanentlyStep),
+    'text-double-line-through':((item.lineLevelRestrictUseInBOMWithPermissionStep || item.rfqLevelRestrictCPNUseWithPermissionStep) && item.lineLevelCustomerApproval!='A')}">-->
+          <span ng-click="goToPartMaster(item)" ng-class="{'text-line-through': (item.restrictUseInBOMStep||!item.restrictUseWithPermissionStep||!item.restrictUsePermanentlyStep),'text-double-line-through':(item.lineLevelRestrictUseInBOMWithPermissionStep && item.lineLevelCustomerApproval!='A')}">
+            {{item.part}}
+          </span>
+        </span>
+        <span ng-if="item.rohsIcon" class="margin-right-5">
+          <img class="rohs-bom-image" ng-src="{{item.rohsIcon}}">
+          <md-tooltip md-direction="top">{{item.rohsName}}</md-tooltip>
+        </span>
+        <span class="api-icons"></span>
+        <span ng-click="vm.gotoSupplier(item.mfgpartNumber,vm.apiConstant.DIGIKEY,item)" class="margin-right-5" ng-hide="item.isCustom  || item.componentID < 0">
+          <img role="img" class="price-select-icons cm-digikey-icon" ng-src="{{vm.apiConstant.DKimage}}" />
+          <md-tooltip md-direction="top">Search on Digikey</md-tooltip>
+        </span>
+
+        <span ng-click="vm.gotoSupplier(item.mfgpartNumber,vm.apiConstant.FINDCHIPS,item)" class="margin-right-5" ng-hide="item.isCustom  || item.componentID < 0">
+          <img role="img" class="price-select-icons" ng-src="{{vm.apiConstant.FindChipImage}}" />
+          <md-tooltip md-direction="top">Search on FindChip</md-tooltip>
+        </span>
+        <copy-text label="Label.MFGPN" text="item.mfgpartNumber"></copy-text>
+      </div>
+    </div>
+  </div>
+  <div ng-if="mfgAlterparts.length == 0" layout="row" style="padding:5px;height: 100%;overflow: hidden; white-space: nowrap;" class="height-grid ui-grid-cell-contents">
+    NA
+  </div>
+</div>

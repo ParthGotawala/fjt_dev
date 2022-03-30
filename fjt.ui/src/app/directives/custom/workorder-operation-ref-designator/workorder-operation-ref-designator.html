@@ -1,0 +1,118 @@
+<ng-form name="vm.frmOperationRefDesig" class="md-inline-form padding-bottom-0 cm-custom-label-common" novalidate>
+  <div flex="100" layout="row" layout-align="start start" layout-wrap>
+    <div class="cm-section-main" layout="row" layout-wrap flex="100">
+      <div class="cm-normal-header" flex="100">
+        <h2>List of {{vm.LabelConstant.BOM.REF_DES}} For This Operation</h2>
+        <md-button class="md-primary md-raised  mv-0-imp"
+                   ng-click="vm.showBOMLineList()"
+                   ng-disabled="vm.isDisableRefDesig || vm.isDisableRefDesigChip  || vm.updateRefDes">
+          SELECT RefDes FROM BOM LINE
+          <md-tooltip>Select RefDes from BOM Line List</md-tooltip>
+        </md-button>
+      </div>
+      <div class="cm-section-inner" flex="100" layout-wrap>
+        <div layout="row">
+          <div flex="30">
+            <md-checkbox ng-model="vm.operation.addRefDesig" name="addRefDesig" class="margin-0"
+                         ng-disabled="vm.checkboxButtonGroupRefDesig.addRefDesig.checkDisable()"
+                         ng-change="vm.checkboxButtonGroupRefDesig.addRefDesig.onChange()">
+              <p class="label-container">
+                {{vm.LabelConstant.Operation.AddRefDesignator}}
+              </p>
+            </md-checkbox>
+          </div>
+          <!--<div flex="30">
+            <md-checkbox ng-model="vm.operation.isRequireRefDesWithUMID" name="isRequireRefDesWithUMID" class="margin-0"
+                         ng-disabled="vm.checkboxButtonGroupRefDesig.isRequireRefDesWithUMID.checkDisable()"
+                         ng-change="vm.checkboxButtonGroupRefDesig.isRequireRefDesWithUMID.onChange()">
+              <p class="label-container">
+                {{vm.LabelConstant.Operation.IsRequireRefDesWithUMID}}
+              </p>
+            </md-checkbox>
+          </div>-->
+          <div flex="30">
+            <md-checkbox ng-model="vm.operation.isStrictlyLimitRefDes" name="isStrictlyLimitRefDes" class="margin-0"
+                         ng-disabled="vm.checkboxButtonGroupRefDesig.isStrictlyLimitRefDes.checkDisable()"
+                         ng-change="vm.checkboxButtonGroupRefDesig.isStrictlyLimitRefDes.onChange()">
+              <p class="label-container">
+                {{vm.LabelConstant.Operation.IsStrictlyLimitRefDes}}
+              </p>
+            </md-checkbox>
+          </div>
+        </div>
+        <div layout="row" class="margin-top-20">
+          <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+            <input type="text" name="refDesigValue" id="refDesigValue"
+                   ng-model="vm.refDesigModel.refDesig"
+                   placeholder="Enter {{vm.LabelConstant.BOM.REF_DES}}"
+                   ng-maxlength="100"
+                   ng-disabled="vm.isDisableRefDesig || vm.isDisableRefDesigChip"
+                   ng-change="vm.checkUniqueRefDesig();vm.validateRefDesg(vm.refDesigModel);"
+                   ng-keypress="vm.addRefDesigToList($event);"
+                   capitalize>
+            <span class="font-size-10">
+              <b>Type and press Enter.</b>
+            </span>
+            <div ng-messages="vm.frmOperationRefDesig.refDesigValue.$error"
+                 role="alert">
+              <div ng-message="maxlength">
+                <span>{{vm.getMaxLengthValidation(100, vm.frmOperationRefDesig.refDesigValue.$viewValue.length)}}</span>
+              </div>
+              <div ng-message="duplicate">
+                <span>{{vm.CORE_MESSAGE_CONSTANT.DUPLICATE}}</span>
+              </div>
+              <div ng-message="invalidRefDesig">
+                <span>{{vm.InvalidRefDesMessage}}</span>
+              </div>
+            </div>
+          </md-input-container>
+          <div layout="row" class="cm-square-icon-btn">
+
+            <md-button class="md-primary md-raised mv-0-imp"
+                       ng-click="vm.resetRefDesignatorModel()"
+                       ng-disabled="vm.isDisableRefDesig || vm.isDisableRefDesigChip">
+              Clear
+              <md-tooltip>Clear</md-tooltip>
+            </md-button>
+          </div>
+          <div layout="row" class="cm-square-icon-btn">
+
+            <md-button class="md-primary md-raised mv-0-imp"
+                       ng-click="vm.removeAllRefDes()"
+                       ng-disabled="vm.isDisableRefDesig || vm.isDisableRefDesigChip">
+              Remove All
+              <md-tooltip>Remove all Entered RefDes</md-tooltip>
+            </md-button>
+          </div>
+        </div>
+        <div class="cm-tracking-chip-container max-height-200">
+          <div ng-repeat="item in vm.operation.refDesigList" ng-if="item.isDeleted===0" layout="row" layout-align="start center"
+               class="cm-tracking-chip-mian">
+            <div class="tracking-number-chip tracking-number-copy-chip pv-3" layout="row" layout-align="start center" >
+              <label>{{item.refDesig}}</label>
+              <div class="md-icon-button md-primary m-5 md-mini border-radius-0"
+                   ng-mouseover="vm.checkCopyStatus()"
+                   ng-click="vm.copyRefDesig($event,item.refDesig);">
+                <md-icon md-font-icon="icon-content-copy s18" class="material-icons mat-icon"></md-icon>
+                <md-tooltip md-direction="top" ng-show="!vm.copystatus">Copy {{vm.LabelConstant.BOM.REF_DES}}</md-tooltip>
+                <md-tooltip md-direction="top" ng-show="vm.copystatus">Copied</md-tooltip>
+              </div>
+              <md-button class="md-icon-button md-primary md-mini margin-0"
+                         ng-click="vm.editRefDesigFromList(item)"
+                         ng-disabled="vm.isDisableRefDesig || vm.isDisableRefDesigChip">
+                <md-icon md-font-icon="icon-pencil" class="material-icons mat-icon"></md-icon>
+                <md-tooltip>Update {{vm.LabelConstant.BOM.REF_DES}}</md-tooltip>
+              </md-button>
+              <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeRefDesigFromList(item, $index)"
+                         ng-disabled="vm.isDisableRefDesig || vm.isDisableRefDesigChip  || vm.updateRefDes">
+                <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                <md-tooltip>Remove {{vm.LabelConstant.BOM.REF_DES}}</md-tooltip>
+              </md-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-form>
+

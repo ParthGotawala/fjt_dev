@@ -1,0 +1,435 @@
+<md-content flex="100" class="cm-import-bom-container cm-custom-label-common parent-cg-busy" layout-wrap layout="row" cg-busy="{promise:vm.cgBusyLoading}" id="h-table-container">
+  <div flex="100" class="margin-bottom-5 cm-bom-change-error" role="alert">
+    <span ng-if="vm.currentTimerDiff && vm.AssyActivityStart" class="text-right pr-5">
+      Activity Started At
+      <span>
+        <b>{{vm.AssyActivityStartedAt}}</b>
+      </span>
+      By <b>{{vm.AssyActivityStartedByUserName}}</b>.
+      <label flex="100" layout-align="start center" layout="row"
+             class="label-box label-warning">
+        {{vm.currentTimerDiff}}
+      </label>
+    </span>
+    <span ng-if="!vm.AssyActivityStart" class="text-right pr-5">
+      You can start BOM process by clicking on <b>Start Activity</b> button.
+    </span>
+    <md-button class="md-raised md-primary md-ink-ripple margin-vertical-0 margin-left-0 margin-top-m2" ng-click="vm.startActivity(true)" ng-if="!vm.AssyActivityStart">
+      Start Activity
+    </md-button>
+    <md-button class="md-raised md-primary md-ink-ripple margin-vertical-0 margin-left-0 margin-top-m2" ng-click="vm.startActivity(false)" ng-if="vm.AssyActivityStart && (vm.loginUserId == vm.AssyActivityStartedBy || vm.loginUser.isUserSuperAdmin)">
+      Stop Activity
+    </md-button>
+    <span class="cm-bom-error-message" ng-if="vm.isBOMChanged">&nbsp;* {{vm.CORE_MESSAGE_CONSTANT.BOM_SAVE_REQUIRED_MESSAGE}}</span>
+  </div>
+  <div id="bom-container" class="md-inline-form padding-10" flex="100" ng-if="!vm.isNoDataFound">
+    <div layout="row" layout-wrap class="padding-bottom-10">
+      <div layout="row" flex="100">
+        <div layout="row" flex>
+          <div layout="row" flex layout-align="center center" class="margin-right-5 margin-pro-rs-right-0">
+            <div class="cm-section-main" layout="row" flex>
+              <div class="cm-section-inner mh-5 advanced-filters" flex layout layout-align="start center">
+                <div class="input-wrapper" layout="row" layout-align="start center">
+                  <b>Search: </b>
+                  <md-input-container flex="100" layout="row" class="margin-0">
+                    <md-radio-group layout="row" layout-align="start start"
+                                    name="searchOption" ng-model="vm.searchOptionValue" ng-change="vm.changeSerchOption()" class="margin-right-0">
+                      <md-radio-button class="margin-top-0" ng-repeat="item in vm.RadioGroup.searchOption.array"
+                                       ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                    </md-radio-group>
+                  </md-input-container>
+                </div>
+                <div layout="row" flex layout-align="center-center">
+                  <md-input-container class="margin-0" md-no-float flex>
+                    <input type="text" ng-model="vm.globalSearchText" ng-disabled="vm.disableSearchbox" ng-model-options="{ debounce: vm.configTimeout }" placeholder="Type Here To Search" ng-change="vm.SearchInBOMdata(true)" />
+                  </md-input-container>
+                  <md-button class="md-icon-button" ng-click="vm.clearHandsonTableSearchData()" ng-if="vm.globalSearchText">
+                    <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                  </md-button>
+                  <!--<span class="count">{{vm.SearchResult}}</span>-->
+                  <span ng-if="vm.globalSearchText">
+                    <label class="label-box label-info m-0">
+                      Results: {{vm.SearchResult}}
+                    </label>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cm-section-main margin-right-5" layout="row" layout-align="start center">
+            <div class="cm-section-inner mh-5">
+              <div layout="row" excel-reader er-options="vm.erOptions" layout-align="start center" class="cm-bom-btn cm-square-icon-btn cm-btn-group cm-pricing-icon-buttons">
+                <input id="fi-excel" name="file" type="file" class="hidden" style="height:0px;width:0px;left: -100%;position:absolute">
+                <md-button class="md-raised md-icon-button custom-tab-button" ng-click="vm.addBOM()" ng-class="{'cursor-not-allow':vm.selectedFilter != vm.allFilterID || vm.isBOMReadOnly}" ng-disabled="vm.selectedFilter != vm.allFilterID || vm.isBOMReadOnly">
+                  <md-icon md-font-icon="t-icons-append-bom" role="img">
+                    <md-tooltip md-direction="top">Append BOM</md-tooltip>
+                  </md-icon>
+                  <!--<md-icon md-font-icon class="mdi mdi-library-plus"></md-icon>-->
+                </md-button>
+                <md-button class="md-raised md-icon-button custom-tab-button " ng-click="vm.addNewLine()" ng-class="{'cursor-not-allow':vm.selectedFilter != vm.allFilterID || vm.isBOMReadOnly}" ng-disabled="vm.selectedFilter != vm.allFilterID || vm.isBOMReadOnly">
+                  <!--<md-icon md-font-icon class="icon-plus-one"></md-icon>-->
+                  <md-icon md-font-icon="t-icons-bom-line add-icon" role="img"><md-tooltip md-direction="top">Add line</md-tooltip></md-icon>
+                </md-button>
+                <md-button class="md-raised md-icon-button custom-tab-button " ng-click="vm.rfqLineitemsHeaders($event)">
+                  <!--<md-icon md-font-icon class="icon-view-column"></md-icon>-->
+                  <md-icon md-font-icon="t-icons-column-sequence change-icon" role="img"><md-tooltip md-direction="top">Configure Header Ordering</md-tooltip></md-icon>
+                </md-button>
+                <md-button class="md-raised md-icon-button custom-tab-button" ng-click="vm.getErrorCodeColor($event)">
+                  <md-icon md-font-icon class="t-icons-error-code"><md-tooltip md-direction="top">Error Color Legend</md-tooltip></md-icon>
+                </md-button>
+                <md-button class="md-raised md-icon-button custom-tab-button " ng-click="vm.rfqAdditionalColumnConfiguration($event)">
+                  <!--<md-icon md-font-icon class="icon-blur-linear"></md-icon>-->
+                  <md-icon md-font-icon="t-icons-user-defined-configuration" role="img"><md-tooltip md-direction="top">Additional Field Configuration</md-tooltip></md-icon>
+                </md-button>
+                <md-button class="md-raised md-icon-button custom-tab-button line-height-normal" ng-click="vm.rfqLineitemsDiscription($event)">
+                  <md-tooltip md-direction="top">BOM Issues & Add Additional Comments</md-tooltip>
+                  <img class="h-24" ng-src="{{vm.waringCommentIcon}}" />
+                  <!--<md-icon md-font-icon class="icon-clipboard-text"></md-icon>-->
+                  <!--<md-icon md-font-icon="icons-warning-comment" role="img" class="cm-custom-icon-font"></md-icon>-->
+                </md-button>
+                <!--<md-button class="md-raised md-icon-button custom-tab-button margin-left-10" ng-click="vm.exportBOM($event)">
+                  <md-icon md-font-icon="icons-column-four" role="img" class="cm-custom-icon-font"><md-tooltip md-direction="top">Export BOM</md-tooltip></md-icon>
+                </md-button>-->
+                <md-menu-bar id="bom-menu" class="padding-right-0-imp padding-left-10" layout-align="end-center">
+                  <md-menu md-position-mode="left bottom">
+                    <md-button class="no-padding md-raised no-shadow bg-white margin-0 bom-export-button" ng-click="$mdOpenMenu()"
+                               aria-label="User settings">
+                      <div layout="row" layout-align="space-between center">
+                        <!--<span>Export BOM</span>-->
+                        <md-icon md-font-icon="t-icons-bom export-icon"
+                                 class="icon"></md-icon>
+                        <md-icon md-font-icon="icon-chevron-down"
+                                 class="icon s16" hide-sm></md-icon>
+                      </div>
+                      <md-tooltip md-direction="top">Export BOM</md-tooltip>
+                    </md-button>
+                    <md-menu-content width="3">
+                      <md-menu-item>
+                        <md-button ng-click="vm.exportBOM($event,1)">
+                          Format 1 (Vertical {{vm.LabelConstant.MFGPN}} View, Repeated Line Info)
+                        </md-button>
+                      </md-menu-item>
+                      <md-menu-item>
+                        <md-button ng-click="vm.exportBOM($event,2)">
+                          Format 2 (Vertical {{vm.LabelConstant.MFGPN}} View, No Repeated Line Info)
+                        </md-button>
+                      </md-menu-item>
+                      <md-menu-item>
+                        <md-button ng-click="vm.exportBOM($event,3)">
+                          Format 3 (Horizontal {{vm.LabelConstant.MFGPN}} View)
+                        </md-button>
+                      </md-menu-item>
+                      <md-menu-item>
+                        <md-button ng-click="vm.exportBOM($event,4)">
+                          Format 4 (Vertical {{vm.LabelConstant.MFGPN}} View with Packaging Alias, Repeated Line Info)
+                        </md-button>
+                      </md-menu-item>
+                      <md-menu-item>
+                        <md-button ng-click="vm.exportBOM($event,5)">
+                          Format 5 (Vertical {{vm.LabelConstant.MFGPN}} View with Packaging Alias, No Repeated Line Info)
+                        </md-button>
+                      </md-menu-item>
+                      <md-menu-item>
+                        <md-button ng-click="vm.exportBOM($event,6)">
+                          Format 6 (Horizontal {{vm.LabelConstant.MFGPN}} View with Packaging Alias)
+                        </md-button>
+                      </md-menu-item>
+                    </md-menu-content>
+                  </md-menu>
+                </md-menu-bar>
+              </div>
+            </div>
+          </div>
+          <div layout="row" class="margin-right-5 margin-pro-rs-right-0 padding-top-3-1450" layout-align="center center" ng-if="vm.liveInternalVersion" flex-sm flex-md>
+            <div class="cm-section-main full-height" flex-sm="100" flex-md="100" layout>
+              <div class="cm-section-inner mh-5 cm-square-icon-btn cm-pricing-icon-buttons" layout-wrap layout-align="center center" layout="row">
+                <div layout="row">
+                  <b>Version:&nbsp;</b>
+                  <span class="value nowrap">
+                    {{vm.liveInternalVersion}}
+                  </span>
+                </div>
+                <md-button class="md-icon-button md-primary md-raised" ng-click="vm.rfqShowHistory($event)">
+                  <md-tooltip md-direction="top">Show Assembly BOM Change Version History</md-tooltip>
+                  <md-icon md-font-icon class="t-icons-history-text"></md-icon>
+                </md-button>
+                <!--<md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.showNarrativeHistory($event)">R&D Activity</md-button>-->
+
+                <md-button class="md-raised md-icon-button custom-tab-button" ng-click="vm.showNarrativeHistory($event)">
+                  <md-tooltip md-direction="top">R&D Activity</md-tooltip>
+                  <md-icon md-font-icon="t-icons-r-d" role="img"></md-icon>
+                </md-button>
+              </div>
+            </div>
+          </div>
+          <!-- Suggest alternate part on BOM feature flag not update so added this line -->
+          <span ng-show="false">{{vm.enabledSuggestAlternatePartOnBOM}}</span>
+        </div>
+        <div layout="row">
+          <div class="cm-section-main" layout flex-sm="100" flex-md="100">
+            <div class="cm-section-inner" layout layout-align="start center">
+              <div layout="row" layout-align="end center" flex-lg="100" flex-md="100" flex-sm="100" class="pr-10">
+                <md-button class="md-raised md-icon-button md-primary md-ink-ripple margin-vertical-0" ng-click="vm.openOddlyNamedRefdes()" ng-disabled="vm.disableOddelyRef || vm.isBOMReadOnly">
+                  <md-icon md-font-icon="t-icons-oddly-ref" class="icon"></md-icon>
+                  <md-tooltip>Oddly Named RefDes</md-tooltip>
+                </md-button>
+                <md-button class="md-raised md-icon-button md-primary md-ink-ripple margin-vertical-0" ng-click="vm.openDriveToolsParts()">
+                  <md-icon md-font-icon="t-icons-require-drive-tool" class="icon"></md-icon>
+                  <md-tooltip>Parts Requiring Drive Tools</md-tooltip>
+                </md-button>
+                <md-button class="md-raised md-icon-button md-primary md-ink-ripple margin-vertical-0 margin-left-0" ng-click="vm.checkObsoleteParts()" ng-disabled="vm.selectedFilter == vm.allFilterID && vm.bomModel.length == 1|| vm.selectedFilter != vm.allFilterID || vm.isBOMReadOnly">
+                  <md-icon md-font-icon="t-icons-obsolete-part" class="icon"></md-icon>
+                  <md-tooltip>Check Obsolete Parts</md-tooltip>
+                </md-button>
+                <md-button class="md-raised md-icon-button md-primary margin-vertical-0 margin-left-0" ng-click="vm.partProgramMapping($event)" ng-disabled="vm.isBOMReadOnly || vm.disablePartProgramming">
+                  <md-icon md-font-icon="t-icons-program-mapping" class="icon"></md-icon>
+                  <md-tooltip>Part To Program Mapping</md-tooltip>
+                </md-button>
+                <md-button class="md-raised md-primary md-ink-ripple margin-vertical-0 cm-feture-btn-color"
+                           ng-disabled="!vm.enabledDeleteBOM || vm.DisableDeleteBOM" ng-click="vm.deleteBOM()">
+                  DELETE BOM
+                </md-button>
+                <md-button class="md-raised md-primary md-ink-ripple mv-0" ng-click="vm.refreshBOMMaster()">
+                  Refresh
+                  <md-tooltip md-direction="top">Click To Refresh Master Data</md-tooltip>
+                </md-button>
+                <div layout="row" layout-align="start center">
+                  <span class="margin-right-3">Engr. BOM Status</span>
+                  <md-button class="line-height-normal md-raised md-mini  md-mini grid-button md-icon-button bdrbtn border-radius-2 text-left" style="cursor:auto">
+                    <div class="cm-quote-progress" style="width:{{vm.bomProgress+'%'}}"></div>
+                    <span class="relative cm-bom-st"
+                          style="margin-left:5px!important;"><span>{{vm.bomProgress}}%</span></span>
+                  </md-button>
+                  <h5 class="margin-left-3 progress-publish" ng-show="vm.bomProgress == 100">Published</h5>
+                  <h5 class="margin-left-3 progress-draft" ng-show="vm.bomProgress < 100">Draft</h5>
+                </div>
+                <md-button class="md-raised md-icon-button md-primary md-primary margin-vertical-0 margin-right-3" ng-click="vm.draftSave(false,false,true)" ng-disabled="vm.isBOMReadOnly">
+                  <md-icon md-font-icon="t-icons-save-bom" class="icon"></md-icon>
+                  <md-tooltip>Save BOM Changes</md-tooltip>
+                </md-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="hot-bom-container" ng-class="{'handsontable-enable':vm.AssyActivityStart}" class="md-inline-form" flex="100">
+      <hot-table class="padding-bottom-48 cm-import-bom-ht-table h-tbl-dir"
+                 settings="vm.settings"
+                 hot-id="hot-bom"
+                 name="hot-bom"
+                 flex="100"
+                 datarows="vm.bomModel"
+                 dynamiccontext="vm.dynamicContextMenu">
+        <hot-column mapping-data="vm.sourceHeader"></hot-column>
+      </hot-table>
+      <style>
+        .htContextMenu {
+          top: auto !important;
+          bottom: 8% !important;
+        }
+
+          .htContextMenu.htContextMenuSub_Add_MFR,
+          .htContextMenu.htContextMenuSub_Add_Supplier {
+            bottom: 50% !important;
+            top: auto !important;
+          }
+
+        @media(min-width:1919px) {
+          .htContextMenu.htContextMenuSub_Add_MFR {
+            bottom: 47% !important;
+          }
+
+          .htContextMenu.htContextMenuSub_Add_Supplier {
+            bottom: 45% !important;
+          }
+        }
+      </style>
+    </div>
+  </div>
+  <button class="hidden hid-abs" id="btndummy" ng-click="vm.dummyEvent($event);"></button>
+  <!--<div layout="row" layout-align="end start" class="mt-10" flex="100" ng-if="vm.isNoDataFound == true && !vm.isFilterEnable">
+      <md-button class="md-raised md-primary md-ink-ripple margin-vertical-0 margin-left-0" ng-click="vm.startActivity(true)" ng-if="!vm.AssyActivityStart">
+          Start Activity
+      </md-button>
+      <md-button class="md-raised md-primary md-ink-ripple margin-vertical-0 margin-left-0" ng-click="vm.startActivity(false)" ng-if="vm.AssyActivityStart && vm.loginUserId == vm.AssyActivityStartedBy">
+          Stop Activity
+      </md-button>
+  </div>-->
+  <div ng-cloak class="empty-state text-center full-height" layout="row" ng-if="vm.isNoDataFound == true && !vm.isFilterEnable && vm.isBOMReadOnly" layout-align="center center" flex="100" layout-wrap>
+    <div class="emty-icon" flex="100">
+      <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+    </div>
+    <p flex="100" class="empty-state-title" ng-show="!vm.isBOMReadOnly">{{vm.EmptyMesssage.MESSAGE}}</p>
+    <p flex="100" class="empty-state-title" ng-show="vm.isBOMReadOnly">{{vm.EmptyMesssage.INACTIVEMESSAGE}}</p>
+    <p flex="100">
+      {{vm.EmptyMesssage.MESSAGE_DISCRIPTIOM}}
+    </p>
+    <p flex="100">
+      {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+    </p>
+    <p flex="100">
+      <input id="fi-excel" name="file" type="file" class="hidden" style="height:0px;width:0px;">
+      <md-button class="md-fab md-mini" aria-label="Import BOM" ng-click="vm.addBOM()" disabled>
+        <md-tooltip md-direction="top">Import BOM</md-tooltip>
+        <md-icon role="img" md-font-icon="icon-import" class="material-icons mat-icon"></md-icon>
+      </md-button>
+      <md-button class="md-fab md-mini" aria-label="Add BOM Manually" ng-click="vm.addBOMManually()" disabled>
+        <md-tooltip md-direction="top">Add BOM Manually </md-tooltip>
+        <md-icon role="img" md-font-icon="t-icons-bom-line add-icon" class="material-icons mat-icon"></md-icon>
+      </md-button>
+      <md-button class="md-fab md-mini" ng-click="vm.addCustomerAVL($event)" disabled>
+        <md-tooltip md-direction="top">Add Customer AVL</md-tooltip>
+        <md-icon md-font-icon class="t-icons-cpn-avl add-icon"></md-icon>
+      </md-button>
+      <md-button class="md-fab md-mini" ng-click="vm.downloadDocument()">
+        <md-icon role="img" md-font-icon="icon-export" class="material-icons mat-icon icon-export"></md-icon>
+        <md-tooltip md-direction="bottom">Export BOM Template</md-tooltip>
+      </md-button>
+    </p>
+  </div>
+  <div ng-cloak class="empty-state text-center full-height" layout="row" excel-reader er-options="vm.erOptions" layout-align="center center" flex="100" layout-wrap ng-if="vm.isNoDataFound == true && !vm.isFilterEnable && !vm.isBOMReadOnly">
+    <div class="emty-icon" flex="100">
+      <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+    </div>
+    <p flex="100" class="empty-state-title" ng-show="!vm.isBOMReadOnly">{{vm.EmptyMesssage.MESSAGE}}</p>
+    <p flex="100" class="empty-state-title" ng-show="vm.isBOMReadOnly">{{vm.EmptyMesssage.INACTIVEMESSAGE}}</p>
+    <p flex="100">
+      {{vm.EmptyMesssage.MESSAGE_DISCRIPTIOM}}
+    </p>
+    <p flex="100">
+      {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+    </p>
+    <p flex="100">
+      <input id="fi-excel" name="file" type="file" class="hidden" style="height:0px;width:0px;">
+      <md-button class="md-fab md-mini" aria-label="Import BOM" ng-click="vm.addBOM()" ng-disabled="vm.isBOMReadOnly">
+        <md-tooltip md-direction="top">Import BOM</md-tooltip>
+        <md-icon role="img" md-font-icon="icon-import" class="material-icons mat-icon"></md-icon>
+      </md-button>
+      <md-button class="md-fab md-mini" aria-label="Add BOM Manually" ng-click="vm.addBOMManually()" ng-disabled="vm.isBOMReadOnly">
+        <md-tooltip md-direction="top">Add BOM Manually </md-tooltip>
+        <md-icon role="img" md-font-icon="t-icons-bom-line add-icon" class="material-icons mat-icon"></md-icon>
+      </md-button>
+      <md-button class="md-fab md-mini" ng-click="vm.addCustomerAVL($event)" ng-disabled="vm.isBOMReadOnly">
+        <md-tooltip md-direction="top">Add Customer AVL</md-tooltip>
+        <md-icon md-font-icon class="t-icons-cpn-avl add-icon"></md-icon>
+      </md-button>
+      <!--<md-button class="md-fab md-mini" aria-label="Copy BOM" ng-click="vm.copyBOM($event)" ng-disabled="vm.isBOMReadOnly">
+          <md-tooltip md-direction="top">Copy BOM</md-tooltip>
+          <md-icon role="img" md-font-icon="icon-content-copy" class="material-icons mat-icon icon-content-copy"></md-icon>
+      </md-button>-->
+      <md-button class="md-fab md-mini" ng-click="vm.downloadDocument()">
+        <md-icon role="img" md-font-icon="icon-export" class="material-icons mat-icon icon-export"></md-icon>
+        <md-tooltip md-direction="bottom">Export BOM Template</md-tooltip>
+      </md-button>
+    </p>
+  </div>
+
+  <div layout="row" flex="100" class="footerfixedbutton" layout-align="end center">
+
+    <div flex="noshrink" layout="column" layout-align="start" ng-if="!vm.isNoDataFound && vm.sourceHeader">
+      <div flex class="margin-left-5">Total QPA: <b>{{vm.qpaCounts}}</b>, DNP Qty: <b>{{vm.dnpQtyCounts}}</b></div>
+      <div layout="row" flex>
+        <div layout="row">
+          <md-button class="md-raised md-primary md-button md-ink-ripple text-white" ng-click="vm.qpaDesignator()" ng-disabled="vm.bomModel.length == 0 || (vm.selectedFilter == vm.allFilterID && vm.bomModel.length == 1 && !vm.globalSearchText) || vm.isBOMReadOnly">QPA v/s RefDes</md-button>
+        </div>
+        <div layout="row">
+          <md-icon class="mdi mdi-chevron-right cm-bom-footer-fix-button"></md-icon>
+          <md-button class="md-raised md-primary md-button md-ink-ripple text-white" ng-click="vm.componentVerification()" ng-disabled="(vm.selectedFilter == vm.allFilterID && vm.bomModel.length == 1 && !vm.globalSearchText) || vm.isQPADesigStepPending() == true || vm.isBOMReadOnly">Verify PN Internally</md-button>
+        </div>
+        <div layout="row" ng-if="vm.APIVerifiedFlag != 0">
+          <md-icon class="mdi mdi-chevron-right cm-bom-footer-fix-button"></md-icon>
+          <md-button class="md-raised md-primary md-button md-ink-ripple text-white btn-api-int" ng-click="vm.apiVerification($event)" ng-disabled="(vm.selectedFilter == vm.allFilterID && vm.bomModel.length == 1 && !vm.globalSearchText) || vm.isQPADesigStepPending() == true || vm.APIVerifiedFlag == vm.pricingStatus.PENDING || (vm.isBOMReadOnly && !vm.issueCount)">
+            <span ng-if="!vm.issueCount">Verify PN Externally</span>
+            <span ng-if="vm.issueCount">RESOLVE({{vm.issueCount}}) ERRORS THEN VERIFY PN EXTERNALLY</span>
+          </md-button>
+          <div class="icon-question-mark-circle help-icon mt-10">
+            <md-tooltip md-direction="top" class="tooltip-height-auto"><span ng-bind-html="vm.VerifyPNExternalTooltip"></span></md-tooltip>
+          </div>
+        </div>
+        <div layout="row" ng-if="vm.APIVerifiedFlag == 0" class="cm-bom-clean-progress">
+          <md-icon class="mdi mdi-chevron-right cm-bom-footer-fix-button"></md-icon>
+          <!--<mdbutton class="md-raised bdrbtn border-radius-2" style="cursor:auto;border-radius: 2px !important;box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);border: 1px solid #757575;" ng-click="vm.cancelAPIVerification()" ng-disabled="vm.isBOMReadOnly">
+              <div class="cm-quote-progress" style="width:20%">
+                  <md-icon md-font-icon="" class="material-icons mat-icon bom-icon-color"
+                           style="margin-left:5px!important;"><span>Stop Verifying PN Externally</span></md-icon>
+              </div>
+          </mdbutton>-->
+          <!--<md-button class="md-raised md-mini  md-mini grid-button md-icon-button bdrbtn border-radius-2" style="cursor:auto">
+              <div class="cm-quote-progress" style="width:20%"></div>
+              <md-icon md-font-icon="" class="material-icons mat-icon bom-icon-color"
+                       style="margin-left:5px!important;"><span>Stop Verifying PN Externally</span></md-icon>
+          </md-button>-->
+          <md-button class="md-raised md-button md-ink-ripple" ng-click="vm.cancelAPIVerification()" ng-disabled="vm.isBOMReadOnly" layout="row">
+            <span md-font-icon="" class="material-icons mat-icon bom-icon-color" flex="100"><span> Stop Verifying PN Externally</span></span>
+            <div class="cm-quote-progress" style="width:{{vm.bomCleanProgress+'%'}}"></div>
+            <div class="cm-progressbar" layout-align="end end"><md-progress-linear md-mode="indeterminate"></md-progress-linear></div>
+            <md-tooltip md-direction="top" class="tt-multiline">{{vm.bomCleanProgress.toFixed(2)}}% PN external verification complete<br />Time Remaining: {{vm.remainTime}}</md-tooltip>
+          </md-button>
+          <div class="icon-question-mark-circle help-icon mt-10">
+            <md-tooltip md-direction="top" class="tooltip-height-auto"><span ng-bind-html="vm.VerifyPNExternalTooltip"></span></md-tooltip>
+          </div>
+          <!--<md-button class="md-raised md-primary md-primary" ng-click="vm.cancelAPIVerification()" ng-disabled="vm.isBOMReadOnly">
+              <md-progress-circular md-mode="indeterminate" md-diameter="20px" class="cm-bom-ver-button" ng-if="vm.APIVerifiedFlag == 0"></md-progress-circular>
+              Stop Verifying PN Externally
+          </md-button>-->
+        </div>
+        <div layout="row" ng-if="false">
+          <md-icon class="mdi mdi-chevron-right cm-bom-footer-fix-button"></md-icon>
+          <md-button class="md-raised md-primary md-button md-ink-ripple text-white" ng-disabled="(vm.selectedFilter == vm.allFilterID && vm.bomModel.length == 1 && !vm.globalSearchText) || vm.APIVerifiedFlag != vm.pricingStatus.SUCCESS || vm.apiVerifiedAlternatePartsCount == 0 || vm.isBOMReadOnly" ng-click="vm.apiVerificationAlternateParts($event)">BAD-GOOD MAPPING ({{vm.apiVerifiedAlternatePartsCount}})</md-button>
+        </div>
+        <div layout="row" ng-if="!vm.isFromComponent">
+          <md-icon class="mdi mdi-chevron-right cm-bom-footer-fix-button"></md-icon>
+          <md-button class="md-raised md-primary md-button md-ink-ripple text-white" ng-click="vm.verifyAndSave()" ng-disabled="(vm.selectedFilter == vm.allFilterID && vm.bomModel.length == 1 && !vm.globalSearchText)|| vm.bomModel.length == 1 || vm.selectedFilter != vm.allFilterID || vm.isBOMReadOnly || vm.isBOMVerifyStart">
+            <span ng-show="!vm.isSubAssembly"> Verify BOM, Save & Next</span>
+            <span ng-show="vm.isSubAssembly"> Verify BOM & Save</span>
+          </md-button>
+        </div>
+      </div>
+    </div>
+
+    <div layout="row" flex="nogrow" layout-align="end center" ng-if="!vm.isNoDataFound && vm.sourceHeader">
+      <div flex="nogrow" layout="row" class="margin-right-10 padding-top-15" ng-if="!vm.isBOMVerified">
+        <md-checkbox class="margin-bottom-0" ng-model="vm.isAutoDraftSave" name="isAutoDraftSave">
+          Auto Save Draft
+        </md-checkbox>
+      </div>
+      <div flex layout="row" layout-wrap class="padding-top-15">
+        <div layout="row" ng-if="true">
+          <md-button class="md-raised md-ink-ripple margin-vertical-0" ng-class="{'md-primary':vm.assemblyLevelRequiredErrorCount === 0,'md-red-900-bg color-white':vm.assemblyLevelRequiredErrorCount > 0}" ng-click="vm.assemblyLevelRequiredError($event)">
+            Show Specific Requirements & Comments <span ng-if="vm.assemblyLevelRequiredErrorCount">({{vm.assemblyLevelRequiredErrorCount}})</span>
+          </md-button>
+        </div>
+        <md-button class="md-raised md-primary md-ink-ripple margin-vertical-0 margin-left-0" ng-click="vm.activityLog()">
+          Activity Log
+        </md-button>
+      </div>
+    </div>
+
+    <div layout flex="nogrow" layout-align="end center" class="margin-right-10 padding-top-15 advanced-filters" ng-if="vm.sourceHeader">
+      <b class="padding-top-2">Filter BOM By:&nbsp;</b>
+      <md-input-container flex ng-if="vm.autoCompleteFilter" class="autocompletecustom margin-bottom-0" md-no-float>
+        <custom-auto-complete datalist="vm.filters"
+                              column-name="vm.autoCompleteFilter.columnName"
+                              key-column-name="vm.autoCompleteFilter.keyColumnName"
+                              input-name="vm.autoCompleteFilter.inputName"
+                              placeholder-name="vm.autoCompleteFilter.placeholderName"
+                              key-column-id="vm.autoCompleteFilter.keyColumnId"
+                              callback-fn="vm.autoCompleteFilter.callbackFn"
+                              on-select-callback-fn="vm.autoCompleteFilter.onSelectCallbackFn">
+        </custom-auto-complete>
+      </md-input-container>
+      <div class="icon-question-mark-circle help-icon">
+        <md-tooltip md-direction="top" class="tooltip-height-auto"><span ng-bind-html="vm.selectedFilterNameWithCount"></span></md-tooltip>
+      </div>
+      <span class="cm-pricing-icon-buttons cm-square-icon-btn">
+        <md-button class="md-raised md-icon-button custom-tab-button mv-0-imp margin-left-10" ng-click="vm.rfqLineitemsFilter($event)">
+          <md-tooltip md-direction="top">Configure Filter Ordering</md-tooltip>
+          <md-icon md-font-icon="icon-filter-outline" class="md-cyan-theme material-icons"></md-icon>
+        </md-button>
+      </span>
+    </div>
+  </div>
+
+</md-content>
+

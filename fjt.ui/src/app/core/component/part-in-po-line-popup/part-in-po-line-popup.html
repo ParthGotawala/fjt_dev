@@ -1,0 +1,180 @@
+<md-dialog aria-label="PartInPoDetail" class="cm-custom-label-common max-height-80p" draggable flex="95" cg-busy="{promise:vm.cgBusyLoading}">
+
+  <form name="vm.partInPoLineForm" class="md-inline-form">
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Parts Detail</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content class="padding-10" layout="column">
+      <md-content layout="column" class="cm-overflow-hidden">
+        <md-dialog-actions layout="row" flex-order="">
+          <md-button class="md-primary md-raised" ng-class="{'md-formdirty': vm.selectedPOReleaseItem.length > 1}" ng-click="vm.mergeReleaseDetails()" ng-disabled="vm.selectedPOReleaseItem.length < 2"
+                     aria-label="Merge">
+            Merge
+          </md-button>
+        </md-dialog-actions>
+        <div class="content fullpage-datatable cm-ps-part-detail-table" layout="column" flex>
+          <md-table-container class="cm-ps-part-detail-grid-scroll">
+
+            <table md-table>
+              <thead fix-head md-head>
+                  <tr md-row>
+                      <th md-column class="text-center width-50 cm-blue-header-check-box">
+                          <md-tooltip>Select All</md-tooltip>
+                          <md-checkbox ng-model="vm.isAllSelect" ng-change="vm.selectAllLines()"></md-checkbox>
+                      </th>
+                      <th md-column class="width-55">
+                          <text class="color-white" tabindex="-1">#</text>
+                      </th>
+                      <th md-column>
+                          <text class="color-white" tabindex="-1">Status</text>
+                      </th>
+                      <th md-column class="width-110">
+                          <text class="color-white" tabindex="-1">{{vm.Labels.PURCHASE_ORDER.POWorkingStatus}}</text>
+                      </th>
+                      <th md-column class="width-110">
+                          <text class="color-white" tabindex="-1">{{vm.Labels.PURCHASE_ORDER.CustomerConsigned}}</text>
+                      </th>
+                      <th md-column class="w-150">
+                          <text class="color-white" tabindex="-1">{{vm.Labels.PURCHASE_ORDER.Customer}}</text>
+                      </th>
+                      <th md-column class="width-75">
+                          <text class="color-white" tabindex="-1">{{vm.Labels.PURCHASE_ORDER.NonUMIDStock}}</text>
+                      </th>
+                      <th md-column class="width-60">
+                          <text class="color-white" tabindex="-1">{{vm.Labels.PURCHASE_ORDER.POLineID}}</text>
+                      </th>
+                      <th md-column class="width-80">
+                          <text class="color-white" tabindex="-1">Release#</text>
+                      </th>
+                      <th md-column class="width-80">
+                          <text class="color-white" tabindex="-1">Release Qty</text>
+                      </th>
+                      <th md-column class="width-80">
+                          <text class="color-white" tabindex="-1">Order Qty</text>
+                      </th>
+
+                      <th md-column class="w-150">
+                          <text class="color-white" tabindex="-1">{{vm.Labels.MFG.MFG}}</text>
+                      </th>
+                      <th md-column>
+                          <text class="color-white" tabindex="-1">{{vm.Labels.MFG.MFGPN}}</text>
+                      </th>
+                      <th md-column class="w-100">
+                          <text class="color-white" tabindex="-1">RoHS Requirement</text>
+                      </th>
+                      <th md-column>
+                          <text class="color-white" tabindex="-1">Packaging</text>
+                      </th>
+                      <th class="width-80">
+                          <text class="color-white" tabindex="-1">Received Qty</text>
+                      </th>
+                      <th class="w-80">
+                          <text class="color-white" tabindex="-1">{{vm.Labels.PURCHASE_ORDER.OpenQty}}</text>
+                      </th>
+                      <th md-column class="w-90">
+                          <text class="color-white" tabindex="-1">{{vm.Labels.PURCHASE_ORDER.DueDate}}</text>
+                      </th>
+                      <th class="w-90">
+                          <text class="color-white" tabindex="-1">{{vm.Labels.PURCHASE_ORDER.SupplierPromisedDeliveryDate}}</text>
+                      </th>
+                  </tr>
+              </thead>
+              <tbody md-body>
+                  <tr md-row md-auto-select ng-repeat="item in vm.poReleaseLineList">
+                      <td md-cell class="text-center width-50">
+                          <md-checkbox ng-model="item.isSelect" ng-change="vm.selectReleaseLine(item)"
+                                       id="releaseLine{{$index}}" name="releaseLine{{$index}}"
+                                       ng-disabled="item.formattedStatus === vm.Labels.PACKING_SLIP.CLOSED_STATE" class="margin-top-10 margin-bottom-10">
+                          </md-checkbox>
+                      </td>
+                      <td md-cell class="text-right width-55">{{$index+1}}</td>
+                      <td md-cell class="width-100">
+                          <div layout="row" flex="100" layout-align="center center">
+                              <span class="label-box"
+                                    ng-class="{'label-success': item.formattedStatus === vm.Labels.PACKING_SLIP.CLOSED_STATE,'label-warning': item.formattedStatus === vm.Labels.PACKING_SLIP.OPEN_STATE, 'label-danger': item.formattedStatus === vm.Labels.PACKING_SLIP.CANCELED_STATE}">{{item.formattedStatus}}</span>
+                          </div>
+                      </td>
+                      <td md-cell class="width-100">
+                          <div layout="row" flex="100" layout-align="center center">
+                              <span class="label-box"
+                                    ng-class="item.poWorkingStatus.class">{{item.poWorkingStatus.value}}</span>
+                          </div>
+                      </td>
+                      <td md-cell class="width-110">
+                          <div layout="row" flex="100" layout-align="center center">
+                              <span class="label-box"
+                                    ng-class="{'label-warning':(!item.isLineCustConsigned), 'label-success':(item.isLineCustConsigned)}">
+                                  {{item.isLineCustConsignedValue}}
+                              </span>
+                          </div>
+                      </td>
+                      <td md-cell>{{item.customerName}}</td>
+                      <td md-cell class="width-75">
+                          <div layout="row" flex="100" layout-align="center center">
+                              <span class="label-box"
+                                    ng-class="{'label-warning':(!item.isNonUMIDStock), 'label-success':(item.isNonUMIDStock)}">
+                                  {{item.isNonUMIDStockValue}}
+                              </span>
+                          </div>
+                      </td>
+                      <td md-cell class="text-right width-60">{{item.lineID}}</td>
+                      <td md-cell class="text-right width-80">{{item.releaseNumber}}</td>
+                      <td md-cell class="text-right width-50">{{item.poReleaseLineQty | numberWithoutDecimal}}</td>
+                      <td md-cell class="text-right width-50">{{item.poLineQty | numberWithoutDecimal}}</td>
+                      <td md-cell>
+                          <a class="cm-text-decoration" ng-click="vm.editManufacturer(item.mfgcodeID)">{{item.mfgName}}</a>
+                      </td>
+                      <td md-cell>
+                          <div class="ui-grid-cell-contents">
+                              <common-pid-code-label-link ng-if="item.partId"
+                                                          component-id="item.partId"
+                                                          label="grid.appScope.$parent.vm.CORE.LabelConstant.MFG.MFGPN"
+                                                          value="item.mfgPN"
+                                                          is-copy="true"
+                                                          is-custom-part="item.isCustom || item.isCustomSupplier "
+                                                          rohs-icon="item.rohsIconLink"
+                                                          cust-part-number="item.custAssyPN"
+                                                          rohs-status="item.rohsName"
+                                                          supplier-name="(item.isCustom || item.isCustomSupplier) ? null : (vm.packingSlipHeaderDetail.supplierMfgName ? vm.packingSlipHeaderDetail.supplierMfgName : null)"
+                                                          is-search-findchip="true"></common-pid-code-label-link>
+                          </div>
+                      </td>
+                      <td md-cell class="width-100">{{item.poLineRoHSName}}</td>
+                      <td md-cell class="width-100">{{item.packagingName}}</td>
+                      <td md-cell class="text-right width-50">
+                          <span ng-if="item.receivedQty === 0">{{item.receivedQty | numberWithoutDecimal}}</span>
+                          <a tabindex="-1" class="cm-text-decoration cursor-pointer" ng-if="item.receivedQty > 0" ng-click="vm.showPackingSlipSummaryDetails(item)"><span>{{item.receivedQty | numberWithoutDecimal}}</span></a>
+                      </td>
+                      <td md-cell class="text-right width-50">{{item.openQty | numberWithoutDecimal}}</td>
+                      <td md-cell>{{item.shippingDate}}</td>
+                      <td md-cell>{{item.promisedShipDate}}</td>
+                  </tr>
+              </tbody>
+            </table>
+          </md-table-container>
+        </div>
+
+
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-class="{'md-formdirty': vm.selectedPOReleaseItem.length === 1}" ng-disabled="vm.selectedPOReleaseItem.length !== 1"
+                 ng-click="vm.selectItem()" aria-label="Submit">
+        Select
+      </md-button>
+    </md-dialog-actions>
+
+  </form>
+</md-dialog>

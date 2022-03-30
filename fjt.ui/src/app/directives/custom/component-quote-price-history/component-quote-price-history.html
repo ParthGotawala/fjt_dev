@@ -1,0 +1,120 @@
+<div lex="100" class="cm-alias-alternate-grp" cg-busy="{promise:vm.cgBusyLoading}">
+  <form name="vm.pricingHistoryfrom" class="md-inline-form padding-10-imp pricing-histroy-form" ms-form-wizard-form novalidate>
+    <div class="content" layout="column" layout-gt-xs="100">
+      <div layout="row" flex="100">
+        <div class="border-0" flex="100">
+          <div class="" layout-wrap layout="row" layout-md="column" layout-sm="column" flex="100">
+            <fieldset class="container-box">
+              <legend class="margin-0">Price History</legend>
+              <md-radio-group ng-model="vm.selectedPrice" layout="row" class="margin-0" ng-change="vm.selectPriceChange()">
+                <md-radio-button class="margin-top-0" name="requestFrom" value="latestPrice">
+                  Last Price
+                </md-radio-button>
+                <md-radio-button class="margin-top-0" name="requestFrom" value="historyPrice">
+                  Historical Price
+                </md-radio-button>
+              </md-radio-group>
+            </fieldset>
+            <fieldset class="container-box ml-5 mr-5">
+              <legend class="margin-0">Price Type<span class="color-red" ng-if="vm.component.isGoodPart !== vm.PartCorrectList.IncorrectPart">&nbsp;*</span></legend>
+              <md-radio-group ng-model="vm.selectAPI" ng-disabled="isCustom || isCpn " layout="row" class="margin-0" ng-change="vm.selectPriceType()">
+                <md-radio-button class="margin-top-0" ng-repeat="item in vm.apiPriceHistoryBy" ng-value="item.id">
+                  {{item.value}}
+                </md-radio-button>
+              </md-radio-group>
+            </fieldset>
+            <fieldset class="container-box mr-5" ng-if="vm.selectAPI === vm.apiPriceHistoryBy[0].id">
+              <legend class="margin-0">
+                <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToSupplierList();">{{vm.autoCompletePricingDist.placeholderName}}</a>
+              </legend>
+              <md-radio-group ng-model="vm.selectedSupplier" layout="row" class="margin-0" ng-change="vm.selectPriceChange()">
+                <md-radio-button class="margin-top-0" ng-repeat="supplier in vm.APISupplier | orderBy : id" ng-if="supplier.id < 0" ng-value="supplier.id">
+                  {{supplier.mfgCodeName}}
+                </md-radio-button>
+              </md-radio-group>
+            </fieldset>
+            <div class="input-wrapper mt-8 mr-5 width-30p" layout-align="start center" flex-md="100" flex-sm="100" layout="row" ng-if="vm.selectAPI !== vm.apiPriceHistoryBy[0].id">
+              <p class="label-container">
+                <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToSupplierList();">
+                  {{vm.autoCompletePricingDist.placeholderName}}
+                </a><span ng-if="vm.autoCompletePricingDist">&nbsp;*</span>
+              </p>
+              <md-input-container flex="100" ng-if="vm.autoCompletePricingDist" class="autocompletecustom">
+                <custom-auto-complete datalist="vm.SupplierList"
+                                      controller-name="vm.autoCompletePricingDist.controllerName"
+                                      view-template-url="vm.autoCompletePricingDist.viewTemplateURL"
+                                      add-data="vm.autoCompletePricingDist.addData"
+                                      column-name="vm.autoCompletePricingDist.columnName"
+                                      key-column-name="vm.autoCompletePricingDist.keyColumnName"
+                                      input-name="vm.autoCompletePricingDist.inputName"
+                                      callback-fn="vm.autoCompletePricingDist.callbackFn"
+                                      placeholder-name="vm.autoCompletePricingDist.placeholderName"
+                                      key-column-id="vm.autoCompletePricingDist.keyColumnId"
+                                      is-required="vm.autoCompletePricingDist.isRequired"
+                                      is-addnew="vm.autoCompletePricingDist.isAddnew"
+                                      is-disabled="((mfgType | uppercase) == vm.mfgTypeDist)"
+                                      on-select-callback-fn="vm.autoCompletePricingDist.onSelectCallbackFn">
+                </custom-auto-complete>
+              </md-input-container>
+              <button class="md-mini md-icon-button margin-0" ng-if="vm.autoCompletePricingDist.keyColumnId && vm.selectedSupplier">
+                <md-icon md-font-icon="icon-eye"></md-icon>
+                <md-tooltip md-direction="top" class="tt-multiline cm-white-space-normal max-width-420 pv-5">
+                  {{vm.selectedSupplier.mfgCodeName}}
+                </md-tooltip>
+              </button>
+              <copy-text ng-if="vm.autoCompletePricingDist.keyColumnId && vm.selectedSupplier" label="vm.autoCompletePricingDist.placeholderName"
+                         text="vm.selectedSupplier.mfgCodeName">
+              </copy-text>
+            </div>
+            <div layout layout-align="start center">
+              <fieldset class="container-box">
+                <legend class="margin-0">Timeframe</legend>
+                <common-date-filter from-date="vm.fromDate" is-required="vm.selectedPrice !='latestPrice'" is-disabled="vm.selectedPrice =='latestPrice'" to-date="vm.toDate"
+                                    selected-duration="vm.selectedDuration"
+                                    reset-filter="vm.resetDateFilter"></common-date-filter>
+              </fieldset>
+            </div>
+            <div class="cm-ml-auto" layout layout-align="start center">
+              <md-button class="md-primary md-raised md-ink-ripple mb-0 mr-0" ng-click="vm.priceSelectorDateSearch()"
+                         ng-disabled="!vm.pricingHistoryfrom.$valid">
+                Search
+              </md-button>
+              <md-button class="md-raised md-ink-ripple mb-0 margin-right-0" ng-click="vm.priceSelectorDateReset()">
+                Reset
+              </md-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <div>
+    <md-card layout="column" flex ng-if="vm.isPricingHistoryGridVisible" layout-align="space-between stretch" ng-show="!vm.priceHistroyNotFound" class="grid-with-header">
+      <ui-grid-extention class="cm-pricing-hiestory-grid" load-data="vm.loadData"
+                         grid-option="vm.gridOptions"
+                         header="vm.sourceHeader"
+                         grid-data="vm.sourceData"
+                         total-data-count="vm.totalSourceDataCount"
+                         reset-grid="vm.resetSourceGrid"
+                         selectted-rows="vm.selectedRowsList"
+                         paging-info="vm.pagingInfo"
+                         current-item="vm.currentdata"
+                         get-data-down="vm.getDataDown"
+                         empty-state="vm.emptyState"
+                         scroll-class="vm.setScrollClass"
+                         delete-multiple-data="vm.deleteMultipleData">
+    </md-card>
+    <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.priceHistroyNotFound === true">
+      <div class="emty-icon" flex="100">
+        <img ng-src="{{vm.pricingHistoryEmptyMesssage.IMAGEURL}}" />
+      </div>
+      <p flex="100" class="empty-state-title">{{vm.pricingHistoryEmptyMesssage.MESSAGE}}</p>
+      <p flex="100">
+        <md-button class="md-fab md-mini" aria-label="Refresh" ng-click="vm.loadDataPackagingPart()">
+          <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+          <md-tooltip md-direction="top">Refresh</md-tooltip>
+        </md-button>
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,281 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed height-100p" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="header" layout="row" layout-align="space-between center">
+    <div layout="row">
+      <div class="white-fg" layout="column" layout-align="start start">
+        <div class="h2" layout="row" layout-align="start center">
+          <pagetitle is-list="true" is-display-menu-name="true"></pagetitle>
+        </div>
+        <div layout="row" layout-align="start center" class="product-count">
+          <breadcrumbs></breadcrumbs>
+        </div>
+      </div>
+    </div>
+    <div layout-align="end center" layout="row" ng-if="!vm.isReset">
+      <md-button class="md-primary md-raised md-ink-ripple cm-feture-btn-color" ng-disabled="!vm.isEnableUpdateHelpBlogNote" ng-click="vm.addEditHelpBlogNote(null,$event)">
+        Add Section
+      </md-button>
+    </div>
+  </div>
+  <div class="content-card padding-top-side" layout="row" flex="100">
+    <div flex="100" layout="row" class="padding-10" layout-wrap>
+      <div flex="100" layout="row" ng-show="vm.isEdit == false" class="cm-help-blog" layout-sm="column" layout-xs="column">
+        <!-- LEFT PANEL FOR HELP BLOG -->
+        <div flex="30" layout="column">
+          <div flex="nogrow" layout="row" class="mobilesearch userpermissionhead" layout-align="center center">
+            <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75">
+              <input type="text" ng-disabled="!vm.isHelpBlogPageFound"
+                     placeholder="Type here to search title" ng-model="vm.searchQuery.pageName"
+                     ng-change="vm.searchPageName(vm.searchQuery.pageName)">
+            </md-input-container>
+            <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-disabled="!vm.searchQuery.pageName" ng-click="vm.ClearSearch()">
+              Clear
+            </md-button>
+            <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.RefreshSearch()">
+              Refresh
+            </md-button>
+          </div>
+          <div flex layout="row">
+            <md-list flex="100" class="permissiontab custom-scroll dragbox" ms-scroll ng-if="vm.isHelpBlogPageFound">
+              <md-list-item ng-repeat="item in vm.helpBlogList" ng-class="{'cm-releasenote-btn-active' : item.isSelected}" ng-click="vm.onChangePageName(item);">
+                <div flex id="helpbdet{{item.id}}">
+                  <div class="line-height-normal"><span>{{item.title}}</span></div>
+                  <div class="line-height-normal" ng-if="item.pageDetail.menuName"><span class="font-size-10">Menu: {{item.pageDetail?item.pageDetail.menuName:null}}</span></div>
+                </div>
+                <div layout="row" layout-align="end-center" class="cm-btn-group">
+                  <md-button class="h-24 md-button md-default-theme md-icon-button md-ink-ripple md-mini border-radius-0 p-0-imp w-24" ng-click="vm.redirectToPage(item.pageDetail)">
+                    <md-icon role="img" md-font-icon="icons-view-bordered" class="material-icons mat-icon"></md-icon>
+                    <md-tooltip>View</md-tooltip>
+                  </md-button>
+                  <md-button class="h-24 md-button md-default-theme md-icon-button md-ink-ripple md-mini border-radius-0 p-0-imp w-24" ng-click="vm.openHistoryPopup(item)">
+                    <md-icon role="img" md-font-icon="t-icons-history-text" class="material-icons mat-icon"></md-icon>
+                    <md-tooltip>View History</md-tooltip>
+                  </md-button>
+                </div>
+              </md-list-item>
+            </md-list>
+            <div flex="100" class="md-1-line margin-0 cursor-not-allow permissiontab empty-state text-center dragbox" layout="row" layout-align="center center" layout-wrap ms-scroll
+                 ng-if="!vm.isHelpBlogPageFound">
+              <div class="emty-icon" flex="100">
+                <img ng-src="{{vm.EmptyMesssage.IMAGEURL_PAGE}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" flex="100">
+                {{vm.EmptyMesssage.ALL_ASSIGNED}}
+              </p>
+            </div>
+            <div flex="100" class="md-1-line margin-0 cursor-not-allow permissiontab dragbox empty-state text-center" layout="row" layout-align="center center" layout-wrap ms-scroll ng-if="vm.isSearchDataFound">
+              <div class="emty-icon" flex="100">
+                <img ng-src="{{vm.EmptyMesssage.SEARCH_IMAGE}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" flex="100">
+                {{vm.EmptyMesssage.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </div>
+        <!-- / LEFT PANEL FOR HELP BLOG -->
+        <!-- RIGHT PANEL FOR HELP BLOG -->
+        <div flex="70" class="height-100p pl-10 pr-5 cm-custom-label-common" layout="column">
+          <div class="cm-section-main" flex="nogrow">
+            <div class="cm-section-main border-0" flex="100">
+              <div class="cm-section-inner padding-left-10-imp" flex="100">
+                <form name="vm.helpBlogForm" flex="100" class="md-inline-form custom-scroll" novalidate>
+                  <table class="cm-table-input-main cm-rs-table" cellpadding="0" cellspacing="0">
+                    <tbody>
+                      <tr>
+                        <th class="w-90">
+                          <p class="label-container">{{vm.autoCompletepagedetail.placeholderName}}<span ng-if="!vm.manageBlog.id">&nbsp;*</span></p>
+                        </th>
+                        <td class="padding-top-5">
+                          <span class="text-bold" ng-if="vm.manageBlog.id && vm.currentPageName" ng-click="vm.redirectToHelpPage()" ng-class="{'underline':vm.currentPageName}">{{vm.currentPageName}}</span><span ng-if="!vm.manageBlog.id">&nbsp;*</span>
+                          <md-input-container ng-hide="vm.manageBlog.id" ng-if="vm.autoCompletepagedetail" flex="100" class="autocompletecustom margin-0">
+                            <custom-auto-complete ng-hide="vm.manageBlog.id" datalist="vm.pageList"
+                                                  column-name="vm.autoCompletepagedetail.columnName"
+                                                  key-column-name="vm.autoCompletepagedetail.keyColumnName"
+                                                  input-name="vm.autoCompletepagedetail.inputName"
+                                                  placeholder-name="vm.autoCompletepagedetail.placeholderName"
+                                                  key-column-id="vm.autoCompletepagedetail.keyColumnId"
+                                                  is-required="vm.autoCompletepagedetail.isRequired"
+                                                  is-addnew="vm.autoCompletepagedetail.isAddnew"
+                                                  callback-fn="vm.autoCompletepagedetail.callbackFn"
+                                                  on-select-callback-fn="vm.autoCompletepagedetail.onSelectCallbackFn"
+                                                  input-id="'autoCompletepagedetail'"
+                                                  is-disabled="vm.manageBlog.id">
+                            </custom-auto-complete>
+                          </md-input-container>
+                        </td>
+                        <th class="w-90">
+                          <p class="label-container">Title<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" class="margin-0">
+                            <input type="text" name="title" id="blogTitle" md-maxlength="500" ng-model="vm.manageBlog.title" ng-maxlength="500" required custom-blur="vm.checkDuplicateTitle()">
+                            <div ng-messages="vm.helpBlogForm.title.$error" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(500,vm.helpBlogForm.title.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                        <td class="nowrap w-350 text-right">
+                          <md-button class="md-raised md-primary mv-0" ng-click="vm.Save()" id="saveBtn" ng-class="{'md-formdirty': vm.helpBlogForm.$dirty }" aria-label="Submit">
+                            Save
+                          </md-button>
+                          <md-button class="md-raised md-primary mv-0" ng-click="vm.printNote()" id="printBtn" aria-label="Submit" ng-disabled="!vm.helpBlogNoteList.length > 0">
+                            Print
+                          </md-button>
+                          <md-button class="md-raised md-primary mv-0" ng-click="vm.openHistoryPopup()" id="historyBtn" aria-label="Submit">
+                            History
+                          </md-button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="4">
+                          <label class="label-container">Search Keyword</label>
+                          <md-chips ng-model="vm.manageBlog.keywords" placeholder="To add searchable keyword, type keyword then press Enter or Tab"
+                                    md-separator-keys="seperatorKeys"
+                                    class="cm-hb-keyword-chip"
+                                    md-transform-chip="vm.newKeyword($chip, 'manageBlog')">
+                            <md-chip-template>
+                              <span>{{$chip.keyword}}</span>
+                            </md-chip-template>
+                          </md-chips>
+
+                        </td>
+                        <td colspan="1" class="vertical-bottom-align text-right">
+                          <md-button class="md-raised md-primary mv-0" ng-disabled="!(vm.manageBlog.keywords.length > 0)" ng-click="vm.copyKeyword($event)" id="copyKeybtn" aria-label="Submit">
+                            Copy All Keyword
+                          </md-button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div layout="row" layout-align="end" class="cm-section-main layout-wrap layout-row ph-10 pv-5 mt-10" ng-if="vm.helpBlogNoteList && vm.helpBlogNoteList.length > 0">
+            <div layout-align="end">
+              <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                         ng-click="vm.setHBExpandCollapse()">{{vm.isAllExpanded ? 'Collapse All' : 'Expand All'}}</md-button>
+            </div>
+          </div>
+
+          <div class="cm-section-main cm-overflow-auto" flex layout="column" ng-if="vm.isHelpBlogPageFound">
+            <div flex="100" class="cm-hb-accordian">
+              <div class="drop-content" flex="100" layout-wrap layout="row">
+
+                <div class="apps-container  bm-list-container"
+                     ui-sortable="vm.dragAndDropSortableOptions" flex="100"
+                     layout-wrap layout="row" ng-model="vm.helpBlogNoteList" id="categoryWiseMenuList">
+
+                  <div class="articlemain border cm-drag-icon apps-container  sortable-item bm-list-item" ng-if="vm.helpBlogNoteList.length > 0"
+                       ng-repeat="datadetail in vm.helpBlogNoteList"
+                       ui-sortable-selectable
+                       flex="100" layout="row" layout-wrap>
+                    <!--Header Section start-->
+                    <div class="articletitle p-0-imp" ng-class="{'cm-hb-system-generated': datadetail.isSystemGenerated}" layout="row" flex="100" layout-align="space-between center">
+                      <div layout="row" layout-align="start center" flex>
+                        <div layout class="p-0" layout-align="end">
+                          <md-button class="margin-0 md-primary md-icon-button" ng-click="vm.toggleHBOperation(datadetail);">
+                            <md-icon ng-if="!datadetail.isShow" md-font-icon="icon-plus"></md-icon>
+                            <md-icon ng-if="datadetail.isShow" md-font-icon="icon-minus"></md-icon>
+                            <md-tooltip>{{datadetail.isShow ? 'Collapse' : 'Expand'}}</md-tooltip>
+                          </md-button>
+                        </div>
+                        <div layout flex="5" layout-align="space-between center">
+                          <!-- <span ng-if="!datadetail.displayEditDO">{{datadetail.displayOrder}}</span> -->
+                          <md-input-container flex="100" class="margin-0">
+                            <input style="font-size:22px !important" type="text" name="displayOrder" id="displayOrder" ng-model="datadetail.displayOrder" required my-enter="vm.updateDisplayNumber(datadetail)">
+                            <div ng-messages="vm.helpBlogForm.displayOrder.$error" role="alert">
+                              <div ng-message="required"></div>
+                            </div>
+                            <md-tooltip>Press Enter to Add/Update Display Order.</md-tooltip>
+                          </md-input-container>
+                          <!-- <md-button class="md-primary grid-button md-icon-button bdrbtn" ng-click="vm.ToggleDOEdit(datadetail)">
+                            <md-icon role="img" ng-class="{'icon-floppy': datadetail.displayEditDO ,'icon-pencil':!datadetail.displayEditDO}" class="material-icons mat-icon"></md-icon>
+                            <md-tooltip>Update Display Order</md-tooltip>
+                          </md-button>
+                          <md-button class="md-primary grid-button md-icon-button bdrbtn" ng-if="datadetail.displayEditDO" ng-click="datadetail.displayEditDO=false">
+                            <md-icon role="img" ng-class="{'icon-cancel': datadetail.displayEditDO }" class="material-icons mat-icon"></md-icon>
+                            <md-tooltip>Clear</md-tooltip>
+                          </md-button> -->
+                        </div>
+                        <div flex="nogrow" class="cm-hb-label pl-10">
+                          <span class="label-box label-warning font-size-10" ng-if="!datadetail.isSystemGenerated">
+                            <md-icon md-font-icon="icons-user-defined-label"></md-icon>
+                          </span>
+                          <span class="label-box label-primary font-size-10" ng-if="datadetail.isSystemGenerated">
+                            <md-icon md-font-icon="icons-system-generated-label"></md-icon>
+                          </span>
+                        </div>
+                        <div layout flex="nogrow" class="cm-hb-action pl-10">
+                          <md-button class="md-primary grid-button md-icon-button bdrbtn cm-feture-btn-color" ng-class="{'item-disabled': datadetail.isSystemGenerated || !vm.isEnableUpdateHelpBlogNote }" ng-disabled="datadetail.isSystemGenerated || !vm.isEnableUpdateHelpBlogNote" ng-click="vm.addEditHelpBlogNote(datadetail)">
+                            <md-icon role="img" md-font-icon="icon-pencil" class="material-icons mat-icon"></md-icon>
+                            <md-tooltip>Update</md-tooltip>
+                          </md-button>
+                          <md-button class="md-primary grid-button md-icon-button bdrbtn" data-focusButton="saveBtn" last-element elementcondition="{{$last}}" ng-click="vm.printNote(datadetail)">
+                            <md-icon role="img" md-font-icon="icon-printer" class="material-icons mat-icon"></md-icon>
+                            <md-tooltip>Print</md-tooltip>
+                          </md-button>
+                          <md-button class="md-primary grid-button md-icon-button bdrbtn" data-focusButton="saveBtn" last-element elementcondition="{{$last}}" ng-click="vm.downloadNote(datadetail)">
+                            <md-icon role="img" md-font-icon="icon-download" class="material-icons mat-icon"></md-icon>
+                            <md-tooltip>Download</md-tooltip>
+                          </md-button>
+                          <md-button class="md-primary grid-button md-icon-button bdrbtn" data-focusButton="saveBtn" last-element elementcondition="{{$last}}" ng-click="vm.openHistoryPopup(datadetail)">
+                            <md-icon role="img" md-font-icon="t-icons-history-text" class="material-icons mat-icon"></md-icon>
+                            <md-tooltip>History</md-tooltip>
+                          </md-button>
+                          <md-button class="md-primary grid-button md-icon-button bdrbtn cm-feture-btn-color" ng-class="{'item-disabled': datadetail.isSystemGenerated || !vm.isEnableDeleteHelpBlogNote}" ng-disabled="datadetail.isSystemGenerated || !vm.isEnableDeleteHelpBlogNote" data-focusButton="saveBtn" last-element elementcondition="{{$last}}" ng-click="vm.deleteHelpBlogNote(datadetail)">
+                            <md-icon role="img" md-font-icon="icon-trash" class="material-icons icon-trash"></md-icon>
+                            <md-tooltip>Delete</md-tooltip>
+                          </md-button>
+                        </div>
+                        <div flex layout-align="start center" layout class="cm-hb-data pl-10">
+                          <span ng-bind-html="datadetail.title"></span>
+                        </div>
+                        <div layout="column" flex="nogrow" class="ph-10">
+                          <div class="font-size-12" layout>
+                            <div class="w-90">Last Updated On</div>
+                            <div>&nbsp;:&nbsp;</div>
+                            <div>{{datadetail.lastModified}}</div>
+                          </div>
+                          <div class="font-size-12" layout>
+                            <div class="w-90">Last Updated By</div>
+                            <div>&nbsp;:&nbsp;</div>
+                            <div>{{datadetail.updatedBy}}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!--Header Section end-->
+                    <!--Body Section start-->
+                    <div class="articalevalue ph-10 pv-5" layout="row" flex="100" layout-wrap ng-if="datadetail.isShow">
+                      <p id="{{datadetail.displayOrder}}" ng-bind-html="datadetail.description"></p>
+                    </div>
+                    <!--Body Section end-->
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Delete this comment -->
+            <div class="center margin-left-0 margin-right-0" layout="column" flex="100" ng-if="vm.isNoDataFound">
+              <div class="empty-state text-center full-height" layout="row" layout-align="center center" flex="100" layout-wrap>
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+                <p flex="100">{{vm.EmptyMesssage.ADDNEWMESSAGE}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- / RIGHT PANEL FOR HELP BLOG -->
+      </div>
+    </div>
+  </div>
+</div>

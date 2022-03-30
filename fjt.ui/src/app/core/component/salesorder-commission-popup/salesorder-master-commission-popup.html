@@ -1,0 +1,264 @@
+<md-dialog aria-label="manage-rfq-lineitem-headers" flex="95" class="cm-custom-label-common cm-stock-allocate" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.salesCommissionForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar ng-class="vm.themeClass">
+      <div class="md-toolbar-tools mt-5 mb-5">
+        <div layout="row" layout-wrap flex class="pt-5" layout-align="space-between start">
+          <h2>Sales Commission</h2>
+          <div>
+            <span flex></span>
+          </div>
+          <div layout="row" layout-align="end center" layout-wrap flex>
+            <popup-header-label label-data="vm.headerdata"></popup-header-label>
+          </div>
+        </div>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding" layout="column">
+      <md-content class="md-padding cm-overflow-hidden">
+        <div layout="row" flex="100" layout-align="end center" ng-if="vm.salesCommissionList && vm.salesCommissionList.length > 0">
+          <md-button name="btnAddNewLine" class="md-raised md-primary margin-left-0 mb-0"
+                     ng-click="vm.addCommissionNewRow(null,$event,true);">
+            Add New Line
+          </md-button>
+        </div>
+        <div layout="row" flex="100" class="margin-vertical-5 cm-section-main cm-overflow-auto" layout-wrap>
+
+          <div flex="100" layout="row" ng-if="vm.salesCommissionList && vm.salesCommissionList.length > 0">
+            <div class="content fullpage-datatable cm-kit-release-table" layout="column" flex>
+              <table class="cm-section-table">
+                <thead>
+                  <tr class="section-row">
+                    <th class="text-center" colspan="4">
+                      
+                    </th>
+                    <th colspan="6" class="text-center section-start section-end">{{vm.LabelConstant.SalesCommission.SalePrice}}</th>
+                    <th colspan="6" class="text-center section-start section-end">{{vm.LabelConstant.SalesCommission.QuotedPrice}}</th>
+                    <th colspan="2"></th>
+                  </tr>
+                  <tr class="section-row">
+                    <th>{{vm.LabelConstant.SalesCommission.Action}}</th>
+                    <th class="text-center">
+                      #
+                    </th>
+                    <th>{{vm.LabelConstant.SalesCommission.Type}}</th>
+                    <th>{{vm.LabelConstant.SalesCommission.QuoteAttribute}}</th>
+                    <th class="section-start">{{vm.LabelConstant.SalesCommission.Price}}&nbsp;<span class="color-red">*</span></th>
+                    <th>{{vm.LabelConstant.SalesCommission.CommissionPercentage}}&nbsp;<span class="color-red">*</span></th>
+                    <th>{{vm.LabelConstant.SalesCommission.CommissionDollar}}&nbsp;<span class="color-red">*</span></th>
+                    <th>{{vm.LabelConstant.SalesCommission.ActualPrice}}</th>
+                    <th>{{vm.transType===vm.invoiceType?'Qty':vm.isLegacyPO?'Open PO Qty': vm.LabelConstant.SalesCommission.POQty}}</th>
+                    <th class="section-end">{{vm.LabelConstant.SalesCommission.ExtCommissionDollar}}</th>
+                    <th class="section-start">{{vm.LabelConstant.SalesCommission.OrgPrice}}</th>
+                    <th>{{vm.LabelConstant.SalesCommission.OrgCommissionPercentage}}</th>
+                    <th>{{vm.LabelConstant.SalesCommission.OrgCommissionDollar}}</th>
+                    <th>{{vm.LabelConstant.SalesCommission.ActualOrgPrice}}</th>
+                    <th>{{vm.LabelConstant.SalesCommission.QuotedQty}}</th>
+                    <th class="section-end">{{vm.LabelConstant.SalesCommission.ExtOrgCommissionDollar}}</th>
+                    <th>{{vm.LabelConstant.SalesCommission.CostSummary}}&nbsp;<span class="color-red">*</span></th>
+                    <th>Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="item in vm.salesCommissionList" class="section-row">
+                    <td class="padding-5-imp text-center">
+                      <md-button class="md-primary md-icon-button bdrbtn" ng-click="vm.childCommissionDetails(item,$event)" ng-class="{'cursor-not-allow opecity-3':(vm.isDisableEntry || item.type!==2)}" ng-disabled="vm.isDisableEntry || item.type!==2">
+                        <md-icon role="img" md-font-icon="icon-coin"></md-icon>
+                        <md-tooltip md-direction="top">View Details</md-tooltip>
+                      </md-button>
+                    </td>
+                    <td class="padding-5-imp width-50">
+                      <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                        <input type="number" name="serialNumber{{$index}}" class="text-right"
+                               value="{{$index+1}}" disabled>
+                      </md-input-container>
+                    </td>
+                    <td class="padding-5-imp width-130">
+                      <md-input-container class="margin-0 width-100p" flex="100">
+                        <input type="text" ng-disabled="true" class="text-left"
+                               ng-model="item.typeName" disabled autocomplete="off">
+                      </md-input-container>
+                    </td>
+                    <td class="padding-5-imp width-140">
+                      <md-input-container class="margin-0 width-130p" flex="100" md-no-float>
+                        <input type="text" name="fieldName{{$index}}"
+                               ng-model="item.fieldName" disabled autocomplete="off">
+                      </md-input-container>
+                    </td>
+                    <td class="padding-5-imp width-120 section-start">
+                      <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                        <input type="number" name="unitPrice{{$index}}" ng-paste="$event.preventDefault()" class="text-right"
+                               min="0.00001" step="{{vm.unitPriceInputStep}}" max="99999999.99999" ng-model="item.unitPrice" ng-required="item.type!==3?true:false"
+                               custom-blur="vm.changePercentage(item)" ng-disabled="vm.isDisableEntry ||item.type===3 "
+                               onkeypress="return OnlyNumbersWithDot(event, this)" autocomplete="off">
+                        <div ng-messages="vm.salesCommissionForm['unitPrice'+$index].$error" role="alert">
+                          <div ng-message="number || min || max || step">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+
+                    <td class="padding-5-imp width-90 section-data">
+                      <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                        <input type="number" name="commissionPercentage{{$index}}" ng-paste="$event.preventDefault()" class="text-right"
+                               min="0" step="0.01" max="100" ng-model="item.commissionPercentage" ng-required="item.type!==3?true:false"
+                               custom-blur="vm.changePercentage(item)" ng-disabled="vm.isDisableEntry || item.type===3"
+                               onkeypress="return OnlyNumbersWithDot(event, this)" autocomplete="off">
+                        <div ng-messages="vm.salesCommissionForm['commissionPercentage'+$index].$error" role="alert">
+                          <div ng-message="number || min || max || step">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+
+                    <td class="padding-5-imp width-110 section-data">
+                      <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                        <input type="number" name="commissionValue{{$index}}" ng-paste="$event.preventDefault()" class="text-right"
+                               min="0" step="{{vm.unitPriceInputStep}}" max="9999999.99999" ng-model="item.commissionValue" required
+                               custom-blur="vm.changeCommission(item,false)" ng-disabled="vm.isDisableEntry"
+                               ng-Keydown="vm.addCommissionNewRow(item, $event,false,$index)"
+                               onkeypress="return OnlyNumbersWithDot(event, this)" autocomplete="off">
+                        <div ng-messages="vm.salesCommissionForm['commissionValue'+$index].$error" role="alert">
+                          <div ng-message="number || min || max || step">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <td class="padding-5-imp width-120 section-data">
+                      <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                        <input type="text" class="text-right"
+                               ng-model="item.actualUnitPriceDisplay"
+                               disabled autocomplete="off">
+                      </md-input-container>
+                    </td>
+                    <td class="padding-5-imp width-80 section-data">
+                      <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                        <input type="text" name="qty{{$index}}" class="text-right"
+                               ng-model="item.qty" disabled autocomplete="off">
+                      </md-input-container>
+                    </td>
+                    <td class="padding-5-imp width-110 section-end">
+                      <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                        <input type="text" name="extendedCommissionValue{{$index}}" class="text-right"
+                               ng-model="item.extendedCommissionValueDisplay"
+                               disabled autocomplete="off">
+                      </md-input-container>
+                    </td>
+                    <td class="padding-5-imp width-120 section-start" ng-class="[item.quoted_unitPrice!=item.unitPrice?'background-orange-sales-commission':'']">
+                      <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                        <input type="text" name="quoted_unitPrice{{$index}}" class="text-right"
+                               ng-model="item.quoted_unitPriceDisplay" disabled autocomplete="off">
+                      </md-input-container>
+                    </td>
+
+                    <td class="padding-5-imp width-90 section-data" ng-class="[item.quoted_commissionPercentage!=item.commissionPercentage && item.type!==3?'background-orange-sales-commission':'']">
+                      <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                        <input type="text" name="quoted_commissionPercentage{{$index}}" class="text-right"
+                               ng-model="item.quoted_commissionPercentageDisplay" disabled autocomplete="off">
+                      </md-input-container>
+                    </td>
+
+                    <td class="padding-5-imp width-110 section-data" ng-class="[item.quoted_commissionValue!=item.commissionValue && item.type!==3?'background-orange-sales-commission':'']">
+                      <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                        <input type="text" name="quoted_commissionValue{{$index}}" class="text-right"
+                               ng-model="item.quoted_commissionValueDisplay" disabled autocomplete="off">
+                      </md-input-container>
+                    </td>
+                    <td class="padding-5-imp width-120 section-data">
+                      <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                        <input type="text" class="text-right"
+                               ng-model="item.actualQuotedPriceDisplay"
+                               disabled autocomplete="off">
+                      </md-input-container>
+                    </td>
+                    <td class="padding-5-imp width-80 section-data">
+                      <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                        <input type="text" name="quotedQty{{$index}}" class="text-right"
+                               ng-model="item.quotedQty" disabled autocomplete="off">
+                      </md-input-container>
+                    </td>
+                    <td class="padding-5-imp width-110 section-end" ng-class="[item.extendedQuotedCommissionValue!=item.extendedCommissionValue && item.type!==3?'background-orange-sales-commission':'']">
+                      <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                        <input type="text" name="extendedQuotedCommissionValue{{$index}}" class="text-right"
+                               ng-model="item.extendedQuotedCommissionValueDisplay" disabled autocomplete="off">
+                      </md-input-container>
+                    </td>
+                    <td class="padding-5-imp width-300">
+                      <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                        <textarea name="salesCommissionNotes{{$index}}" maxlength="1000" ng-model="item.salesCommissionNotes" rows="2" max-rows="4" style="width:100%;" required autocomplete="off" ng-disabled="vm.isDisableEntry"></textarea>
+                        <div ng-messages="vm.salesCommissionForm['salesCommissionNotes'+$index].$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(100, vm.salesCommissionForm['salesCommissionNotes'+$index].$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <td class="padding-5-imp text-center">
+                      <md-button class="md-primary md-icon-button bdrbtn" ng-click="vm.removeRow(item)" ng-disabled="vm.isDisableEntry">
+                        <md-icon role="img" md-font-icon="icon-trash"></md-icon>
+                        <md-tooltip md-direction="top">Delete</md-tooltip>
+                      </md-button>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th class="padding-right-5 text-right" colspan="6"><b>Total:</b></th>
+                    <th class="text-right padding-right-5 font-size-16"><b>{{vm.totalActualCommission() | unitPrice}}</b></th>
+                    <th class="text-right padding-right-5" colspan="2"></th>
+                    <th class="text-right padding-right-5 font-size-16"><b>{{vm.totalExtendedCommissionDollar() | amount}}</b></th>
+                    <th class="text-right padding-right-5"></th>
+                    <th class="text-right padding-right-5"></th>
+                    <th class="text-right padding-right-5 font-size-16"><b>{{vm.totalQuotedCommission() | unitPrice}}</b></th>
+                    <th class="text-right padding-right-5" colspan="2"></th>
+                    <th class="text-right padding-right-5 font-size-16">{{vm.totalExtendedQuotedCommissionDollar() | amount}}</th>
+                    <th class="text-right padding-right-5"></th>
+                    <th class="text-right padding-right-5"></th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+          <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="(!vm.salesCommissionList || vm.salesCommissionList.length === 0)">
+            <div class="emty-icon" flex="100">
+              <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+            </div>
+            <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+            <p flex="100">
+              {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+            </p>
+            <p flex="100">
+              <md-button class="md-fab md-mini" aria-label="Add New Line" ng-click="vm.addCommissionNewRow(null,$event,true)" ng-disabled="vm.isDisableEntry">
+                <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+                <md-tooltip> Add New Line</md-tooltip>
+              </md-button>
+            </p>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" name="saveBtn" ng-click="vm.saveSalesCommissionDetail()" ng-class="{'md-formdirty': vm.salesCommissionForm.$dirty}">Save</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

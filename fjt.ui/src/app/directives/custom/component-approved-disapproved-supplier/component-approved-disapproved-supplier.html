@@ -1,0 +1,200 @@
+<form name="vm.componentApprovedDisapprovedSupplierForm" class="cm-custom-label-common md-inline-form" cg-busy="{promise:vm.cgBusyLoading}">
+  <div flex="100" layout="row" class="cm-standard-permissiontab cm-disapproved-suppliertab">
+    <div flex flex-xs="100" flex-sm="100" layout="row" layout-wrap>
+      <div class="cm-section-main" layout="row" flex layout-wrap>
+        <div class="cm-section-header" flex="100">
+          <h2>Approved Suppliers</h2>
+        </div>
+        <div class="cm-section-inner" flex="100">
+          <div flex="100" flex-xs="100" layout="row"
+               class="mobilesearch employee-workstaion-search-box userpermissionhead"
+               layout-align="space-between center">
+            <md-input-container class="clickedsearch md-block error-none no-label" md-no-float flex flex-xs="75">
+              <input id="searchNotAddedListSupplier" type="text" placeholder="Type here to search supplier"
+                     ng-model="vm.pagingInfoSupplierNotAdded.supplierSearch"
+                     ng-change="vm.searchSupplier(vm.pagingInfoSupplierNotAdded.supplierSearch,false)" ignore-dirty
+                     ng-model-options="{debounce: vm.debounceTime }"
+                     max="255">
+            </md-input-container>
+            <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                       ng-disabled="!vm.pagingInfoSupplierNotAdded.supplierSearch"
+                       ng-click="vm.searchSupplier(null,false)">
+              Clear
+            </md-button>
+            <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.reInit()">
+              Refresh
+            </md-button>
+            <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-disabled="vm.isReadOnly"
+                       ng-click="vm.addSupplier($event)">
+              Add New
+            </md-button>
+            <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                       ng-class="{'md-formdirty': vm.componentApprovedDisapprovedSupplierForm.$dirty}"
+                       ng-disabled="vm.supplierNotAddedList.length === 0 || vm.isReadOnly"
+                       ng-click="vm.savePriority()">
+              Save Priority
+            </md-button>
+          </div>
+          <md-list flex="100" class="permissiontab custom-scroll dragbox"
+                   ng-class="{'layout-column': vm.supplierNotAddedList.length === 0}">
+            <md-list-item id="supplierNotAddedList" class="padding-0 items-container" layout="row" flex="100"
+                          layout-wrap ui-sortable="vm.sortableOptions" ng-model="vm.supplierNotAddedList"
+                          haveadded="false">
+              <div flex="100" class="md-1-line margin-0 dragsortable layout-align-space-between-center"
+                   id="{{supplier.id}}"
+                   ng-repeat="supplier in vm.supplierNotAddedList track by $index"
+                   ui-sortable-selectable ng-model="supplier"
+                   layout="row" layout-align="start center">
+                <div class="md-list-item-text" layout="row"
+                     layout-align="space-between center">
+                  <p class="label-container margin-bottom-0 operation-dataelement-font cm-white-space-normal" layout-align="start center">
+                    <a class="cm-text-decoration" ng-click="vm.goToSupplier(supplier.id);">
+                      {{supplier.mfgName}}
+                    </a>
+                  </p>
+                </div>
+                <div class="cm-md-list-input layout-column flex-15">
+                  <md-input-container md-no-float class="cm-supp-custom-qpa flex-lg-100">
+                    <input type="number" ng-disabled="vm.isReadOnly"
+                           ng-model="supplier.priority"
+                           ng-paste="$event.preventDefault()"
+                           onkeypress="return OnlyNumeric(event)" placeholder="Priority"
+                           name="priority_{{supplier.id}}"
+                           id="priority_{{supplier.id}}"
+                           min="1"
+                           maxlength="3"
+                           step="1"
+                           input-number-decimal-place>
+                    <div ng-messages="vm.componentApprovedDisapprovedSupplierForm['priority_'+supplier.id].$error" role="alert">
+                      <div ng-message="number || step || min || maxlength">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </div>
+              </div>
+              <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                   ng-if="vm.supplierNotAddedList.length === 0 || vm.pagingInfoSupplierNotAdded.TotalRecordWithNoExclude === 0" ui-sortable-selectable>
+                <div class="empty-state text-center">
+                  <div class="emty-icon">
+                    <img ng-src="{{vm.EmptyMesssageForNotAdded.IMAGEURL}}" />
+                  </div>
+                  <p class="empty-state-title font-size-2 useadded-emptytxt"
+                     ng-if="!vm.pagingInfoSupplierNotAdded.supplierSearch && vm.pagingInfoSupplierNotAdded.TotalRecordWithNoExclude === 0">
+                    {{vm.EmptyMesssageForNotAdded.MESSAGE}}
+                  </p>
+                  <p class="empty-state-title font-size-2 useadded-emptytxt"
+                     ng-if="vm.pagingInfoSupplierNotAdded.supplierSearch && vm.pagingInfoSupplierNotAdded.TotalRecordWithNoExclude > 0">
+                    {{vm.EmptyMesssageForNotAdded.EMPTY_SEARCH_MESSAGE}}
+                  </p>
+                </div>
+              </div>
+            </md-list-item>
+          </md-list>
+          <div class="userpermissionhead flex-100 flex-xs-100 layout-row  layout-align-space-between-center">
+            <h4 class="mv-10"><b>Loaded {{vm.supplierNotAddedList.length}} of Total {{vm.pagingInfoSupplierNotAdded.total}}</b></h4>
+            <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.getMoreSuppliers(false)"
+                       ng-if="vm.pagingInfoSupplierNotAdded.isLoadMore">
+              Show More
+            </md-button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cm-data-fields-buttons" flex-xs="100" layout="row" layout-align="space-between center">
+      <div flex="100" layout-sm="row" layout-xs="row" layout="column" layout-align="space-between center">
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="selectedSupplierListAdded.length === 0 || vm.isReadOnly"
+                   ng-click="vm.manageSupplier('Remove',$event)">
+          <i class="icon-chevron-left icondrag"></i>
+          <md-tooltip>Remove</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="vm.supplierAddedList.length === 0 || vm.isReadOnly"
+                   ng-click="vm.manageSupplier('RemoveAll',$event)">
+          <i class="icon-chevron-double-left icondrag"></i>
+          <md-tooltip>Remove All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="vm.supplierNotAddedList.length === 0 || vm.isReadOnly"
+                   ng-click="vm.manageSupplier('AddAll',$event)">
+          <i class="icon-chevron-double-right icondrag"></i>
+          <md-tooltip>Add All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="selectedSupplierListNotAdded.length === 0 || vm.isReadOnly"
+                   ng-click="vm.manageSupplier('Add',$event)">
+          <i class="icon-chevron-right icondrag"></i>
+          <md-tooltip>Add</md-tooltip>
+        </md-button>
+      </div>
+    </div>
+    <div flex flex-xs="100" flex-sm="100" layout="row" layout-wrap>
+      <div class="cm-section-main" layout="row" flex layout-wrap>
+        <div class="cm-section-header" flex="100">
+          <h2>Disapproved Suppliers</h2>
+        </div>
+        <div class="cm-section-inner" flex="100">
+          <div flex="100" flex-xs="100" layout="row"
+               class="mobilesearch employee-workstaion-search-box userpermissionhead"
+               layout-align="space-between center">
+            <md-input-container class="clickedsearch md-block error-none no-label" md-no-float flex flex-xs="75">
+              <input id="searchAddedListSupplier" type="text" placeholder="Type here to search disapproved supplier"
+                     ng-model="vm.pagingInfoSupplierAdded.supplierSearch" ignore-dirty
+                     ng-model-options="{debounce: vm.debounceTime }"
+                     ng-change="vm.searchSupplier(vm.pagingInfoSupplierAdded.supplierSearch,true)" max="255">
+            </md-input-container>
+            <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                       ng-disabled="!vm.pagingInfoSupplierAdded.supplierSearch"
+                       ng-click="vm.searchSupplier(null,true)">
+              Clear
+            </md-button>
+          </div>
+          <md-list flex="100" class="permissiontab custom-scroll dragbox"
+                   ng-class="{'layout-column': vm.supplierAddedList.length === 0}">
+            <md-list-item id="supplierAddedList" class="padding-0 items-container" layout="row" flex="100"
+                          layout-wrap ui-sortable="vm.sortableOptions" ng-model="vm.supplierAddedList"
+                          haveadded="true">
+              <div flex="100" class="md-1-line margin-0 dragsortable cm-component-approved-disapproved-supplier-height"
+                   id="{{supplier.id}}"
+                   ng-repeat="supplier in vm.supplierAddedList" ui-sortable-selectable ng-model="supplier"
+                   layout="row" layout-align="start center">
+                <div class="md-list-item-text" layout="row"
+                     layout-align="space-between center">
+                  <p class="label-container margin-bottom-0 operation-dataelement-font cm-white-space-normal" layout-align="start center">
+                    <a class="cm-text-decoration" ng-click="vm.goToSupplier(supplier.mfgCodeID);">
+                      {{supplier.mfgName}}
+                    </a>
+                  </p>
+                </div>
+              </div>
+              <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                   ng-if="vm.supplierAddedList.length === 0" ui-sortable-selectable>
+                <div class="empty-state text-center">
+                  <div class="emty-icon">
+                    <img ng-src="{{vm.EmptyMesssageForAdded.IMAGEURL}}" />
+                  </div>
+                  <p class="empty-state-title font-size-2 useadded-emptytxt"
+                     ng-if="!vm.pagingInfoSupplierAdded.supplierSearch">
+                    {{vm.EmptyMesssageForAdded.MESSAGE}}
+                  </p>
+                  <p class="empty-state-title font-size-2 useadded-emptytxt"
+                     ng-if="vm.pagingInfoSupplierAdded.supplierSearch">
+                    {{vm.EmptyMesssageForAdded.EMPTY_SEARCH_MESSAGE}}
+                  </p>
+                </div>
+              </div>
+            </md-list-item>
+          </md-list>
+          <div class="userpermissionhead flex-100 flex-xs-100 layout-row  layout-align-space-between-center">
+            <h4 class="mv-10"><b>Loaded {{vm.supplierAddedList.length}} of Total {{vm.pagingInfoSupplierAdded.total}}</b></h4>
+            <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.getMoreSuppliers(true)"
+                       ng-if="vm.pagingInfoSupplierAdded.isLoadMore">
+              Show More
+            </md-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

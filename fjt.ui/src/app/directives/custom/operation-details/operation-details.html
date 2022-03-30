@@ -1,0 +1,490 @@
+<form name="vm.operationDetailsForm" class="md-inline-form padding-10-imp" cg-busy="{promise:vm.cgBusyLoading}" ms-form-wizard-form novalidate>
+  <md-button ng-if="msWizard.selectedIndex == 0" id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+  <div layout="row" layout-md="column" layout-sm="column" flex="100">
+    <div layout="row" layout-wrap layout-align="start start" flex="85" flex-md="100" flex-sm="100" class="mh-3-rs cm-section-main margin-right-5 margin-pro-rs-right-0">
+      <div class="cm-section-header" flex="100">
+        <h2>Operation Detail</h2>
+      </div>
+      <div class="cm-section-inner" flex="100">
+        <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+          <tbody>
+            <tr>
+              <th>
+                <p class="label-container">
+                  {{ vm.LabelConstant.Operation.OP }}
+                  <span ng-if="!vm.isPublishDisabled">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                </p>
+              </th>
+              <td>
+                <md-input-container flex="100" class="w-200">
+                  <input type="text" name="opNumber" id="opNumber"
+                         ng-model="vm.operation.opNumberText"
+                         placeholder="vm.LabelConstant.Operation.OP"
+                         onkeypress="return OnlyNumbersWithDot(event)"
+                         custom-blur="vm.convertThreeDecimal(vm.operation.opNumberText)"
+                         ng-maxlength="8"
+                         md-maxlength="8"
+                         ng-disabled="vm.isPublishDisabled"
+                         custom-auto-focus="{{msWizard.selectedIndex == 0 ? true : false}}"
+                         required>
+                  <span flex="100" class="font-size-10">
+                    <b>max. 9999.999 (format XXXX.XXX)</b>
+                  </span>
+                  <div ng-messages="vm.operationDetailsForm.opNumber.$error"
+                       role="alert">
+                    <div ng-message="required">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                    </div>
+                    <div ng-message="maxlength">
+                      <span>{{vm.getMaxLengthValidation(8, vm.operationDetailsForm.opNumber.$viewValue.length)}}</span>
+                    </div>
+                    <div ng-message="invalid">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </td>
+              <th><p class="label-container">Name<span ng-if="!vm.isPublishDisabled">&nbsp;*</span></p></th>
+              <td>
+                <md-input-container flex="100">
+                  <input type="text" name="opName" ng-model="vm.operation.opName" ng-change="vm.changedOperationDetails()"
+                         placeholder="Name" ng-disabled="vm.isPublishDisabled"
+                         required ng-maxlength="255" md-maxlength="255">
+                  <div ng-messages="vm.operationDetailsForm.opName.$error"
+                       role="alert">
+                    <div ng-message="required">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                    </div>
+                    <div ng-message="maxlength">
+                      <span>{{vm.getMaxLengthValidation(255, vm.operationDetailsForm.opName.$viewValue.length)}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </td>
+              <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToOperationType();" tabindex="-1">{{vm.autoCompleteOperationType.placeholderName}}</a><span ng-if="vm.autoCompleteOperationType.isRequired && !vm.isPublishDisabled">&nbsp;*</span></p></th>
+              <td>
+                <md-input-container ng-if="vm.autoCompleteOperationType" class="autocompletecustom cm-custom-autocomplete" flex="100">
+                  <custom-auto-complete datalist="vm.OperationTypeList"
+                                        column-name="vm.autoCompleteOperationType.columnName"
+                                        controller-name="vm.autoCompleteOperationType.controllerName"
+                                        view-template-url="vm.autoCompleteOperationType.viewTemplateURL"
+                                        key-column-name="vm.autoCompleteOperationType.keyColumnName"
+                                        input-name="vm.autoCompleteOperationType.inputName"
+                                        placeholder-name="vm.autoCompleteOperationType.placeholderName"
+                                        key-column-id="vm.autoCompleteOperationType.keyColumnId"
+                                        is-required="vm.autoCompleteOperationType.isRequired"
+                                        is-disabled="vm.isPublishDisabled"
+                                        is-addnew="vm.autoCompleteOperationType.isAddnew"
+                                        on-select-callback-fn="vm.autoCompleteOperationType.onSelectCallbackFn"
+                                        add-data="vm.autoCompleteOperationType.addData"
+                                        callback-fn="vm.autoCompleteOperationType.callbackFn">
+                  </custom-auto-complete>
+                </md-input-container>
+              </td>
+            </tr>
+            <tr>
+              <th rowspan="2"><p class="label-container">Short Description</p></th>
+              <td rowspan="2" class="w-100">
+                <md-input-container class="md-block" flex="100">
+                  <textarea type="text" name="shortDescription" ng-model="vm.operation.shortDescription" placeholder="Short Description" rows="3" max-rows="4" ng-disabled="vm.isPublishDisabled"
+                            ng-maxlength="vm.maxLengthForDescription" md-maxlength="vm.maxLengthForDescription"></textarea>
+                  <div ng-messages="vm.operationDetailsForm.shortDescription.$error" role="alert">
+                    <div ng-message="maxlength">
+                      <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.operationDetailsForm.shortDescription.$viewValue.length)}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </td>
+              <th ng-if="vm.autoCompleteMountingType">
+                <p class="label-container">
+                  <a class="cm-text-decoration" ng-click="vm.goToMountingTypeList();"
+                     tabindex="-1">Mounting Type</a><span ng-if="vm.autoCompleteMountingType.isRequired && !vm.isPublishDisabled">&nbsp;*</span>
+                </p>
+              </th>
+              <td ng-if="vm.autoCompleteMountingType">
+                <md-input-container flex="100" ng-if="vm.autoCompleteMountingType"
+                                    class="autocompletecustom cm-custom-autocomplete">
+                  <custom-auto-complete datalist="vm.mountingTypeList"
+                                        column-name="vm.autoCompleteMountingType.columnName"
+                                        key-column-name="vm.autoCompleteMountingType.keyColumnName"
+                                        controller-name="vm.autoCompleteMountingType.controllerName"
+                                        view-template-url="vm.autoCompleteMountingType.viewTemplateURL"
+                                        input-name="vm.autoCompleteMountingType.inputName"
+                                        placeholder-name="vm.autoCompleteMountingType.placeholderName"
+                                        key-column-id="vm.autoCompleteMountingType.keyColumnId"
+                                        is-addnew="vm.autoCompleteMountingType.isAddnew"
+                                        add-data="vm.autoCompleteMountingType.addData"
+                                        is-disabled="vm.isPublishDisabled"
+                                        is-required="vm.autoCompleteMountingType.isRequired"
+                                        callback-fn="vm.autoCompleteMountingType.callbackFn"
+                                        on-select-callback-fn="vm.autoCompleteMountingType.onSelectCallbackFn"
+                                        ng-class="{'cm-input-color-red' : vm.autoCompleteMountingType.keyColumnId==-1}">
+                  </custom-auto-complete>
+                </md-input-container>
+              </td>
+              <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToOperation();" tabindex="-1">{{vm.autoCompleteParentOperation.placeholderName}}</a><span ng-if="vm.autoCompleteParentOperation.isRequired && !vm.isPublishDisabled">&nbsp;*</span></p></th>
+              <td>
+                <md-input-container class="autocompletecustom cm-custom-autocomplete" ng-if="vm.autoCompleteParentOperation" flex="100">
+                  <custom-auto-complete datalist="vm.ParentOperationList"
+                                        column-name="vm.autoCompleteParentOperation.columnName"
+                                        key-column-name="vm.autoCompleteParentOperation.keyColumnName"
+                                        input-name="vm.autoCompleteParentOperation.inputName"
+                                        placeholder-name="vm.autoCompleteParentOperation.placeholderName"
+                                        key-column-id="vm.autoCompleteParentOperation.keyColumnId"
+                                        is-required="vm.autoCompleteParentOperation.isRequired"
+                                        is-addnew="vm.autoCompleteParentOperation.isAddnew"
+                                        is-disabled="vm.isPublishDisabled"
+                                        callback-fn="vm.autoCompleteParentOperation.callbackFn">
+                  </custom-auto-complete>
+                </md-input-container>
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <p class="label-container">Neighboring Operations<span ng-if="!vm.isPublishDisabled">&nbsp;*</span><md-icon class="icon-question-mark-circle help-icon"><md-tooltip md-direction="top">{{vm.CORE_MESSAGE_CONSTANT.TAB_LIMIT_AT_TRAVELER}}</md-tooltip></md-icon></p>
+              </th>
+              <td>
+                <md-input-container flex="100" class="w-200">
+                  <input type="number" name="tabLimitAtTraveler"
+                         ng-model="vm.operation.tabLimitAtTraveler" min="0"
+                         ng-disabled="vm.isPublishDisabled" max="9999999999"
+                         placeholder="Neighboring Operations" required onkeypress="return OnlyNumeric(event)">
+                  <div ng-messages="vm.operationDetailsForm.tabLimitAtTraveler.$error"
+                       role="alert">
+                    <div ng-message="required">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                    </div>
+                    <div ng-message="number">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                    </div>
+                    <div ng-message="max">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                    </div>
+                    <div ng-message="min">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </td>            
+              <th></th>
+              <td layout>
+                <div class="md-block colorpicker" flex="100">
+                  <md-button name="colorCode" ng-disabled="vm.isPublishDisabled" class="ml-0 md-default md-raised black-500-fg mv-0" ng-click="vm.getColor($event,vm.operation.colorCode)"
+                             style="background-color: {{vm.operation.colorCode}} !important">Select Operation Color</md-button>
+                  <div ng-messages="vm.operationDetailsForm.colorCode.$error"
+                       role="alert">
+                    <div ng-if="vm.operation.colorCode.length>20">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.MAX_LENGTH}}</span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <p class="label-container"></p>
+              </th>
+              <td>
+                <div layout="row">
+                  <md-checkbox ng-model="vm.operation.isMoveToStock" name="isMoveToStock" class="margin-0"
+                               ng-disabled="vm.isPublishDisabled || vm.IsInspectionProcess"
+                               ng-change="vm.setAllSettings()">
+                    <p class="nowrap">{{vm.LabelConstant.Operation.LastOperationAndMoveToStock}}</p>
+                  </md-checkbox>
+                  <md-icon class="icon-question-mark-circle help-icon">
+                    <md-tooltip md-direction="top">{{vm.CORE_MESSAGE_CONSTANT.LAST_OPERATION_AT_TRAVELER}}</md-tooltip>
+                  </md-icon>
+                </div>
+              </td>
+              <th>
+                <p class="label-container"></p>
+              </th>
+              <td>
+                <div layout="row">
+                  <md-checkbox ng-model="vm.operation.isPlacementTracking" name="isPlacementTracking" class="margin-0"
+                               ng-disabled="vm.isPublishDisabled || vm.IsInspectionProcess">
+                    <p class="label-container">
+                      {{vm.LabelConstant.Operation.BasicPlacementTracking}}
+                    </p>
+                  </md-checkbox>
+                  <md-icon class="icon-question-mark-circle help-icon">
+                    <md-tooltip md-direction="top">{{vm.CORE_MESSAGE_CONSTANT.BASIC_PLACEMENT_AT_TRAVELER}}</md-tooltip>
+                  </md-icon>
+                </div>
+              </td>
+              <th>
+                <p class="label-container"></p>
+              </th>
+              <td>
+                <div layout="row">
+                  <md-checkbox ng-model="vm.operation.isLoopOperation" name="isLoopOperation" class="margin-0"
+                               ng-disabled="vm.isPublishDisabled || vm.IsInspectionProcess"
+                               ng-change="vm.loopOperationChanged()">
+                    <p class="label-container">
+                      {{vm.LabelConstant.Operation.LoopOperation}}
+                    </p>
+                  </md-checkbox>
+                  <md-icon class="icon-question-mark-circle help-icon">
+                    <md-tooltip md-direction="top">{{vm.LOOP_OPERATION_ALLOW_AT_TRAVELER.message}}</md-tooltip>
+                  </md-icon>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div layout="row" layout-wrap flex="15" flex-md="100" flex-sm="100" layout-align="start start" class="mt-rs-5 mh-3-rs cm-section-main">
+      <div class="cm-section-header" flex="100">
+        <h2>Time Detail</h2>
+      </div>
+      <div class="cm-section-inner" flex="100">
+        <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+          <tbody>
+            <tr>
+              <th><p class="label-container">Targeted Total Process Time (HH:mm)</p></th>
+              <td>
+                <md-input-container md-no-float flex="100">
+                  <input type="text" name="processTime" ng-model="vm.operation.processTime" placeholder="HH:mm" ng-disabled="vm.isPublishDisabled"
+                         ng-pattern="vm.OperationTimePattern" mask="{{vm.OperationTimeMask}}" validate="false">
+                  <div ng-messages="vm.operationDetailsForm.processTime.$error" role="alert">
+                    <div ng-message="pattern">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </td>
+            </tr>
+            <tr>
+              <th><p class="label-container">Setup Time (HH:mm)</p></th>
+              <td>
+                <md-input-container md-no-float flex="100">
+                  <input type="text" name="setupTime" ng-model="vm.operation.setupTime" ng-disabled="vm.isPublishDisabled"
+                         placeholder="HH:mm" ng-pattern="vm.OperationTimePattern" mask="{{vm.OperationTimeMask}}" validate="false">
+                  <div ng-messages="vm.operationDetailsForm.setupTime.$error" role="alert">
+                    <div ng-message="pattern">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </td>
+            </tr>
+            <tr>
+              <th><p class="label-container">Per pcs Target Time (HH:mm)</p></th>
+              <td>
+                <md-input-container md-no-float flex="100">
+                  <input type="text" name="perPieceTime" ng-model="vm.operation.perPieceTime" ng-disabled="vm.isPublishDisabled"
+                         placeholder="HH:mm" ng-pattern="vm.OperationTimePattern" mask="{{vm.OperationTimeMask}}" validate="false">
+                  <div ng-messages="vm.operationDetailsForm.perPieceTime.$error" role="alert">
+                    <div ng-message="pattern">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div layout="row" layout-wrap layout-align="start-start" flex="100" flex-md="100" flex-sm="100" class="mt-5 cm-section-main">
+    <div class="cm-section-header" flex="100">
+      <h2>Transaction Level Setting</h2>
+    </div>
+    <div class="cm-section-inner" flex="100">
+      <div class="padding-bottom-0" layout layout-wrap>
+        <div class="margin-bottom-5 pr-5" layout flex-gt-lg="33" flex-gt-sm="50" flex="100">
+          <div class="container-box " flex="100" layout="row"
+               ng-class="{'switch-disable': vm.radioButtonGroup.qtyControl.checkDisable()}">
+            <md-input-container flex="100">
+              <md-radio-group layout="row" layout-align="start start" layout-wrap
+                              name="qtyControl" ng-model="vm.operation.qtyControl"
+                              ng-disabled="vm.radioButtonGroup.qtyControl.checkDisable()"
+                              ng-change="vm.radioButtonGroup.qtyControl.onChange()">
+                <md-radio-button flex ng-repeat="item in vm.radioButtonGroup.qtyControl.array"
+                                 name="item" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+              </md-radio-group>
+            </md-input-container>
+          </div>
+        </div>
+        <div flex-gt-lg="33" flex-gt-sm="50" flex="100" layout class="margin-bottom-5 pr-5">
+          <div class="container-box" flex="100" layout="row"
+               ng-class="{'switch-disable': vm.radioButtonGroup.isRework.checkDisable()}">
+            <md-input-container flex="100">
+              <md-radio-group layout="row" layout-align="start start" layout-wrap
+                              name="isRework" ng-model="vm.operation.isRework"
+                              ng-disabled="vm.radioButtonGroup.isRework.checkDisable()"
+                              ng-change="vm.radioButtonGroup.isRework.onChange()">
+                <md-radio-button flex ng-repeat="item in vm.radioButtonGroup.isRework.array"
+                                 name="item" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+              </md-radio-group>
+            </md-input-container>
+          </div>
+        </div>
+        <div flex-gt-lg="33" flex-gt-sm="50" flex="100" layout class="pr-5 margin-bottom-5">
+          <div class="container-box" flex="100" layout="row"
+               ng-class="{'switch-disable': vm.radioButtonGroup.isIssueQty.checkDisable()}">
+            <md-input-container flex="100">
+              <md-radio-group layout="row" layout-align="start start" layout-wrap
+                              name="isIssueQty" ng-model="vm.operation.isIssueQty"
+                              ng-disabled="vm.radioButtonGroup.isIssueQty.checkDisable()"
+                              ng-change="vm.radioButtonGroup.isIssueQty.onChange()">
+                <md-radio-button flex ng-repeat="item in vm.radioButtonGroup.isIssueQty.array"
+                                 name="item" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+              </md-radio-group>
+            </md-input-container>
+          </div>
+        </div>
+        <div flex-gt-lg="33" flex-gt-sm="50" flex="100" layout class="pr-5 margin-bottom-5">
+          <div class="container-box" flex="100" layout="row"
+               ng-class="{'switch-disable': vm.radioButtonGroup.isTeamOperation.checkDisable()}">
+            <md-input-container flex="100">
+              <md-radio-group layout="row" layout-align="start start" layout-wrap
+                              name="isTeamOperation" ng-model="vm.operation.isTeamOperation"
+                              ng-disabled="vm.radioButtonGroup.isTeamOperation.checkDisable()"
+                              ng-change="vm.radioButtonGroup.isTeamOperation.onChange()">
+                <md-radio-button flex ng-repeat="item in vm.radioButtonGroup.isTeamOperation.array"
+                                 name="{{item.Key}}" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+              </md-radio-group>
+            </md-input-container>
+          </div>
+        </div>
+        <div flex-gt-lg="33" flex-gt-sm="50" flex="100" layout class="pr-5 margin-bottom-5">
+          <div class="container-box pv-5" flex="100" layout="row">
+            <md-input-container flex="100" class="pl-10">
+              <md-checkbox ng-model="vm.operation.isEnablePreProgrammingPart" name="isEnablePreProgrammingPart" class="margin-0"
+                           ng-disabled="vm.checkboxButtonGroup.isEnablePreProgrammingPart.checkDisable()">
+                <p class="label-container mb-0">
+                  {{vm.LabelConstant.Operation.EnablePreProgrammingPart}}
+                </p>
+              </md-checkbox>
+            </md-input-container>
+          </div>
+        </div>
+        <div flex-gt-lg="33" flex-gt-sm="50" flex="100" layout class="pr-5 margin-bottom-5">
+          <div class="container-box pv-5" flex="100" layout="row">
+            <md-input-container flex="100" class="pl-10">
+              <md-checkbox ng-model="vm.operation.isAllowMissingPartQty" name="isAllowMissingPartQty" class="margin-0"
+                           ng-disabled="vm.checkboxButtonGroup.isAllowMissingPartQty.checkDisable()">
+                <p class="label-container mb-0">
+                  {{vm.LabelConstant.Operation.AllowMissingPartQty}}
+                </p>
+              </md-checkbox>
+            </md-input-container>
+          </div>
+        </div>
+        <div flex-gt-lg="33" flex-gt-sm="50" flex="100" class="pr-5 margin-bottom-5">
+          <div class="container-box">
+            <div class="cm-section-header" flex="100">
+              <h2>Flux Type <span class="color-red">*</span></h2>
+            </div>
+            <div class="pv-5" flex="100" layout="row" layout-wrap>
+              <md-input-container flex class="pl-10">
+                <md-checkbox name="fluxType" ng-model="vm.operation.isFluxNotApplicable" class="margin-0"
+                             ng-disabled="vm.isFluxNotApplicableDisabled"
+                             ng-change="vm.checkboxButtonGroup.fluxType.onChange();">
+                  <p class="label-container">
+                    {{vm.LabelConstant.COMMON.NotApplicable}}
+                  </p>
+                </md-checkbox>
+              </md-input-container>
+              <md-input-container flex class="pl-10">
+                <md-checkbox name="fluxType" ng-model="vm.operation.isNoClean" class="margin-0"
+                             ng-disabled="vm.checkboxButtonGroup.fluxType.checkDisable()"
+                             ng-change="vm.checkboxButtonGroup.fluxType.onChange();">
+                  <p class="label-container">
+                    {{vm.LabelConstant.Operation.NoClean}}
+                  </p>
+                </md-checkbox>
+              </md-input-container>
+              <md-input-container flex class="pl-10">
+                <md-checkbox name="fluxType" ng-model="vm.operation.isWaterSoluble" class="margin-0"
+                             ng-disabled="vm.checkboxButtonGroup.fluxType.checkDisable()"
+                             ng-change="vm.checkboxButtonGroup.fluxType.onChange();">
+                  <p class="label-container">
+                    {{vm.LabelConstant.Operation.WaterSoluble}}
+                  </p>
+                </md-checkbox>
+              </md-input-container>
+              <div class="margin-left-10" flex="100" ng-messages="vm.operationDetailsForm.fluxType.$error" role="alert" layout="row">
+                <div ng-message="isFluxTypeRequired" class="color-red">
+                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div flex-gt-lg="33" flex-gt-sm="50" flex="100" class="pr-5 margin-bottom-5">
+          <div class="container-box pv-5" flex="100" layout="row">
+            <md-input-container flex="100" class="pl-10">
+              <md-checkbox ng-model="vm.operation.isAllowBypassQty" name="isAllowBypassQty" class="margin-0"
+                           ng-disabled="vm.checkboxButtonGroup.isAllowBypassQty.checkDisable()">
+                <p class="label-container mb-0">
+                  {{vm.LabelConstant.Operation.AllowByPassQty}}
+                </p>
+              </md-checkbox>
+            </md-input-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div layout="row" layout-md="column" layout-sm="column" flex="100">
+    <div flex="50" flex-md="100" flex-sm="100" layout="row" class="margin-top-5 cm-text-angular-height cm-section-main border-0" layout-align="start start">
+      <md-input-container flex="100" class="md-block margin-bottom-0">
+        <div layout="column" flex="100" flex-xs="100">
+          <span class="label-container margin-bottom-0">
+            Description&nbsp;<span ng-if="!vm.isPublishDisabled">{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH_MESSAGE}}<span ng-if="vm.taToolbar.REQUIRED">&nbsp;*</span></span>
+            <span class="margin-bottom-10" ng-if="vm.operationDetailsForm.opDescription.$error.taMaxText" style="color:red; font-size:12px">{{vm.getDescrLengthValidation(vm.taToolbar.MAX_LENGTH, vm.operationDetailsForm.opDescription.$viewValue)}}</span>
+          </span>
+        </div>
+        <text-angular ta-toolbar="vm.taToolbar.INLINE" ng-model="vm.operation.opDescription" cg-busy-loading="vm.cgBusyLoading"
+                      ng-class="{'text-angular-custom-border': vm.operationDetailsForm.opDescription.$error.taMaxText || vm.operationDetailsForm.opDescription.$error.taMinText || (vm.operationDetailsForm.opDescription.$error.required && vm.operationDetailsForm.opDescription.$touched )}"
+                      name="opDescription"
+                      ta-disabled="vm.isPublishDisabled"
+                      ta-min-text="{{vm.taToolbar.MIN_LENGTH}}"
+                      ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"
+                      ng-required="{{vm.taToolbar.REQUIRED ? vm.taToolbar.REQUIRED : false}}"></text-angular>
+      </md-input-container>
+    </div>
+    <div flex="50" flex-md="100" flex-sm="100" layout="row" class="margin-top-5 cm-text-angular-height" layout-align="start start">
+      <md-input-container class="md-block margin-bottom-0" flex="100">
+        <div layout="column" flex="100" flex-xs="100">
+          <span class="label-container margin-bottom-0">Job Specific Requirement</span>
+          <span class="margin-bottom-10" ng-if="vm.operationDetailsForm.opWorkingCondition.$error.taMaxText" style="color:red; font-size:12px">{{vm.getDescrLengthValidation(vm.taToolbar.MAX_LENGTH, vm.operationDetailsForm.opWorkingCondition.$viewValue)}}</span>
+        </div>
+        <text-angular ta-toolbar="vm.taToolbar.INLINE" ng-model="vm.operation.opWorkingCondition" cg-busy-loading="vm.cgBusyLoading"
+                      ta-disabled="vm.isPublishDisabled"
+                      ng-class="{'text-angular-custom-border':vm.operationDetailsForm.opWorkingCondition.$error.taMaxText}"
+                      name="opWorkingCondition" ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"></text-angular>
+      </md-input-container>
+    </div>
+  </div>
+  <div layout="row" layout-md="column" layout-sm="column" flex="100">
+    <div flex="50" flex-md="100" flex-sm="100" layout="row" class="margin-top-5 cm-text-angular-height" layout-align="start start">
+      <md-input-container class="md-block margin-bottom-0" flex="100">
+        <div layout="column" flex="100" flex-xs="100">
+          <span class="label-container margin-bottom-0">Management Communication</span>
+          <span class="margin-bottom-10" ng-if="vm.operationDetailsForm.opManagementInstruction.$error.taMaxText" style="color:red; font-size:12px">{{vm.getDescrLengthValidation(vm.taToolbar.MAX_LENGTH, vm.operationDetailsForm.opManagementInstruction.$viewValue)}}</span>
+        </div>
+        <text-angular ta-toolbar="vm.taToolbar.INLINE" ng-model="vm.operation.opManagementInstruction" cg-busy-loading="vm.cgBusyLoading"
+                      ta-disabled="vm.isPublishDisabled"
+                      ng-class="{'text-angular-custom-border':vm.operationDetailsForm.opManagementInstruction.$error.taMaxText}"
+                      name="opManagementInstruction" ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"></text-angular>
+      </md-input-container>
+    </div>
+    <div flex="50" flex-md="100" flex-sm="100" layout="row" class="margin-top-5 cm-text-angular-height" layout-align="start start">
+      <md-input-container class="md-block margin-bottom-0" flex="100">
+        <div layout="column" flex="100" flex-xs="100">
+          <span class="label-container margin-bottom-0">Deferred Instruction</span>
+          <span class="margin-bottom-10" ng-if="vm.operationDetailsForm.opDeferredInstruction.$error.taMaxText" style="color:red; font-size:12px">{{vm.getDescrLengthValidation(vm.taToolbar.MAX_LENGTH, vm.operationDetailsForm.opDeferredInstruction.$viewValue)}}</span>
+        </div>
+        <text-angular ta-toolbar="vm.taToolbar.INLINE" ng-model="vm.operation.opDeferredInstruction" cg-busy-loading="vm.cgBusyLoading"
+                      ta-disabled="vm.isPublishDisabled"
+                      ng-class="{'text-angular-custom-border':vm.operationDetailsForm.opDeferredInstruction.$error.taMaxText}"
+                      name="opDeferredInstruction" ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"></text-angular>
+      </md-input-container>
+    </div>
+  </div>
+</form>

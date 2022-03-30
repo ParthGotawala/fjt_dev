@@ -1,0 +1,170 @@
+<div id="mastertemplate-list" class="page-layout carded fullwidth breadcrumb-fixed" layout="row" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="top-bg md-accent-bg"></div>
+  <div class="center margin-left-0 margin-right-0" layout="column" flex>
+    <div class="header" layout="row" layout-align="space-between center">
+      <div class="white-fg" layout="column" layout-align="start start">
+        <div class="h2" layout="row" layout-align="start center">
+          <pagetitle is-list="true" is-display-menu-name="true"></pagetitle>
+        </div>
+        <div layout="row" layout-align="start center">
+          <breadcrumbs></breadcrumbs>
+        </div>
+      </div>
+      <div>
+        <md-button class="md-primary md-raised" ng-click="vm.goToManageOperationManagement(null)">
+          Add Operation Management
+        </md-button>
+      </div>
+    </div>
+    <div class="content-card padding-top-side" layout="column" flex ng-show="!vm.isNoDataFound">
+      <div layout="row">
+        <form class="md-inline-form cm-custom-label-common width-100p pt-10 cm-so-list-filters advanced-filters" name="vm.filtersInfo">
+          <div flex="100" class="umid-advance-filter advanced-filters" layout-wrap>
+            <div layout="row" flex="100" class="overflow-auto-rs padding-left-8">
+              <div layout="column" class="pr-5">
+                <fieldset flex="100" class="container-box">
+                  <legend class="margin-0">Status</legend>
+                  <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                    <div class="input-wrapper margin-top-10 margin-left-10" layout="column" layout-align="start center">
+                      <md-checkbox ng-model="vm.draft" ng-change="vm.changeStatusFilter()" class="mv-0">{{vm.genericStatusGridHeaderDropdown[1].value}}</md-checkbox>
+                      <md-checkbox ng-model="vm.publish" ng-change="vm.changeStatusFilter()" class="mv-0">{{vm.genericStatusGridHeaderDropdown[2].value}}</md-checkbox>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+              <div flex layout="column">
+                <div layout="row" flex="100">
+                  <div class="input-wrapper pr-5" layout="column" flex flex-md="100" flex-sm="100">
+                    <fieldset flex="100" class="container-box">
+                      <legend class="margin-0">Search <span class="cm-text-decoration cursor-pointer" ng-click="vm.goToOperationList();">{{vm.LabelConstant.Operation.PageName}}</span> </legend>
+                      <div layout="row" flex="100" layout-md="column" layout-sm="column" class="cm-width-contact-chip">
+                        <md-input-container class="cm-widget-chip md-block full-chip margin-0" flex="100" md-no-float>
+                          <md-contact-chips ng-model="vm.filter.operations" flex="100" layout="row"
+                                            md-contacts="vm.queryOperationSearch($query)"
+                                            md-contact-name="opName"
+                                            md-contact-image=""
+                                            md-contact-email=""
+                                            md-require-match="true"
+                                            md-highlight-flags="i"
+                                            filter-selected="true"
+                                            secondary-placeholder="Add another to Search"
+                                            placeholder="Type here to Search">
+                          </md-contact-chips>
+                        </md-input-container>
+                      </div>
+                    </fieldset>
+                  </div>
+                </div>
+              </div>
+              <div layout="row" flex="33" class="pr-5">
+                <fieldset flex="100" class="container-box">
+                  <legend class="margin-0">Search {{vm.OperationAdvanceFilter.Description.value}}</legend>
+                  <div layout="row" flex="100" layout-align="start center" layout-md="column" layout-sm="column" class="input-wrapper">
+                    <md-input-container class="margin-bottom-0" flex md-no-float>
+                      <input type="text" id="description" name="description"
+                             ng-model="vm.filter.description" placeholder="Search {{vm.OperationAdvanceFilter.Description.value}}"
+                             ng-maxlength="1000" ng-keypress="vm.applyFiltersOnEnter($event)"
+                             autocomplete="off" />
+                      <div ng-messages="vm.filtersInfo.description.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(1000,vm.filtersInfo.description.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+          </div>
+          <div class="mb-5 mt-5 input-wrapper" layout="row" layout-align="end-end" flex="100">
+            <div>
+              <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.applyFilters()">{{vm.LabelConstant.COMMON.APPLY_FILTERS}}</md-button>
+              <button class="md-default md-raised md-button md-default-theme md-ink-ripple mv-0" type="button" ng-click="vm.clearSelection()" ng-disabled="vm.isClearSelectionDisabled()">
+                {{vm.LabelConstant.COMMON.CLEAR_ALL}}
+              </button>
+              <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.resetAllFilter()">{{vm.LabelConstant.COMMON.RESET}}</md-button>
+            </div>
+          </div>
+          <div layout="row" layout-align="start center" layout-wrap flex="100" class="padding-left-10 mb-5" ng-if="vm.generateFilter">
+            <span class="font-weight-600">
+              {{vm.LabelConstant.COMMON.APPLIED_FILTERS}}
+            </span>
+            <div ng-repeat="item in vm.OperationAdvanceFilter" layout="row" layout-align="start center" class="cm-tracking-chip-mian"
+                 ng-if="!item.isDeleted">
+              <div class="tracking-number-chip" layout="row" layout-align="start center">
+                <label>
+                  {{item.value}}
+                  <md-tooltip md-direction="top" ng-if="item.tooltip" class="tooltip-height-auto"
+                              ng-bind-html="item.tooltip">
+                  </md-tooltip>
+                </label>
+                <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeAppliedFilter(item, $index)">
+                  <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                  <md-tooltip>Click to remove this filter</md-tooltip>
+                </md-button>
+              </div>
+            </div>
+          </div>
+          <div layout="row" layout-align="start center" layout-wrap flex="100" class="padding-left-10 mb-5"
+               ng-if="vm.isUiGridColumnFiltersApplied && vm.gridOptions.gridApi && vm.gridOptions.gridApi.grid.columns.length > 0">
+            <span class="font-weight-600">
+              {{vm.LabelConstant.COMMON.APPLIED_GRID_FILTERS}}
+            </span>
+            <div ng-repeat="item in vm.gridOptions.gridApi.grid.columns" layout="row" layout-align="start center" class="cm-tracking-chip-mian"
+                 ng-if="item.filters[0].term">
+              <div class="tracking-number-chip" layout="row" layout-align="start center" ng-if="item.filters[0].term">
+                <label>
+                  {{item.displayName}}
+                  <md-tooltip md-direction="top" ng-if="item.filters[0].term" class="tooltip-height-auto"
+                              ng-bind-html="item.filters[0].term">
+                  </md-tooltip>
+                </label>
+                <md-button class="md-icon-button md-primary md-mini" ng-click="vm.clearGridColumnFilter(item, $index)">
+                  <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                  <md-tooltip>Click to remove this filter</md-tooltip>
+                </md-button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div layout="column" flex>
+        <md-card layout="column" flex layout-align="space-between stretch">
+          <ui-grid-extention layout="column" flex
+                             load-data="vm.loadData"
+                             grid-id="vm.gridConfig.gridMasterTemplate"
+                             grid-option="vm.gridOptions"
+                             header="vm.sourceHeader"
+                             grid-data="vm.sourceData"
+                             total-data-count="vm.totalSourceDataCount"
+                             reset-grid="vm.resetSourceGrid"
+                             selectted-rows="vm.selectedRowsList"
+                             paging-info="vm.pagingInfo"
+                             current-item="vm.currentdata"
+                             get-data-down="vm.getDataDown"
+                             empty-state="vm.emptyState"
+                             delete-multiple-data="vm.deleteMultipleData">
+        </md-card>
+      </div>
+    </div>
+    <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound == true">
+      <div class="emty-icon" flex="100">
+        <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+      </div>
+      <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+      <p flex="100">
+        {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+      </p>
+      <p flex="100">
+        <md-button class="md-fab md-mini" aria-label="Add Template" ng-click="vm.goToManageOperationManagement(null)">
+          <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+        </md-button>
+      </p>
+    </div>
+  </div>
+</div>
+<style>
+  .md-contact-suggestion .md-contact-name {
+    width: auto !important;
+  }
+</style>

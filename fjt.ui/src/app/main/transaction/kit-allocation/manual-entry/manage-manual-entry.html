@@ -1,0 +1,266 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed" layout-align="start start" layout="row" layout-wrap cg-busy="{promise:vm.cgBusyLoading}">
+  <ms-form-wizard flex>
+    <!-- CONTENT HEADER -->
+    <div class="header md-accent-bg" layout="row" layout-align="space-between center">
+      <div flex layout="row">
+        <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" ng-click="vm.goBack()">
+          <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+          </md-icon>
+        </md-button>
+        <div class="white-fg" layout="column" layout-align="start startr" flex="100">
+          <div class="h2" layout="row" layout-align="start center">
+            <pagetitle is-list="false" is-display-menu-name="true" prefix-content="vm.activity.id ? 'Update' : 'Add'" suffix-content=""></pagetitle>
+          </div>
+          <div>
+            <breadcrumbs></breadcrumbs>
+          </div>
+        </div>
+        <div layout="row" layout-align="start center">
+          <md-button class="md-raised md-primary" ng-click="vm.saveManualActivity()" aria-label="Submit" ng-class="{'md-formdirty': vm.manualEntryForm.$dirty }">
+            Save
+          </md-button>
+        </div>
+      </div>
+    </div>
+    <!-- / CONTENT HEADER -->
+    <!-- CONTENT CARD -->
+    <div class="content-card padding-top-side pos-rel full-height">
+      <div layout="row" layout-wrap class="cm-custom-label-common">
+        <!-- FORM WIZARD -->
+        <div flex>
+          <form name="vm.manualEntryForm" class="md-inline-form padding-10-imp cm-fullwidth"
+                ms-form-wizard-form novalidate>
+            <div layout="row">
+              <div class="package-detail" flex="100">
+                <div flex="100" layout="row" layout-wrap class="cm-section-main">
+                  <div flex="100" layout="row" class="cm-section-header">
+                    <h2>Detail</h2>
+                  </div>
+                  <div class="cm-section-inner overflow-auto-rs" flex="100">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                      <tbody>
+                        <tr>
+                          <th><p class="label-container">Activity Type<span ng-if="!vm.activity.id">&nbsp;*</span></p></th>
+                          <td class="pl-5">
+                            <md-radio-group name="paymentMode" ng-model="vm.activity.activityType" layout="column" layout-gt-xs="row" flex layout-align="start start" class="margin-0">
+                              <md-radio-button name="paymentModeExempt" ng-disabled="vm.activity.id" class="margin-right-0" value="{{vm.activityTransactionType[0].id}}">{{vm.activityTransactionType[0].value}}</md-radio-button>
+                              <md-radio-button name="paymentModeNonExempt" ng-disabled="vm.activity.id" class="margin-left-10" value="{{vm.activityTransactionType[1].id}}">{{vm.activityTransactionType[1].value}}</md-radio-button>
+                            </md-radio-group>
+                          </td>
+                          <th>
+                            <p class="label-container">
+                              <a class="cm-text-decoration" ng-click="vm.goToPersonnelList();" tabindex="-1">Personnel</a><span ng-if="!vm.activity.id">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container class="autocompletecustom margin-0" flex="100" ng-if="vm.autoCompleteEmployee" custom-auto-focus="true">
+                              <custom-auto-complete datalist="vm.EmployeeList"
+                                                    column-name="vm.autoCompleteEmployee.columnName"
+                                                    key-column-name="vm.autoCompleteEmployee.keyColumnName"
+                                                    key-column-id="vm.autoCompleteEmployee.keyColumnId"
+                                                    input-name="vm.autoCompleteEmployee.inputName"
+                                                    placeholder-name="vm.autoCompleteEmployee.placeholderName"
+                                                    is-required="vm.autoCompleteEmployee.isRequired"
+                                                    is-addnew="vm.autoCompleteEmployee.isAddnew"
+                                                    callback-fn="vm.autoCompleteEmployee.callbackFn"
+                                                    on-select-callback-fn="vm.autoCompleteEmployee.onSelectCallbackFn"
+                                                    is-disabled="vm.activity.id">
+                              </custom-auto-complete>
+                            </md-input-container>
+                          </td>
+                          <th ng-if="vm.activity.transactionType === 'K'">
+                            <p class="label-container">
+                              <a class="cm-text-decoration" ng-click="vm.goToKitList();" tabindex="-1">Kit#</a><span ng-if="!vm.activity.id">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td ng-if="vm.activity.transactionType === 'K'" colspan="3">
+                            <div layout="column">
+                              <md-input-container class="autocompletecustom margin-0" flex="100" ng-if="vm.autoCompleteSO">
+                                <custom-auto-complete-search on-search-fn="vm.autoCompleteSO.onSearchFn"
+                                                             column-name="vm.autoCompleteSO.columnName"
+                                                             key-column-name="vm.autoCompleteSO.keyColumnName"
+                                                             key-column-id="vm.autoCompleteSO.keyColumnId"
+                                                             input-name="vm.autoCompleteSO.inputName"
+                                                             placeholder-name="vm.autoCompleteSO.placeholderName"
+                                                             is-required="vm.autoCompleteSO.isRequired"
+                                                             search-text="vm.autoCompleteSO.searchText"
+                                                             is-addnew="vm.autoCompleteSO.isAddnew"
+                                                             on-select-callback-fn="vm.autoCompleteSO.onSelectCallbackFn"
+                                                             is-disabled="vm.activity.id">
+                                </custom-auto-complete-search>
+                              </md-input-container>
+
+                              <span flex="100" class="font-size-10">
+                                <b>i.e. Assy ID, PO#, SO#, PO Qty, Kit#</b>
+                              </span>
+                            </div>
+                          </td>
+                          <th ng-if="vm.activity.transactionType !== 'K'">
+                            <p class="label-container">
+                              <a class="cm-text-decoration" ng-click="vm.goToPartList();" tabindex="-1">{{vm.LabelConstant.Assembly.PIDCode}}</a><span ng-if="!vm.activity.id">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td ng-if="vm.activity.transactionType !== 'K'" colspan="3">
+                            <md-input-container ng-if="vm.autoCompleteAssy" class="autocompletecustom margin-bottom-0" flex="100">
+                              <custom-auto-complete-search on-search-fn="vm.autoCompleteAssy.onSearchFn"
+                                                           column-name="vm.autoCompleteAssy.columnName"
+                                                           parent-column-name="vm.autoCompleteAssy.parentColumnName"
+                                                           key-column-name="vm.autoCompleteAssy.keyColumnName"
+                                                           input-name="vm.autoCompleteAssy.inputName"
+                                                           placeholder-name="vm.autoCompleteAssy.placeholderName"
+                                                           key-column-id="vm.autoCompleteAssy.keyColumnId"
+                                                           is-required="vm.autoCompleteAssy.isRequired"
+                                                           search-text="vm.autoCompleteAssy.searchText"
+                                                           on-select-callback-fn="vm.autoCompleteAssy.onSelectCallbackFn"
+                                                           is-disabled="true">
+                              </custom-auto-complete-search>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container">Start Date<span>&nbsp;*</span></p>
+                          </th>
+                          <td>
+                            <md-input-container class="margin-0 padding-right-0-imp" flex="100">
+                              <input type="text" class="float-left width-100p"
+                                     allow-past-date="true"
+                                     allow-future-date="false"
+                                     datetime-picker="{{$root.dateDisplayFormat}}"
+                                     ng-change="vm.onChangeDate()"
+                                     ng-model="vm.activity.startDate"
+                                     datepicker-options="vm.startDateOptions"
+                                     ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                     ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                     model-view-value="true" name="startDate" enable-time="false"
+                                     is-open="vm.startDateOptions.startDateOpenFlag"
+                                     required />
+                              <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.startDateOptions.startDateOpenFlag = true">
+                              </md-icon>
+                              <div class="error-msg" ng-messages="vm.manualEntryForm.startDate.$error" role="alert">
+                                <div ng-message="valid" ng-if="vm.isInvalid">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_ACTIVITY_START_DATETIME}}</span>
+                                </div>
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="datetime">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container">Start Time<span>&nbsp;*</span></p>
+                          </th>
+                          <td>
+                            <md-input-container class="margin-0 padding-right-0-imp" flex="100">
+                              <input type="text" class="float-left"
+                                     name="startTime"
+                                     datetime-picker="{{$root.timeWithoutSecondDisplayFormat}}"
+                                     ng-model="vm.activity.startTime"
+                                     datepicker-options="vm.startTimeOptions"
+                                     is-open="vm.startTimeOptions.startTimeOpenFlag"
+                                     ui-mask="{{$root.uimaskFormat.time.mask}}"
+                                     ui-mask-placeholder="{{$root.uimaskFormat.time.placeholder}}"
+                                     model-view-value="true" enable-date="false" enable-time="true" required />
+                              <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.startTimeOptions.startTimeOpenFlag = true">
+                              </md-icon>
+                              <div class="error-msg"
+                                   ng-messages="vm.manualEntryForm.startTime.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="datetime">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container">Stop Date<span>&nbsp;*</span></p>
+                          </th>
+                          <td>
+                            <md-input-container class="margin-0 padding-right-0-imp cm-rs-width-175" flex="100">
+                              <input type="text" class="float-left"
+                                     allow-past-date="true"
+                                     allow-future-date="false"
+                                     name="endDate"
+                                     datetime-picker="{{$root.dateDisplayFormat}}"
+                                     ng-model="vm.activity.endDate"
+                                     ng-change="vm.onChangeDate()"
+                                     datepicker-options="vm.endDateOptions"
+                                     is-open="vm.endDateOptions.endDateOpenFlag"
+                                     ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                     ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                     model-view-value="true" required enable-time="false" />
+                              <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.endDateOptions.endDateOpenFlag = true">
+                              </md-icon>
+                              <div class="error-msg" ng-messages="vm.manualEntryForm.endDate.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="valid" ng-if="vm.isInvalid">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_ACTIVITY_STOP_DATETIME}}</span>
+                                </div>
+                                <div ng-message="date">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container">End Time<span>&nbsp;*</span></p>
+                          </th>
+                          <td>
+                            <md-input-container class="margin-0 padding-right-0-imp" flex="100">
+                              <input type="text" class="float-left"
+                                     name="endTime"
+                                     datetime-picker="{{$root.timeWithoutSecondDisplayFormat}}"
+                                     ng-model="vm.activity.endTime"
+                                     datepicker-options="vm.endTimeOptions"
+                                     is-open="vm.endTimeOptions.endTimeOpenFlag"
+                                     ui-mask="{{$root.uimaskFormat.time.mask}}"
+                                     ui-mask-placeholder="{{$root.uimaskFormat.time.placeholder}}"
+                                     model-view-value="true" enable-date="false" enable-time="true" required />
+                              <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.endTimeOptions.endTimeOpenFlag = true">
+                              </md-icon>
+                              <div class="error-msg" ng-messages="vm.manualEntryForm.endTime.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="datetime">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div layout="row" class="margin-top-10">
+              <md-input-container class="md-block margin-bottom-0" flex="100">
+                <div layout="column" flex="100" flex-xs="100">
+                  <span ng-style="{'color':vm.manualEntryForm.remark.$error.taMaxText?'red':''}">Comment</span>
+                  <span class="margin-bottom-10"
+                        style="color:red; font-size:12px">{{vm.getMaxLengthValidation(vm.taToolbar.MAX_LENGTH,vm.manualEntryForm.remark.$viewValue.length)}}</span>
+                </div>
+                <text-angular ta-toolbar="vm.taToolbar.INLINE" cg-busy-loading="vm.cgBusyLoading"
+                              ng-model="vm.activity.remark"
+                              ng-class="{'text-angular-custom-border':vm.manualEntryForm.remark.$error.taMaxText}"
+                              ta-max-text="{{vm.taToolbar.MAX_LENGTH}}" name="remark"
+                              ta-disabled="vm.isWoInSpecificStatusNotAllowedToChange"></text-angular>
+              </md-input-container>
+            </div>
+          </form>
+        </div>
+        <!-- / FORM WIZARD -->
+      </div>
+    </div>
+    <!-- / CONTENT CARD -->
+  </ms-form-wizard>
+</div>

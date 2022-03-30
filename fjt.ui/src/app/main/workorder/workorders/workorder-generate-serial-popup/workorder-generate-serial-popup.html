@@ -1,0 +1,675 @@
+<md-dialog class="cm-custom-label-common" flex="95" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <md-toolbar>
+    <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+      <h2>Generate Serial#</h2>
+      <span flex></span>
+      <div layout="row" layout-align="center center" class="cm-wo-gen">
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+      </div>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content class="customer-modal no-padding" layout="column">
+    <md-content class="custom-scroll">
+      <ms-form-wizard flex
+                      ng-if="!vm.isLoading">
+        <md-tabs validate-step="true" is-valid="vm.isStepValid" class="fielddetail manage-department-tabing padding-0"
+                 md-dynamic-height md-selected="msWizard.selectedIndex">
+          <!-- Final Product Serial# -->
+          <md-tab md-on-select="vm.onTabChanges(msWizard)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="vm.mfgSerial.$invalid">2</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.mfgSerial.$valid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">{{vm.SerialTypeLabel.FinalSerial.Label}}</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.finalProductSerial" ng-if="(msWizard && msWizard.selectedIndex == 0)" class="md-inline-form padding-10 mh-5" novalidate>
+                <div layout="row" flex="100">
+                  <p class="font-weight-600"><b>Note: {{vm.PREFIX_OR_SUFFIX_REQUIRED_MESSAGE.message}}</b></p>
+                </div>
+                <div layout="row" layout-align="space-between start" flex="100" class="cm-section-main border-0">
+                  <div flex layout="row" class="margin-top-8 margin-bottom-10 cm-section-inner padding-left-0-imp layout-wrap" flex-md="100" layout-md="column" flex-sm="100" layout-sm="column">
+                    <div flex="100" layout>
+                      <div flex="40" layout>
+                        <p class="label-container padding-left-0-imp width-auto pt-5">Prefix</p>
+                        <md-input-container flex="100">
+                          <input type="text" name="Prefix" ng-model="vm.workorderSerialModel.prefix"
+                                 class="input-text-uppercase" ng-disabled="(vm.workorderSerialModel.prefixLock ? true : false)"
+                                 capitalize placeholder="Prefix"
+                                 ng-maxlength="vm.WorkorderSerialNoConst.MaxLengthForPrefix" ng-blur="vm.GenerateStartEndNumber(event)"
+                                 md-autofocus ng-pattern="vm.restrictLikOperatoreWildCardChar"
+                                 md-maxlength="{{vm.WorkorderSerialNoConst.MaxLengthForPrefix}}">
+                          <!--ng-keydown="vm.checkSpecialCharacterRestriction($event,vm.workorderSerialModel.prefix,vm.finalProductSerial,'Prefix')"-->
+                          <div ng-messages="vm.finalProductSerial.Prefix.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.WorkorderSerialNoConst.MaxLengthForPrefix, vm.finalProductSerial.Prefix.$viewValue.length)}}</span>
+                            </div>
+                            <div ng-message="pattern">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                          <span><b>{{vm.LabelConstant.Workorder.WorkorderSerialNoPrefixNote}}</b></span>
+                        </md-input-container>
+                      </div>
+                      <div flex="20" layout>
+                        <p class="label-container padding-left-0-imp width-auto pt-5">
+                          <a class="cm-text-decoration underline" ng-click="vm.goToBarcodeSeparatorsList();" tabindex="-1">Separator</a>
+                        </p>
+                        <md-input-container flex class="autocompletecustom cm-custom-autocomplete cm-so-input-container" ng-if="vm.autoCompleteSeparator" md-no-float>
+                          <custom-auto-complete datalist="vm.separatorList"
+                                                column-name="vm.autoCompleteSeparator.columnName"
+                                                controller-name="vm.autoCompleteSeparator.controllerName"
+                                                view-template-url="vm.autoCompleteSeparator.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteSeparator.keyColumnName"
+                                                input-name="vm.autoCompleteSeparator.inputName"
+                                                placeholder-name="vm.autoCompleteSeparator.placeholderName"
+                                                key-column-id="vm.autoCompleteSeparator.keyColumnId"
+                                                is-required="vm.autoCompleteSeparator.isRequired"
+                                                is-addnew="vm.autoCompleteSeparator.isAddnew"
+                                                callback-fn="vm.autoCompleteSeparator.callbackFn"
+                                                on-select-callback-fn="vm.autoCompleteSeparator.onSelectCallbackFn"
+                                                add-data="vm.autoCompleteSeparator.addData"
+                                                is-disabled="(vm.workorderSerialModel.barcodeSeparatorLock ? true : false)">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </div>
+                      <div flex="40" layout>
+                        <p class="label-container width-auto pt-5">Suffix</p>
+                        <md-input-container flex="100">
+                          <input type="text" name="Suffix" ng-model="vm.workorderSerialModel.suffix" ng-trim="{{vm.spaceNotAllowed}}"
+                                 class="input-text-uppercase" ng-disabled="(vm.workorderSerialModel.suffixLock ? true : false)"
+                                 capitalize placeholder="Suffix" ng-pattern="vm.restrictLikOperatoreWildCardChar"
+                                 ng-maxlength="vm.WorkorderSerialNoConst.MaxLengthForSuffix" ng-blur="vm.GenerateStartEndNumber(event)"
+                                 md-maxlength="{{vm.WorkorderSerialNoConst.MaxLengthForSuffix}}">
+                          <div ng-messages="vm.finalProductSerial.Suffix.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.WorkorderSerialNoConst.MaxLengthForSuffix, vm.finalProductSerial.Suffix.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                          <span><b>{{vm.LabelConstant.Workorder.WorkorderSerialNoSuffixNote}}</b></span>
+                        </md-input-container>
+                      </div>
+                    </div>
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                      <tbody>
+                        <tr>
+                          <th>
+                            <p class="label-container">No. of digits<span>&nbsp;*</span></p>
+                          </th>
+                          <td class="cm-rs-w-55 cm-w-100-1920">
+                            <md-input-container>
+                              <input type="number" name="numOfDigits" ng-model="vm.workorderSerialModel.noofDigit"
+                                     placeholder="No. of digits" min="1" max="10" ng-blur="vm.GenerateStartEndNumber(event)"
+                                     onkeypress="return OnlyNumeric(event)" ng-disabled="(vm.workorderSerialModel.configurationId ? true : vm.isDisableNoOfDigit)"
+                                     required>
+                              <div ng-messages="vm.finalProductSerial.numOfDigits.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="min">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="max">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="number">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                              </div>                              
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container">No. of serial#<span>&nbsp;*</span></p>
+                          </th>
+                          <td class="cm-rs-w-55 cm-w-100-1920">
+                            <md-input-container>
+                              <input type="number" name="numOfSerials" ng-model="vm.workorderSerialModel.numOfSerialsToGenerate"
+                                     placeholder="No. of serial#" ng-blur="vm.GenerateStartEndNumber(event)"
+                                     ng-maxlength="vm.workorderSerialModel.noofDigit"
+                                     min="1" max="{{vm.allowedSerialsToAdd}}"
+                                     onkeypress="return OnlyNumeric(event)"
+                                     required>
+                              <div ng-messages="vm.finalProductSerial.numOfSerials.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="min">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="max">
+                                  <span>{{vm.SERIALS_MORETHAN_BUILD_QTY_MSG}}</span>
+                                </div>
+                                <div ng-message="number">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(vm.workorderSerialModel.noofDigit, vm.finalProductSerial.numOfSerials.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container">Start#<span>&nbsp;*</span></p>
+                          </th>
+                          <td class="cm-rs-w-55 cm-w-100-1920">
+                            <md-input-container>
+                              <input type="number" name="startNumber" ng-model="vm.workorderSerialModel.startNumber"
+                                     placeholder="Start#" ng-disabled="(vm.workorderSerialModel.isConsecutiveNumber ? true : false)"
+                                     min="1" max="2147483648" ng-maxlength="vm.workorderSerialModel.noofDigit"
+                                     ng-blur="vm.GenerateStartEndNumber(event)"
+                                     onkeypress="return OnlyNumeric(event)"
+                                     required>
+                              <div ng-messages="vm.finalProductSerial.startNumber.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="min">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="max">
+                                  <span>{{vm.SERIALS_MORETHAN_BUILD_QTY_MSG}}</span>
+                                </div>
+                                <div ng-message="number">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(vm.workorderSerialModel.noofDigit, vm.finalProductSerial.startNumber.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container">Assy Date Code Format<span>&nbsp;*</span></p>
+                          </th>
+                          <td class="cm-w-150-1920">
+                            <md-input-container md-no-float="" flex="100">
+                              <md-select name="dateCodeFormat" ng-model="vm.workorderSerialModel.dateCodeFormat" id="dateCodeFormat" ng-required="true"
+                                         md-container-class="containerClass cm-md-select" class="margin-0 " placeholder="Select">
+                                <md-option ng-value="">Select</md-option>
+                                <md-option ng-repeat="option in vm.assyDateCodeFormats" ng-value="option">{{option}}</md-option>
+                              </md-select>
+                              <div ng-messages="vm.finalProductSerial.dateCodeFormat.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container">Assy Date Code<span ng-if="vm.workorderSerialModel.dateCodeFormat">&nbsp;*</span></p>
+                          </th>
+                          <td class="w-60 cm-w-150-1920">
+                            <md-input-container flex="100">
+                              <input type="text" name="dateCode" ng-disabled="!vm.workorderSerialModel.dateCodeFormat" ng-model="vm.workorderSerialModel.dateCode"
+                                     placeholder="Date Code" custom-blur="vm.checkAssyDateCode(item)" maxlength="4"
+                                     ng-required="vm.workorderSerialModel.dateCodeFormat && vm.workorderSerialModel.dateCodeFormat != null ? true : false">
+                              <div ng-messages="vm.finalProductSerial.dateCode.$error" role="alert">
+                                <div ng-message="invalidDateCode">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_DATE_CODE}}</span>
+                                </div>
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <td class="text-right">
+                            <md-button class="md-primary md-raised margin-0 margin-left-5-imp" ng-class="{'md-formdirty': vm.finalProductSerial.$dirty}"
+                                       ng-click="vm.generateSerials();">Generate</md-button>
+                            <md-button class="md-primary md-raised margin-left-5-imp mt-0 mb-0 mr-0 cm-feture-btn-color" ng-disabled="(!vm.enableDeleteOperation) || vm.isNoDataFound" ng-click="vm.resetSerials();">Delete All Serial#</md-button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div layout="row" layout-align="space-between start" flex="100" ng-if="vm.startNumber && vm.endNumber && vm.workorderSerialModel.numOfSerialsToGenerate && vm.workorderSerialModel.startNumber">
+                  <div flex layout="row" class="margin-top-8" flex-md="100" layout-md="column" flex-sm="100" layout-sm="column">
+                    <div class="input-wrapper" flex layout="row">
+                      <p class="label-container cm-white-space-normal">
+                        Serial# Generate from:
+                      <p class="padding-0-10-imp font-size-15 cm-theme-color margin-top-5"><b>{{vm.startNumber}}</b></p>
+                      </p>
+                      <p class="label-container cm-white-space-normal">To:
+                      <p class="padding-0-10-imp font-size-15 cm-theme-color margin-top-5"><b>{{vm.endNumber}}</b></p>
+                      </p>
+                      <p class="label-container">
+                        Serial# Character Count:
+                      <p class="cm-theme-color margin-top-5">{{vm.serialNumberLength}}</p>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <md-card class="margin-0 cm-wo-gen-serialno-grid" layout="column" layout-align="space-between stretch" flex="100"
+                         ng-show="!vm.isNoDataFound"
+                         ng-if="vm.serialType == vm.serialTypeData.PACKING">
+                  <!--<span><b class="cm-mfg-grid-data">Final Product Serial# List</b></span>-->
+                  <ui-grid-extention load-data="vm.loadData"
+                                     grid-id="vm.gridConfig.gridSerialNoGenerate+vm.serialType"
+                                     grid-option="vm.gridOptions"
+                                     header="vm.sourceHeader"
+                                     grid-data="vm.sourceData"
+                                     total-data-count="vm.totalSourceDataCount"
+                                     reset-grid="vm.resetSourceGrid"
+                                     selectted-rows="vm.selectedRowsList"
+                                     paging-info="vm.pagingInfo"
+                                     current-item="vm.currentdata"
+                                     get-data-down="vm.getDataDown"
+                                     empty-state="vm.emptyState"
+                                     delete-multiple-data="vm.deleteMultipleData">
+                </md-card>
+                <div class="empty-state text-center full-height" flex="100"
+                     layout="row" layout-align="center center" layout-wrap
+                     ng-if="vm.isNoDataFound == true
+                                     && vm.serialType == vm.serialTypeData.PACKING">
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+          <!-- MFR Serial# -->
+          <md-tab md-on-select="vm.onTabChanges(msWizard)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="vm.mfgSerial.$invalid">1</span>
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="vm.mfgSerial.$valid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">{{vm.SerialTypeLabel.MFRSerial.Label}}</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.mfgSerial" ng-if="msWizard.selectedIndex == 1" class="md-inline-form padding-10 mh-5" novalidate>
+                <div layout="row" flex="100">
+                  <p class="font-weight-600"><b>Note: {{vm.PREFIX_OR_SUFFIX_REQUIRED_MESSAGE.message}}</b></p>
+                </div>
+                <div layout="row" layout-align="space-between start" flex="100" class="cm-section-main border-0">
+                  <div flex layout="row" class="margin-top-8 cm-section-inner padding-left-0-imp" flex-md="100" layout-md="column" flex-sm="100" layout-sm="column" layout-wrap>
+                    <div flex="100" layout>
+                      <div flex="40" layout>
+                        <p class="label-container padding-left-0-imp width-auto pt-5">Prefix</p>
+                        <md-input-container flex="100">
+                          <input type="text" name="Prefix" ng-model="vm.workorderSerialModel.prefix"
+                                 class="input-text-uppercase" ng-disabled="vm.isDisablePreSuffix"
+                                 capitalize placeholder="Prefix" ng-pattern="vm.restrictLikOperatoreWildCardChar"
+                                 ng-maxlength="vm.WorkorderSerialNoConst.MaxLengthForPrefix" ng-blur="vm.GenerateStartEndNumber(event)"
+                                 md-autofocus onkeypress="return AvoidUnderscore(event)"
+                                 md-maxlength="{{vm.WorkorderSerialNoConst.MaxLengthForPrefix}}">
+                          <div ng-messages="vm.mfgSerial.Prefix.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.WorkorderSerialNoConst.MaxLengthForPrefix, vm.mfgSerial.Prefix.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                          <span><b>{{vm.LabelConstant.Workorder.WorkorderSerialNoPrefixNote}}</b></span>
+                        </md-input-container>
+                      </div>
+                      <div flex="20" layout>
+                        <p class="label-container  padding-left-0-imp width-auto pt-5">
+                          <a class="cm-text-decoration underline" ng-click="vm.goToBarcodeSeparatorsList();" tabindex="-1">Separator</a>
+                        </p>
+                        <md-input-container flex class="autocompletecustom cm-custom-autocomplete cm-so-input-container " ng-if="vm.autoCompleteSeparator" md-no-float>
+                          <custom-auto-complete datalist="vm.separatorList"
+                                                column-name="vm.autoCompleteSeparator.columnName"
+                                                controller-name="vm.autoCompleteSeparator.controllerName"
+                                                view-template-url="vm.autoCompleteSeparator.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteSeparator.keyColumnName"
+                                                input-name="vm.autoCompleteSeparator.inputName"
+                                                placeholder-name="vm.autoCompleteSeparator.placeholderName"
+                                                key-column-id="vm.autoCompleteSeparator.keyColumnId"
+                                                is-required="vm.autoCompleteSeparator.isRequired"
+                                                is-addnew="vm.autoCompleteSeparator.isAddnew"
+                                                callback-fn="vm.autoCompleteSeparator.callbackFn"
+                                                on-select-callback-fn="vm.autoCompleteSeparator.onSelectCallbackFn"
+                                                add-data="vm.autoCompleteSeparator.addData"
+                                                is-disabled="vm.autoCompleteSeparator.isDisabled"
+                                                custom-blur="vm.GenerateStartEndNumber(event)">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </div>
+                      <div flex="40" layout>
+                        <p class="label-container width-auto pt-5">Suffix</p>
+                        <md-input-container flex="100">
+                          <input type="text" name="Suffix" ng-model="vm.workorderSerialModel.suffix"
+                                 class="input-text-uppercase" ng-disabled="vm.isDisablePreSuffix"
+                                 capitalize placeholder="Suffix" ng-pattern="vm.restrictLikOperatoreWildCardChar"
+                                 ng-maxlength="vm.WorkorderSerialNoConst.MaxLengthForSuffix" ng-blur="vm.GenerateStartEndNumber(event)"
+                                 onkeypress="return AvoidUnderscore(event)"
+                                 md-maxlength="{{vm.WorkorderSerialNoConst.MaxLengthForSuffix}}">
+                          <div ng-messages="vm.mfgSerial.Suffix.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.WorkorderSerialNoConst.MaxLengthForSuffix, vm.mfgSerial.Suffix.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                          <span><b>{{vm.LabelConstant.Workorder.WorkorderSerialNoSuffixNote}}</b></span>
+                        </md-input-container>
+                      </div>
+                    </div>
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                      <tbody>
+                        <tr>
+                          <th>
+                            <p class="label-container">No. of digits<span>&nbsp;*</span></p>
+                          </th>
+                          <td class="cm-rs-w-55 cm-w-100-1920">
+                            <md-input-container>
+                              <input type="number" name="numOfDigits" ng-model="vm.workorderSerialModel.noofDigit"
+                                     placeholder="No. of digits" min="1" max="10" ng-blur="vm.GenerateStartEndNumber(event)"
+                                     onkeypress="return OnlyNumeric(event)" ng-disabled="vm.isDisableNoOfDigit"
+                                     required>
+                              <div ng-messages="vm.mfgSerial.numOfDigits.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="min">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="max">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="number">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container">No. of serial#<span>&nbsp;*</span></p>
+                          </th>
+                          <td class="cm-rs-w-55 cm-w-100-1920">
+                            <md-input-container>
+                              <input type="number" name="numOfSerials" ng-model="vm.workorderSerialModel.numOfSerialsToGenerate"
+                                     placeholder="No. of serial#" ng-blur="vm.GenerateStartEndNumber(event)"
+                                     ng-maxlength="vm.workorderSerialModel.noofDigit"
+                                     min="1" max="{{vm.allowedSerialsToAdd}}"
+                                     onkeypress="return OnlyNumeric(event)"
+                                     required>
+                              <div ng-messages="vm.mfgSerial.numOfSerials.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="min">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="max">
+                                  <span>{{vm.SERIALS_MORETHAN_BUILD_QTY_MSG}}</span>
+                                </div>
+                                <div ng-message="number">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(vm.workorderSerialModel.noofDigit, vm.mfgSerial.numOfSerials.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container">Start#<span>&nbsp;*</span></p>
+                          </th>
+                          <td class="cm-rs-w-55 cm-w-100-1920">
+                            <md-input-container flex="100">
+                              <input type="number" name="startNumber" ng-model="vm.workorderSerialModel.startNumber"
+                                     placeholder="Start#"
+                                     min="1" max="2147483648" ng-maxlength="vm.workorderSerialModel.noofDigit"
+                                     ng-blur="vm.GenerateStartEndNumber(event)"
+                                     onkeypress="return OnlyNumeric(event)"
+                                     required>
+                              <div ng-messages="vm.mfgSerial.startNumber.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="min">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="max">
+                                  <span>{{vm.SERIALS_MORETHAN_BUILD_QTY_MSG}}</span>
+                                </div>
+                                <div ng-message="number">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(vm.workorderSerialModel.noofDigit, vm.mfgSerial.startNumber.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container">Assy Date Code Format<span>&nbsp;*</span></p>
+                          </th>
+                          <td class="cm-w-150-1920">
+                            <md-input-container flex="100">
+                              <!--class="width-150"-->
+                              <md-select name="dateCodeFormat" ng-model="vm.workorderSerialModel.dateCodeFormat" id="dateCodeFormat" ng-required="true"
+                                         md-container-class="containerClass cm-md-select " class="margin-0">
+                                <!--width-200 cm-rs-w-90-->
+                                <md-option ng-value="">Select</md-option>
+                                <md-option ng-repeat="option in vm.assyDateCodeFormats" ng-value="option">{{option}}</md-option>
+                              </md-select>
+                              <div ng-messages="vm.mfgSerial.dateCodeFormat.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container">Assy Date Code<span ng-if="vm.workorderSerialModel.dateCodeFormat">&nbsp;*</span></p>
+                          </th>
+                          <td class="w-60 cm-w-150-1920">
+                            <md-input-container flex="100">
+                              <input type="text" name="dateCode" ng-disabled="!vm.workorderSerialModel.dateCodeFormat" ng-model="vm.workorderSerialModel.dateCode"
+                                     placeholder="Date Code" custom-blur="vm.checkAssyDateCode(item)" maxlength="4"
+                                     ng-required="vm.workorderSerialModel.dateCodeFormat && vm.workorderSerialModel.dateCodeFormat != null ? true : false">
+                              <div ng-messages="vm.mfgSerial.dateCode.$error" role="alert">
+                                <div ng-message="invalidDateCode">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_DATE_CODE}}</span>
+                                </div>
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <td class="text-right">
+                            <md-button class="md-primary md-raised margin-0 margin-left-5-imp" ng-click="vm.generateSerials();"
+                                       ng-class="{'md-formdirty': vm.mfgSerial.$dirty}"
+                                       ng-disabled="vm.woInfo.isRevisedWO">Generate</md-button>
+                            <md-button class="md-primary md-raised margin-left-5-imp mt-0 mb-0 mr-0 cm-feture-btn-color" ng-disabled="(!vm.enableDeleteOperation) || vm.isNoDataFound" ng-click="vm.resetSerials();">Delete All Serial#</md-button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div layout="row" layout-align="end end" flex="100" ng-if="vm.woInfo.isRevisedWO">
+                  <p class="label-container cm-wo-font-large"><b>{{vm.Message}}</b></p>
+                </div>
+                <div layout="row" layout-align="space-between start" flex="100" ng-if="vm.startNumber && vm.endNumber && vm.workorderSerialModel.numOfSerialsToGenerate && vm.workorderSerialModel.startNumber">
+                  <div flex layout="row" class="margin-top-8" flex-md="100" layout-md="column" flex-sm="100" layout-sm="column">
+                    <div class="input-wrapper" flex layout="row">
+                      <p class="label-container cm-white-space-normal">
+                        Serial# Generate from:
+                      <p class="padding-0-10-imp font-size-15 cm-theme-color margin-top-5"><b>{{vm.startNumber}}</b></p>
+                      </p>
+                      <p class="label-container cm-white-space-normal">
+                        To:
+                      <p class="padding-0-10-imp font-size-15 cm-theme-color margin-top-5"><b>{{vm.endNumber}}</b></p>
+                      </p>
+                      <p class="label-container">
+                        Serial# Character Count:
+                      <p class="cm-theme-color margin-top-5">{{vm.serialNumberLength}}</p>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <md-card class="margin-0 cm-wo-gen-serialno-grid"
+                         layout="column" layout-align="space-between stretch"
+                         flex="100"
+                         ng-show="!vm.isNoDataFound"
+                         ng-if="vm.serialType == vm.serialTypeData.MANUFACTURE">
+                  <ui-grid-extention load-data="vm.loadData"
+                                     grid-option="vm.gridOptions"
+                                     header="vm.sourceHeader"
+                                     grid-data="vm.sourceData"
+                                     total-data-count="vm.totalSourceDataCount"
+                                     reset-grid="vm.resetSourceGrid"
+                                     selectted-rows="vm.selectedRowsList"
+                                     paging-info="vm.pagingInfo"
+                                     current-item="vm.currentdata"
+                                     get-data-down="vm.getDataDown"
+                                     empty-state="vm.emptyState"
+                                     delete-multiple-data="vm.deleteMultipleData">
+                </md-card>
+                <div class="empty-state text-center full-height" flex="100" layout="row"
+                     layout-align="center center" layout-wrap
+                     ng-if="vm.isNoDataFound == true
+                                     && vm.serialType == vm.serialTypeData.MANUFACTURE">
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+          <!-- Serial# Mapping -->
+          <md-tab md-on-select="vm.onTabChanges(msWizard)"
+                  ng-click="vm.loadMappedProductSerialsData()">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="vm.mfgSerial.$invalid">3</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.mfgSerial.$valid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Serial# Mapping</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.mappingSerials" ng-if="msWizard.selectedIndex == 2" class="md-inline-form padding-bottom-0 md-padding cm-section-main border-0 mh-5" novalidate>
+                <div flex="100" class="margin-top-10" layout="row" ng-if="vm.woInfo.isAllowFinalSerialMapping && vm.woInfo.IsCheckInOperation">
+                  <div class="cm-section-inner input-wrapper" flex="100">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                      <tbody>
+                        <tr>
+                          <th><p class="label-container">{{vm.SerialTypeLabel.MFRSerial.Label}}<span>&nbsp;</span><scan-or-enter></scan-or-enter></p></th>
+                          <td>
+                            <md-input-container flex="100">
+                              <input type="text" name="mfgSerial" ng-model="vm.mapProductSerialModel.mfgSerialNumber"
+                                     class="input-text-uppercase"
+                                     capitalize placeholder="{{vm.SerialTypeLabel.MFRSerial.Label}}"
+                                     required
+                                     my-enter="vm.checkMFGSerialValid()"
+                                     md-autofocus onkeypress="return AvoidUnderscore(event)"
+                                     ng-disabled="vm.isMFGSerialValidForMap">
+                              <span flex="100" class="font-size-10">
+                                <b>{{vm.LabelConstant.ScanOREnter.ScanMFRSerialNum}}</b>
+                              </span>
+                              <div ng-messages="vm.mappingSerials.mfgSerial.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <!-- as per new format no limit on generated Serial#
+                                  <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(50, vm.mappingSerials.mfgSerial.$viewValue.length)}}</span>
+                                </div>-->
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th><p class="label-container">{{vm.SerialTypeLabel.FinalSerial.Label}}<span>&nbsp;</span><scan-or-enter></scan-or-enter></p></th>
+                          <td>
+                            <md-input-container flex="100">
+                              <input type="text" id="finalProductSerial" name="productSerial" ng-model="vm.mapProductSerialModel.productSerialNumber"
+                                     class="input-text-uppercase" capitalize placeholder="{{vm.SerialTypeLabel.FinalSerial.Label}}"
+                                     required onkeypress="return AvoidUnderscore(event)"
+                                     my-enter="vm.checkProductSerialValidAndSave()" ng-disabled="!vm.isMFGSerialValidForMap">
+                              <span flex="100" class="font-size-10">
+                                <b>{{vm.LabelConstant.ScanOREnter.ScanFinalSerialNum}}</b>
+                              </span>
+                              <div ng-messages="vm.mappingSerials.productSerial.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <!-- as per new format no limit on generated Serial#
+                                                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(50, vm.mappingSerials.productSerial.$viewValue.length)}}</span>
+                                </div>-->
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <td>
+                            <md-button class="md-primary md-raised margin-0 margin-left-10"
+                                       ng-click="vm.clearMapSerialsData();">Clear</md-button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <md-card class="margin-10 cm-wo-gen-serialno-grid" layout="column" layout-align="space-between stretch" flex
+                         ng-show="!vm.isNoDataFoundForMapProdSerials"
+                         ng-if="msWizard.selectedIndex == 2">
+                  <!--                  <span><b class="cm-mfg-grid-data">Mapped Product Serial# List</b></span>-->
+                  <ui-grid-extention load-data="vm.loadDataForMapProdSerials"
+                                     grid-option="vm.gridOptionsForMapProdSerials"
+                                     header="vm.sourceHeaderForMapProdSerials"
+                                     grid-id="vm.gridConfig.gridSerialNoMapping"
+                                     grid-data="vm.sourceDataForMapProdSerials"
+                                     total-data-count="vm.totalSourceDataCountForMapProdSerials"
+                                     reset-grid="vm.resetSourceGridForMapProdSerials"
+                                     selectted-rows="vm.selectedRowsListForMapProdSerials"
+                                     paging-info="vm.pagingInfoForMapProdSerials"
+                                     current-item="vm.currentdataForMapProdSerials"
+                                     get-data-down="vm.getDataDownForMapProdSerials"
+                                     empty-state="vm.emptyStateForMapProdSerials"
+                                     delete-multiple-data="vm.deleteMultipleDataForMapProdSerials">
+                </md-card>
+                <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                     ng-if="vm.isNoDataFoundForMapProdSerials == true">
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.EmptyMesssageForMapProdSerials.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title">{{vm.EmptyMesssageForMapProdSerials.MESSAGE}}</p>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+        </md-tabs>
+      </ms-form-wizard>
+      <div ng-show="vm.isLoading">
+        <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap>
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.WaitWhileLoadMessage.IMAGEURL}}" />
+          </div>
+          <p flex="100" class="empty-state-title">{{vm.WaitWhileLoadMessage.MESSAGE}}</p>
+        </div>
+      </div>
+    </md-content>
+  </md-dialog-content>
+  <md-dialog-actions layout="row">
+    <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+  </md-dialog-actions>
+</md-dialog>

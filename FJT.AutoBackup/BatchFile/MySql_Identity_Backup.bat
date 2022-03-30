@@ -1,0 +1,1 @@
+"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe" -u root -ptriveni@123 --lock-tables=false --single-transaction --add-drop-table -R -E --databases fjt_identity_main > C:\FJTBackup\08132021\08132021173148\fjt_identity_main_08132021173148.sql

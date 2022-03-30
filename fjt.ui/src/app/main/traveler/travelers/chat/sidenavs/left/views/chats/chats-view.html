@@ -1,0 +1,202 @@
+<!-- CHATS TOOLBAR -->
+<md-toolbar class="md-tall" ng-class="{'chat-toolbar-height':vm.isFromTraveler}">
+  <!-- TOOLBAR TOP -->
+  <div class="md-toolbar-tools md-toolbar-tools-top md-inline-form cm-custom-label-common ">
+    <!-- USER AVATAR WRAPPER -->
+    <div class="avatar-wrapper">
+      <!-- USER AVATAR -->
+      <!--<h3>{{vm.sender}}</h3>-->
+      <div layout="row" layout-align="start center">
+        <div class="avatar-wrapper">
+          <img ng-src="{{vm.sender.profilePic}}" class="md-avatar avatar" ng-if="vm.sender.profilePic" />
+          <div class="chricon" ng-if="!vm.sender.profilePic"> {{vm.sender.namechar}} </div>
+        </div>
+        <div class="chat-contact-name sendername">
+          {{vm.sender.name}}
+        </div>
+      </div>
+      <!-- / USER AVATAR -->
+      <!-- USER STATUS -->
+      <md-menu id="user-status-menu">
+        <i class="icon s16 status mr-8" ng-click="$mdOpenMenu()"
+           ng-class="{'icon-checkbox-marked-circle green-fg': vm.sender.onlineStatus ==  vm.userStatus.ONLINE,'icon-clock orange-500-fg': vm.sender.onlineStatus ==  vm.userStatus.AWAY,'icon-minus-circle red-fg': vm.sender.onlineStatus ==  vm.userStatus.DONOTDISTURB,'icon-checkbox-blank-circle-outline green-fg': (vm.sender.onlineStatus ==  vm.userStatus.OFFLINE || vm.sender.onlineStatus == null) }">
+        </i>
+        <md-menu-content>
+          <md-menu-item>
+            <md-button ng-click="vm.setUserStatus(vm.userStatus.ONLINE)">
+              <div layout="row" layout-align="start center">
+                <i class="icon s16 status icon-checkbox-marked-circle mr-8 green-fg"></i>
+                <span>Online</span>
+              </div>
+            </md-button>
+          </md-menu-item>
+          <md-menu-item>
+            <md-button ng-click="vm.setUserStatus(vm.userStatus.AWAY)">
+              <div layout="row" layout-align="start center">
+                <i class="icon s16 status icon-clock mr-8 orange-500-fg"></i>
+                <span>Away</span>
+              </div>
+            </md-button>
+          </md-menu-item>
+          <md-menu-item>
+            <md-button ng-click="vm.setUserStatus(vm.userStatus.DONOTDISTURB)">
+              <div layout="row" layout-align="start center">
+                <i class="icon s16 status icon-minus-circle mr-8 red-fg"></i>
+                <span>Do not disturb</span>
+              </div>
+            </md-button>
+          </md-menu-item>
+          <md-menu-item>
+            <md-button ng-click="vm.setUserStatus(vm.userStatus.OFFLINE)">
+              <div layout="row" layout-align="start center">
+                <i class="icon s16 status icon-checkbox-blank-circle-outline mr-8 green-fg"></i>
+                <span>Offline</span>
+              </div>
+            </md-button>
+          </md-menu-item>
+        </md-menu-content>
+      </md-menu>
+      <!-- / USER STATUS -->
+    </div>
+    <!-- / USER AVATAR -->
+    <md-menu md-position-mode="target-right target">
+      <md-button class="md-icon-button" ng-click="$mdOpenMenu()"
+                 aria-label="more">
+        <md-icon md-font-icon="icon-dots-vertical"></md-icon>
+      </md-button>
+      <md-menu-content width="3">
+        <md-menu-item>
+          <md-button ng-click="vm.closeChat();">
+            Exit
+          </md-button>
+        </md-menu-item>
+      </md-menu-content>
+    </md-menu>
+  </div>
+  <!-- / TOOLBAR TOP -->
+  <!-- TOOLBAR BOTTOM -->
+  <div class="md-toolbar-tools md-toolbar-tools-bottom cm-custom-label-common" layout-wrap>
+    <div layout="row" class="padding-5" flex="100" ng-if="vm.isFromTraveler && vm.autoCompleteWorkAreaDetail">
+
+      <p class="margin-0 font-size-14 line-height-28">
+        {{vm.autoCompleteWorkAreaDetail.placeholderName}}
+      </p>
+      <md-input-container class="autocompletecustom" flex="100">
+        <custom-auto-complete datalist="vm.ResponsibilityList"
+                              column-name="vm.autoCompleteWorkAreaDetail.columnName"
+                              key-column-name="vm.autoCompleteWorkAreaDetail.keyColumnName"
+                              input-name="vm.autoCompleteWorkAreaDetail.inputName"
+                              placeholder-name="vm.autoCompleteWorkAreaDetail.placeholderName"
+                              key-column-id="vm.autoCompleteWorkAreaDetail.keyColumnId"
+                              is-required="vm.autoCompleteWorkAreaDetail.isRequired"
+                              is-addnew="vm.autoCompleteWorkAreaDetail.isAddnew"
+                              add-data="vm.autoCompleteWorkAreaDetail.addData"
+                              callback-fn="vm.autoCompleteWorkAreaDetail.callbackFn"
+                              on-select-callback-fn="vm.autoCompleteWorkAreaDetail.onSelectCallbackFn">
+        </custom-auto-complete>
+      </md-input-container>
+
+    </div>
+    <!-- SEARCH -->
+    <div class="search-wrapper md-whiteframe-1dp" layout="row" layout-align="start center" flex="100">
+      <div class="search" flex layout="row" layout-align="start center">
+        <md-icon md-font-icon="icon-magnify" class="icon s18">
+        </md-icon>
+        <input flex ng-model="vm.chatSearch" id="chatsearch1" ng-model-options="{debounce: vm.debounceTime }" type="text" ng-change="vm.searchChat()" placeholder="Search or start new chat">
+      </div>
+      <md-icon class="" md-font-icon="icon-close" ng-if="vm.chatSearch" ng-click="vm.chatSearch = '';vm.searchChat()"></md-icon>
+    </div>
+    <!-- / SEARCH -->
+  </div>
+  <!-- / TOOLBAR BOTTOM -->
+</md-toolbar>
+<!-- / CHATS TOOLBAR -->
+<!-- CHATS CONTENT -->
+<md-content flex id="chat_container">
+  <div flex="100" class="margin-bottom-10">
+    <md-tabs class="fielddetail padding-0 manage-workorder-tabing" md-dynamic-height id="manage-workorder-tabing"
+             md-selected="vm.tabIndex" md-center-tabs="true">
+      <md-tab md-on-select="vm.onTabChanges(vm.chatSearchOption.ALL)">
+        <md-tab-label>ALL</md-tab-label>
+      </md-tab>
+      <md-tab md-on-select="vm.onTabChanges(vm.chatSearchOption.CONTACT)">
+        <md-tab-label>CONTACTS</md-tab-label>
+      </md-tab>
+      <md-tab md-on-select="vm.onTabChanges(vm.chatSearchOption.GROUP)">
+        <md-tab-label>GROUP</md-tab-label>
+      </md-tab>
+      <md-tab md-on-select="vm.onTabChanges(vm.chatSearchOption.MESSAGE)">
+        <md-tab-label>MESSAGE</md-tab-label>
+      </md-tab>
+    </md-tabs>
+  </div>
+  <md-list class="chatscroll contact-list chatting">
+    <md-list-item class="contact md-3-line" ng-class="{'active': (contact.id && contact.id == vm.receiver.id) || (contact.groupID != null && contact.groupID == vm.receiver.groupID)}"
+                  ng-repeat="contact in vm.contactList | filter: {name: vm.chatSearch}"
+                  ng-click="vm.getChatDetail(contact,false)" id="chat_{{$index}}">
+      <div class="avatar-wrapper">
+        <div ng-if="!contact.groupID && contact.profilePic"> <img ng-src="{{contact.profilePic}}" class="md-avatar avatar" ng-if="contact.profilePic" /> </div>
+        <div class="chricon" ng-if="!contact.groupID && !contact.profilePic"> {{contact.namechar}} </div>
+        <img src="../../../../assets/images/avatars/groupicon.png" class="md-avatar" ng-if="contact.groupID" />
+        <i class="icon s16 status mr-8" ng-if="!contact.groupID"
+           ng-class="{'icon-checkbox-marked-circle green-fg': contact.onlineStatus ==  vm.userStatus.ONLINE,'icon-clock orange-500-fg': contact.onlineStatus ==  vm.userStatus.AWAY,'icon-minus-circle red-fg': contact.onlineStatus ==  vm.userStatus.DONOTDISTURB,'icon-checkbox-blank-circle-outline green-fg': (contact.onlineStatus ==  vm.userStatus.OFFLINE || contact.onlineStatus == null) }">
+        </i>
+      </div>
+      <div class="md-list-item-text">
+        <h3>{{contact.name}}</h3>
+        <!--<p class="mood">mood Text goes here..</p>-->
+      </div>
+      <div layout="column" layout-align="center end" ng-if="contact.messageCount">
+        <div class="md-accent-bg unread-message-count">{{contact.messageCount}}</div>
+      </div>
+    </md-list-item>
+    <div ng-if="(vm.contactList | filter: {name: vm.chatSearch}).length == 0  && vm.currentTab != vm.chatSearchOption.MESSAGE">
+      <div class="md-list-item-text">
+        <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap>
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.ChatSearchEmptyMesssage.IMAGEURL}}" />
+          </div>
+          <p flex="100" class="empty-state-title">{{vm.ChatSearchEmptyMesssage.SEARCH_EMPTY_MESSAGE}} <span class="bom-header-wrap">{{vm.chatSearch}}</span></p>
+        </div>
+      </div>
+    </div>
+  </md-list>
+  <md-list class="chatscroll">
+    <md-list-item class="contact md-3-line"
+                  ng-repeat="msg in vm.messageSearchList"
+                  ng-click="vm.getMsgChatDetail(msg)" id="chat_{{$index}}">
+
+      <div class="md-list-item-text message-search-list" layout="row" layout-wrap>
+        <div class="avatar-wrapper">
+          <img ng-src="{{msg.profilePic}}" class="md-avatar avatar" ng-if="msg.profilePic" />
+        </div>
+        <div class="md-list-item-text">
+          <h3><b>{{msg.sendername}}</b></h3>
+          <h4 class="bom-header-wrap">
+            <highlightsfont>
+              <span class="message" ng-bind-html="msg.message"></span>
+            </highlightsfont>
+          </h4>
+          <h6>{{msg.chatDateTime}}</h6>
+        </div>
+      </div>
+    </md-list-item>
+    <div ng-if="vm.messageSearchList.length == 0  && vm.currentTab == vm.chatSearchOption.MESSAGE">
+      <div class="md-list-item-text">
+        <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap>
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.ChatSearchEmptyMesssage.IMAGEURL}}" />
+          </div>
+          <p flex="100" ng-if="!vm.chatSearch" class="empty-state-title">{{vm.ChatSearchEmptyMesssage.EMPTY_MESSAGE}}</p>
+          <p flex="100" ng-if="vm.chatSearch" class="empty-state-title">{{vm.ChatSearchEmptyMesssage.SEARCH_EMPTY_MESSAGE}} <span class="bom-header-wrap">{{vm.chatSearch}}</span></p>
+        </div>
+      </div>
+    </div>
+  </md-list>
+</md-content>
+<!-- / CHATS CONTENT -->
+<!-- CONTACTS BUTTON -->
+<!--<md-button class="md-fab contacts-button" ng-click="vm.toggleLeftSidenavView('contacts')" aria-label="contacts button">
+    <md-icon md-font-icon="icon-plus"></md-icon>
+</md-button>-->
+<!-- / CONTACTS BUTTON -->

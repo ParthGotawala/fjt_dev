@@ -1,0 +1,479 @@
+<md-dialog aria-label="Add Equipment" cg-busy="{promise:vm.cgBusyLoading}" draggable class="cm-custom-label-common width-65P"> <!--flex="50" flex-lg="60"-->
+  <form name="vm.AddEquipmentForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{vm.manageEquipment.eqpID?'Update':'Add'}} {{vm.title}}</h2>
+        <span flex></span>
+        <div layout="row" layout-align="center center" class="cm-wo-gen">
+          <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        </div>
+        <md-button class="md-primary md-raised" id="headerAddBtn" ng-click="vm.saveAndProceed(vm.BUTTON_TYPE.ADDNEW)">Add {{vm.title}}</md-button>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll" layout="column">
+
+      <md-content class="padding-10">
+        <div layout="row" flex="100" layout-align="start start">
+          <div class="cm-section-main border-0" flex="100">
+            <div layout="row" class="cm-section-inner" flex="100">
+              <div layout="row" flex="25">
+                <div class="pr-20 margin-auto-rs pr-0-rs">
+                  <div layout="column" layout-gt-xs="row" flex class="pastewrapper" layout-align="center-start">
+                    <div class="drop-box image cm-emp-img">
+                      <img class="img img-no-drag" ng-src="{{vm.imagefile}}" />
+                    </div>
+                  </div>
+                  <div class="image-list" layout="row" flex="100">
+                    <div class="images" layout="row" flex="100">
+                      <div class="margin-right-8" ngf-drop="vm.cropImage($file,$event)"
+                           ngf-select="vm.cropImage($file,$event)"
+                           ng-model="vm.manageEquipment.profileImage"
+                           ngf-drag-over-class="'dragover'" accept="image/*" flex="50"
+                           ngf-pattern="'image/*'" id="profileImage" name="profileImage">
+                        <md-button class="md-primary float-left md-raised mv-0 margin-0  width-100p">
+                          Add
+                        </md-button>
+                      </div>
+                      <div flex="50" class="editdelete deletelocation"
+                           ng-class="{ topoption:true }"
+                           ng-if="vm.manageEquipment.profileImage">
+                        <md-button class="md-primary float-right md-raised mv-0 margin-0  width-100p"
+                                   ng-click="vm.deleteImage()">
+                          Remove
+                        </md-button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div layout="row" flex="75">
+                <table class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th>
+
+                      </th>
+                      <td colspan="3">
+                        <md-input-container>
+                          <md-radio-group layout="row" layout-align="end end" layout-wrap
+                                          name="equipmentworkStation" ng-model="vm.manageEquipment.equipmentAs" ng-change="vm.equipmentworkStationChange(vm.manageEquipment.equipmentAs)">
+                            <md-radio-button ng-repeat="item in vm.RadioGroup.equipmentAs.array" ng-disabled="true"
+                                             ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                          </md-radio-group>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">Name<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p>
+                      </th>
+                      <td>
+                        <md-input-container>
+                          <input type="text" name="assetName" ng-model="vm.manageEquipment.assetName" custom-blur="vm.checkEquipmentAndWorkstationNameAlreadyExists()"
+                                 placeholder="Name" required ng-maxlength="255" md-maxlength="255" md-autofocus>
+                          <div ng-messages="vm.AddEquipmentForm.assetName.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(255,vm.AddEquipmentForm.assetName.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th><p class="label-container">Make<span>&nbsp;*</span></p></th>
+                      <td>
+                        <md-input-container>
+                          <input type="text" name="eqpMake" ng-model="vm.manageEquipment.eqpMake"
+                                 placeholder="Make" required ng-maxlength="100" md-maxlength="100">
+                          <div ng-messages="vm.AddEquipmentForm.eqpMake.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(100,vm.AddEquipmentForm.eqpMake.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">Model<span>&nbsp;*</span></p></th>
+                      <td>
+                        <md-input-container>
+                          <input type="text" name="eqpModel" ng-model="vm.manageEquipment.eqpModel"
+                                 placeholder="Model" required ng-maxlength="255" md-maxlength="255">
+                          <div ng-messages="vm.AddEquipmentForm.eqpModel.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(255,vm.AddEquipmentForm.eqpModel.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th><p class="label-container">Year<span>&nbsp;*</span></p></th>
+                      <td>
+                        <md-input-container>
+                          <input type="number" placeholder="Year" ng-model="vm.manageEquipment.eqpYear"
+                                 required name="eqpYear" step="1" min="0" max="9999"
+                                 onKeyPress="return OnlyNumeric(event)"
+                                 aria-label="Subject" ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" maxlength="4" md-maxlength="4">
+                          <div ng-messages="vm.AddEquipmentForm.eqpYear.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="min">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                            </div>
+                            <div ng-message="step || number || max || maxlength">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">Workstation/Asset#<span>&nbsp;*</span></p></th>
+                      <td>
+                        <md-input-container>
+                          <input type="text" name="assetNumber" ng-model="vm.manageEquipment.assetNumber"
+                                 placeholder="Asset #" required ng-maxlength="11" md-maxlength="11">
+                          <div ng-messages="vm.AddEquipmentForm.assetNumber.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(11,vm.AddEquipmentForm.assetNumber.$viewValue.length)}}</span>
+                            </div>
+                            <div ng-message="number">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">
+                          Setup Method
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container>
+                          <md-select name="equipmentSetupMethod"
+                                     ng-model="vm.equipmentSetupMethod"
+                                     ng-required="false"
+                                     md-container-class="containerClass cm-md-select"
+                                     ng-disabled="vm.manageEquipment.equipmentAs != vm.equipmentRadioButtonValue.Equipment.ID">
+                            <md-option style="width: 315px;" ng-repeat="option in vm.equipmentSetupMethodConstList" ng-value="option.Value">{{option.Key}}</md-option>
+                          </md-select>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr ng-if="vm.autoCompleteSearchAssy && vm.manageEquipment.equipmentAs == vm.equipmentRadioButtonValue.Sample.ID">
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToPartList();">Ref Assembly</a><span>&nbsp;*</span>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container class="autocompletecustom" flex="100">
+                          <custom-auto-complete-search on-search-fn="vm.autoCompleteSearchAssy.onSearchFn"
+                                                       column-name="vm.autoCompleteSearchAssy.columnName"
+                                                       controller-name="vm.autoCompleteSearchAssy.controllerName"
+                                                       view-template-url="vm.autoCompleteSearchAssy.viewTemplateURL"
+                                                       parent-column-name="vm.autoCompleteSearchAssy.parentColumnName"
+                                                       key-column-name="vm.autoCompleteSearchAssy.keyColumnName"
+                                                       input-name="vm.autoCompleteSearchAssy.inputName"
+                                                       placeholder-name="vm.autoCompleteSearchAssy.placeholderName"
+                                                       key-column-id="vm.autoCompleteSearchAssy.keyColumnId"
+                                                       is-required="(vm.manageEquipment.equipmentAs == vm.equipmentRadioButtonValue.Sample.ID)"
+                                                       is-addnew="vm.autoCompleteSearchAssy.isAddnew"
+                                                       callback-fn="vm.autoCompleteSearchAssy.callbackFn"
+                                                       search-text="vm.autoCompleteSearchAssy.searchText"
+                                                       parent-id=""
+                                                       add-data="vm.autoCompleteSearchAssy.addData"
+                                                       on-select-callback-fn="vm.autoCompleteSearchAssy.onSelectCallbackFn"
+                                                       is-disabled="vm.manageEquipment.equipmentAs != vm.equipmentRadioButtonValue.Sample.ID">
+                          </custom-auto-complete-search>
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToBinList();">{{vm.LabelConstant.TransferStock.Bin}}</a><span ng-if="vm.manageEquipment.equipmentAs == vm.equipmentRadioButtonValue.Sample.ID">&nbsp;*</span><scan-or-enter></scan-or-enter>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                          <input type="text" name="binName" id="binName" ng-model="vm.manageEquipment.bin" maxlength="50" md-maxlength="50"
+                                 ng-required="vm.manageEquipment.equipmentAs == vm.equipmentRadioButtonValue.Sample.ID"
+                                 ng-disabled="vm.manageEquipment.equipmentAs != vm.equipmentRadioButtonValue.Sample.ID"
+                                 ng-keypress="vm.scanBin($event,true)" custom-blur="vm.scanBin($event,false)">
+                          <span flex="100" class="font-size-10">
+                            <b>{{vm.LabelConstant.ScanOREnter.ScanBin}}</b>
+                          </span>
+                          <div ng-messages="vm.manageEquipmentForm.binName.$touched && vm.manageEquipmentForm.binName.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(50,vm.manageEquipmentForm.binName.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <!---------------------Display MFR and MFRPN------------------------>
+                    <tr ng-if="vm.manageEquipment.equipmentAs == vm.equipmentRadioButtonValue.Sample.ID">
+
+                      <th>
+                        <p class="label-container margin-top-5">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.gotoManufacturerList();">{{vm.LabelConstant.MFG.MFG}}</a>
+                        </p>
+                      </th>
+                      <td class="pt-2">
+                        <md-input-container class="margin-0" flex="100">
+                          <span ng-class="{'text-underline': vm.selectedMFG.mfgCodewithName, 'cursor-pointer': vm.selectedMFG.mfgCodewithName}" ng-click="vm.selectedMFG.mfgCodewithName ? vm.goToManufacturerDetail() : ''">
+                            <b>{{vm.selectedMFG.mfgCodewithName}}</b>
+                          </span>
+                        </md-input-container>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">{{vm.LabelConstant.MFG.MFGPN}}</a>
+                        </p>
+                      </th>
+                      <td colspan="2" class="pt-2">
+                        <md-input-container class="margin-0" flex="100">
+                          <common-pid-code-label-link component-id="vm.selectedMFG.id"
+                                                      label="vm.LabelConstant.MFG.MFGPN"
+                                                      value="vm.selectedMFG.mfgPN"
+                                                      is-copy="true"
+                                                      rohs-icon="vm.rohsImagePath+vm.selectedMFG.rohsIcon"
+                                                      rohs-status="vm.selectedMFG.name"
+                                                      is-supplier="false"
+                                                      is-search-digi-key="false"
+                                                      is-search-findchip="false">
+                          </common-pid-code-label-link>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <!---------------------End Display MFR and MFRPN------------------------>
+                    <tr ng-if="vm.manageEquipment.equipmentAs == vm.equipmentRadioButtonValue.Sample.ID">
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.WH}}</a>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="warehouse" id="warehouse" ng-model="vm.manageEquipment.warehouse" placeholder="Warehouse" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.ParentWH}}</a>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="parentWarehouse" id="parentWarehouse" ng-model="vm.manageEquipment.parentWarehouse" placeholder="Parent Warehouse" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th ng-if="vm.autoCompleteEquipmentOwnershipType"><p class="label-container"><a class="cm-text-decoration underline" ng-click="vm.goToEquipmentOwnershipTypeList();" tabindex="-1">{{vm.autoCompleteEquipmentOwnershipType.placeholderName}}</a><span>&nbsp;*</span></p></th>
+                      <td ng-if="vm.autoCompleteEquipmentOwnershipType">
+                        <md-input-container class="autocompletecustom  cm-custom-autocomplete">
+                          <custom-auto-complete datalist="vm.EquipmentOwnershipTypeList"
+                                                column-name="vm.autoCompleteEquipmentOwnershipType.columnName"
+                                                controller-name="vm.autoCompleteEquipmentOwnershipType.controllerName"
+                                                view-template-url="vm.autoCompleteEquipmentOwnershipType.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteEquipmentOwnershipType.keyColumnName"
+                                                input-name="vm.autoCompleteEquipmentOwnershipType.inputName"
+                                                placeholder-name="vm.autoCompleteEquipmentOwnershipType.placeholderName"
+                                                key-column-id="vm.autoCompleteEquipmentOwnershipType.keyColumnId"
+                                                is-required="vm.autoCompleteEquipmentOwnershipType.isRequired"
+                                                is-addnew="vm.autoCompleteEquipmentOwnershipType.isAddnew"
+                                                callback-fn="vm.autoCompleteEquipmentOwnershipType.callbackFn"
+                                                add-data="vm.autoCompleteEquipmentOwnershipType.addData"
+                                                on-select-callback-fn="vm.autoCompleteEquipmentOwnershipType.onSelectCallbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                      <th ng-if="vm.isLoan">
+                        <p class="label-container">Bank Name<span>&nbsp;*</span></p>
+                      </th>
+                      <td ng-if="vm.isLoan">
+                        <md-input-container>
+                          <input type="text" name="bankName" ng-model="vm.manageEquipment.bankName"
+                                 placeholder="Bank Name" required ng-maxlength="255" md-maxlength="255">
+                          <div ng-messages="vm.AddEquipmentForm.bankName.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(255, vm.AddEquipmentForm.bankName.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th ng-if="vm.autoCompleteCustomer && vm.isshowCustomer">
+                        <p class="label-container"><a class="cm-text-decoration underline" ng-click="vm.goToCustomerList();" tabindex="-1">{{vm.autoCompleteCustomer.placeholderName}}</a><span>&nbsp;*</span></p>
+                      </th>
+                      <td ng-if="vm.autoCompleteCustomer && vm.isshowCustomer">
+                        <md-input-container class="autocompletecustom  cm-custom-autocomplete">
+                          <custom-auto-complete datalist="vm.CustomerList"
+                                                column-name="vm.autoCompleteCustomer.columnName"
+                                                controller-name="vm.autoCompleteCustomer.controllerName"
+                                                view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                                input-name="vm.autoCompleteCustomer.inputName"
+                                                placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                                key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                                is-required="vm.autoCompleteCustomer.isRequired"
+                                                is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                                add-data="vm.autoCompleteCustomer.addData"
+                                                callback-fn="vm.autoCompleteCustomer.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">Placed In Service Date</p>
+                      </th>
+                      <td>
+                        <md-input-container class="md-block datepicker padding-right-0-imp" flex="100">
+                          <input type="text" class="float-left"
+                                 name="placedInServiceDate"
+                                 max-value="vm.todayDate"
+                                 max-value-is-today-date="true"
+                                 allow-past-date="true"
+                                 allow-future-date="false"
+                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                 ng-model="vm.manageEquipment.placedInServiceDate"
+                                 enable-time="false"
+                                 ui-options="{clearOnBlur  : true}"
+                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                 model-view-value="true"
+                                 datepicker-options="vm.placedInServiceDateOptions"
+                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.placedInServiceDate]"
+                                 ng-change="vm.onChangePlacedInServiceDate(vm.manageEquipment.outOfServiceDate)" />
+                          <md-icon md-font-icon="icon-calendar calender-icon"
+                                   ng-click="vm.IsPickerOpen[vm.DATE_PICKER.placedInServiceDate] = true">
+                          </md-icon>
+                          <div ng-messages="vm.AddEquipmentForm.placedInServiceDate.$error"
+                               role="alert">
+                            <div ng-message="maxvalue">
+                              <span>{{vm.getMaxDateValidation('Placed In Service Date', 'Today Date')}}</span>
+                            </div>
+                            <div ng-message="valid">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="datetime">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">Out of Service Date</p>
+                      </th>
+                      <td>
+                        <md-input-container class="md-block datepicker padding-right-0-imp" flex="100">
+                          <input type="text" class="float-left"
+                                 name="outOfServiceDate"
+                                 min-value="vm.manageEquipment.eqpID ? vm.manageEquipment.placedInServiceDate : (vm.manageEquipment.placedInServiceDate ? ((vm.outOfServiceDateOptions.minDate > vm.todayDate) ? vm.manageEquipment.placedInServiceDate : vm.todayDate) : vm.todayDate)"
+                                 min-value-is-today-date="vm.manageEquipment.eqpID ? false : (vm.manageEquipment.placedInServiceDate ? ((vm.outOfServiceDateOptions.minDate > vm.todayDate) ? false : true) : true)"
+                                 allow-past-date="true"
+                                 allow-future-date="true"
+                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                 ng-model="vm.manageEquipment.outOfServiceDate"
+                                 enable-time="false"
+                                 ui-options="{clearOnBlur  : true}"
+                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                 model-view-value="true"
+                                 datepicker-options="vm.outOfServiceDateOptions"
+                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.outOfServiceDate]" />
+                          <md-icon md-font-icon="icon-calendar calender-icon"
+                                   ng-click="vm.IsPickerOpen[vm.DATE_PICKER.outOfServiceDate] = true">
+                          </md-icon>
+                          <div ng-messages="vm.AddEquipmentForm.outOfServiceDate.$error" role="alert">
+                            <div ng-message="minvalue">
+                              <span>{{vm.getMinDateValidationEquipmentDate('Out of Service Date')}}</span>
+                            </div>
+                            <div ng-message="valid">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="datetime">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                      </th>
+                      <td>
+                        <md-checkbox ng-model="vm.manageEquipment.calibrationRequired" name="calibrationRequired"
+                                     class="margin-top-5imp"
+                                     ng-disabled="vm.manageEquipment.equipmentAs == vm.equipmentRadioButtonValue.Sample.ID || vm.isDefaultcalibrationRequired">
+                          Required Calibration
+                        </md-checkbox>
+                      </td>
+                    </tr>
+
+                </table>
+              </div>
+            </div>
+            <div layout="row" class="cm-section-inner" flex="100">
+              <md-input-container flex="100" class="md-block margin-bottom-0">
+                <div layout="column" flex="100" flex-xs="100">
+                  <p class="label-container">
+                    Description
+                    <span class="label-container color-red">{{vm.minLengthMessage}}<span ng-if="vm.taToolbar.REQUIRED">&nbsp;*</span></span>
+                    <div ng-if="vm.AddEquipmentForm.eqpDescription.$error.taMaxText" style="color:red; font-size:12px">{{vm.getDescrLengthValidation(vm.taToolbar.MAX_LENGTH, vm.AddEquipmentForm.eqpDescription.$viewValue)}}</div>
+                  </p>
+                </div>
+                <div class="cm-add-workstation-text-angular">
+                  <text-angular ta-toolbar="vm.taToolbar.INLINE" cg-busy-loading="vm.cgBusyLoading" ng-model="vm.manageEquipment.eqpDescription"
+                                ng-class="{'text-angular-custom-border':vm.AddEquipmentForm.eqpDescription.$error.taMaxText}"
+                                name="eqpDescription"
+                                ta-disabled="vm.isPublishDisabled"
+                                ta-min-text="{{vm.taToolbar.MIN_LENGTH}}"
+                                ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"
+                                ng-required="{{vm.taToolbar.REQUIRED ? vm.taToolbar.REQUIRED : false}}"></text-angular>
+                </div>
+              </md-input-container>
+            </div>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-disabled="vm.saveDisable" ng-click="vm.save(vm.BUTTON_TYPE.SAVE)" aria-label="Submit" ng-class="{'md-formdirty':  vm.AddEquipmentForm.$dirty}">Save</md-button>
+      <md-button class="md-primary md-raised" ng-disabled="vm.saveDisable" data-focusButton="headerAddBtn" last-element elementcondition="true" ng-click="vm.save(vm.BUTTON_TYPE.SAVEANDEXIT);" aria-label="Submit" ng-class="{'md-formdirty': vm.AddEquipmentForm.$dirty}">{{vm.CORE_MESSAGE_CONSTANT.SAVE_AND_EXIT}}</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

@@ -1,0 +1,643 @@
+<md-toolbar class="md-theme-light cm-custom-label-common" layout="row" layout-align="space-between center">
+  <h1 class="md-toolbar-tools" flex="35">Part Pre-Programming: {{::vm.opFullName}}</h1>
+  <div layout="row" flex>
+    <div ng-if="preProgComponentData.woOPID" layout-align="end-center" flex="100" layout="row">
+      <traveler-emp-working-time-status wo-op-id="preProgComponentData.woOPID" wo-trans-id="preProgComponentData.transID"></traveler-emp-working-time-status>
+    </div>
+    <md-button class="md-icon-button margin-right-10" ng-click="vm.closeSidenav()">
+      <md-icon md-font-icon="icon-close"></md-icon>
+    </md-button>
+  </div>
+</md-toolbar>
+<md-content layout-padding layout="row" flex="100" layout-align="start start" layout-wrap class="fullheight-toolbar-footer custom-scroll cm-custom-label-common">
+  <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+  <div layout="row" flex="100" class="border pv-0">
+    <div layout="row" class="cm-section-main border-0" flex="100">
+      <div class="cm-section-inner p-0-imp" flex="100" layout="row">
+        <div flex="100" layout="row">
+          <div flex="70" layout="row">
+            <table width="100%" class="opration-table cm-equipment-feeder-header m-0 width-auto">
+              <tr>
+                <th>
+                  <p class="label-container pt-10 mt-1">
+                    <a class="underline cursor-pointer" ng-click="vm.goToWorkorderList();">
+                      {{vm.LabelConstant.Workorder.WO}}
+                    </a>:
+                  </p>
+                </th>
+                <td>
+                  <span class="value cm-text-decoration" ng-click="vm.goToWorkorderDetails();">
+                    {{preProgComponentData.woNumber}}
+                  </span>
+                </td>
+                <th class="pl-15">
+                  <p class="label-container pt-10 mt-1 color-blue">
+                    {{vm.LabelConstant.Workorder.Version}}:
+                  </p>
+                </th>
+                <td>
+                  <span class="value">
+                    {{preProgComponentData.woVersion}}
+                  </span>
+                </td>
+                <th class="pl-15">
+                  <p class="label-container mt-1 pt-10 mb-6">
+                    <a class="underline cm-assy-pid cursor-pointer" ng-click="vm.goToAssemblyList();">
+                      {{vm.LabelConstant.Assembly.ID}}
+                    </a>:
+                  </p>
+                </th>
+                <td>
+                  <span class="value inline-block">
+                    <common-pid-code-label-link component-id="preProgComponentData.partID"
+                                                label="vm.LabelConstant.Assembly.ID" value="preProgComponentData.PIDCode"
+                                                is-copy="true"
+                                                rohs-icon="vm.rohsImagePath + preProgComponentData.rohsIcon"
+                                                rohs-status="preProgComponentData.rohsStatus" is-formated="true"
+                                                is-assembly="true"
+                                                is-custom-part="preProgComponentData.isCustom">
+                    </common-pid-code-label-link>
+                  </span>
+                </td>
+                <th class="pl-15">
+                  <p class="label-container mt-1 pt-10 mb-6">
+                    <a class="underline cm-assy-pid cursor-pointer" ng-click="vm.goToAssemblyList();">
+                      {{vm.LabelConstant.Assembly.Assy}}
+                    </a>:
+                  </p>
+                </th>
+                <td>
+                  <span class="value inline-block">
+                    <common-pid-code-label-link component-id="preProgComponentData.partID"
+                                                label="vm.LabelConstant.Assembly.MFGPN" value="preProgComponentData.mfgPN"
+                                                is-copy="true"
+                                                rohs-icon="vm.rohsImagePath + preProgComponentData.rohsIcon"
+                                                rohs-status="preProgComponentData.rohsStatus" is-formated="true"
+                                                is-assembly="true"
+                                                is-custom-part="preProgComponentData.isCustom">
+                    </common-pid-code-label-link>
+                  </span>
+                </td>
+            </table>
+          </div>
+          <div flex="30" layout="row" layout-align="end center">
+            <div class="pl-15">
+              <div layout="row" layout-align="end center">
+                <div>
+                  <label class="value cm-text-decoration cm-view-bom mb-0" ng-click="vm.goToComponentBOM();">
+                    View BOM
+                  </label>
+                </div>
+                <div class="pl-20">
+                  <label class="value cm-text-decoration cm-view-bom mb-0" ng-click="vm.goToKitList();">
+                    View Kit Allocation
+                  </label>
+                </div>
+                <div class="pl-20">
+                  <label class="value cm-text-decoration mb-0"
+                         ng-click="vm.uidTranfer($event, {updateStock:false})">
+                    {{vm.LabelConstant.UMIDManagement.TransferMaterial}}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div layout="row" flex="100" class="border mt-8">
+    <form name="vm.scanAndAddProgramForm" flex="100" novalidate>
+      <div layout="row" class="cm-section-main border-0">
+        <div class="cm-section-inner p-0-imp" flex="100" layout="row">
+          <div>
+            <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <th>
+                    <p class="label-container">
+                      <a tabindex="-1" class="cm-text-decoration underline"
+                         ng-mousedown="vm.goToUMIDList();$event.preventDefault();">
+                        <b>{{vm.LabelConstant.Traveler.Scan_UMID}}</b>
+                      </a><span>&nbsp;*</span>
+                      <scan-or-enter></scan-or-enter>
+                    </p>
+                  </th>
+                  <td class="width-235">
+                    <div class="display-flex">
+                      <md-input-container flex="100" class="margin-bottom-0 md-block margin-top-0 scan-label-text">
+                        <input type="text" name="umid"
+                               ng-model="vm.umidScan.umid"
+                               ng-maxlength="vm.UMID_MAX_LENGTH"
+                               placeholder="{{vm.LabelConstant.ScanOREnter.ScanUMID}}" capitalize class="input-text-uppercase"
+                               ng-keypress="vm.scanLabel($event)"
+                               ng-disabled="vm.disableFromTraveler"
+                               custom-auto-focus="true">
+                        <span flex="100" class="font-size-10">
+                          <b>{{vm.LabelConstant.ScanOREnter.ScanUMID}}</b>
+                        </span>
+                        <div ng-messages="vm.scanAndAddProgramForm.umid.$error"
+                             role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(vm.UMID_MAX_LENGTH,vm.scanAndAddProgramForm.umid.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                      <md-button class="md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.umidScan.umid" ng-click="vm.umidScan.umid = '';">
+                        <md-icon md-font-icon="icon-close" role="img" class="mb-10 ml-0"></md-icon>
+                      </md-button>
+                    </div>
+                  </td>
+                  <td>
+                    <md-button class="md-primary md-raised mt-0"
+                               ng-click="vm.resetAll($event)" ng-disabled="vm.disableFromTraveler">
+                      Clear
+                    </md-button>
+                    <md-button class="md-primary md-raised mt-0" ng-click="vm.viewUMIDHistoryPopup($event)">
+                      View History
+                    </md-button>
+                  </td>
+                </tr>
+                <tr class="feeder-scan-details">
+                  <th ng-if="vm.umidDetails.PIDCode">
+                    <div class="avatar-wrapper float-right">
+                      <img class="md-avatar avatar margin-top-0 margin-bottom-0 height-75 width-75" ng-src="{{vm.umidDetails.imageURL}}" />
+                    </div>
+                  </th>
+                  <td colspan="9" ng-if="vm.umidDetails.PIDCode">
+                    <table>
+                      <tr ng-if="vm.umidDetails.mfgCode">
+                        <th colspan="2">
+                          <span class="margin-0"><b>{{vm.umidDetails.mfgCode}}</b></span>
+                        </th>
+                      </tr>
+                      <tr ng-if="vm.umidDetails.mfgPN">
+                        <th colspan="2">
+                          <div layout="row">
+                            <common-pid-code-label-link class="margin-0" ng-if="vm.umidDetails.mfgPN"
+                                                        component-id="vm.umidDetails.id"
+                                                        label="vm.LabelConstant.MFG.MFGPN"
+                                                        value="vm.umidDetails.mfgPN"
+                                                        is-copy="true"
+                                                        rohs-icon="vm.rohsImagePath + vm.umidDetails.rohsIcon"
+                                                        rohs-status="vm.umidDetails.rohsStatus"
+                                                        is-search-digi-key="true"
+                                                        is-search-findchip="true"
+                                                        is-custom-part="vm.umidDetails.isCustom"></common-pid-code-label-link>
+                            <span ng-if="vm.umidDetails.pkgQty">({{vm.LabelConstant.KitAllocation.Count}}: {{vm.umidDetails.pkgQty}})</span>
+                          </div>
+                        </th>
+                      </tr>
+                      <tr>
+                        <th colspan="2">
+                          <div layout="row" ng-if="vm.umidDetails.PIDCode">
+                            <common-pid-code-label-link class="margin-0" ng-if="vm.umidDetails.PIDCode"
+                                                        component-id="vm.umidDetails.id"
+                                                        label="vm.LabelConstant.MFG.PID"
+                                                        value="vm.umidDetails.PIDCode"
+                                                        is-copy="true"
+                                                        rohs-icon="vm.rohsImagePath + vm.umidDetails.rohsIcon"
+                                                        rohs-status="vm.umidDetails.rohsStatus"
+                                                        is-search-digi-key="true"
+                                                        is-search-findchip="true"
+                                                        is-custom-part="vm.umidDetails.isCustom"></common-pid-code-label-link>
+                          </div>
+                        </th>
+                      </tr>
+                      <tr ng-if="vm.umidDetails.mfgPNDescription">
+                        <th colspan="2">
+                          <div layout="row" flex="100" ng-if="vm.umidDetails.mfgPNDescription">
+                            <span class="margin-0"><b>{{vm.umidDetails.mfgPNDescription}}</b></span>
+                          </div>
+                        </th>
+                      </tr>
+                      <tr>
+                        <td colspan="2" ng-if="vm.umidDetails.expiryDateText">
+                          <span class="margin-0"><b ng-if="vm.umidDetails.expiryDateText" style="color:red">{{vm.umidDetails.expiryDateText}}</b></span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th colspan="2" ng-if="vm.umidDetails.refDesig">
+                          <span class="margin-0"><b ng-if="vm.umidDetails.refDesig">{{vm.LabelConstant.BOM.REF_DES}}: {{vm.umidDetails.refDesig}}</b><copy-text ng-if="vm.umidDetails.refDesig" label="vm.umidDetails.refDesig" text="vm.umidDetails.refDesig"></copy-text></span>
+                        </th>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <div layout="row" class="float-left">
+              <div class="feeder-scan-message margin-top-5imp">
+                <p ng-class="{'success-text': vm.umidScan.isSuccess}" ng-bind-html="vm.umidScan.errorText"></p>
+              </div>
+            </div>
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main" ng-if="vm.umidScan.umid && vm.umidScan.isSuccess">
+              <tbody>
+                <tr>
+                  <th>
+                    <p class="label-container">
+                      <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToComponentBOM();">{{vm.autoCompleteProgramName.placeholderName}}</a>
+                      <span ng-if="vm.autoCompleteProgramName.isRequired" ng-hide="">&nbsp;*</span>
+                    </p>
+                  </th>
+                  <td>
+                    <md-input-container ng-if="vm.autoCompleteProgramName" class="autocompletecustom cm-custom-autocomplete margin-0">
+                      <custom-auto-complete datalist="vm.bomMappedProgramList"
+                                            column-name="vm.autoCompleteProgramName.columnName"
+                                            controller-name="vm.autoCompleteProgramName.controllerName"
+                                            view-template-url="vm.autoCompleteProgramName.viewTemplateURL"
+                                            key-column-name="vm.autoCompleteProgramName.keyColumnName"
+                                            input-name="vm.autoCompleteProgramName.inputName"
+                                            placeholder-name="vm.autoCompleteProgramName.placeholderName"
+                                            key-column-id="vm.autoCompleteProgramName.keyColumnId"
+                                            is-required="vm.autoCompleteProgramName.isRequired"
+                                            is-addnew="vm.autoCompleteProgramName.isAddnew"
+                                            is-disabled=""
+                                            callback-fn="vm.autoCompleteProgramName.callbackFn"
+                                            on-select-callback-fn="vm.autoCompleteProgramName.onSelectCallbackFn"
+                                            custom-auto-focus="true">
+                      </custom-auto-complete>
+                    </md-input-container>
+                  </td>
+                  <th>
+                    <p class="label-container">
+                      <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToComponentBOM();">{{vm.autoCompleteMFGPartRefDes.placeholderName}}</a>
+                      <span ng-if="vm.autoCompleteMFGPartRefDes.isRequired" ng-hide="!vm.autoCompleteProgramName.keyColumnId">&nbsp;*</span>
+                    </p>
+                  </th>
+                  <td>
+                    <md-input-container ng-if="vm.autoCompleteMFGPartRefDes" class="autocompletecustom cm-custom-autocomplete margin-0">
+                      <custom-auto-complete datalist="vm.bomMappedRefDesgList"
+                                            column-name="vm.autoCompleteMFGPartRefDes.columnName"
+                                            controller-name="vm.autoCompleteMFGPartRefDes.controllerName"
+                                            view-template-url="vm.autoCompleteMFGPartRefDes.viewTemplateURL"
+                                            key-column-name="vm.autoCompleteMFGPartRefDes.keyColumnName"
+                                            input-name="vm.autoCompleteMFGPartRefDes.inputName"
+                                            placeholder-name="vm.autoCompleteMFGPartRefDes.placeholderName"
+                                            key-column-id="vm.autoCompleteMFGPartRefDes.keyColumnId"
+                                            is-required="vm.autoCompleteMFGPartRefDes.isRequired"
+                                            is-disabled="!vm.autoCompleteProgramName.keyColumnId"
+                                            is-addnew="vm.autoCompleteMFGPartRefDes.isAddnew"
+                                            callback-fn="vm.autoCompleteMFGPartRefDes.callbackFn"
+                                            on-select-callback-fn="vm.autoCompleteMFGPartRefDes.onSelectCallbackFn">
+                      </custom-auto-complete>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">QPA</p></th>
+                  <td>
+                    <md-input-container flex="100">
+                      <input type="number" name="woMultiplier" ng-model="vm.umidScan.woMultiplier"
+                             onkeypress="return OnlyNumeric(event)"
+                             ng-change="" min="1"
+                             placeholder="woMultiplier" disabled>
+                      <div ng-messages="vm.scanAndAddProgramForm.woMultiplier.$error" role="alert">
+                        <div ng-message="min">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th>
+                    <p class="label-container">
+                      <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToWOOPList();">{{vm.autoCompleteWOOPOfEnabledPreProg.placeholderName}}</a>
+                      <span ng-if="vm.autoCompleteWOOPOfEnabledPreProg.isRequired" ng-hide="">&nbsp;*</span>
+                    </p>
+                  </th>
+                  <td>
+                    <md-input-container ng-if="vm.autoCompleteWOOPOfEnabledPreProg" class="autocompletecustom cm-custom-autocomplete margin-0">
+                      <custom-auto-complete datalist="vm.woOPListOfEnabledPreProg"
+                                            column-name="vm.autoCompleteWOOPOfEnabledPreProg.columnName"
+                                            controller-name="vm.autoCompleteWOOPOfEnabledPreProg.controllerName"
+                                            view-template-url="vm.autoCompleteWOOPOfEnabledPreProg.viewTemplateURL"
+                                            key-column-name="vm.autoCompleteWOOPOfEnabledPreProg.keyColumnName"
+                                            input-name="vm.autoCompleteWOOPOfEnabledPreProg.inputName"
+                                            placeholder-name="vm.autoCompleteWOOPOfEnabledPreProg.placeholderName"
+                                            key-column-id="vm.autoCompleteWOOPOfEnabledPreProg.keyColumnId"
+                                            is-required="vm.autoCompleteWOOPOfEnabledPreProg.isRequired"
+                                            is-addnew="vm.autoCompleteWOOPOfEnabledPreProg.isAddnew"
+                                            is-disabled="vm.woPreProgCompDetForScannedUMID && vm.woPreProgCompDetForScannedUMID.refStkWOOPID"
+                                            callback-fn="vm.autoCompleteWOOPOfEnabledPreProg.callbackFn"
+                                            on-select-callback-fn="vm.autoCompleteWOOPOfEnabledPreProg.onSelectCallbackFn">
+                      </custom-auto-complete>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">Display Order<span>&nbsp;*</span></p></th>
+                  <td>
+                    <md-input-container flex="100">
+                      <input type="number" name="displayOrder" ng-model="vm.umidScan.displayOrder"
+                             onkeypress="return OnlyNumbersWithDot(event)"
+                             min="0" required
+                             placeholder="displayOrder" ng-maxlength="9" ng-disabled="vm.woPreProgCompDetForScannedUMID && vm.woPreProgCompDetForScannedUMID.displayOrder">
+                      <div ng-messages="vm.scanAndAddProgramForm.displayOrder.$error" role="alert">
+                        <div ng-message="min">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN}}</span>
+                        </div>
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="number">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(9,vm.scanAndAddProgramForm.displayOrder.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">Qty</p></th>
+                  <td>
+                    <md-input-container flex="100">
+                      <input type="number" name="qty" ng-model="vm.umidScan.qty"
+                             onkeypress="return OnlyNumeric(event)"
+                             ng-change="" min="0"
+                             placeholder="qty">
+                      <div ng-messages="vm.scanAndAddProgramForm.qty.$error" role="alert">
+                        <div ng-message="min">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-right height-30" colspan="4">
+                    <md-button ng-if="vm.umidScan.umid && vm.umidScan.isSuccess" class="md-primary md-raised m-0"
+                               ng-click="vm.savePreProgramDetails($event)"
+                               ng-disabled="vm.isSaveButtonDisable"
+                               ng-class="{'md-formdirty': vm.checkFormDirty(vm.scanAndAddProgramForm,null)}">
+                      Save
+                    </md-button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div layout="row" flex="100" cg-busy="{promise:vm.cgBusyLoading}" ng-class="{'border': !vm.searchComponent || (vm.searchComponent && vm.isSearchDataExists) , 'cm-pre-prog-full-empty-state' : !vm.componentProgMainList.length}" class="mt-8">
+    <form name="vm.preProgCompForm" flex="100" novalidate class="cm-log-defect-form">
+      <div flex="100" ng-if="!vm.componentProgMainList.length" layout="row" layout-align="center center" layout-wrap>
+        <div class="empty-state text-center" flex="100">
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+          </div>
+          <p class="empty-state-title font-size-2 useadded-emptytxt" flex="100">
+            {{vm.EmptyMesssage.MESSAGE}}
+          </p>
+        </div>
+      </div>
+      <div layout="column" flex="100">
+        <div layout="row" flex="100" ng-if="vm.componentProgMainList.length"
+             class="pos-rel" ng-class="{'cm-pre-prog-search-empty-scroll cm-log-defect-form-left-empty':vm.searchComponent && !vm.isSearchDataExists}">
+          <div flex="70" class="margin-right-10 " id="scrollToDesigDefect">
+            <!-- Start List of Part -->
+            <md-table-container layout="row" layout-wrap flex="100" ng-if="vm.componentProgMainList.length > 0">
+              <div ng-repeat="programItem in vm.componentProgMainList | filter: { programName: vm.searchComponent }" flex="100"
+                   class="cm-preprog-trans-overflow mb-15">
+                <table md-table class="cm-table-input-main cm-pre-program-table md-data-table mb-10" border="1">
+                  <thead md-head>
+                    <tr md-row>
+                      <!--class="background-skyblue-pricing"-->
+                      <th md-column width="105">
+                        <span class="label-container p-5">
+                          <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToComponentBOM();">
+                            Program Name
+                          </a>:
+                        </span>
+                      </th>
+                      <th md-column width="200">
+                        <span class="label-container p-5">{{programItem.programName}}</span>
+                      </th>
+                      <th md-column width="5">
+                        <span class="label-container p-5"></span>
+                      </th>
+                      <th md-column width="544" class="cm-width-350-rs">
+                        <span class="label-container p-5 md-truncate inline-block">
+                          <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToComponentBOM();">{{vm.LabelConstant.BOM.REF_DES}}</a>:
+                          {{programItem.woTransPreprogramCompDet[0].designatorName}}
+                          <md-tooltip>{{programItem.woTransPreprogramCompDet[0].designatorName}}</md-tooltip>
+                        </span>
+                      </th>
+                      <th md-column width="100">
+                        <span class="label-container p-5 color-black">
+                          <span class="color-black">
+                            <md-tooltip>QPA</md-tooltip>{{programItem.woTransPreprogramCompDet[0].woMultiplier}}
+                          </span>
+                          &nbsp;X&nbsp;
+                          <span class="color-black"><md-tooltip>Build Qty</md-tooltip>{{vm.buildQty}}</span>
+                          &nbsp;=&nbsp;
+                          <span class="color-black">
+                            {{programItem.woTransPreprogramCompDet[0].woMultiplier * vm.buildQty}}
+                            <md-tooltip>Total QPA Count</md-tooltip>
+                          </span>
+                        </span>
+                      </th>
+                      <th md-column width="5">
+                        <span class="label-container p-5"></span>
+                      </th>
+                      <th>
+                        <span class="label-container p-5">Cumulative Total: {{programItem.CumulativeTotalByAllUMID}}</span>
+                      </th>
+                    </tr>
+                    <tr>
+                      <!--class="background-skyblue-pricing"-->
+                      <th md-column width="170" class="cm-width-120-rs">
+                        <span class="label-container p-5">
+                          <a tabindex="-1" class="cm-text-decoration underline"
+                             ng-mousedown="vm.goToUMIDList();$event.preventDefault();">
+                            {{vm.LabelConstant.UMIDManagement.UMID}}
+                          </a>
+                        </span>
+                      </th>
+                      <th md-column width="295" class="cm-width-220-rs">
+                        <span class="label-container p-5 margin-left-5-imp">
+                          <a tabindex="-1" class="cm-text-decoration underline"
+                             ng-mousedown="vm.goToAssemblyList();$event.preventDefault();">
+                            {{vm.LabelConstant.MFG.MFGPN}}
+                          </a>
+                        </span>
+                      </th>
+                      <th md-column width="50">
+                        <span class="label-container p-5"></span>
+                      </th>
+                      <th md-column width="150">
+                        <span class="label-container p-5"></span>
+                      </th>
+                      <th md-column width="100" class="cm-width-50-rs">
+                        <span class="label-container p-5"></span>
+                      </th>
+                      <th md-column md-numeric width="205">
+                        <span class="label-container p-5">Individual Count Per Activity</span>
+                      </th>
+                      <th md-column md-numeric class="cm-width-120-rs">
+                        <span class="label-container p-5">UMID Cumulative</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="woTransItem in programItem.woTransPreprogramCompDet"
+                        ng-form="desigPartCountForm_{{woTransItem.refsidid}}">
+                      <td md-cell width="170" class="cm-width-120-rs">
+                        <span class="label-container p-5">
+                          <a tabindex="-1" class="cm-text-decoration underline"
+                             ng-mousedown="vm.goToUMIDDetail(woTransItem);$event.preventDefault();">
+                            {{woTransItem.uid}}
+                          </a>
+                          <copy-text label="vm.LabelConstant.UMIDManagement.UMID" text="woTransItem.uid"></copy-text>
+                        </span>
+                      </td>
+                      <td md-cell width="295" class="cm-width-220-rs">
+                        <p class="p-5 margin-top-5">
+                          <common-pid-code-label-link class="margin-0"
+                                                      component-id="woTransItem.refComponentID"
+                                                      label="vm.LabelConstant.MFG.MFGPN"
+                                                      value="woTransItem.mfgPN"
+                                                      is-copy="true"
+                                                      rohs-icon="woTransItem.rohsIcon"
+                                                      rohs-status="woTransItem.rohsStatus"
+                                                      is-search-digi-key="true"
+                                                      is-search-findchip="true"
+                                                      is-custom-part="woTransItem.isCustom"></common-pid-code-label-link>
+                        </p>
+                      </td>
+                      <td md-cell width="50">
+                        <span class="label-container p-5">
+                          <md-button type="button" class="cm-margin-5 height-35 md-default-theme md-icon-button md-ink-ripple md-primary md-raised no-padding width-35"
+                                     ng-click="vm.incrementComponentCount(woTransItem);"
+                                     ng-disabled="vm.disableFromTraveler">
+                            <md-icon md-font-icon="icon icons-plusoneappendcirclelast" class="material-icons icon icons-plusoneappendcirclelast font-size-15-imp"></md-icon>
+                          </md-button>
+                        </span>
+                      </td>
+                      <td md-cell width="150">
+                        <div class="md-subhead margin-left-5 margin-right-5 display-flex" layout="row" layout-align="center center">
+                          <span class="margin-top-7 pr-5">
+                            <md-icon class="icon-question-mark-circle help-icon">
+                              <md-tooltip md-direction="top" class="padding-15 font-size-15 tt-multiline"
+                                          ng-bind-html="vm.addRemoveDefectCountNote">
+                              </md-tooltip>
+                            </md-icon>
+                          </span>
+                          <md-input-container class="md-block margin-0 no-errors-spacer padding-bottom-10" flex="100" md-no-float>
+                            <input type="number" name="defectCount" ng-model="woTransItem.newCnt" class="text-center cm-preprog-partcount-input-data" id="partNewCnt_{{woTransItem.refsidid}}"
+                                   placeholder="Enter add/remove part count"
+                                   ng-disabled="vm.disableFromTraveler || vm.isAddNewCntButtonDisable"
+                                   onkeypress="return OnlyNumericWithPlusAndMinus(event)" max="9999999999"
+                                   ng-keydown="vm.addComponentCount($event,woTransItem)"
+                                   ng-class="{'item-disabled': vm.disableFromTraveler}" />
+                          </md-input-container>
+                        </div>
+                      </td>
+                      <td md-cell width="100" class="cm-width-50-rs">
+                        <span class="label-container p-5">
+                          <md-button type="button" class="cm-margin-5 height-35 md-default-theme md-icon-button md-ink-ripple md-primary md-raised no-padding width-35"
+                                     ng-click="vm.minusComponentCount(woTransItem);"
+                                     ng-disabled="vm.isDisableToDecrease(woTransItem) || vm.disableFromTraveler || woTransItem.compCnt == 0 || woTransItem.totalUMIDCumulative == 0">
+                            <md-icon md-font-icon="icon icons-minus-one" class="material-icons icon icons-minus-one font-size-12"></md-icon>
+                          </md-button>
+                        </span>
+                      </td>
+                      <td md-cell width="205">
+                        <span class="label-container p-5" layout-align="end center">{{woTransItem.compCnt}}</span>
+                      </td>
+                      <td md-cell flex class="cm-width-120-rs">
+                        <span class="label-container p-5" layout-align="end center">{{woTransItem.totalUMIDCumulative}}</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </md-table-container>
+            <!-- End List of Part -->
+          </div>
+          <div flex="30" class="defect-list cm-log-defect-list-empty">
+            <!-- Start filter option -->
+            <div layout="row" flex="100" class="cm-section-main" layout-align="space-between" layout-wrap>
+              <div class="cm-section-inner" flex="100">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th width="50"><p class="label-container">Search</p></th>
+                      <td class="">
+                        <div layout="row" flex="100">
+                          <div layout="row" flex>
+                            <md-input-container class="margin-bottom-0" layout-align="start center" flex="100" md-no-float>
+                              <input type="text" name="searchComponent" layout="start center" ng-if="vm.componentProgMainList.length > 0" ng-model="vm.searchComponent"
+                                     placeholder="Search" ng-maxlength="100" ng-change="vm.searchDesigAndDefect()">
+                            </md-input-container>
+                          </div>
+                          <div layout="row" flex="20" flex-gt-lg="10" ng-if="vm.searchComponent">
+                            <md-button class="md-icon-button md-primary md-mini ml-0"
+                                       ng-click="vm.searchComponent = '';vm.searchDesigAndDefect();">
+                              <md-icon md-font-icon="icon-close" class="material-icons mat-icon mb-10 ml-0"></md-icon>
+                              <md-tooltip>Reset</md-tooltip>
+                            </md-button>
+                          </div>
+                        </div>
+                      </td>
+                      <th width="50"><p class="label-container">Sort By</p></th>
+                      <td class="">
+                        <md-input-container class="margin-bottom-0" layout-align="center" flex="100" md-no-float>
+                          <md-select ng-model="vm.sortOption" ng-if="vm.componentProgMainList.length > 0" placeholder="sort By">
+                            <md-option ng-value="option.key" ng-repeat="option in vm.sortByList" ng-click="vm.sortByPopular(option.key)">{{option.value}}</md-option>
+                          </md-select>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- End filter option -->
+            <div class="cm-log-defect-form-right-empty">
+              <div layout="row" flex="100" layout-wrap
+                   ng-repeat="programItem in vm.componentProgMainList | filter: { programName: vm.searchComponent }">
+                <md-toolbar style="border-bottom:1px solid">
+                  <div class="md-toolbar-tools cursor-pointer" layout="row" layout-align="space between center" ng-click="vm.compoClicked(item);">
+                    <h2 class="font-size-15">{{programItem.programName}}</h2>
+                    <div layout-align="end end">
+                      <md-button class="md-icon-button margin-0" ng-click="vm.openComponentProgramPopup($event,programItem)"
+                                 ng-disabled="vm.disableFromTraveler">
+                        <md-icon md-font-icon="icon-pencil"></md-icon>
+                        <md-tooltip>Update Program</md-tooltip>
+                      </md-button>
+                      <md-button class="md-icon-button margin-0" ng-click="vm.deleteProgramComponent(programItem.woTransPreprogramCompDet[0].woPreProgCompID)"
+                                 ng-disabled="vm.disableFromTraveler">
+                        <md-icon md-font-icon="icon-trash"></md-icon>
+                        <md-tooltip>Delete Program</md-tooltip>
+                      </md-button>
+                    </div>
+                  </div>
+                </md-toolbar>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div flex="100" ng-if="vm.searchComponent && !vm.isSearchDataExists" layout="row" layout-align="center center"
+             layout-wrap class="cm-pre-prog-search-empty">
+          <div class="empty-state text-center full-height" flex="100">
+            <div class="emty-icon" flex="100">
+              <img ng-src="{{vm.emptySearch.IMAGEURL}}" />
+            </div>
+            <p class="empty-state-title font-size-2 useadded-emptytxt" flex="100">
+              {{vm.emptySearch.MESSAGE}}
+            </p>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</md-content>
+<md-footer flex="100" layout="row" layout-wrap>
+  <div layout="row" flex="100" layout-align="end">
+    <md-button class="md-default md-raised" ng-click="vm.closeSidenav()">Cancel</md-button>
+  </div>
+</md-footer>

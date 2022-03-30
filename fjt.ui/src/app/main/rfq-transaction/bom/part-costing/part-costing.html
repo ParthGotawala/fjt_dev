@@ -1,0 +1,164 @@
+<md-content cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="cm-section-main layout-row m-10 border-0" layout="row" layout-align="end-center">
+    <div class="cm-section-inner border padding-0" layout="row" layout-align="end-center">
+      <div class="ph-5 bl cm-display-contents">
+        <md-input-container class="margin-0 ph-5" layout="row">
+          <p class="label-container m-0 mr-5 mt-1 padding-0">
+            <b class="font-size-15">Pricing Filter</b>
+          </p>
+          <md-select ng-model="vm.PriceType" ng-change="vm.pricingChange(vm.PriceType)">
+            <md-option ng-value="item.ID" ng-class="{'filter-boder-color':item.ID==vm.leadTime}" ng-repeat="item in vm.PricingFilters">{{ item.Name }}</md-option>
+        </md-input-container>
+        <md-input-container ng-if="vm.PriceType==vm.leadTime" flex="10" md-no-float class="margin-top-0 margin-bottom-0 width-50 ph-5">
+
+          <input type="text" ng-change="vm.leadTimeSearch()" ng-model-options="{ debounce: 500 }" onkeypress="return OnlyNumeric(event, this)" name="leadTime" ng-model="vm.lead"
+                 placeholder="Lead Time">
+        </md-input-container>
+        <md-input-container ng-if="vm.PriceType==vm.leadTime" class="margin-0 ph-5">
+          <md-select ng-model="vm.Option" ng-change="vm.leadTimeSearch()">
+            <md-option ng-value="item.ID" ng-repeat="item in vm.leadtImeFilter">{{item.Name}}</md-option>
+          </md-select>
+        </md-input-container>
+      </div>
+      <div class="ph-5 border-left cm-square-icon-btn cm-btn-group cm-pricing-icon-buttons">
+        <md-button class="md-raised md-icon-button part-cost-button margin-top-imp custom-tab-button"
+                   ng-disabled="vm.assyLoading ||vm.isSummaryComplete ||!vm.bom.isMaterialAllow || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId"
+                   ng-class="{'item-disabled':(vm.assyLoading ||vm.isSummaryComplete || !vm.bom.isMaterialAllow || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId)}"
+                   ng-click="vm.PriceSetting($event)">
+          <md-tooltip md-direction="top">Price Selection Settings</md-tooltip>
+          <md-icon md-font-icon="icon-compass-outline"></md-icon>
+        </md-button>
+        <md-button ng-if="!vm.assyLoading"
+                   ng-disabled="vm.assyLoading ||vm.isSummaryComplete || vm.noParts || !vm.bom.isMaterialAllow || vm.checkAllCustomParts() || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId"
+                   class="md-raised md-icon-button part-cost-button margin-top-imp cm-retrieve-prices-button custom-tab-button"
+                   ng-class="{'item-disabled':(vm.assyLoading ||vm.isSummaryComplete || vm.noParts || !vm.bom.isMaterialAllow || vm.checkAllCustomParts() || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId) }"
+                   ng-click="vm.UpdateAllPricing($event)">
+          <md-tooltip md-direction="top">Retrieve Prices From Cloud</md-tooltip>
+          <md-icon class="icon-cloud"></md-icon>
+          <span>$</span>
+        </md-button>
+        <md-button ng-if="vm.assyLoading"
+                   class="md-raised md-icon-button part-cost-button margin-top-imp custom-tab-button"
+                   ng-click="vm.StopAllPricing($event)">
+          <md-tooltip md-direction="top">Stop Pricing</md-tooltip>
+          <md-icon class="icon icon-stop"></md-icon>
+        </md-button>
+        <md-button ng-disabled="vm.isShowSummary ||vm.isSummaryComplete ||vm.assyLoading ||vm.disableDraft || !vm.bom.isMaterialAllow || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId"
+                   class="md-raised md-icon-button part-cost-button margin-top-imp custom-tab-button"
+                   ng-class="{'item-disabled':vm.isShowSummary || vm.isSummaryComplete || vm.assyLoading ||vm.disableDraft || !vm.bom.isMaterialAllow || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId}"
+                   ng-click="vm.saveDraftPricing($event)">
+          <md-tooltip md-direction="top">Save Draft</md-tooltip>
+          <md-icon class="icon-content-save"></md-icon>
+        </md-button>
+        <md-button ng-disabled="vm.isShowSummary ||vm.isSummaryComplete || vm.assyLoading  || vm.disabledSubmit || !vm.bom.isMaterialAllow || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId"
+                   class="md-raised md-icon-button part-cost-button margin-top-imp custom-tab-button"
+                   ng-class="{'item-disabled':vm.isShowSummary || vm.isSummaryComplete   ||vm.disabledSubmit || vm.assyLoading || !vm.bom.isMaterialAllow || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId}"
+                   ng-click="vm.submitPricing($event)">
+          <md-tooltip md-direction="top">Submit For Cost Summary</md-tooltip>
+          <md-icon class="icons-submit"></md-icon>
+        </md-button>
+        <md-button ng-if="!vm.assyLoading"
+                   ng-disabled="vm.assyLoading ||vm.isSummaryComplete || vm.noParts || !vm.bom.isMaterialAllow || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId"
+                   class="md-raised md-icon-button part-cost-button margin-top-imp custom-tab-button"
+                   ng-class="{'item-disabled':(vm.assyLoading ||vm.isSummaryComplete || vm.noParts ||!vm.bom.isMaterialAllow || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId) }"
+                   ng-click="vm.recalculatePrice($event)">
+          <md-tooltip md-direction="top">Recalculate logic based on price setting for unquoted items</md-tooltip>
+          <md-icon class="icons-recalculate"></md-icon>
+        </md-button>
+        <md-button class="md-raised md-icon-button part-cost-button margin-top-imp custom-tab-button line-height-normal"
+                   ng-disabled="vm.assyLoading ||vm.isSummaryComplete || vm.noParts || !vm.bom.isMaterialAllow || vm.checkAllCustomParts() || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId"
+                   ng-class="{'item-disabled':(vm.assyLoading ||vm.isSummaryComplete || vm.noParts ||!vm.bom.isMaterialAllow || vm.checkAllCustomParts() || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId)}"
+                   ng-click="vm.stockUpdate($event)">
+          <md-tooltip md-direction="top">Update Stock</md-tooltip>
+          <img ng-src="{{vm.path}}" />
+        </md-button>
+        <md-button class="md-raised md-icon-button part-cost-button margin-top-imp custom-tab-button"
+                   ng-disabled="vm.assyLoading ||vm.isSummaryComplete || vm.noParts || !vm.bom.isMaterialAllow || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId"
+                   ng-class="{'item-disabled':(vm.assyLoading ||vm.isSummaryComplete || vm.noParts ||!vm.bom.isMaterialAllow || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId)}"
+                   ng-click="vm.clearAllPricing($event)">
+          <md-tooltip md-direction="top">Clear Pricing</md-tooltip>
+          <md-icon md-font-icon="icons-data-clean"></md-icon>
+        </md-button>
+        <md-button class="md-raised md-icon-button part-cost-button margin-top-imp custom-tab-button line-height-normal" ng-click="vm.rfqLineitemsDiscription($event)"
+                   ng-disabled="vm.isSummaryComplete || !vm.bom.isMaterialAllow || vm.assyLoading || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId" ng-class="{'item-disabled':(vm.isSummaryComplete || !vm.bom.isMaterialAllow || vm.assyLoading || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId)}">
+          <md-tooltip md-direction="top">BOM Issues & Add Additional Comments</md-tooltip>
+          <img ng-src="{{vm.waringCommentIcon}}" />
+        </md-button>
+        <md-button ng-disabled="vm.isSummaryComplete || vm.assyLoading || !vm.bom.isMaterialAllow || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId"
+                   ng-class="{'item-disabled':(vm.isSummaryComplete || vm.assyLoading || !vm.bom.isMaterialAllow || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId)}"
+                   class="md-raised md-icon-button part-cost-button margin-top-imp custom-tab-button"
+                   ng-click="vm.importPricing($event)">
+          <md-tooltip md-direction="top">Import</md-tooltip>
+          <md-icon class="mdi mdi-file-import"></md-icon>
+        </md-button>
+        <md-button ng-disabled="vm.isSummaryComplete || vm.assyLoading || !vm.bom.isMaterialAllow || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId"
+                   class="md-raised md-icon-button part-cost-button margin-top-imp custom-tab-button"
+                   ng-class="{'item-disabled':(vm.isSummaryComplete || vm.assyLoading ||!vm.bom.isMaterialAllow || !vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId)}"
+                   ng-click="vm.exportPricing($event)">
+          <md-tooltip md-direction="top">Export</md-tooltip>
+          <md-icon class="mdi mdi-file-export"></md-icon>
+        </md-button>
+        <md-button ng-disabled="!vm.bom.isActivityStart || vm.bom.activityStartBy != vm.loginUserId" class="md-raised md-icon-button part-cost-button margin-top-imp custom-tab-button"
+                   ng-click="vm.showPricingHistory($event)">
+          <md-tooltip md-direction="top">Pricing History</md-tooltip>
+          <md-icon class="icons-price-history"></md-icon>
+        </md-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-card padding-10 padding-top-0" layout="row" flex="100" ng-show="!vm.isNoDataFound && !vm.bomnotVerified" excel-reader er-options="vm.eroOptions">
+    <md-card layout="column" class="margin-0" flex layout-align="space-between stretch">
+      <ui-grid-extention class="RFQ-transaction-grid" id="grid-part-costing" load-data="vm.loadData"
+                         grid-option="vm.gridOptions"
+                         header="vm.sourceHeader"
+                         grid-data="vm.sourceData"
+                         total-data-count="vm.totalSourceDataCount"
+                         reset-grid="vm.resetSourceGrid"
+                         selectted-rows="vm.selectedRowsList"
+                         paging-info="vm.pagingInfo"
+                         current-item="vm.currentdata"
+                         empty-state="vm.emptyState"
+                         get-data-down="vm.getDataDown">
+
+    </md-card>
+    <input id="fiexcel" name="file" type="file" class="hidden" style="height:0px;width:0px;left: -100%;position:absolute">
+  </div>
+  <div layout="row" flex="100" class="empty-state text-center full-height" layout-align="center center" layout-wrap ng-show="vm.isNoDataFound||vm.bomnotVerified">
+    <div class="emty-icon" flex="100">
+      <img ng-if="vm.isNoDataFound" ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+      <img ng-if="vm.bomnotVerified" ng-src="{{vm.EmptyMesssageVerified.IMAGEURL}}" />
+    </div>
+    <p ng-if="vm.isNoDataFound" flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+    <p ng-if="vm.bomnotVerified" flex="100" class="empty-state-title">{{vm.EmptyMesssageVerified.MESSAGE}}</p>
+  </div>
+</md-content>
+
+<style>
+    .ui-grid-cell-focus {
+      border: 0 !important;
+      height: 100%;
+    }
+
+    .RFQ-transaction-grid .ui-grid-row {
+      height: auto !important;
+    }
+
+    .RFQ-transaction-grid .ui-grid-cell {
+      display: table-cell;
+      float: none;
+      vertical-align: middle;
+      height: auto !important;
+    }
+
+    .form-control {
+      width: 100% !important;
+    }
+    .ui-grid-cell-contents {
+      width: 100%;
+      overflow: visible;
+    }
+    /*.ui-grid-row.ui-grid-row-selected > [ui-grid-row] > .ui-grid-cell {
+      background-color: #E5FFAF !important;
+  }*/
+</style>

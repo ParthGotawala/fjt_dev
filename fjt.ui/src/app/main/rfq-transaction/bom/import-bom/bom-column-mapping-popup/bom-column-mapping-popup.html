@@ -1,0 +1,115 @@
+<md-dialog aria-label="manage-rfq-lineitem-headers" flex="55" class="md-inline-form cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.frmBomHeader" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>Column Mapping</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content layout="column" class="customer-modal padding-10 cm-custom-label-common">
+      <div class="padding-5" ng-if="vm.isCPNUpload" flex="100" layout="row">
+        Notes:
+        <ul>
+          <li>If {{vm.MfgLabelConstant.CPN}} is already exist, Any new {{vm.MfgLabelConstant.MFGPN}} add as a {{vm.MfgLabelConstant.CPN}} AVL and this {{vm.MfgLabelConstant.CPN}} used in any existing BOM it will effect.</li>
+          <li>If {{vm.MfgLabelConstant.CPN}} have no any {{vm.MfgLabelConstant.MFG}} & {{vm.MfgLabelConstant.MFGPN}} as AVL, Please add as {{vm.MfgLabelConstant.MFG}} <b>TBD</b> and {{vm.MfgLabelConstant.MFGPN}} <b>Not Available</b>.</li>
+        </ul>
+      </div>
+      <md-content class="md-padding" layout="row" flex>
+        <div flex="100" layout="row">
+          <div flex="100" layout="row" layout-wrap layout-align="space-between start">
+            <div class="cm-section-main height-100p" flex="33" layout="column">
+              <div class="cm-section-inner" layout="row" flex>
+                <md-list flex="100" class="p-0 cm-overflow-auto">
+                  <md-list-item class="items-container cm-bom-col-mapping cm-import-bom-sticky-header" layout="row" flex="100" layout-wrap>
+                    <div class="workorderblog" flex="100" layout="row">
+                      <div class="md-list-item-text" flex="100">
+                        <div class="blogsection margin-0" flex="100">
+                          <h3 class="md-primary-fg">
+                            Pending Mapping Excel Header
+                            <span class="icon-question-mark-circle help-icon margin-top-3">
+                              <md-tooltip md-direction="top">Map all these fields if possible</md-tooltip>
+                            </span>
+                          </h3>
+                        </div>
+                      </div>
+                    </div>
+                  </md-list-item>
+                  <md-list-item flex="100" layout="row" ng-if="vm.pendingExelheaderDatalist.length > 0" ng-repeat="item in vm.pendingExelheaderDatalist" class="cm-bom-column cm-bom-col-mapping p-0-imp">
+                    <div flex="100" class="margin-top-4 label-container cm-inport-bom-upload-popup">
+                      <div>
+                        {{item.name}}
+                      </div>
+                    </div>
+                  </md-list-item>
+                  <md-list-item flex="100" layout="row" ng-if="vm.pendingExelheaderDatalist.length === 0" class="cm-bom-column cm-bom-col-mapping p-0-imp">
+                    <div flex="100" class="margin-top-4 label-container cm-inport-bom-upload-popup">
+                      <div>
+                        Nothing left to map!
+                      </div>
+                    </div>
+                  </md-list-item>
+                </md-list>
+              </div>
+            </div>
+            <div class="cm-section-main" flex="65" layout="column" layout-wrap>
+              <div class="cm-section-inner" layout="row" flex>
+                <md-list flex="100" class="p-0 cm-overflow-auto">
+                  <md-list-item class="cm-bom-col-mapping cm-import-bom-sticky-header" layout="row" flex="100" layout-wrap>
+                    <div class="workorderblog" flex="100" layout="row">
+                      <div class="md-list-item-text" flex="50">
+                        <div class="blogsection margin-5" flex="100">
+                          <h3 class="md-primary-fg">{{vm.isCustRevision ? "CPN (Component) Header" : "BOM Header"}}</h3>
+                        </div>
+                      </div>
+                      <div class="md-list-item-text" flex="50">
+                        <div class="blogsection margin-0" flex="100">
+                          <h3 class="md-primary-fg">Select and map from drop down list</h3>
+                        </div>
+                      </div>
+                    </div>
+                  </md-list-item>
+                  <md-list-item flex="100" layout="row" ng-repeat="item in vm.bomHeaders" class="cm-bom-column cm-bom-col-mapping p-0-imp">
+                    <div flex="50" class="margin-top-4 label-container cm-inport-bom-upload-popup">
+                      <div class="label-container">
+                        {{item.header}}
+                        <span ng-if="item.autoCompleteHeader.isRequired">&nbsp;*</span>
+                        <div class="icon-question-mark-circle help-icon" ng-if="item.field == 'mfgCode' || item.field == 'mfgPN' || item.field == 'programingStatus'">
+                          <md-tooltip md-direction="top" ng-if="item.field == 'mfgCode'">For alternate MFR, column name must be same</md-tooltip>
+                          <md-tooltip md-direction="top" ng-if="item.field == 'mfgPN'">For alternate MFR PN, column name must be same</md-tooltip>
+                          <md-tooltip md-direction="top" class="tooltip-height-auto" ng-if="item.field == 'programingStatus'"><span ng-bind-html="vm.programingStatusList"></span></md-tooltip>
+                        </div>
+                      </div>
+                    </div>
+                    <div flex="50">
+                      <md-input-container ng-if="item.autoCompleteHeader" class="cm-auto-custom autocompletecustom margin-bottom-0 margin-top-0 width-100p" flex="100" md-no-float custom-auto-focus="{{item.setFocus}}">
+                        <custom-auto-complete datalist="item.autoCompleteHeader.datalist"
+                                              column-name="item.autoCompleteHeader.columnName"
+                                              key-column-name="item.autoCompleteHeader.keyColumnName"
+                                              input-name="item.autoCompleteHeader.inputName"
+                                              placeholder-name="item.autoCompleteHeader.placeholderName"
+                                              key-column-id="item.autoCompleteHeader.keyColumnId"
+                                              is-required="item.autoCompleteHeader.isRequired"
+                                              is-addnew="item.autoCompleteHeader.isAddnew"
+                                              callback-fn="item.autoCompleteHeader.callbackFn"
+                                              on-select-callback-fn="item.autoCompleteHeader.onSelectCallbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </div>
+                  </md-list-item>
+                </md-list>
+              </div>
+            </div>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-class="{'md-formdirty': vm.checkFormDirty(vm.frmBomHeader) }" ng-click="vm.ok()">OK</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

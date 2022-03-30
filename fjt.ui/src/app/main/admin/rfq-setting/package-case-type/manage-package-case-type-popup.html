@@ -1,0 +1,210 @@
+<md-dialog aria-label="addPartCategory" class="cm-custom-label-common receiving-pop-main" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.AddPackageCaseTypeForm" class="md-inline-form" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>{{(vm.partCategoryModel.id || vm.partCategoryModel.id==0) ? 'Update' : 'Add'}} Package/Case(Shape) Type<span ng-if="vm.partCategoryModel.name || vm.autoCompletePackageCaseType.searchText">:&nbsp;{{vm.isMaster ? vm.partCategoryModel.name : vm.autoCompletePackageCaseType.searchText}}</span></h2>
+        <span flex></span>
+        <md-button class="md-primary md-raised" id="headerAddBtn" ng-click="vm.saveAndProceed(vm.BUTTON_TYPE.ADDNEW)">Add Package/Case(Shape) Type</md-button>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding" layout="column">
+      <md-content class="padding-10">
+        <div flex="100" layout="row" class="md-padding" layout-md="column" layout-sm="column">
+          <div flex="50" layout="column" class="cm-section-main mr-5 border-black">
+            <div class="cm-section-inner" flex layout="column">
+              <div class="cm-section-main border-0" flex="nogrow">
+                <div class="cm-section-inner overflow-auto-rs">
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="label-container cm-white-space-normal">{{vm.isMaster?'Name':'Search Package/Case(Shape) Type or Add'}}<span ng-hide="vm.partCategoryModel.systemGenerated">&nbsp;*</span><check-unique-on-blur></check-unique-on-blur></p>
+                        </th>
+                        <td colspan="4">
+                          <md-input-container class="margin-bottom-0 md-block margin-top-0" flex="100" flex-gt-xs="100" md-no-float ng-if="vm.isMaster">
+                            <input type="text" name="packagecasetype" id="packagecasetype" ng-model="vm.partCategoryModel.name" ng-disabled="vm.partCategoryModel.systemGenerated || vm.partCategoryModel.id"
+                                   placeholder="Name" required ng-maxlength="50" md-maxlength="50" custom-blur="vm.checkDuplicateName()" custom-auto-focus="{{(vm.partCategoryModel.systemGenerated || vm.partCategoryModel.id)? false:true}}">
+                            <div ng-messages="vm.AddPackageCaseTypeForm.packagecasetype.$error"
+                                 role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(50, vm.AddPackageCaseTypeForm.packagecasetype.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                          <md-input-container flex="100" ng-if="vm.autoCompletePackageCaseType && !vm.isMaster" class="autocompletecustom margin-top-0" custom-auto-focus="true" md-no-float>
+                            <custom-auto-complete-search on-search-fn="vm.autoCompletePackageCaseType.onSearchFn"
+                                                         column-name="vm.autoCompletePackageCaseType.columnName"
+                                                         key-column-name="vm.autoCompletePackageCaseType.keyColumnName"
+                                                         input-name="vm.autoCompletePackageCaseType.inputName"
+                                                         placeholder-name="vm.autoCompletePackageCaseType.placeholderName"
+                                                         key-column-id="vm.autoCompletePackageCaseType.keyColumnId"
+                                                         is-required="vm.autoCompletePackageCaseType.isRequired"
+                                                         is-addnew="vm.autoCompletePackageCaseType.isAddnew"
+                                                         on-select-callback-fn="vm.autoCompletePackageCaseType.onSelectCallbackFn"
+                                                         callback-fn="vm.autoCompletePackageCaseType.callbackFn"
+                                                         search-text="vm.autoCompletePackageCaseType.searchText"
+                                                         md-require-match="false"
+                                                         max-length="50">
+                            </custom-auto-complete-search>
+                          </md-input-container>
+                        </td>
+                        <td class="width-100px">
+                          <div flex="100" class="margin-bottom-5">
+
+                            <md-radio-group ng-disabled="vm.partCategoryModel.systemGenerated" class="" flex="100" layout="row" ng-model="vm.partCategoryModel.isActive" name="isActive">
+                              <md-radio-button ng-value="true" class="md-primary">Enable</md-radio-button>
+                              <md-radio-button ng-value="false" class="md-primary">Disable</md-radio-button>
+                            </md-radio-group>
+
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th><p class="label-container">Description</p></th>
+                        <td colspan="5">
+                          <md-input-container class="md-block margin-bottom-0" flex="100" flex-xs="100">
+                            <textarea custom-auto-focus="{{(vm.partCategoryModel.systemGenerated || vm.partCategoryModel.id)? true:false}}" name="description" ng-model="vm.partCategoryModel.description" rows="1" ng-maxlength="250" md-maxlength="250" placeholder="Description"></textarea>
+                            <div ng-messages="vm.AddPackageCaseTypeForm.description.$error"
+                                 role="alert">
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(250, vm.AddPackageCaseTypeForm.description.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th></th>
+                        <td class="h-35 employeename">
+                          <p class="label-container">
+                            <md-checkbox ng-model="vm.partCategoryModel.isXrayRequired" name="isXrayRequired" class="margin-0">
+                              X-ray Required
+                            </md-checkbox>
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th><p class="label-container">Alias</p></th>
+                        <td colspan="5">
+                          <div layout="row" flex>
+                            <md-input-container class="margin-bottom-0 md-block margin-top-0" flex="100" md-no-float>
+                              <input type="text" name="packagealias" class="blue" id="packagealias" ng-model="vm.alias" my-enter="vm.updateAliasList($event,vm.alias)"
+                                     placeholder="Alias" ng-maxlength="255" md-maxlength="255" data-focusButton="savePackageCaseTypeBtn"
+                                     last-element elementcondition="{{(!vm.alias && (vm.partCategoryModel.alias.length <= 0) ? true : false)}}">
+                              <div ng-messages="vm.AddPackageCaseTypeForm.packagealias.$error"
+                                   role="alert">
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(255, vm.AddPackageCaseTypeForm.packagealias.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                            <div>
+                              <md-button class="md-primary md-raised margin-0" ng-disabled="!vm.alias || (!vm.isMaster && !vm.autoCompletePackageCaseType.searchText)" ng-click="vm.updateAliasList($event,vm.alias);"
+                                         aria-label="Add" data-focusButton="savePackageCaseTypeBtn"
+                                         last-element elementcondition="{{(vm.alias && (vm.partCategoryModel.alias.length <= 0) ? true : false)}}">Add Alias</md-button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                </div>
+              </div>
+              <div layout="row" flex="noshrink">
+                <div layout="column" flex>
+                  <div layout="column" class="cm-common-line common-alias-list-main cm-add-cus cm-manufacture-alias-list" flex>
+                    <div class="mobilesearch title alias-list-title userpermissionhead" layout="row" flex="100" layout-align="space-between center">
+                      <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75">
+                        <input type="text" class="font-weight-400" placeholder="Type here to search alias" ng-model="vm.Search">
+                      </md-input-container>
+                      <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                                 ng-disabled="vm.Search =='' || vm.Search ==null"
+                                 ng-click="vm.Search=''">
+                        Clear
+                      </md-button>
+                    </div>
+                    <div layout="row" flex="100" layout-wrap class="permissiontab detail dossection padding-5 custom-scroll" ng-if="vm.partCategoryModel.alias.length > 0">
+                      <table class="simple no-padding" ms-responsive-table="">
+                        <thead>
+                          <tr>
+                            <th width="120">Alias</th>
+                            <th class="text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr ng-repeat="alias in vm.partCategoryModel.alias | filter:vm.Search | orderBy:'index'" class="height-40 border-bottom-gray">
+                            <td width="280" class="font-size-14 border-0 mt-10 ng-binding word-break" layout="row">
+                              {{alias.alias}}
+                              <div layout="row" class="cm-custom-chips">
+                                <md-chips ng-repeat="source in alias.mfgCodeList">
+                                  <md-chip>{{source}}</md-chip>
+                                </md-chips>
+                              </div>
+                            </td>
+                            <td width="70" class="text-center font-size-14">
+                              <md-button class="md-mini md-icon-button margin-0" data-focusButton="savePackageCaseTypeBtn" ng-disabled="!alias.id"
+                                         last-element elementcondition="{{(alias.systemGenerated && ((vm.partCategoryModel.alias.length - 1) == $index) ? true : false)}}">
+                                <md-icon md-font-icon="icon-eye"></md-icon>
+                                <md-tooltip md-direction="top" class="tt-multiline" ng-if="alias.id">
+                                  Created By: {{alias.fullName}} <br />
+                                  Created At: {{alias.createdAt | date:vm.DefaultDateFormat}}
+                                </md-tooltip>
+                              </md-button>
+                              <md-button class="md-mini md-icon-button margin-0" ng-if="alias.id"
+                                         ng-disabled="alias.isDefaultAlias"
+                                         ng-click="vm.setAliasAsDefault(alias)" data-focusButton="savePackageCaseTypeBtn" last-element
+                                         elementcondition="{{(((alias.id) || alias.isDefaultAlias) && ((vm.partCategoryModel.alias.length - 1) == $index) ? true : false)}}">
+                                <md-icon md-font-icon="{{alias.isDefaultAlias ? 'icons-pin' : 'icons-unpin'}}"></md-icon><md-tooltip>Set as Default</md-tooltip>
+                              </md-button>
+                              <button class="md-mini md-icon-button margin-0" ng-class="{'cursor-not-allow opecity-5':alias.systemGenerated || alias.isDefaultAlias}"
+                                      ng-disabled="alias.systemGenerated || alias.isDefaultAlias" ng-click="vm.removeAliasFromList(alias)" data-focusButton="savePackageCaseTypeBtn"
+                                      last-element elementcondition="{{((vm.partCategoryModel.alias.length - 1) == $index ? true : false)}}">
+                                <md-icon md-font-icon="icon-trash"></md-icon><md-tooltip>Delete</md-tooltip>
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div flex="100" class="md-1-line margin-0 dragsortable" layout="row" layout-align="start center"
+                           ng-if="(vm.partCategoryModel.alias | filter:vm.Search).length==0 && vm.partCategoryModel.alias.length > 0">
+                        <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap flex="100">
+                          <div class="emty-icon" flex="100">
+                            <img ng-src="{{vm.EmptyMesssageAliaslist.SEARCH_IMAGE_URL}}" />
+                          </div>
+                          <p flex="100" class="empty-state-title">{{vm.EmptyMesssageAliaslist.EMPTY_SEARCH_MESSAGE}}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div flex="100" class="md-1-line margin-0 dragsortable" layout="row" layout-align="start center" ng-if="!vm.partCategoryModel.alias || vm.partCategoryModel.alias.length == 0">
+                      <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap flex="100">
+                        <p flex="100" class="empty-state-title">{{vm.EmptyMesssageAliaslist.MESSAGE}}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div flex="45" flex-gt-xs="100" layout="row" class="cm-manage-mt-part-type cm-manage-grid cm-section-main border-black">
+            <div class="cm-section-inner" flex layout="row">
+              <common-type-list table-name="vm.tables" module-name="vm.searchType" is-disable="(vm.partCategoryModel.id || vm.partCategoryModel.id==0)?false:true" apply-as-common-callback-fn="vm.selectedPart" is-change-from-popup="true"></common-type-list>
+            </div>
+          </div>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" id="savePackageCaseTypeBtn" ng-click="vm.savePartCategory(vm.BUTTON_TYPE.SAVE)" aria-label="Submit" ng-class="{'md-formdirty': vm.checkFormDirty(vm.AddPackageCaseTypeForm) || vm.checkDirty}">Save</md-button>
+      <md-button class="md-primary md-raised" data-focusButton="headerAddBtn" last-element elementcondition="true" ng-click="vm.savePartCategory(vm.BUTTON_TYPE.SAVEANDEXIT);" aria-label="Submit" ng-class="{'md-formdirty': vm.checkFormDirty(vm.AddPackageCaseTypeForm) || vm.checkDirty}">{{vm.CORE_MESSAGE_CONSTANT.SAVE_AND_EXIT}}</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

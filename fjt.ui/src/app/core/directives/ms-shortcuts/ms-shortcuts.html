@@ -1,0 +1,165 @@
+<div class="shortcuts-container bookmark-menu" layout="row" layout-align="space-between center" flex
+     ng-class="{'mobile-bar-active': MsShortcuts.mobileBarActive}">
+  <div class="bookmark-bar">
+    <!-- Shortcut list -->
+    <ul ng-sortable="MsShortcuts.sortableOptions">
+      <li>
+        <md-menu md-offset="8 56" class="shortcut-menu show-gt-xs">
+          <md-button class="md-icon-button add-shortcut-button" aria-label="Add bookmark"
+                     ng-click="MsShortcuts.query = ''; $mdOpenMenu($event)">
+            <md-icon md-menu-origin md-font-icon="icon-star" class="icon amber-600-fg s24"></md-icon>
+            <md-tooltip md-direction="bottom">Click to add/remove bookmark</md-tooltip>
+          </md-button>
+          <md-menu-content class="pt-0">
+            <div id="ms-shortcut-add-menu" cg-busy="{promise:MsShortcuts.cgBusyLoading}">
+              <div class="shortcut-search" layout="row" layout-align="start center">
+                <div class="search-icon" layout="row" layout-align="center center"
+                     ng-if="!MsShortcuts.resultsLoading">
+                  <md-icon md-menu-align-target md-font-icon="icon-magnify" class="icon s24"></md-icon>
+                </div>
+                <div class="shortcut-loader" layout="row" layout-align="center center"
+                     ng-if="MsShortcuts.resultsLoading">
+                  <md-progress-circular class="md-accent" md-diameter="20" md-mode="indeterminate">
+                  </md-progress-circular>
+                </div>
+                <input type="text" placeholder="Search" flex
+                       ng-model="MsShortcuts.query"
+                       ng-model-options="MsShortcuts.queryOptions"
+                       ng-keydown="MsShortcuts.handleKeydown($event)" md-autofocus custom-auto-focus="true">
+              </div>
+              <div class="results" ng-if="MsShortcuts.results">
+                <div class="no-results" ng-if="MsShortcuts.results.length === 0">No Results!</div>
+                <div class="result" ng-repeat="result in MsShortcuts.results"
+                     ng-click="MsShortcuts.handleResultClick(result)"
+                     ng-mouseenter="MsShortcuts.handleMouseenter($index)"
+                     ng-mousedown="MsShortcuts.absorbEvent($event)"
+                     ng-class="{'selected': $index == MsShortcuts.selectedResultIndex}"
+                     md-prevent-menu-close="md-prevent-menu-close"
+                     md-ink-ripple>
+                  <div layout="row" layout-align="start space-between">
+                    <div layout="row" layout-align="start center" flex>
+                      <div class="icon icon-container" layout="row" layout-align="center center">
+                        <md-icon ng-if="result.icon" md-font-icon="{{result.icon}}"></md-icon>
+                        <div ng-if="!result.icon" class="square md-accent-bg"></div>
+                      </div>
+                      <div>
+                        <div class="title">{{result.title}}</div>
+                      </div>
+                    </div>
+                    <div ng-if="result.hasShortcut" class="cm-menu-item-tooltip">
+                      <!--<md-icon md-font-icon="icon-pin-off" class="icon s18"
+                              ng-class="{'fade-text': !result.hasShortcut}"></md-icon>-->
+                      <md-icon md-font-icon="icons-pin" class="icon s18"
+                               ng-class="{'fade-text': !result.hasShortcut}"></md-icon>
+                      <md-tooltip>Remove from Bookmark</md-tooltip>
+                    </div>
+                    <div ng-if="!result.hasShortcut" class="cm-menu-item-tooltip">
+                      <!--<md-icon md-font-icon="icon-pin" class="icon s18"
+                              ng-class="{'fade-text': !result.hasShortcut}"></md-icon>-->
+                      <md-icon md-font-icon="icons-unpin" class="icon s18"
+                               ng-class="{'fade-text': !result.hasShortcut}"></md-icon>
+                      <md-tooltip>Add to Bookmark</md-tooltip>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </md-menu-content>
+        </md-menu>
+      </li>
+      <li ng-if="shortcut.uisref  || shortcut.popupFunName" ng-repeat="shortcut in MsShortcuts.shortcuts | filter: MsShortcuts.shortcuts.hasShortcut!=true">
+        <div layout="column" layout-align="center center" class="border-left-1px cm-border-left-gray">
+          <md-button target="_blank" ng-if="shortcut.uisref" class="md-icon-button shortcut" aria-label="{{shortcut.title}}" ui-sref="{{ shortcut.uisref }}{{shortcut.paramDet || shortcut.paramDet}}">
+            <md-icon ng-if="shortcut.icon" md-font-icon="{{shortcut.icon}}" class="icon s24"></md-icon>
+            <div ng-if="!shortcut.icon" class="first-letter">{{shortcut.title.charAt(0)}}</div>
+            <md-tooltip md-direction="bottom">{{shortcut.title}}</md-tooltip>
+          </md-button>
+          <md-button ng-if="shortcut.popupFunName" class="md-icon-button shortcut" aria-label="{{shortcut.title}}" ng-click="MsShortcuts.openPopup(shortcut.popupFunName)">
+            <md-icon ng-if="shortcut.icon" md-font-icon="{{shortcut.icon}}" class="icon s24"></md-icon>
+            <div ng-if="!shortcut.icon" class="first-letter">{{shortcut.title.charAt(0)}}</div>
+            <md-tooltip md-direction="bottom">{{shortcut.title}}</md-tooltip>
+          </md-button>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <md-menu ng-if="MsShortcuts.shortcuts.length > 0" id="bm-dropdown-menu" md-position-mode="right bottom">
+    <md-button class="bm-dropdown-toggle md-icon-button md-primary" ng-click="$mdMenu.open()">
+      <md-icon md-font-icon="icon-chevron-down" class="icon s16" role="img" aria-label="icon-chevron-down"></md-icon>
+    </md-button>
+    <div class="bm-dropdown" id="bm-dropdown-menu-list">
+      <md-menu-item layout-wrap>
+        <div class="padding-0 cm-bookmark-search">
+          <md-input-container md-no-float class="md-block search-header margin-0 width-100p error-none">
+            <input type="text" ng-model="vm.bookmarkSearchText" ng-change="MsShortcuts.disableDragging(vm.bookmarkSearchText)" placeholder="Type here to search added bookmarks">
+            <md-button ng-click="vm.bookmarkSearchText = ''" class="md-icon-button clear-btn">X</md-button>
+          </md-input-container>
+        </div>
+        <div class="cm-home-menu-grid-view padding-0">
+          <div class="drop-content" flex="100" layout-wrap layout="row">
+            <div class="apps-container  bm-list-container"
+                 ui-sortable="MsShortcuts.dragAndDropSortableOptions" flex="100"
+                 layout-wrap layout="row" ng-model="MsShortcuts.shortcuts" id="categoryWiseMenuList">
+              <div class="cm-drag-icon apps-container  sortable-item bm-list-item"
+                   ui-sortable-selectable
+                   ng-repeat="menu in MsShortcuts.shortcuts | filter: MsShortcuts.shortcuts.hasShortcut!=true | filter:{title: vm.bookmarkSearchText}">
+                <div>
+                  <div class="layout-align-center-start" layout="row">
+                    <div class="flex-90 cm-list-detail">
+
+                      <a target="_blank" class="ms-navigation-horizontal-button ng-scope md-default-theme layout-column"
+                         ng-if="menu.uisref"
+                         aria-label="{{menu.title}}"
+                         ui-sref="{{menu.uisref}}{{menu.paramDet || menu.paramDet}}">
+                        <md-icon md-font-icon="{{menu.icon}}" class="icon">
+                        </md-icon>
+                        <span class="font-size-12 line-height-14 pt-5" ng-click="$mdmenu.close();vm.bookmarksearchtext = '';">
+                          {{menu.title}}
+                        </span>
+                      </a>
+                      <a class="ms-navigation-horizontal-button ng-scope md-default-theme layout-column"
+                         ng-if="menu.popupFunName"
+                         aria-label="{{menu.title}}"
+                         ng-click="$mdMenu.close();vm.bookmarkSearchText = ''; MsShortcuts.openPopup(menu.popupFunName)">
+                        <md-icon md-font-icon="{{menu.icon}}" class="icon">
+                        </md-icon>
+                        <span class="font-size-12 line-height-14 pt-5" ng-click="vm.bookmarksearchtext = ''; $mdmenu.close();">
+                          {{menu.title}}
+                        </span>
+                      </a>
+                    </div>
+                    <div class="bookmark-unpin cm-menu-item-tooltip">
+                      <div ng-click="MsShortcuts.handleResultClick(menu)"
+                           ng-mouseenter="MsShortcuts.handleMouseenter($index)"
+                           ng-mousedown="MsShortcuts.absorbEvent($event)"
+                           md-prevent-menu-close="md-prevent-menu-close">
+                        <md-icon md-font-icon="icons-pin" class="icon s18">
+                          <md-tooltip md-direction="bottom">Remove Bookmark</md-tooltip>
+                        </md-icon>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </md-menu-item>
+
+      <md-menu-item>
+        <div ui-sortable="vm.dragAndDropSortableOptions" ng-model="MsShortcuts.shortcuts" class="list">
+          <div ui-sortable-selectable ng-repeat="item in list" class="item">
+            {{item.title}}
+          </div>
+        </div>
+      </md-menu-item>
+    </div>
+  </md-menu>
+  <md-button class="md-icon-button toggle-mobile-menu hide-gt-xs hide-xs" aria-label="Add bookmark"
+             ng-click="MsShortcuts.toggleMobileBar()">
+    <md-icon md-menu-origin md-font-icon="icon-star" class="icon amber-600-fg s24"
+             ng-hide="MsShortcuts.mobileBarActive"></md-icon>
+    <md-icon md-menu-origin md-font-icon="icon-close" class="icon s24"
+             ng-hide="!MsShortcuts.mobileBarActive"></md-icon>
+  </md-button>
+</div>

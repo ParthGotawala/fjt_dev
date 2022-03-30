@@ -1,0 +1,381 @@
+<md-dialog aria-label="KitRelease" class="cm-custom-label-common" flex="{{(!vm.kitReleaseDetail.isMismatchItems) && (!vm.callFrom) && (!vm.mismatchDeptType || vm.mismatchDeptType != vm.ParentWarehouseType.ProductionDepartment) ? 60: 100}}" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.formKitRelease" id="formKitRelease" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>
+          <span ng-if="vm.kitReleaseDetail.isMismatchItems && !vm.callFrom && (!vm.mismatchDeptType || vm.mismatchDeptType != vm.ParentWarehouseType.ProductionDepartment)"> Prior To Release Fix Inventory Issue</span>
+          <span ng-if="!vm.kitReleaseDetail.isMismatchItems && !vm.callFrom && (!vm.mismatchDeptType || vm.mismatchDeptType != vm.ParentWarehouseType.ProductionDepartment)">
+            <span ng-if="!vm.kitReleaseDetail.releasePlan.isUpdate">Release Kit</span>
+            <span ng-if="vm.kitReleaseDetail.releasePlan.isUpdate">Update WO And Release Comment</span>
+          </span>
+          <span ng-if="vm.kitReleaseDetail.isMismatchItems && (vm.callFrom === vm.callFromDeptToDepetWH || vm.callFrom === vm.callFromDeptToDepetBin || vm.callFrom === vm.callFromDeptToDepetKit) && (!vm.mismatchDeptType || vm.mismatchDeptType !== vm.ParentWarehouseType.ProductionDepartment)"> Prior to transfer fix inventory issue</span>
+          <span ng-if="vm.kitReleaseDetail.isMismatchItems && !vm.callFrom && vm.mismatchDeptType === vm.ParentWarehouseType.ProductionDepartment"> Mismatched Items</span>
+        </h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content class="no-padding custom-scroll">
+      <md-content class="padding-10" flex="100">
+
+        <div flex="100" layout="row" class="cm-section-main border-0">
+          <div flex="100" class="cm-section-inner">
+            <div flex="100" layout="row" layout-align="end start" ng-if="!vm.kitReleaseDetail.isMismatchItems && !vm.callFrom && (!vm.mismatchDeptType || vm.mismatchDeptType != vm.ParentWarehouseType.ProductionDepartment)">
+              <div layout-align="space-between start">
+                <md-button ng-if="!vm.kitReleaseDetail.isMismatchItems && !vm.callFrom && (!vm.mismatchDeptType || vm.mismatchDeptType != vm.ParentWarehouseType.ProductionDepartment)" class="md-primary md-raised" ng-click="vm.isShowApprovedBtn = !vm.isShowApprovedBtn">Select Predefined Release Comments</md-button>
+              </div>
+            </div>
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <th ng-if="!vm.kitReleaseDetail.isMismatchItems">
+                    <p class="label-container">
+                      <a tabindex="-1" class="cm-text-decoration underline md-default-theme" ng-click="vm.goToWorkorderList();">Work Order</a><span ng-if="vm.autoCompleteWorkorder.isRequired">&nbsp;*</span>
+                    </p>
+                  </th>
+                  <td ng-if="!vm.kitReleaseDetail.isMismatchItems">
+                    <md-input-container flex="100" class="autocompletecustom min-width-initial margin-bottom-0" ng-if="vm.autoCompleteWorkorder" custom-auto-focus="true">
+                      <custom-auto-complete datalist="vm.workorderList"
+                                            column-name="vm.autoCompleteWorkorder.columnName"
+                                            key-column-name="vm.autoCompleteWorkorder.keyColumnName"
+                                            input-name="vm.autoCompleteWorkorder.inputName"
+                                            placeholder-name="vm.autoCompleteWorkorder.placeholderName"
+                                            key-column-id="vm.autoCompleteWorkorder.keyColumnId"
+                                            is-addnew="vm.autoCompleteWorkorder.isAddnew"
+                                            callback-fn="vm.autoCompleteWorkorder.callbackFn"
+                                            on-select-callback-fn="vm.autoCompleteWorkorder.onSelectCallbackFn"
+                                            is-required="vm.autoCompleteWorkorder.isRequired">
+                      </custom-auto-complete>
+                    </md-input-container>
+                  </td>
+                </tr>
+
+                <tr ng-if="vm.isShowParentWH && !vm.kitReleaseDetail.isMismatchItems">
+                  <th ng-if="!vm.kitReleaseDetail.isMismatchItems">
+                    <p class="label-container">
+                      <a tabindex="-1" class="cm-text-decoration underline md-default-theme" ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.ParentWH}}</a><span ng-if="vm.autoCompleteDept.isRequired">&nbsp;*</span>
+                    </p>
+                  </th>
+                  <td ng-if="!vm.kitReleaseDetail.isMismatchItems">
+                    <md-input-container flex="100" class="autocompletecustom min-width-initial margin-bottom-0" ng-if="vm.autoCompleteDept">
+                      <custom-auto-complete datalist="vm.productionDeptList"
+                                            column-name="vm.autoCompleteDept.columnName"
+                                            key-column-name="vm.autoCompleteDept.keyColumnName"
+                                            input-name="vm.autoCompleteDept.inputName"
+                                            placeholder-name="vm.autoCompleteDept.placeholderName"
+                                            key-column-id="vm.autoCompleteDept.keyColumnId"
+                                            is-addnew="vm.autoCompleteDept.isAddnew"
+                                            callback-fn="vm.autoCompleteDept.callbackFn"
+                                            on-select-callback-fn="vm.autoCompleteDept.onSelectCallbackFn"
+                                            is-required="vm.autoCompleteDept.isRequired">
+                      </custom-auto-complete>
+                    </md-input-container>
+                  </td>
+                </tr>
+
+                <tr>
+                  <th ng-if="!vm.kitReleaseDetail.isMismatchItems">
+                    <p class="label-container">Release Comment<span>&nbsp;*</span></p>
+                  </th>
+                  <td colspan="7" ng-if="!vm.kitReleaseDetail.isMismatchItems">
+                    <md-input-container class="margin-bottom-0" flex="100">
+                      <textarea type="text" id="description" ng-maxlength="1000" md-maxlength="1000" rows="{{vm.textAreaRows.ROWS}}" max-rows="{{vm.textAreaRows.MAX_ROWS}}"
+                                name="description" ng-model="vm.kitReleaseDetail.description" required></textarea>
+                      <div ng-messages="vm.formKitRelease.description.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(1000, vm.formKitRelease.description.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div flex="100" layout="row" layout-wrap class="mismatch-kit-item" ng-if="vm.kitReleaseDetail.isMismatchItems">
+          <div layout="row" class="mb-10" flex="100" layout-align="space-between center" ng-if="vm.permenantWarehouseList.length > 0 || vm.emptyBinWHList.length > 0 || vm.unallocatedStock.length > 0 || vm.nonUMIDList.length > 0">
+            <label class="label-danger no-bg padding-0 margin-0" ng-if="!vm.callFrom && (!vm.mismatchDeptType || vm.mismatchDeptType !== vm.ParentWarehouseType.ProductionDepartment)">{{vm.transaction.RELEASE_KIT_INFORMATION_MESSAGE.RESOLVE_ISSUE_FOR_KIT_RELEASE}}</label>
+            <label class="label-danger no-bg padding-0 margin-0" ng-if="vm.callFrom === vm.callFromDeptToDepetWH && (!vm.mismatchDeptType || vm.mismatchDeptType !== vm.ParentWarehouseType.ProductionDepartment)">{{vm.transaction.RELEASE_KIT_INFORMATION_MESSAGE.RESOLVE_ISSUE_FOR_TRANSFER_WH}}</label>
+            <label class="label-danger no-bg padding-0 margin-0" ng-if="vm.callFrom === vm.callFromDeptToDepetBin && (!vm.mismatchDeptType || vm.mismatchDeptType !== vm.ParentWarehouseType.ProductionDepartment)">{{vm.transaction.RELEASE_KIT_INFORMATION_MESSAGE.RESOLVE_ISSUE_FOR_TRANSFER_BIN}}</label>
+            <label class="label-danger no-bg padding-0 margin-0" ng-if="vm.callFrom === vm.callFromDeptToDepetKit && (!vm.mismatchDeptType || vm.mismatchDeptType !== vm.ParentWarehouseType.ProductionDepartment)">{{vm.transaction.RELEASE_KIT_INFORMATION_MESSAGE.RESOLVE_ISSUE_FOR_TRANSFER_KIT}}</label>
+            <div layout="row" layout-align="end end" flex>
+              <md-button class="md-primary md-raised md-ink-ripple mv-0"
+                         ng-if="vm.emptyBinWHList.length > 0 && !vm.callFrom && (!vm.mismatchDeptType || vm.mismatchDeptType !== vm.ParentWarehouseType.ProductionDepartment)"
+                         ng-disabled="!(vm.emptyBinWHList.length > 0 && !(vm.permenantWarehouseList.length > 0 || vm.unallocatedStock.length > 0 || vm.nonUMIDList.length > 0))"
+                         ng-click="vm.startReleaseWithEmptyBin()">
+                Release with Empty Bin(s)
+              </md-button>
+              <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-if="vm.emptyBinWHList.length > 0 && vm.callFrom === vm.callFromDeptToDepetWH" ng-disabled="!(vm.emptyBinWHList.length > 0 && !(vm.permenantWarehouseList.length > 0 || vm.unallocatedStock.length > 0 || vm.nonUMIDList.length > 0))" ng-click="vm.transferWHWithEmptyBin()">Transfer Warehouse with Empty Bin(s)</md-button>
+              <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-if="vm.emptyBinWHList.length > 0 && vm.callFrom === vm.callFromDeptToDepetBin" ng-disabled="!(vm.emptyBinWHList.length > 0 && !(vm.permenantWarehouseList.length > 0 || vm.unallocatedStock.length > 0 || vm.nonUMIDList.length > 0))" ng-click="vm.transferWHWithEmptyBin()">Transfer Bin with Empty Bin(s)</md-button>
+              <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-if="vm.emptyBinWHList.length > 0 && vm.callFrom === vm.callFromDeptToDepetKit" ng-disabled="!(vm.emptyBinWHList.length > 0 && !(vm.permenantWarehouseList.length > 0 || vm.unallocatedStock.length > 0 || vm.nonUMIDList.length > 0))" ng-click="vm.transferWHWithEmptyBin()">Transfer Kit with Empty Bin(s)</md-button>
+              <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.checkFeasibility()">{{vm.LabelConstant.KitAllocation.CheckBuildFeasibility}}</md-button>
+              <md-button class="md-primary md-raised m-0" ng-click="vm.getKitMismatchInventoryDetail()">Refresh</md-button>
+            </div>
+          </div>
+
+          <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="!(vm.permenantWarehouseList.length > 0 || vm.emptyBinWHList.length > 0 || vm.unallocatedStock.length > 0 || vm.nonUMIDList.length > 0)">
+            <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.RESOLVED_INVENTORY_ISSUE}}</p>
+            <p flex="100" class="mt-15">
+              <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.startKitRelease()">Release Kit</md-button>
+            </p>
+          </div>
+
+          <div class="cm-section-main mb-10" layout="row" layout-wrap flex="100" ng-if="vm.permenantWarehouseList.length > 0">
+            <div class="cm-section-header" flex="100">
+              <h2>Permanent Warehouse(s)</h2>
+            </div>
+
+            <div class="cm-section-inner" flex="100" layout-md="column" layout-sm="column" layout="row">
+              <table class="table table-bordered m-0">
+                <thead>
+                  <tr>
+                    <th class="w-50">#</th>
+                    <th class="w-200">Warehouse</th>
+                    <th> Warehouse Type </th>
+                    <th class="w-200"> Allow Bin/Slot Moving </th>
+                    <th class="w-160"> Allocated UMID Count</th>
+                    <th class="w-420"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="item in vm.permenantWarehouseList">
+                    <td class="w-50">{{($index+1)}}</td>
+                    <td class="w-200">{{item.warehouseName}}</td>
+                    <td>{{item.warehouseType}}</td>
+                    <td class="text-center w-200">
+                      <span class="label-box" ng-class="{'label-success': item.allMovableBin == 1, 'label-warning': !(item.allMovableBin == 1)}">{{(item.allMovableBin == 1) ? 'Yes': 'No'}}</span>
+                    </td>
+                    <td class="text-right w-160">{{item.allocatedUMIDCount | numberWithoutDecimal}}</td>
+                    <th class="action-btn-column w-420">
+                      <md-button class="md-primary md-raised m-0" ng-click="vm.transferWHToWH(item)" ng-if="item.warehouseType == vm.warehouseType.ShelvingCart.key && item.allMovableBin == 1">{{vm.LabelConstant.TransferStock.WHToWHTransfer}}</md-button>
+                      <md-button class="md-primary md-raised m-0" ng-click="vm.redirectToUMIDWithBinWHFilter(item)">Show Parts</md-button>
+                    </th>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="cm-section-main mb-10" layout="row" layout-wrap flex="100" ng-if="vm.unallocatedStock.length > 0">
+            <div class="cm-section-header" flex="100" layout-align="space-between center">
+              <h2 class="width-150px">UMID(s) Summary</h2>
+              <div class="cm-section-header padding-bottom-0 padding-top-0" layout="row" flex="100">
+                <md-checkbox ng-model="vm.isComapnyLevel" name="vm.isComapnyLevel" class="margin-0 margin-right-10 margin-left-10">
+                  Search Company Level
+                  <md-icon class="icon-question-mark-circle help-icon h-16">
+                    <md-tooltip md-direction="top">
+                      {{vm.CORE_MESSAGE_CONSTANT.SEARCH_COMPANY_LEVEL}}
+                    </md-tooltip>
+                  </md-icon>
+                </md-checkbox>
+                <div class="cm-switch-light cm-switch-new height-32">
+                  <md-input-container flex="100" class="md-input-has-value mid">
+                    <md-radio-group class="rocker" ng-class="{'cm-show-btn':vm.clickButton,'cm-cancel-btn':(!vm.clickButton && !(vm.checkPartForSearch())),'cm-button-disable':vm.checkPartForSearch() }" ng-change="vm.changeEvent(vm.clickButton,$event)" ng-model="vm.clickButton">
+                      <md-radio-button ng-value="true" class="cm-show md-button switch-left" ng-disabled="vm.checkPartForSearch() || vm.showStatus">Show Light</md-radio-button>
+                      <md-radio-button ng-value="false" class="cm-cancel md-button switch-right" ng-disabled="vm.checkPartForSearch() || !vm.showStatus">Cancel</md-radio-button>
+                    </md-radio-group>
+                  </md-input-container>
+                </div>
+                <span ng-if="vm.showStatus" class="margin-left-10"><b>{{vm.CORE_MESSAGE_CONSTANT.INOAUTO_SEARCH_COMMENT}}</b></span>
+                <smart-cart-user></smart-cart-user>
+              </div>
+              <div layout="row" layout-align="start center" class="mr-10">
+                <p class="mb-0 nowrap"><b>Scan UMID</b></p>
+                <md-input-container flex="100" class="margin-bottom-0">
+                  <input type="text" name="ScanFilterUMID" ng-model="vm.ScanVerifyUMID" ng-keyup="vm.scanVerifyUID($event);" id="ScanFilterUMID" ng-maxlength="vm.UMID_MAX_LENGTH" class="width-130">
+                  <div ng-messages="vm.formKitRelease.ScanFilterUMID.$touched && vm.formKitRelease.ScanFilterUMID.$error" role="alert">
+                    <div ng-message="maxlength">
+                      <span>{{vm.getMaxLengthValidation(vm.UMID_MAX_LENGTH,vm.formKitRelease.ScanVerifyUMID.$viewValue.length)}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </div>
+            </div>
+            <div class="" flex="100" layout-md="column" layout-sm="column" layout="row">
+              <table class="table table-bordered m-0 width-150px">
+                <thead>
+                  <tr>
+                    <th class="w-50" colspan="2">#</th>
+                    <th class="w-80"><b>Action</b></th>
+                    <th class="w-210">Warehouse</th>
+                    <th class="w-210">Bin</th>
+                    <th class="w-130">Allocated UMID</th>
+                    <th class="w-130">Unallocated UMID</th>
+                    <th class="w-100">Total UMID</th>
+                  </tr>
+                </thead>
+                <tbody ng-repeat="item in vm.UnallocatedUMIDSummary">
+                  <tr>
+                    <td colspan="2">{{($index+1)}}</td>
+                    <td>
+                      <md-button class="md-primary grid-button md-icon-button bdrbtn cm-sq-btn" ng-click="vm.transferBin(item,$event)" ng-class="{'cursor-not-allow opecity-5':item.allocatedUMID>0}" ng-disabled="item.allocatedUMID>0">
+                        <!--vm.transferBinToBin(item,$event)-->
+                        <md-icon role="img" md-font-icon="icons-xfer-bin1"></md-icon>
+                        <md-tooltip md-direction="top">Xfer Bin</md-tooltip>
+                      </md-button>
+                      <md-button class="md-primary grid-button md-icon-button bdrbtn cm-sq-btn" ng-click="vm.goToTransferBulkMaterial(item)">
+                        <md-icon role="img" md-font-icon="icons-xfr-bulk-grid" class="cm-icon-bulk-transfer"></md-icon>
+                        <md-tooltip md-direction="top">{{vm.LabelConstant.UMIDManagement.TransferBulkMaterial}}</md-tooltip>
+                      </md-button>
+                    </td>
+                    <td>{{item.warehouseName}}</td>
+                    <td>{{item.binName}}</td>
+                    <td class="text-align-right">{{item.allocatedUMID}}</td>
+                    <td class="text-align-right"><a ng-class="{'underline':item.unallocatedUMID>0}" class="underline"><span ng-click="item.isopen=!item.isopen;vm.searchUMID='';">{{item.unallocatedUMID}}<md-tooltip>{{item.isopen?'Collapse':'Expand'}}</md-tooltip></span></a></td>
+                    <td class="text-align-right">{{item.totalUMID}}</td>
+                  </tr>
+                  <tr ng-if="item.isopen" class="umid-header-color">
+                    <th>
+                      <md-checkbox ng-model="item.isCheckedAll" name="isCheckedAll" class="margin-0" ng-change="vm.applyAll(item.isCheckedAll,item)" ng-disabled="vm.showStatus || item.warehouseType !==vm.warehouseType.SmartCart.key">
+                      </md-checkbox>
+                    </th>
+                    <th><b>#</b></th>
+                    <th><b>Action</b></th>
+                    <th><b>Warehouse</b></th>
+                    <th colspan="{{vm.showStatus?1:2}}"><b>Bin</b></th>
+                    <th ng-if="vm.showStatus"><b>Smart Cart Status</b></th>
+                    <th><b>UMID</b></th>
+                    <th><md-button class="md-primary md-raised m-0" ng-click="item.isopen=!item.isopen">collapse</md-button></th>
+                  </tr>
+                  <tr ng-repeat="data in item.unallocatedStock | filter:{'uid':vm.searchUMID}" ng-if="item.isopen">
+                    <td>
+                      <md-checkbox ng-model="data.isChecked" name="isChecked" class="margin-0" ng-change="vm.changeCheckbox(item)" ng-disabled="item.warehouseType !==vm.warehouseType.SmartCart.key">
+                      </md-checkbox>
+                    </td>
+                    <td>{{($index+1)}}</td>
+                    <td>
+                      <md-button class="md-primary grid-button md-icon-button bdrbtn cm-sq-btn" ng-click="vm.transferStock(data,$event)">
+                        <md-icon role="img" md-font-icon="icons-transfer-material-2"></md-icon>
+                        <md-tooltip md-direction="top">{{vm.LabelConstant.UMIDManagement.TransferMaterial}}</md-tooltip>
+                      </md-button>
+                      <md-button ng-if="!vm.isSearch" class="md-primary grid-button md-icon-button bdrbtn bdrrcvbtn cm-grid-action-view-icon"
+                                 ng-disabled="data.warehouseType !==vm.warehouseType.SmartCart.key"
+                                 ng-class="data.ledColorCssClass">
+                        <md-icon role="img" md-font-icon="icon-lightbulb-outline"></md-icon>
+                        <md-tooltip md-direction="top" ng-if="data.ledColorName">{{data.ledColorName}}</md-tooltip>
+                      </md-button>
+                    </td>
+                    <td>{{data.warehouseName}}</td>
+                    <td colspan="{{vm.showStatus?1:2}}">{{data.binName}}</td>
+                    <td ng-if="vm.showStatus">{{data.inovexStatus}}</td>
+                    <td colspan="2">
+                      <a ng-click="vm.goToUMIDManagement(data)" ng-if="data.uid" class="cm-text-decoration underline cursor-pointer">{{data.uid || "-"}}</a>
+                      <copy-text label="vm.LabelConstant.UMIDManagement.UMID" ng-if="data.uid" text="data.uid"></copy-text>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="cm-section-main mb-10" layout="row" layout-wrap flex="100" ng-if="vm.nonUMIDList.length > 0">
+            <div class="cm-section-header" flex="100">
+              <h2>Bin(s) With UMID Pending Part(s)</h2>
+            </div>
+            <div class="cm-overflow-auto" flex="100" layout-md="column" layout-sm="column" layout="row">
+              <table class="table table-bordered m-0">
+                <thead>
+                  <tr>
+                    <th class="w-50">#</th>
+                    <th class="w-200">Warehouse</th>
+                    <th class="w-200">Bin</th>
+                    <th>Part(s)</th>
+                    <th class="w-100">Allocated UMID in Same Kit</th>
+                    <th class="w-100">Allocated UMID to Other Kit</th>
+                    <th class="w-100">Unallocated UMID</th>
+                    <th class="w-350"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="item in vm.nonUMIDList">
+                    <td>{{($index+1)}}</td>
+                    <td>{{item.warehouseName}}</td>
+                    <td>{{item.binName}}</td>
+                    <td>{{item.parts}}</td>
+                    <td class="text-right">
+                      <a ng-click="vm.redirectToUMIDWithBinWHFilter(item)" ng-if="item.allocatedUMIDInSameKitCount > 0">{{item.allocatedUMIDInSameKitCount | numberWithoutDecimal}}</a>
+                      <span ng-if="!(item.allocatedUMIDInSameKitCount > 0)">-</span>
+                    </td>
+                    <td class="text-right">
+                      <a ng-click="vm.redirectToUMIDWithBinWHFilter(item)" ng-if="item.allocatedUMIDToOtherKitCount > 0">{{item.allocatedUMIDToOtherKitCount | numberWithoutDecimal}}</a>
+                      <span ng-if="!(item.allocatedUMIDToOtherKitCount > 0)">-</span>
+                    </td>
+                    <td class="text-right">
+                      <a ng-click="vm.redirectToUMIDWithBinWHFilter(item)" ng-if="item.unallocatedUMIDCount > 0">{{item.unallocatedUMIDCount | numberWithoutDecimal}}</a>
+                      <span ng-if="!(item.unallocatedUMIDCount > 0)">-</span>
+                    </td>
+                    <th class="action-btn-column">
+                      <md-button class="md-primary md-raised m-0" ng-click="vm.transferBinToWarehouse(item)" ng-if="item.allocatedUMIDInSameKitCount == 0 || !item.allocatedUMIDInSameKitCount">{{vm.LabelConstant.TransferStock.BinToWhTransfer}}</md-button>
+                      <md-button class="md-primary md-raised m-0" ng-click="vm.createrUMID(item)">Create UMID</md-button>
+                      <md-button class="md-primary md-raised m-0" ng-click="vm.transferUMIDtoBin()" ng-if="item.allocatedUMIDInSameKitCount > 0">{{vm.LabelConstant.UMIDManagement.TransferMaterial}}</md-button>
+                    </th>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="cm-section-main mb-10" layout="row" layout-wrap flex="100" ng-if="vm.emptyBinWHList.length > 0">
+            <div class="cm-section-header" flex="100" layout-align="space-between center">
+              <h2>Warehouse(s) With Empty Bin(s)</h2>
+              <md-button class="md-primary md-raised m-0" ng-click="vm.selectWarehouseToTransferEmptyBin()" ng-disabled="!vm.selectedTranferEmptyBin">Transfer Empty Bin(s)</md-button>
+            </div>
+            <div class="" flex="100" layout-md="column" layout-sm="column" layout="row">
+              <table class="table table-bordered m-0">
+                <thead>
+                  <tr>
+                    <th class="text-center w-40">
+                      <md-checkbox ng-model="vm.isAllEmptyBinWHSelect" ng-change="vm.selectAllEmptyBinWH()"></md-checkbox>
+                    </th>
+                    <th class="w-50">#</th>
+                    <th class="w-80"><b>Action</b></th>
+                    <th class="w-200">Warehouse</th>
+                    <th class="w-200">{{vm.LabelConstant.TransferStock.ParentWH}}</th>
+                    <th>Empty Bin(s)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="item in vm.emptyBinWHList">
+                    <td class="text-center w-40">
+                      <md-checkbox ng-model="item.isSelect" ng-change="vm.selectEmptyBinWH()"></md-checkbox>
+                    </td>
+                    <td>{{($index+1)}}</td>
+                    <td>
+                      <md-button class="md-primary grid-button md-icon-button bdrbtn cm-sq-btn" ng-click="vm.goToTransferBulkMaterial(item)">
+                        <md-icon role="img" md-font-icon="icons-xfr-bulk-grid" class="cm-icon-bulk-transfer"></md-icon>
+                        <md-tooltip md-direction="top">{{vm.LabelConstant.UMIDManagement.TransferBulkMaterial}}</md-tooltip>
+                      </md-button>
+                    </td>
+                    <td>{{item.warehouseName}}</td>
+                    <td>{{item.parentWHName}}</td>
+                    <td>{{item.emptyBinName}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+        <predefined-comment ng-if="vm.isShowApprovedBtn" reason-id="vm.Reason_Type.KIT_RELEASE_COMMENT.id" param-select-comment-callback-fn="vm.selectReleaseComment"></predefined-comment>
+
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row" class="height-45">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-class="{'md-formdirty': vm.formKitRelease.$dirty}" ng-if="!vm.kitReleaseDetail.isMismatchItems && (vm.kitReleaseDetail.releasePlan.kitStatus !== vm.Kit_Release_Status.R.value || vm.isReRelease)" ng-click="vm.kitRelease()" ng-disabled="vm.isSubmitRelease">Release</md-button>
+      <md-button class="md-primary md-raised" ng-class="{'md-formdirty': vm.formKitRelease.$dirty}" ng-if="!vm.kitReleaseDetail.isMismatchItems && vm.kitReleaseDetail.releasePlan.kitStatus === vm.Kit_Release_Status.R.value && !vm.isReRelease" ng-click="vm.kitReleaseUpdate()" ng-disabled="vm.isSubmitRelease">Save</md-button>
+    </md-dialog-actions>
+
+  </form>
+</md-dialog>

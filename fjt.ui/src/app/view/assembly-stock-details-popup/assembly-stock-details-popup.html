@@ -1,0 +1,216 @@
+<md-dialog aria-label="Assembly Stock Details" class="cm-custom-label-common receiving-pop-main" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <!--flex="90"-->
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Assembly Stock Details</h2>
+      <span flex></span>
+      <popup-header-label label-data="vm.headerdata"></popup-header-label>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content class="customer-modal no-padding custom-scroll mh-5 cm-assembly-stock-popup max-height-fit-content" layout="column">
+    <md-content class="padding-5" layout="column">
+      <div data-split-pane class="cm-bill-to-tab-split-pane-height" data-split-pane-properties="splitPaneFirstProperties" layout="column">
+        <div data-split-pane-component data-height="50%" class="min-height-100" flex layout="column">
+          <div class="content fullpage-datatable" layout="column" flex>
+            <div layout="row" layout-align="end end">
+              <md-button class="md-primary md-raised" aria-label="Add Initial Stock" ng-click="vm.refreshStockDetails()">
+                Refresh Assembly Stock Details
+              </md-button>
+              <md-button class="md-primary md-raised" aria-label="Add Initial Stock" ng-click="vm.addOpeningBalance($event)">
+                Add Initial Stock
+              </md-button>
+            </div>
+            <div layout="" flex class="mb-10">
+              <div class="margin-top-10 cm-section-main order-detail-form-container payments md-background-bg md-whiteframe-1dp min-height-300" layout="column" flex="80"
+                   flex-lg="70">
+                <div layout="row" layout-align="space-between center" class="cm-section-header">
+                  <h2 class="margin-0" flex="100">
+                    Assembly Stock Details By PO
+                  </h2>
+                  <div flex="20" flex-lg="30" layout="row" class="manage-component-set-autocomplete layout-row" flex-md="50" flex-sm="50"
+                       layout-align="start center">
+                    <div flex layout="row" class="padding-right-10" layout-align="end end">
+                      <md-input-container class="margin-bottom-0 md-block">
+                        <md-checkbox ng-model="vm.isShowAllPO" ng-disabled="vm.isNoDataFoundPO" ng-change="vm.showAllPO()">
+                          <b>Show All Sales Order</b>
+                        </md-checkbox>
+                      </md-input-container>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="cm-section-inner" flex layout="column">
+                  <div flex ng-show="!vm.isNoDataFoundPO" layout="column">
+                    <md-card layout="column" class="margin-0" flex layout-align="space-between stretch">
+                      <ui-grid-extention layout="column" flex
+                                         class="cm-invoice-payment-grid"
+                                         grid-id="vm.gridConfig.gridPOAssemblyDetails"
+                                         load-data="vm.loadDataPO"
+                                         grid-option="vm.gridOptionsPO"
+                                         header="vm.sourceHeaderPO"
+                                         grid-data="vm.sourceDataPO"
+                                         total-data-count="vm.totalSourceDataCountPO"
+                                         reset-grid="vm.resetSourceGridPO"
+                                         selectted-rows="vm.selectedRowsList"
+                                         paging-info="vm.pagingInfoPO"
+                                         current-item="vm.currentdataPO"
+                                         get-data-down="vm.getDataDown"
+                                         empty-state="vm.emptyStatePO">
+                    </md-card>
+                  </div>
+                </div>
+                <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFoundPO == true">
+                  <div class="emty-icon" flex="20">
+                    <img ng-src="{{vm.EmptyMesssagePO.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title">{{vm.EmptyMesssagePO.MESSAGE}}</p>
+                </div>
+              </div>
+              <div flex="25" flex-lg="30">
+                <fieldset class="container-box ml-10 margin-top-7" flex>
+                  <legend class="margin-0 font-size-17-imp">Summary</legend>
+                  <div class="cm-section-main border-0" flex="100">
+                    <div class="cm-section-inner p-0-imp" layout="row" flex="100">
+                      <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-cust-payment-info width-auto">
+                        <tbody>
+                          <tr>
+                            <th>
+                              <p class="label-container margin-0 font-size-17-imp">
+                                {{vm.allLabelConstant.Qty.ReadyToShipQty}} [A]<md-icon class="icon-question-mark-circle help-icon  mr-5">
+                                  <md-tooltip md-direction="top">{{vm.allLabelConstant.MFRQtyTooltipNotes.TotalReadyToShipWithAdjustmentQtyHelpText}}</md-tooltip>
+                                </md-icon>:
+                              </p>
+                            </th>
+                            <td class="font-weight-600 h-20 font-size-17-imp padding-top-3 text-right">
+                              {{vm.readyToShipQtyWithStockAdjustment | numberWithoutDecimal}}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container margin-0 font-size-17-imp">
+                                {{vm.allLabelConstant.Qty.WIPQty}} [B]<md-icon class="icon-question-mark-circle help-icon  mr-5">
+                                  <md-tooltip md-direction="top">{{vm.allLabelConstant.Qty.WIPQty}}</md-tooltip>
+                                </md-icon>:
+                              </p>
+                            </th>
+                            <td class="font-weight-600 h-20 padding-top-3 font-size-17-imp text-right">
+                              {{vm.sumSummaryWipQty | numberWithoutDecimal}}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container margin-0 font-size-17-imp">
+                                Total [C=A+B]<md-icon class="icon-question-mark-circle help-icon  mr-5">
+                                  <md-tooltip md-direction="top">{{vm.allLabelConstant.MFRQtyTooltipNotes.TotalAvailableQtyHelpText}}</md-tooltip>
+                                </md-icon>:
+                              </p>
+                            </th>
+                            <td class="font-weight-600 h-20 padding-top-3 font-size-17-imp text-right">
+                              {{vm.sumReadyToShipQtyWithStockAdjustAndWIPQty | numberWithoutDecimal}}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container margin-0 font-size-17-imp">
+                                {{vm.allLabelConstant.Qty.BackOrderQty}} [D]<md-icon class="icon-question-mark-circle help-icon  mr-5">
+                                  <md-tooltip md-direction="top">{{vm.allLabelConstant.Qty.BackOrderQty}}</md-tooltip>
+                                </md-icon>:
+                              </p>
+                            </th>
+                            <td class="font-weight-600 h-20 padding-top-3 color-light-blue font-size-17-imp text-right">
+                              {{vm.sumSummaryPOAssyBackOrderQty | numberWithoutDecimal}}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th class="vertical-middle-align pb-5">
+                              <p class="label-container margin-0 font-size-17-imp">
+                                {{vm.allLabelConstant.Qty.PossibleExcessQty}} [E=C-D]<md-icon class="icon-question-mark-circle help-icon  mr-5">
+                                  <md-tooltip md-direction="top">{{vm.allLabelConstant.MFRQtyTooltipNotes.PossibleExcessQtyHelpText}}</md-tooltip>
+                                </md-icon>:
+                              </p>
+                            </th>
+                            <td class="font-weight-600 h-20 padding-top-3 font-size-22 vertical-middle-align text-right" ng-class="{'color-red': vm.possibleExcessQty < 0,'color-green': vm.possibleExcessQty > 0 }">
+                              {{vm.possibleExcessQty | numberWithoutDecimal}}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="font-size-14 h-20 padding-top-3" colspan="2">
+                              Hint: {{vm.allLabelConstant.MFRQtyTooltipNotes.NegativePossibleExcessQtyHintText}}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div data-split-pane-divider data-height="5px"></div>
+        <div data-split-pane-component data-height="50%" class="min-height-100" layout="column">
+          <div class="margin-top-10 cm-section-main order-detail-form-container payments md-background-bg md-whiteframe-1dp min-height-300" flex layout="column">
+            <div layout="row" layout-align="space-between center" class="cm-section-header">
+              <h2 class="margin-0">
+                Assembly Stock Details By WO
+              </h2>
+              <div layout="row" class="manage-component-set-autocomplete layout-row" flex-md="50" flex-sm="50"
+                   layout-align="start center">
+                <div flex layout="row" class="padding-right-10 mr-25" layout-align="start center">
+                  <div ng-if="vm.selectedPoNumber" layout layout-align="center center">
+                    <div class="mh-10 mv-0">Selected PO#/SO#:</div>
+                    <label layout="row" layout-align="center center" class="mb-0 font-size-18">
+                      {{vm.selectedPoNumber}}&nbsp;/&nbsp;{{vm.selectedSONumber}}
+                    </label>
+                    <md-button class="md-icon-button cm-square-icon-btn-small md-primary md-raised"
+                               ng-click="vm.clearPONumberFromWOList()">
+                      <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                      <md-tooltip md-direction="top">Clear Selected PO#</md-tooltip>
+                    </md-button>
+                  </div>
+                  <md-input-container class="margin-bottom-0 md-block">
+                    <md-checkbox ng-model="vm.isShowAllWO" ng-change="vm.showAllWO()">
+                      <b>Show All Work Order</b>
+                    </md-checkbox>
+                  </md-input-container>
+                </div>
+              </div>
+            </div>
+            <div flex layout="column" ng-show="!vm.isNoDataFoundWO">
+              <md-card layout="column" class="margin-0" flex layout-align="space-between stretch">
+                <ui-grid-extention layout="column" flex
+                                   class="cm-invoice-payment-grid"
+                                   grid-id="vm.gridConfig.gridWOAssemblyDetails"
+                                   load-data="vm.loadDataWO"
+                                   grid-option="vm.gridOptionsWO"
+                                   header="vm.sourceHeaderWO"
+                                   grid-data="vm.sourceDataWO"
+                                   total-data-count="vm.totalSourceDataCountWO"
+                                   reset-grid="vm.resetSourceGridWO"
+                                   selectted-rows="vm.selectedRowsList"
+                                   paging-info="vm.pagingInfoWO"
+                                   current-item="vm.currentdataWO"
+                                   get-data-down="vm.getDataDownWO"
+                                   empty-state="vm.emptyStateWO"></ui-grid-extention>
+              </md-card>
+            </div>
+            <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFoundWO == true">
+              <div class="emty-icon" flex="20">
+                <img ng-src="{{vm.EmptyMesssageWO.IMAGEURL}}" />
+              </div>
+              <p flex="100" class="empty-state-title" ng-if="!vm.selectedPoNumber">{{vm.EmptyMesssageWO.MESSAGE}}</p>
+              <p flex="100" class="empty-state-title" ng-if="vm.selectedPoNumber">{{vm.EmptyMesssageWO.NO_WO_AVAILABLE_FOR_PO_MESSAGE}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </md-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Close</md-button>
+    </md-dialog-actions>
+
+</md-dialog>

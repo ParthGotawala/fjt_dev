@@ -1,0 +1,412 @@
+<md-toolbar class="md-theme-light cm-custom-label-common" layout="row" layout-align="space-between center">
+  <h1 class="md-toolbar-tools" flex="35">Log Defects: {{::vm.opName}}</h1>
+  <div layout="row" flex>
+    <!--<div class="username">
+        {{logDefectData.fullName}}
+    </div>-->
+    <div ng-if="logDefectData.woOPID" layout-align="end-center" flex="100" layout="row">
+      <traveler-emp-working-time-status wo-op-id="logDefectData.woOPID" wo-trans-id="logDefectData.transID"></traveler-emp-working-time-status>
+    </div>
+    <div layout="row" layout-align="center center">
+      <popup-header-label label-data="vm.headerdata"></popup-header-label>
+    </div>
+    <md-button class="md-primary md-raised min-width-max-content" ng-disabled="vm.disableFromTraveler" ng-click="vm.addDefect($event)">
+      Add Defect Category
+    </md-button>
+    <md-button class="md-icon-button margin-right-10" ng-click="vm.closeSidenav()">
+      <md-icon md-font-icon="icon-close"></md-icon>
+    </md-button>
+  </div>
+</md-toolbar>
+<md-content layout-padding layout="row" flex="100" layout-align="start start" layout-wrap class="fullheight-toolbar-footer custom-scroll cm-custom-label-common">
+  <form name="vm.logDefectForm" layout="row" flex="100" novalidate class="cm-log-defect-form">
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <div flex="100" layout="row" layout-wrap>
+      <div layout="row" class="mb-10" flex="100" ng-if="vm.isSerialNoRequired == true">
+        <div class="cm-section-main flex-100" flex="100">
+          <div class="cm-section-inner layout-row flex-100" layout="row" flex="100">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <th>
+                    <p class="label-container">
+                      Serial#<scan-or-enter></scan-or-enter>
+                    </p>
+                  </th>
+                  <td>
+                    <div layout="row" class="layout-row">
+                      <md-input-container flex class="margin-0">
+                        <input type="text" name="scanSerialNumberfor" id="scanSerialNumberfor" custom-auto-focus="true" ng-model="vm.serialNumber"
+                               placeholder="Scan Serial#" ng-required="true" capitalize class="input-text-uppercase"
+                               ng-keyup="vm.scanSerialNumberDetail(vm.serialNumber,'scanSerialNumber',$event)" ng-disabled="!vm.isEditSerialNo">
+                        <span flex="100" class="font-size-10">
+                          <b>{{vm.LabelConstant.ScanOREnter.ScanSerialNum}}</b>
+                        </span>
+                        <div ng-messages="vm.logDefectForm.scanSerialNumber.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </div>
+                  </td>
+                  <th class="padding-0">
+                    <md-button class="md-primary md-raised margin-0 margin-left-5-imp" ng-if="vm.isSerialNoRequired && !vm.isEditSerialNo" ng-click="vm.changeNo();">
+                      Change Serial#
+                    </md-button>
+                    <md-button class="md-primary md-raised margin-0 margin-left-5-imp" ng-if="vm.isEditSerialNo" ng-disabled="!vm.SerialNoDetail" ng-click="vm.changeSerialNo();">
+                      Apply
+                    </md-button>
+                    <md-button class="md-primary md-raised margin-0 margin-left-5-imp" ng-if="vm.isEditChangeLog" ng-click="vm.discardChange();">
+                      Close
+                    </md-button>
+                  </th>
+                </tr>
+                <tr class="scan-serial-number-detail" ng-if="vm.SerialNoDetail">
+                  <th>
+                    <p class="label-container">Scanned Serial#:</p>
+                  </th>
+                  <td>
+                    <md-input-container flex>
+                      <span flex="100">
+                        <b>{{vm.SerialNoDetail.SerialNo}}</b>
+                      </span>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr class="scan-serial-number-detail" ng-if="vm.SerialNoDetail">
+                  <th>
+                    <p class="label-container">Status:</p>
+                  </th>
+                  <td>
+                    <md-input-container flex>
+                      <span flex="100">
+                        <b>{{vm.SerialNoDetail.currentStautstext}}</b>
+                      </span>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr class="scan-serial-number-detail" ng-if="vm.SerialNoDetail.CurrentWoOperation">
+                  <th>
+                    <p class="label-container">Current Operation:</p>
+                  </th>
+                  <td>
+                    <md-input-container flex>
+                      <span flex="100">
+                        <b>{{vm.SerialNoDetail.CurrentWoOperation}}</b>
+                      </span>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr class="scan-serial-number-detail" ng-if="vm.SerialNoDetail.ProductSerialNo">
+                  <th>
+                    <p class="label-container">{{vm.SerialTypeLabel.FinalSerial.Label}}:</p>
+                  </th>
+                  <td>
+                    <md-input-container flex>
+                      <span flex="100">
+                        <b>{{vm.SerialNoDetail.ProductSerialNo}}</b>
+                      </span>
+                    </md-input-container>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div layout="row" flex="100">
+        <div layout="row" flex="100" cg-busy="{promise:vm.cgBusyLoading}">
+          <div flex="100" ng-if="(!vm.isSerialNoRequired && !vm.defectMainList.length) ||
+                         (vm.isSerialNoRequired && !vm.isEditSerialNo && vm.serialNumber.SerialNo && !vm.defectMainList.length)"
+               layout="row" layout-align="center center" layout-wrap>
+            <div class="empty-state text-center full-height" flex="100">
+              <div class="emty-icon" flex="100">
+                <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" flex="100">
+                {{vm.EmptyMesssage.MESSAGE}}
+              </p>
+            </div>
+          </div>
+          <div layout="column" flex="100">
+            <div layout="row" flex="100" ng-if="vm.defectMainList.length">
+              <div flex="55" class="margin-right-10" id="scrollToDesigDefect" ng-class="{'cm-log-defect-list':vm.isSerialNoRequired , 'cm-log-defect-form-left-empty ' : !vm.isSerialNoRequired }">
+                <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                     ng-if="!vm.woDefectList.length && !vm.searchDefectCategory">
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.EmptyMesssageOperation.DEFECT.IMAGEURL}}" />
+                  </div>
+                  <p class="empty-state-title font-size-2 useadded-emptytxt" flex="100">
+                    {{vm.EmptyMesssageOperation.DEFECT.MESSAGE}}
+                  </p>
+                </div>
+                <div flex class="workorderblog " layout-wrap
+                     ng-repeat="item in vm.woDefectList"
+                     ng-if="vm.woDefectList && vm.woDefectList.length && item.designators && item.designators.length > 0 &&
+                                (vm.searchDefectCategory ? (item.designators | filter: {designatorName: vm.searchDefectCategory}).length : true)">
+                  <ng-form name="desigDefectCountForm_{{item.defectCatid}}" flex="100" novalidate>
+                    <div class="md-list-item-text cm-section-main" layout="row" layout-wrap>
+                      <div class="cm-section-header" flex="100">
+                        <h2 class="md-primary-fg woTitleClass">{{item.defectcatName}}</h2>
+                      </div>
+                      <div class="cm-section-inner" flex="100">
+                        <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                          <tbody>
+                            <tr>
+                              <th>
+                                <div class="demo-dialog-content" flex="100" layout="row" layout-wrap>
+                                  <div flex="33" ng-repeat="designator in item.designators | filter: {designatorName: vm.searchDefectCategory}"
+                                       id="curr_desig_defect_div_{{designator.wodesignatorID}}">
+                                    <md-card class="defect-card">
+                                      <md-card-title flex="100" layout-wrap ng-class="{'traveler-defectlog-curr-designator' : designator.isHighlightDesignator }">
+                                        <div layout="row" class="cm-section-header" flex="100">
+                                          <h2 flex="50">{{designator.defectCnt ? designator.defectCnt : "0"}}<md-tooltip>Individual Count(Activity Wise)</md-tooltip></h2>
+                                          <h2 flex="50" class="border-left pl-5">{{designator.totalCount ? designator.totalCount : "0"}}<md-tooltip>Cumulative Count</md-tooltip></h2>
+                                        </div>
+                                        <md-card-title-text layout="row" layout-wrap layout-align="center" flex="100">
+                                          <div layout="row" class="lablelmain" layout-align="center center" flex="100">
+                                            <h3 class="no-margin cursor-pointer">{{designator.designatorName}}{{designator.noOfPin ? ' : ' + designator.noOfPin : ''}}</h3>
+                                            <md-tooltip>{{designator.designatorName}}{{designator.noOfPin ? ' : ' + designator.noOfPin : ''}}</md-tooltip>
+                                          </div>
+                                          <div layout="row" flex="100" layout-align="center center">
+                                            <div class="md-subhead" layout="row">
+                                              <md-button type="button" class="md-primary cm-margin-5 md-icon-button no-padding md-raised width-35 height-35"
+                                                         ng-disabled="vm.disableFromTraveler" ng-click="vm.incrementDefect(item.defectCatId,designator);"
+                                                         ng-class="{'item-disabled': vm.disableFromTraveler}">
+                                                <md-icon md-font-icon="icon icons-plusoneappendcirclelast" class="material-icons icon icons-plusoneappendcirclelast font-size-15-imp"></md-icon>
+                                              </md-button>
+                                            </div>
+                                            <div class="md-subhead margin-left-5 margin-right-5" layout="row" layout-align="center center">
+                                              <span>
+                                                <md-icon class="icon-question-mark-circle help-icon">
+                                                  <md-tooltip md-direction="top" class="padding-15 font-size-15 tt-multiline"
+                                                              ng-bind-html="vm.addRemoveDefectCountNote">
+                                                  </md-tooltip>
+                                                </md-icon>
+                                              </span>
+                                              <md-input-container class="md-block margin-0 no-errors-spacer padding-bottom-10" flex="100" md-no-float>
+                                                <input type="number" name="defectCount" ng-model="designator.newCnt"
+                                                       placeholder="Enter add/remove defect count" id="defectNewCnt_{{designator.wodesignatorID}}"
+                                                       ng-disabled="vm.disableFromTraveler"
+                                                       class="text-center" max="9999999999"
+                                                       onkeypress="return OnlyNumericWithPlusAndMinus(event)"
+                                                       ng-keydown="vm.addDefectCount($event,designator)"
+                                                       ng-class="{'item-disabled': vm.disableFromTraveler}" />
+                                              </md-input-container>
+                                            </div>
+                                            <div class="md-subhead" layout="row" layout-align="end center">
+                                              <md-button type="button" class="md-primary cm-margin-5 md-icon-button no-padding md-raised width-35 height-35"
+                                                         ng-disabled="vm.disableFromTraveler || designator.defectCnt == 0 || designator.totalCount == 0"
+                                                         ng-click="vm.minusTempDefect(item.defectCatId,designator);"
+                                                         ng-class="{'item-disabled': (vm.disableFromTraveler  || designator.defectCnt == 0 || designator.totalCount == 0)}">
+                                                <md-icon md-font-icon="icon icons-minus-one" class="material-icons icon icons-minus-one font-size-12"></md-icon>
+                                              </md-button>
+                                            </div>
+                                          </div>
+                                        </md-card-title-text>
+                                      </md-card-title>
+                                    </md-card>
+                                  </div>
+                                </div>
+                              </th>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </ng-form>
+                </div>
+              </div>
+              <div flex="45" class="defect-list" ng-class="{' cm-log-defect-list':vm.isSerialNoRequired , ' cm-log-defect-list-empty' : !vm.isSerialNoRequired }">
+                <div layout="row" flex="100" class="cm-section-main" layout-align="space-between" layout-wrap sp>
+                  <div class="cm-section-inner" flex="100">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                      <tbody>
+                        <tr>
+                          <th><p class="label-container">Search<span>&nbsp;</span></p></th>
+                          <td class="width-27p">
+                            <div layout="row" flex="100">
+                              <div layout="row" flex="{{vm.searchDefectCategory ? '70' : '100'}}">
+                                <md-input-container class="margin-bottom-0" layout-align="start center" flex="100" md-no-float>
+                                  <input type="text" name="woVersion" layout="start center" ng-if="vm.defectMainList.length > 0"
+                                         ng-model="vm.searchDefectCategory"
+                                         placeholder="" ng-maxlength="255" ng-change="vm.searchDesigAndDefect()">
+                                </md-input-container>
+                              </div>
+                              <div layout="row" flex="30" ng-if="vm.searchDefectCategory">
+                                <md-button class="md-icon-button md-primary md-mini ml-0"
+                                           ng-click="vm.searchDefectCategory = '';vm.searchDesigAndDefect();">
+                                  <md-icon md-font-icon="icon-close" class="material-icons mat-icon mb-10 ml-0"></md-icon>
+                                  <md-tooltip>Reset</md-tooltip>
+                                </md-button>
+                              </div>
+                              </div>
+                          </td>
+                          <th><p class="label-container">Sort By<span>&nbsp;</span></p></th>
+                          <td class="width-27p">
+                            <md-input-container class="margin-bottom-0" layout-align="center" flex="100" md-no-float>
+                              <md-select ng-model="vm.sortOption" ng-if="vm.defectMainList.length > 0" placeholder="sort By">
+                                <md-option ng-value="option.key" ng-repeat="option in vm.sortByList" ng-click="vm.sortByPopular(option.key)">{{option.value}}</md-option>
+                              </md-select>
+                            </md-input-container>
+                          </td>
+                          <th></th>
+                          <td class="float-right">
+                            <md-button class="md-primary md-raised margin-top-imp margin-right-0 ml-0" ng-if="(vm.defectMainList).length"
+                                       ng-click="vm.setDefectExpandCollapse()">{{vm.isAllExpanded ? 'Collapse All' : 'Expand All'}}</md-button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div ng-class="{'cm-log-defect-form-right':vm.isSerialNoRequired , 'cm-log-defect-form-right-empty ' : !vm.isSerialNoRequired }">
+                  <div layout="row" flex="100" layout-wrap ng-repeat="item in vm.defectMainList" ng-init="$last && vm.defectMainListRepeatFinished()"
+                       ng-if="vm.searchDefectCategory ? (item.workorder_assy_designators | filter: {designatorName: vm.searchDefectCategory}).length: true">
+                    <ng-form name="defectDesigDetForm_{{item.defectCatId}}" flex="100" novalidate>
+                      <md-toolbar style="border-bottom:1px solid">
+                        <div class="md-toolbar-tools cursor-pointer" ng-click="vm.defClicked(item);">
+                          <h2 style="font-size:15px;">{{item.defectcatName}}</h2>
+                          <md-icon md-font-icon="{{item.isOpen ? 'icon-chevron-up' : 'icon-chevron-down'}}" style="position:absolute;right:15px;">
+                            <md-tooltip>{{item.isOpen ? 'Collapse' : 'Expand'}}</md-tooltip>
+                          </md-icon>
+                        </div>
+                      </md-toolbar>
+                      <div class="demo-dialog-content" flex="100" layout="row" layout-wrap ng-show="item.isOpen">
+                        <div class="empty-state text-center" flex="100" layout="row" ng-if="item.workorder_assy_designators.length == 0">
+                          <p class="empty-state-title font-size-10 useadded-emptytxt" flex="100">
+                            {{vm.EmptyMesssageOperation.DESIGNATORS.MESSAGE}}
+                          </p>
+                        </div>
+                        <div ng-repeat="woAssDesi in item.workorder_assy_designators | filter: {designatorName: vm.searchDefectCategory}"
+                             ng-if="item.workorder_assy_designators.length > 0">
+                          <md-card class="defect-card cursor-pointer"
+                                   ng-class="{'item-disabled': !logDefectData.transID}">
+                            <md-card-title>
+                              <md-card-title-text layout="row" flex="100">
+                                <div layout="row" layout-align="center center" flex="100"
+                                     ng-click="vm.addDesignatorDefect(item.defectCatId, woAssDesi,1,true);">
+                                  <h3 class="no-margin label-box color-black white-bg" md-truncate>{{woAssDesi.designatorName}}{{woAssDesi.noOfPin ? ' : ' + woAssDesi.noOfPin : ''}}</h3>
+                                  <md-tooltip>{{woAssDesi.designatorName}}{{woAssDesi.noOfPin ? ' : ' + woAssDesi.noOfPin : ''}}</md-tooltip>
+                                </div>
+                                <div>
+                                  <md-menu>
+                                    <md-button class="md-icon-button margin-0 padding-0 width-20" ng-click="$mdOpenMenu();" md-menu-origin
+                                               md-menu-align-target
+                                               aria-label="Options">
+                                      <md-icon md-font-icon="icon-dots-vertical" class="icon cm-widget-header-icon"></md-icon>
+                                    </md-button>
+                                    <md-menu-content width="3">
+                                      <md-menu-item>
+                                        <md-button ng-click="vm.updateDesignator(woAssDesi,item)"
+                                                   ng-disabled="vm.disableFromTraveler">
+                                          <md-icon md-font-icon="icon-pencil" class="icon"></md-icon>
+                                          Update
+                                        </md-button>
+                                      </md-menu-item>
+                                      <md-menu-item>
+                                        <md-button ng-click="vm.deleteDesignator(woAssDesi,item)"
+                                                   ng-disabled="vm.disableFromTraveler">
+                                          <md-icon md-font-icon="icon-trash" class="icon"></md-icon>
+                                          Delete
+                                        </md-button>
+                                      </md-menu-item>
+                                    </md-menu-content>
+                                  </md-menu>
+                                </div>
+                              </md-card-title-text>
+                            </md-card-title>
+                          </md-card>
+                        </div>
+                        <!--<div flex="100" layout="column" layout-align="center end" ng-if="item.workorder_assy_designators.length > vm.DefaultListCount">
+                            <md-input-container class="no-errors-spacer" layout-align="center center" flex="100" md-no-float>
+                                <span class="lableheader cursor-pointer" ng-click="vm.ExpandList(item)">
+                                    {{(item.expandLabel ? item.expandLabel : "More")}}
+                                    <md-icon md-font-icon="{{item.isOpenChild ? 'icon-chevron-double-up' : 'icon-chevron-double-down'}}"></md-icon>
+                                </span>
+                            </md-input-container>
+                        </div>-->
+                        <fieldset flex="100" class="container-box margin-5">
+                          <legend class="margin-0">{{item.wodesignatorID ? 'Update ' : 'Add '}}Designator Details</legend>
+                          <div layout="row" flex="100" class="cm-section-main border-0" layout-align="start start">
+                            <div flex="100" layout="row" class="pt-10 cm-section-inner">
+                              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                <tbody>
+                                  <tr>
+                                    <th><p class="label-container">Designator<span>&nbsp;*</span></p></th>
+                                    <td>
+                                      <md-input-container class="md-block margin-0 no-errors-spacer padding-bottom-10" flex="100" md-no-float>
+                                        <input type="text" id="desigName_{{item.defectCatId}}" name="desigName_{{item.defectCatId}}" ng-model="item.designatorName"
+                                               capitalize ng-disabled="vm.disableFromTraveler"
+                                               placeholder="" ng-maxlength="50" required />
+                                        <div ng-messages="vm.logDefectForm['defectDesigDetForm_'+item.defectCatId]['desigName_'+item.defectCatId].$error" role="alert">
+                                          <div ng-message="required">
+                                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                          </div>
+                                          <div ng-message="maxlength">
+                                            <span>{{vm.getMaxLengthValidation(50, vm.logDefectForm['defectDesigDetForm_'+item.defectCatId]['desigName_'+item.defectCatId].$viewValue.length)}}</span>
+                                          </div>
+                                        </div>
+                                      </md-input-container>
+                                    </td>
+                                    <th><p class="label-container">Pin Details</p></th>
+                                    <td>
+                                      <md-input-container class="md-block margin-0 no-errors-spacer padding-bottom-10" flex="100" md-no-float>
+                                        <input type="text" name="noOfPin_{{item.defectCatId}}" ng-model="item.noOfPin"
+                                               capitalize ng-disabled="vm.disableFromTraveler"
+                                               placeholder="" ng-maxlength="250" />
+                                        <div ng-messages="vm.logDefectForm['defectDesigDetForm_'+item.defectCatId]['noOfPin_'+item.defectCatId].$error" role="alert">
+                                          <div ng-message="maxlength">
+                                            <span>{{vm.getMaxLengthValidation(250, vm.logDefectForm['defectDesigDetForm_'+item.defectCatId]['noOfPin_'+item.defectCatId].$viewValue.length)}}</span>
+                                          </div>
+                                        </div>
+                                      </md-input-container>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td colspan="4">
+                                      <div class="float-right">
+                                        <md-button class="md-primary md-raised margin-0 no-errors-spacer padding-bottom-10 margin-right-10" ng-if="item.wodesignatorID"
+                                                   ng-click="vm.cancelDesignatorDet(item)" ng-disabled="vm.disableFromTraveler">
+                                          Cancel
+                                        </md-button>
+                                        <md-button class="md-primary md-raised margin-0 no-errors-spacer padding-bottom-10"
+                                                   ng-click="vm.saveDesignator(item,item.workorder_assy_designators)" ng-disabled="vm.disableFromTraveler">
+                                          Save
+                                        </md-button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </fieldset>
+                      </div>
+                    </ng-form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div flex="100" ng-if="vm.searchDefectCategory && !vm.isSearchDataExists" layout="row" layout-align="center center" layout-wrap>
+              <div class="empty-state text-center full-height" flex="100">
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.emptySearch.IMAGEURL}}" />
+                </div>
+                <p class="empty-state-title font-size-2 useadded-emptytxt" flex="100">
+                  {{vm.emptySearch.MESSAGE}}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</md-content>
+<md-footer flex="100" layout="row" layout-wrap>
+  <div layout="row" flex="100" layout-align="end">
+    <md-button class="md-default md-raised" ng-click="vm.closeSidenav()">Close</md-button>
+  </div>
+</md-footer>

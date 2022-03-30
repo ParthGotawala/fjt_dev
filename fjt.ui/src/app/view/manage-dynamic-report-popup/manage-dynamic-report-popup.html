@@ -1,0 +1,224 @@
+<md-dialog aria-label="report" cg-busy="{promise:vm.cgBusyLoading}" flex="40" draggable>
+  <form name="vm.createReportForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>{{vm.id == null ? vm.disableAutoCompleteSearchReport? 'Copy' : 'Add':'Update'}} Report</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content class="no-padding custom-scroll cm-custom-label-common md-inline-form">
+      <md-content class="md-padding">
+        <div layout="row" class="padding-10 pr-5-imp">
+          <div class="cm-section-main border-0" flex="100">
+            <div class="cm-section-inner">
+              <table class="cm-table-input-main">
+                <tbody>
+                  <tr ng-if="(!vm.id)">
+                    <th>
+                    </th>
+                    <td>
+                      <md-radio-group ng-model="vm.reportModel.reportCreateType" class="margin-0"
+                                      ng-change="vm.changeReportCreateType()" name="rbSerialNumber">
+                        <md-radio-button class="md-primary" value="{{vm.reportCreateType.CreateNew}}" ng-disabled="vm.isDisableRadioBtn">
+                          <span>Create New</span>
+                        </md-radio-button>
+                        <md-radio-button class="md-primary" value="{{vm.reportCreateType.CloneFromExisting}}" ng-disabled="vm.isDisableRadioBtn">
+                          <span>Copy From Existing</span>
+                        </md-radio-button>
+                      </md-radio-group>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container">Report Name<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                    <td>
+                      <md-input-container class="md-block" flex="100">
+                        <input type="text" id="reportName" name="reportName" ng-model="vm.reportModel.reportName" custom-blur="vm.checkNameUnique(vm.reportModel.reportName,true);"
+                               placeholder="Name" ng-disabled="vm.isSystemGeneratedReport" required md-autofocus ng-maxlength="255">
+                        <div ng-messages="vm.createReportForm.reportName.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(255,vm.createReportForm.reportName.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr ng-if="!vm.isCopyTemplateReport">
+                    <th><p class="label-container">Report Title<span>&nbsp;*</span></p></th>
+                    <td>
+                      <md-input-container class="md-block" flex="100">
+                        <input type="text" id="reportTitle" name="reportTitle" ng-model="vm.reportModel.reportTitle"
+                               placeholder="Title" ng-disabled="vm.isSystemGeneratedReport" required ng-maxlength="255">
+                        <div ng-messages="vm.createReportForm.reportTitle.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(255,vm.createReportForm.reportName.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr ng-if="!vm.isCopyTemplateReport">
+                    <th><p class="label-container">Report Type<span>&nbsp;*</span></p></th>
+                    <td>
+                      <md-input-container md-no-float flex="100">
+                        <md-select name="reportType" ng-model="vm.reportModel.reportType" id="reportType" ng-required="true"
+                                   placeholder="Select Report Type" md-container-class="containerClass" class="margin-0" ng-disabled="vm.isSystemGeneratedReport">
+                          <md-option ng-repeat="option in vm.reportTypeDropdown" value="{{option.id}}">{{option.value}}</md-option>
+                        </md-select>
+                        <div ng-messages="vm.createReportForm.reportType.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container">Additional Notes</p></th>
+                    <td>
+                      <md-input-container class="md-block" flex="100">
+                        <textarea id="additionalNotes" name="additionalNotes" ng-maxlength="{{vm.maxLengthForDescription}}" max-rows="3" ng-model="vm.reportModel.additionalNotes" ng-disabled="vm.isSystemGeneratedReport"
+                                  placeholder="Additional Notes" md-maxlength="{{vm.maxLengthForDescription}}"> </textarea>
+                        <div ng-messages="vm.createReportForm.additionalNotes.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(1000,vm.createReportForm.additionalNotes.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr ng-if="(!vm.id) && vm.reportModel.reportCreateType == vm.reportCreateType.CreateNew">
+                    <th><p class="label-container underline" ng-click="vm.goToTemplateReportList()">Template<span>&nbsp;*</span></p></th>
+                    <td>
+                      <md-input-container md-no-float flex="100">
+                        <md-select name="templete" ng-model="vm.reportModel.templateId" id="templete" ng-required="true"
+                                   placeholder="Select Template" md-container-class="containerClass" class="margin-0">
+                          <md-option value="0">Blank Report</md-option>
+                          <md-option ng-repeat="option in vm.templeteList" value="{{option.id}}">{{option.reportName}}</md-option>
+                        </md-select>
+                        <div ng-messages="vm.createReportForm.templete.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr ng-if="(!vm.id) && vm.reportModel.reportCreateType == vm.reportCreateType.CloneFromExisting">
+                    <th><p class="label-container">Report List<span ng-if="vm.reportModel.reportCreateType == vm.reportCreateType.CloneFromExisting">&nbsp;*</span></p></th>
+                    <td>
+                      <md-input-container flex="100" flex-lg="100" ng-if="vm.autoCompleteSearchReport" class="autocompletecustom margin-0">
+                        <custom-auto-complete-search on-search-fn="vm.autoCompleteSearchReport.onSearchFn"
+                                                     column-name="vm.autoCompleteSearchReport.columnName"
+                                                     parent-column-name="vm.autoCompleteSearchReport.parentColumnName"
+                                                     is-required="vm.reportModel.reportCreateType == vm.reportCreateType.CloneFromExisting"
+                                                     key-column-name="vm.autoCompleteSearchReport.keyColumnName"
+                                                     input-name="vm.autoCompleteSearchReport.inputName"
+                                                     placeholder-name="vm.autoCompleteSearchReport.placeholderName"
+                                                     key-column-id="vm.autoCompleteSearchReport.keyColumnId"
+                                                     callback-fn="vm.autoCompleteSearchReport.callbackFn"
+                                                     add-data="vm.autoCompleteSearchReport.addData"
+                                                     on-select-callback-fn="vm.autoCompleteSearchReport.onSelectCallbackFn"
+                                                     is-disabled="vm.disableAutoCompleteSearchReport">
+                        </custom-auto-complete-search>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr ng-if="!vm.isCopyTemplateReport">
+                    <th><p class="label-container underline" ng-click="vm.goToReportCategoryList()"> Report Category </p></th>
+                    <!--<td ng-if="vm.reportModel.reportCreateType == vm.reportCreateType.CloneFromExisting" class="padding-top-5">
+                      <md-input-container flex="100" flex-lg="100" ng-if="vm.autoCompleteReportCategory" class="autocompletecustom margin-0">
+                        <custom-auto-complete-search on-search-fn="vm.autoCompleteReportCategory.onSearchFn"
+                                                     column-name="vm.autoCompleteReportCategory.columnName"
+                                                     parent-column-name="vm.autoCompleteReportCategory.parentColumnName"
+                                                     is-required="vm.reportModel.reportCreateType == vm.reportCreateType.CloneFromExisting"
+                                                     key-column-name="vm.autoCompleteReportCategory.keyColumnName"
+                                                     input-name="vm.autoCompleteReportCategory.inputName"
+                                                     placeholder-name="vm.autoCompleteReportCategory.placeholderName"
+                                                     key-column-id="vm.autoCompleteReportCategory.keyColumnId"
+                                                     callback-fn="vm.autoCompleteReportCategory.callbackFn"
+                                                     add-data="vm.autoCompleteReportCategory.addData"
+                                                     on-select-callback-fn="vm.autoCompleteReportCategory.onSelectCallbackFn">
+                        </custom-auto-complete-search>
+                      </md-input-container>
+                    </td>-->
+                    <!--<td ng-if="(vm.id) || (vm.reportModel.reportCreateType == vm.reportCreateType.CreateNew)">-->
+                    <td>
+                      <md-input-container flex="100" flex-lg="100" ng-if="vm.autoCompleteReportCategory" class="autocompletecustom margin-0">
+                        <custom-auto-complete-search on-search-fn="vm.autoCompleteReportCategory.onSearchFn"
+                                                     column-name="vm.autoCompleteReportCategory.columnName"
+                                                     controller-name="vm.autoCompleteReportCategory.controllerName"
+                                                     view-template-url="vm.autoCompleteReportCategory.viewTemplateURL"
+                                                     parent-column-name="vm.autoCompleteReportCategory.parentColumnName"
+                                                     is-required="false"
+                                                     key-column-name="vm.autoCompleteReportCategory.keyColumnName"
+                                                     input-name="vm.autoCompleteReportCategory.inputName"
+                                                     placeholder-name="vm.autoCompleteReportCategory.placeholderName"
+                                                     key-column-id="vm.autoCompleteReportCategory.keyColumnId"
+                                                     callback-fn="vm.autoCompleteReportCategory.callbackFn"
+                                                     add-data="vm.autoCompleteReportCategory.addData"
+                                                     on-select-callback-fn="vm.autoCompleteReportCategory.onSelectCallbackFn"
+                                                     is-addnew="vm.autoCompleteReportCategory.isAddnew"
+                                                     is-disabled="vm.isSystemGeneratedReport">
+                        </custom-auto-complete-search>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr ng-if="!vm.isCopyTemplateReport">
+                    <th><p class="label-container">Show at Entity (Transaction)</p></th>
+                    <!-- <td ng-if="(vm.id) || (vm.reportModel.reportCreateType == vm.reportCreateType.CreateNew)">-->
+                    <td>
+                      <md-select name="entity" ng-model="vm.reportModel.entityId" id="entity" placeholder="Select Entity (Transaction)"
+                                 md-container-class="containerClass" class="margin-0" ng-change="vm.changeEntity()" ng-disabled="vm.isDisabledEntity">
+                        <md-option ng-value="">Select Entity (Transaction)</md-option>
+                        <md-option ng-repeat="option in vm.entityList" ng-value="option.entityID">{{option.entityName}}</md-option>
+                      </md-select>
+                    </td>
+                  </tr>
+                  <tr ng-if="!vm.isCopyTemplateReport">
+                    <th>
+                      <p class="label-container">
+                      </p>
+                    </th>
+                    <td class="cm-height-auto">
+                      <md-checkbox ng-model="vm.isDefaultReport" class="margin-0" ng-disabled="vm.reportModel.entityId ? false : true"></md-checkbox>
+                      <span>Set as Default for Entity (Transaction)</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </md-content>
+
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <!-- Check vm.isChange flag for color picker dirty object-->
+      <md-button class="md-primary md-raised" ng-click="vm.clickCancel=true; vm.saveReport()" aria-label="Submit" ng-class="{'md-formdirty': vm.checkFormDirty(vm.createReportForm)}">Save</md-button>
+      <!--ng-disabled="!vm.countryForm.$valid || !vm.checkFormDirty(vm.countryForm,vm.checkFormDirty)"-->
+    </md-dialog-actions>
+  </form>
+</md-dialog>
+
+<style>
+
+  /*Added for Set Template Select Drop Down alignment*/
+  .md-select-menu-container.md-active {
+    padding-top: 45px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+</style>

@@ -1,0 +1,2670 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="content-card cm-custom-label-common" layout="column" flex="100">
+    <form name="vm.frmSalesOrderDetails" layout="row" class="md-inline-form padding-4" novalidate>
+      <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+      <div flex layout layout-wrap>
+        <div flex-gt-lg="25" flex-gt-md="40" flex-gt-sm="50" flex="100" class="padding-4" layout="row" layout-wrap>
+          <div class="cm-section-main" flex="100">
+            <div class="cm-section-inner" flex="100">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToCustomerType();" tabindex="-1">Customer</a><span ng-if="!vm.id">&nbsp;*</span></p></th>
+                    <td colspan="5">
+                      <md-input-container flex="100" ng-if="vm.autoCompleteCustomer" class="autocompletecustom margin-bottom-0" flex-xs="100">
+                        <custom-auto-complete datalist="vm.CustomerList"
+                                              column-name="vm.autoCompleteCustomer.columnName"
+                                              controller-name="vm.autoCompleteCustomer.controllerName"
+                                              view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                              input-name="vm.autoCompleteCustomer.inputName"
+                                              placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                              key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                              is-required="vm.autoCompleteCustomer.isRequired"
+                                              is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                              callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                              add-data="vm.autoCompleteCustomer.addData"
+                                              is-disabled="vm.id"
+                                              on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container">PO#<span ng-if="!vm.isDisable">&nbsp;*</span><span ng-if="!vm.salesorder.isRmaPO"><check-unique-on-blur></check-unique-on-blur></span></p></th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="text"
+                               ng-disabled="vm.isDisable"
+                               name="poNumber"
+                               id="poNumber"
+                               md-maxlength="100"
+                               ng-model="vm.salesorder.poNumber"
+                               ng-blur="vm.checkUniqueCustomerPONumber()"
+                               class="input-text-uppercase"
+                               capitalize placeholder="PO#"
+                               required ng-maxlength="100">
+                        <div ng-messages="vm.frmSalesOrderDetails.poNumber.$error"
+                             role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxlength" class="cm-white-space-normal">
+                            <span>{{vm.getMaxLengthValidation(100, vm.frmSalesOrderDetails.poNumber.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <!--<th><p class="label-container">PO Revision</p></th>
+              <td>
+                <md-input-container flex="100" class="margin-bottom-0">
+                  <input type="text"
+                         ng-disabled="vm.isDisable"
+                         name="poRevision"
+                         id="poRevision"
+                         md-maxlength="8"
+                         ng-model="vm.salesorder.poRevision"
+                         ng-blur="vm.checkCustomerPoRevision();!vm.salesorder.poRevision?vm.salesorder.poRevisionDate=null:null"
+                         class="input-text-uppercase"
+                         capitalize placeholder="PO Revision"
+                         ng-maxlength="8">
+                  <div ng-messages="vm.frmSalesOrderDetails.poRevision.$error"
+                       role="alert">
+                    <div ng-message="maxlength" class="cm-white-space-normal">
+                      <span>{{vm.getMaxLengthValidation(8, vm.frmSalesOrderDetails.poRevision.$viewValue.length)}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </td>-->
+                    <th><p class="label-container">PO Date<span ng-if="!vm.isDisable">&nbsp;*</span></p></th>
+                    <td>
+                      <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                        <input type="text" class="float-left"
+                               name="poDate"
+                               max-value="vm.salesorder.soDate"
+                               allow-past-date="true"
+                               required
+                               allow-future-date="false"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-change="vm.onChangePoDate(vm.salesorder.poDate)"
+                               ng-model="vm.salesorder.poDate"
+                               enable-time="false"
+                               ng-disabled="vm.isDisable"
+                               ng-blur="vm.checkHeaderDetail()"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="vm.poDateOptions"
+                               is-open="vm.IsPickerOpen[vm.DATE_PICKER.poDate]" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.poDate]=(vm.isDisable ? false : true)">
+                        </md-icon>
+                        <div ng-messages="vm.frmSalesOrderDetails.poDate.$error" role="alert">
+                          <div ng-message="valid">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxvalue">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.MAX_PURCHASE_ORDER_DATE}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container">PO Rev.</p></th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="text"
+                               ng-disabled="vm.isDisable"
+                               name="poRevision"
+                               id="poRevision"
+                               md-maxlength="8"
+                               ng-model="vm.salesorder.poRevision"
+                               ng-blur="vm.checkCustomerPoRevision();!vm.salesorder.poRevision?vm.salesorder.poRevisionDate=null:null"
+                               class="input-text-uppercase"
+                               capitalize placeholder="PO Revision"
+                               ng-maxlength="8">
+                        <div ng-messages="vm.frmSalesOrderDetails.poRevision.$error"
+                             role="alert">
+                          <div ng-message="maxlength" class="cm-white-space-normal">
+                            <span>{{vm.getMaxLengthValidation(8, vm.frmSalesOrderDetails.poRevision.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <th><p class="label-container cm-white-space-normal">PO Rev. Date<span ng-if="!vm.isDisable && vm.salesorder.poRevision">&nbsp;*</span></p></th>
+                    <td>
+                      <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                        <input type="text" class="float-left"
+                               name="poRevisionDate"
+                               min-value="vm.salesorder.poDate"
+                               max-value="vm.todayDate"
+                               allow-past-date="true"
+                               ng-required="vm.salesorder.poRevision?true:false"
+                               allow-future-date="false"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-model="vm.salesorder.poRevisionDate"
+                               enable-time="false"
+                               ng-disabled="vm.isDisable || !vm.salesorder.poRevision"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="vm.poRevisionDateOptions"
+                               is-open="vm.IsPickerOpen[vm.DATE_PICKER.poRevisionDate]" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.poRevisionDate]=(vm.isDisable ? false : true)">
+                        </md-icon>
+                        <div ng-messages="vm.frmSalesOrderDetails.poRevisionDate.$error" role="alert">
+                          <div ng-message="valid">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="minvalue">
+                            <span>{{vm.messageCompareMessage}}</span>
+                          </div>
+                          <div ng-message="maxvalue">
+                            <span>{{vm.pomessageCompareMessage}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container">SystemID</p></th>
+                    <td colspan="2">
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="text" ng-disabled="true" name="SystemID" ng-model="vm.salesorder.serialNumber"
+                               class="input-text-uppercase"
+                               capitalize placeholder="SystemID">
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container">{{vm.LabelConstant.COMMON.GRIDHEADER_MODYFYBY}}</p></th>
+                    <td class="padding-top-3">
+                      <a tabindex="-1" class="cm-text-decoration underline h4 text-bold" ng-click="vm.salesorder.updatedbyValue ? vm.goToUserDetail(vm.salesorder.updatedBy) : ''">
+                        {{vm.salesorder.updatedbyValue}}
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-5" ng-if="vm.salesorder.updatedAt">
+                          <md-tooltip class="cm-tooltip-table-data tooltip-height-auto pv-3" md-direction="top">
+                            <div>
+                              <table cellspacing="0" cellpadding="0" border="1">
+                                <tr>
+                                  <th>
+                                    {{vm.LabelConstant.COMMON.GRIDHEADER_MODIFY_DATE}}
+                                  </th>
+                                  <td>
+                                    {{vm.salesorder.updatedAt || '-'}}
+                                  </td>
+                                </tr>
+                              </table>
+                            </div>
+                          </md-tooltip>
+                        </md-icon>
+                      </a>
+                      <md-input-container flex="100" class="margin-bottom-0" ng-if="!(vm.salesorder && vm.salesorder.updatedbyValue)">
+                        <input type="text" name="createdBy" id="createdBy" placeholder="Created By" disabled />
+                      </md-input-container>
+                    </td>
+                    <th>
+                      <p class="label-container">
+                        <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.gotoManufacturerList();">
+                          {{vm.LabelConstant.COMMON.GRIDHEADER_CREATEDBY}}
+                        </a>
+                      </p>
+                    </th>
+                    <td>
+                      <div class="margin-top-3 h4 text-bold padding-left-5">
+                        <span ng-class="{'text-underline': vm.salesorder.createdbyValue, 'cursor-pointer': vm.salesorder.createdbyValue}" ng-click="vm.salesorder.createdbyValue ? vm.goToUserDetail(vm.salesorder.createdBy) : ''">
+                          <b>{{vm.salesorder.createdbyValue?vm.salesorder.createdbyValue:'-'}}</b>
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div flex-gt-lg="20" flex-gt-md="30" flex="50" class="padding-4" layout="row" layout-wrap>
+          <div class="cm-section-main" flex="100">
+            <div class="cm-section-inner" flex="100">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th><p class="label-container">{{vm.LabelConstant.SalesOrder.SODate}}<span ng-if="!vm.isDisable && !vm.id">&nbsp;*</span></p></th>
+                    <td>
+                      <md-input-container flex="100" class="datepicker width-110 padding-right-0-imp margin-bottom-0">
+                        <input type="text" class="float-left"
+                               custom-auto-focus="true"
+                               min-value="vm.salesorder.poDate"
+                               id="sodate"
+                               name="soDate"
+                               max-value="vm.todayDate"
+                               required
+                               max-value-is-today-date="true"
+                               allow-past-date="true"
+                               allow-future-date="false"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-model="vm.salesorder.soDate"
+                               ng-change="vm.onChangesoDate(vm.salesorder.soDate)"
+                               enable-time="false"
+                               ng-disabled="vm.isDisable || vm.id"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               ng-blur="vm.checkHeaderDetail()"
+                               model-view-value="true"
+                               datepicker-options="vm.soDateOptions"
+                               is-open="vm.IsPickerOpen[vm.DATE_PICKER.soDate]"
+                               close-text="Close" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.soDate] =((vm.isDisable || vm.id) ? false : true)">
+                        </md-icon>
+                        <div ng-messages="vm.frmSalesOrderDetails.soDate.$error" role="alert">
+                          <div ng-message="maxvalue">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_SALES_ORDER_DATE}}</span>
+                          </div>
+                          <div ng-message="minvalue">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_SALES_ORDER_DATE}}</span>
+                          </div>
+                          <div ng-message="valid">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="datetime">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <th><p class="label-container">SO Ver.</p></th>
+                    <td class="w-60">
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="text" ng-disabled="true" name="revision" ng-model="vm.salesorder.revision" ng-change="vm.onChangeSORevision()"
+                               class="input-text-uppercase"
+                               capitalize placeholder="Revision">
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container cm-white-space-normal">SO Ver. Change Notes</p></th>
+                    <td colspan="3">
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <textarea type="text" ng-disabled="vm.isDisable" cols="300" rows="1" max-rows="4" name="revisionChngeNote" ng-model="vm.salesorder.revisionChangeNote"
+                                  placeholder="Revision Change Note" ng-maxlength="vm.maxLengthForDescription" md-maxlength="vm.maxLengthForDescription"></textarea>
+                        <div ng-messages="vm.frmSalesOrderDetails.revisionChngeNote.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription, vm.frmSalesOrderDetails.revisionChngeNote.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="padding-top-3" colspan="4">
+                      <div layout="row" layout-align="end start">
+                        <md-checkbox ng-model="vm.salesorder.isLegacyPO"
+                                     name="isLegacyPO" class="margin-0 pr-10"
+                                     ng-disabled="vm.isDisable ||  vm.salesorder.isRmaPO || vm.salesorder.linkToBlanketPO" ng-change="!vm.salesorder.isLegacyPO?vm.salesorder.originalPODate=null:''">
+                          <p class="label-container">
+                            Legacy PO
+                          </p>
+                        </md-checkbox>
+                        <md-checkbox ng-model="vm.salesorder.isBlanketPO"
+                                     name="isBlanketPO" class="margin-0 pr-10" ng-disabled="vm.isDisable || (vm.salesorder.id && vm.salesorder.status==1) || vm.salesorder.isRmaPO || vm.salesorder.linkToBlanketPO" ng-change="vm.changeBlanketPO()">
+                          <p class="nowrap">
+                            {{vm.LabelConstant.PURCHASE_ORDER.BlanketPO}}
+                          </p>
+                        </md-checkbox>
+                        <md-checkbox ng-model="vm.salesorder.linkToBlanketPO" id="idLinkToBlanketPO"
+                                     name="linkToBlanketPO" class="margin-0 pr-10" ng-disabled="vm.isDisable || (vm.salesorder.id && vm.salesorder.status==1) || vm.salesorder.isBlanketPO || vm.salesorder.isLegacyPO" ng-change="vm.changeLinkToBlankPO()">
+                          <p class="nowrap">
+                            Link to Blanket PO
+                          </p>
+                        </md-checkbox>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        Blanket PO <br /> Option<span ng-if="!vm.isDisable && !(vm.salesorder.id && vm.salesorder.status==1) && vm.salesorder.isBlanketPO">&nbsp;*</span>
+                      </p>
+                    </th>
+                    <td colspan="3">
+                      <md-input-container ng-if="vm.autoCompleteBlanketPOOption" class="md-block autocompletecustom" flex="100">
+                        <custom-auto-complete datalist="vm.BlanketPOOptions"
+                                              column-name="vm.autoCompleteBlanketPOOption.columnName"
+                                              key-column-name="vm.autoCompleteBlanketPOOption.keyColumnName"
+                                              input-name="vm.autoCompleteBlanketPOOption.inputName"
+                                              placeholder-name="vm.autoCompleteBlanketPOOption.placeholderName"
+                                              key-column-id="vm.autoCompleteBlanketPOOption.keyColumnId"
+                                              is-required="vm.salesorder.isBlanketPO?true:false"
+                                              custom-auto-focus="{{vm.isbpoFocus}}"
+                                              is-addnew="vm.autoCompleteBlanketPOOption.isAddnew"
+                                              on-select-callback-fn="vm.autoCompleteBlanketPOOption.onSelectCallbackFn"
+                                              is-disabled="vm.isDisable || (vm.salesorder.id && vm.salesorder.status==1) || !vm.salesorder.isBlanketPO">
+                        </custom-auto-complete>
+                      </md-input-container>
+                      <md-input-container flex="100" class="margin-bottom-0" ng-if="!vm.autoCompleteBlanketPOOption">
+                        <input type="text" ng-disabled="true" name="autoCompleteBlanketPOOption">
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container mb-0">Sales </p>
+                      <p class="label-container">
+                        Commission&nbsp;<a class="cm-text-decoration" tabindex="-1" ng-click="vm.employeelist();">To</a>
+                      </p>
+                    </th>
+                    <td colspan="3">
+                      <md-input-container ng-if="vm.autoCompleteSalesCommosssionTo" class="md-block autocompletecustom" flex="100">
+                        <custom-auto-complete datalist="vm.SalesCommissionEmployeeList"
+                                              column-name="vm.autoCompleteSalesCommosssionTo.columnName"
+                                              controller-name="vm.autoCompleteSalesCommosssionTo.controllerName"
+                                              view-template-url="vm.autoCompleteSalesCommosssionTo.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteSalesCommosssionTo.keyColumnName"
+                                              input-name="vm.autoCompleteSalesCommosssionTo.inputName"
+                                              placeholder-name="vm.autoCompleteSalesCommosssionTo.placeholderName"
+                                              key-column-id="vm.autoCompleteSalesCommosssionTo.keyColumnId"
+                                              is-required="vm.autoCompleteSalesCommosssionTo.isRequired"
+                                              is-addnew="vm.autoCompleteSalesCommosssionTo.isAddnew"
+                                              is-disabled="!vm.autoCompleteCustomer.keyColumnId || vm.isDisable"
+                                              callback-fn="vm.autoCompleteSalesCommosssionTo.callbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                      <md-input-container flex="100" class="margin-bottom-0" ng-if="!vm.autoCompleteSalesCommosssionTo">
+                        <input type="text" ng-disabled="true" name="autoCompleteSalesCommosssionTo">
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr ng-if="false">
+                    <th><p class="label-container">Orig. PO Date</p></th>
+                    <td>
+                      <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                        <input type="text" class="float-left"
+                               name="originalPODate"
+                               max-value="vm.salesorder.poDate"
+                               allow-past-date="true"
+                               allow-future-date="false"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-change="vm.onChangeOrgPoDate()"
+                               ng-model="vm.salesorder.originalPODate"
+                               enable-time="false"
+                               ng-disabled="vm.isDisable || !vm.salesorder.isLegacyPO"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="vm.orgDateOptions"
+                               is-open="vm.IsPickerOpen[vm.DATE_PICKER.originalPODate]" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.originalPODate]=(vm.isDisable || !vm.salesorder.isLegacyPO ? false : true)">
+                        </md-icon>
+                        <div ng-messages="vm.frmSalesOrderDetails.originalPODate.$error" role="alert">
+                          <div ng-message="valid">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="maxvalue">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.ORIG_MAX_PURCHASE_ORDER_DATE}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!--RMA PO Section-->
+        <div flex-gt-lg="15" flex-gt-sm="30" flex="50" class="padding-4" layout="row" layout-wrap>
+          <fieldset class="cm-section-main container-box" flex="100">
+            <legend>
+              <md-checkbox ng-model="vm.salesorder.isRmaPO" id="isRmaPO" class="margin-0"
+                           ng-disabled="vm.checkBoxButtonGroup.isRMAPO.checkDisable()" ng-change="vm.checkBoxButtonGroup.isRMAPO.onChange()">
+                RMA PO
+              </md-checkbox>
+            </legend>
+            <div class="cm-section-inner" flex="100">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                <tbody>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        {{vm.LabelConstant.SalesOrder.RMANumber}}<span ng-if="!vm.isDisable && vm.salesorder.isRmaPO">&nbsp;* <check-unique-on-blur></check-unique-on-blur></span>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input name="rmaNumber" ng-model="vm.salesorder.rmaNumber" placeholder="vm.LabelConstant.SalesOrder.RMANumber" capitalize
+                               ng-maxlength="50" md-maxlength="50" ng-disabled="vm.isDisable || (!vm.salesorder.isRmaPO)" ng-required="vm.salesorder.isRmaPO" />
+                        <div ng-messages="vm.frmSalesOrderDetails.rmaNumber.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(50, vm.frmSalesOrderDetails.rmaNumber.$viewValue.length)}}</span>
+                          </div>
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th></th>
+                    <td>
+                      <md-checkbox ng-model="vm.salesorder.isDebitedByCustomer" id="isDebitedByCustomer" name="isDebitedByCustomer"
+                                   class="margin-0" ng-disabled="vm.checkBoxButtonGroup.isDebitedByCustomer.checkDisable()"
+                                   ng-change="vm.checkBoxButtonGroup.isDebitedByCustomer.onChange()">
+                        <p class="label-container">
+                          {{vm.LabelConstant.SalesOrder.IsDebitedByCustomer}}
+                        </p>
+                      </md-checkbox>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container cm-white-space-normal">
+                        {{vm.LabelConstant.SalesOrder.OrgPONumber}}<span ng-if="!vm.isDisable && vm.salesorder.isDebitedByCustomer">&nbsp;* <check-unique-on-blur></check-unique-on-blur></span>
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                          <md-tooltip md-direction="top">Enter or Select Original PO# against which RMA is being created.</md-tooltip>
+                        </md-icon>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container id="orgPONumber" ng-if="vm.autoCompleteOrgPO" class="autocompletecustom margin-bottom-0 cm-auto-complete-w-auto"
+                                          flex="100" md-no-float>
+                        <!-- on-click-outside="vm.changeOrgPONumber()">-->
+                        <!--blur-event-fn="vm.autoCompleteOrgPO.onBlurEventFn"-->
+                        <custom-auto-complete-search on-search-fn="vm.autoCompleteOrgPO.onSearchFn"
+                                                     column-name="vm.autoCompleteOrgPO.columnName"
+                                                     key-column-name="vm.autoCompleteOrgPO.keyColumnName"
+                                                     input-name="vm.autoCompleteOrgPO.inputName"
+                                                     placeholder-name="vm.autoCompleteOrgPO.placeholderName"
+                                                     key-column-id="vm.autoCompleteOrgPO.keyColumnId"
+                                                     is-required="vm.salesorder.isDebitedByCustomer"
+                                                     callback-fn="vm.autoCompleteOrgPO.callbackFn"
+                                                     search-text="vm.autoCompleteOrgPO.searchText"
+                                                     add-data="vm.autoCompleteOrgPO.addData"
+                                                     md-require-match="false"
+                                                     on-select-callback-fn="vm.autoCompleteOrgPO.onSelectCallbackFn"
+                                                     callback-fn-for-clear-search-text="vm.autoCompleteOrgPO.callbackFnForClearSearchText"
+                                                     is-disabled="vm.isDisable || !(vm.salesorder.isRmaPO && vm.salesorder.isDebitedByCustomer)"
+                                                     is-Uppercase-search-text="vm.autoCompleteOrgPO.isUppercaseSearchText"
+                                                     on-blur-callback-fn="(!vm.isSkipBlurOnOrgPONumber) ? vm.changeOrgPONumber : null">
+                        </custom-auto-complete-search>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th></th>
+                    <td>
+                      <md-checkbox ng-model="vm.salesorder.isReworkRequired" id="isReworkRequired" name="isReworkRequired"
+                                   class="margin-0" ng-disabled="vm.checkBoxButtonGroup.isReworkRequired.checkDisable()"
+                                   ng-change="vm.checkBoxButtonGroup.isReworkRequired.onChange()">
+                        <p class="label-container">
+                          {{vm.LabelConstant.SalesOrder.IsReworkRequired}}
+                        </p>
+                      </md-checkbox>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container cm-white-space-normal">
+                        {{vm.LabelConstant.SalesOrder.ReworkPONumber}}<span ng-if="!vm.isDisable && vm.salesorder.isReworkRequired">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                          <md-tooltip md-direction="top">Enter PO# against which Rework need to be done.</md-tooltip>
+                        </md-icon>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input name="reworkPONumber" id="reworkPONumber" ng-model="vm.salesorder.reworkPONumber" placeholder="{{vm.LabelConstant.SalesOrder.ReworkPONumber}}"
+                               ng-maxlength="50" md-maxlength="50" ng-disabled="vm.isDisable || !(vm.salesorder.isRmaPO && vm.salesorder.isReworkRequired)"
+                               ng-blur="vm.changeReworkPONumber()" ng-required="vm.salesorder.isReworkRequired" />
+                        <div ng-messages="vm.frmSalesOrderDetails.reworkPONumber.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(50, vm.frmSalesOrderDetails.reworkPONumber.$viewValue.length)}}</span>
+                          </div>
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </fieldset>
+        </div>
+        <div flex-gt-lg="20" flex-gt-md="30" flex-gt-sm="40" flex="50" class="padding-4" layout="row" layout-wrap>
+          <div class="cm-section-main" flex="100">
+            <div class="cm-section-inner" flex="100">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        <a class="cm-text-decoration" ng-click="vm.goPaymentTermList(); " tabindex="-1">Terms</a><span ng-if="!vm.isDisable">&nbsp;*</span>
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                          <md-tooltip md-direction="top">Auto derived from selected customer</md-tooltip>
+                        </md-icon>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container ng-if="vm.autoCompleteTerm" class="autocompletecustom margin-bottom-0">
+                        <custom-auto-complete datalist="vm.TermsList"
+                                              column-name="vm.autoCompleteTerm.columnName"
+                                              controller-name="vm.autoCompleteTerm.controllerName"
+                                              view-template-url="vm.autoCompleteTerm.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteTerm.keyColumnName"
+                                              input-name="vm.autoCompleteTerm.inputName"
+                                              placeholder-name="vm.autoCompleteTerm.placeholderName"
+                                              key-column-id="vm.autoCompleteTerm.keyColumnId"
+                                              is-disabled="vm.isDisable"
+                                              is-required="vm.autoCompleteTerm.isRequired"
+                                              is-addnew="vm.autoCompleteTerm.isAddnew"
+                                              add-data="vm.autoCompleteTerm.addData"
+                                              callback-fn="vm.autoCompleteTerm.callbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        <a class="cm-text-decoration" ng-click="vm.goShippingMethodList();" tabindex="-1">{{vm.autoCompleteShipping.placeholderName}}</a><span ng-if="!vm.isDisable">&nbsp;*</span>
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                          <md-tooltip md-direction="top">Auto derived from selected customer</md-tooltip>
+                        </md-icon>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container ng-if="vm.autoCompleteShipping" class="autocompletecustom margin-bottom-0" flex>
+                        <custom-auto-complete datalist="vm.ShippingTypeList"
+                                              column-name="vm.autoCompleteShipping.columnName"
+                                              controller-name="vm.autoCompleteShipping.controllerName"
+                                              view-template-url="vm.autoCompleteShipping.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteShipping.keyColumnName"
+                                              input-name="vm.autoCompleteShipping.inputName"
+                                              placeholder-name="vm.autoCompleteShipping.placeholderName"
+                                              key-column-id="vm.autoCompleteShipping.keyColumnId"
+                                              is-required="vm.autoCompleteShipping.isRequired"
+                                              is-disabled="vm.isDisable"
+                                              is-addnew="vm.autoCompleteShipping.isAddnew"
+                                              add-data="vm.autoCompleteShipping.addData"
+                                              callback-fn="vm.autoCompleteShipping.callbackFn"
+                                              on-select-callback-fn="vm.autoCompleteShipping.onSelectCallbackFn"
+                                              custom-focus="vm.setFocusShippingMethod">
+                        </custom-auto-complete>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        <a class="cm-text-decoration" ng-click="vm.goTocarrierList();" tabindex="-1">{{vm.autoCompleteCarriers.placeholderName}}</a><span ng-if="vm.autoCompleteCarriers && !vm.isDisable">&nbsp;*</span>
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                          <md-tooltip md-direction="top">Auto derived from selected customer</md-tooltip>
+                        </md-icon>
+                      </p>
+                    </th>
+                    <td colspan="3">
+                      <md-input-container ng-if="vm.autoCompleteCarriers" class="autocompletecustom margin-bottom-0" flex="100">
+                        <custom-auto-complete datalist="vm.carrierList"
+                                              column-name="vm.autoCompleteCarriers.columnName"
+                                              controller-name="vm.autoCompleteCarriers.controllerName"
+                                              view-template-url="vm.autoCompleteCarriers.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteCarriers.keyColumnName"
+                                              input-name="vm.autoCompleteCarriers.inputName"
+                                              placeholder-name="vm.autoCompleteCarriers.placeholderName"
+                                              key-column-id="vm.autoCompleteCarriers.keyColumnId"
+                                              is-addnew="vm.autoCompleteCarriers.isAddnew"
+                                              is-required="vm.autoCompleteCarriers.isRequired"
+                                              is-disabled="vm.isDisable"
+                                              add-data="vm.autoCompleteCarriers.addData"
+                                              callback-fn="vm.autoCompleteCarriers.callbackFn"
+                                              on-select-callback-fn="vm.autoCompleteCarriers.onSelectCallbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        Carrier Account#
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                          <md-tooltip md-direction="top">Auto derived from selected customer</md-tooltip>
+                        </md-icon>
+                      </p>
+                    </th>
+                    <td colspan="3">
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input id="carrierAccountNumber" name="carrierAccountNumber" ng-model="vm.salesorder.carrierAccountNumber" placeholder="Carrier Account#" ng-maxlength="50" md-maxlength="50" ng-disabled="vm.isDisable" />
+                        <div ng-messages="vm.frmSalesOrderDetails.carrierAccountNumber.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(50, vm.frmSalesOrderDetails.carrierAccountNumber.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        <a class="cm-text-decoration" ng-click="vm.goToFOBList();">FOB</a>
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                          <md-tooltip md-direction="top">Free On Board</md-tooltip>
+                        </md-icon>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container ng-if="vm.autoCompleteFOB" class="autocompletecustom margin-bottom-0" flex="100">
+                        <custom-auto-complete datalist="vm.FOBList"
+                                              column-name="vm.autoCompleteFOB.columnName"
+                                              controller-name="vm.autoCompleteFOB.controllerName"
+                                              view-template-url="vm.autoCompleteFOB.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteFOB.keyColumnName"
+                                              input-name="vm.autoCompleteFOB.inputName"
+                                              placeholder-name="vm.autoCompleteFOB.placeholderName"
+                                              key-column-id="vm.autoCompleteFOB.keyColumnId"
+                                              is-disabled="vm.isDisable"
+                                              is-addnew="vm.autoCompleteFOB.isAddnew"
+                                              callback-fn="vm.autoCompleteFOB.callbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div flex-gt-lg="20" flex-gt-sm="30" flex="50" class="padding-4" layout="row" layout-wrap>
+          <div class="cm-section-main" flex="100">
+            <div class="cm-section-inner" flex="100">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        Line Total
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="text" name="linetotal" id="linetotal" ng-model="vm.totalLineChargeDisplay" placeholder="Line Total" class="text-right"
+                               ng-disabled="true" />
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        Line MISC Charges
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="text" name="linemisccharges" id="linemisccharges" ng-model="vm.totalLineMiscChargesDisplay" placeholder="Line MISC Charges" class="text-right"
+                               ng-disabled="true" />
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <!--<tr>
+              <th>
+                <p class="label-container">
+                  Order MISC Charges
+                </p>
+              </th>
+              <td>
+                <md-input-container flex="100" class="margin-bottom-0">
+                  <input type="text" name="ordermisccharges" id="ordermisccharges" ng-model="vm.totalordermiscDisplay" placeholder="Order MISC Charges" class="text-right"
+                         ng-disabled="true" />
+                </md-input-container>
+              </td>
+            </tr>-->
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        Order Total
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0 cm-invoice-amt-diff-font">
+                        <input type="text" name="totalAmount" id="totalAmount" ng-model="vm.totalExtendedPriceDisplay" placeholder="Total Amount"
+                               class="text-right "
+                               ng-disabled="true" />
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div layout-gt-lg="row" layout-gt-md="column" layout-gt-sm="row" flex-gt-lg="100" flex-gt-md="40">
+          <div flex-gt-lg="50" flex-gt-md="" flex-sm="100" layout="row" class="padding-4" layout-wrap>
+            <div class="cm-section-main" flex="100">
+              <div class="cm-section-inner" flex="100">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          Header Internal <br /> Notes
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Auto derived from Customer Internal Comments</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td colspan="3">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <textarea type="text" ng-disabled="vm.isDisable" cols="300" rows="2" max-rows="4" name="internalComment" ng-model="vm.salesorder.internalComment"
+                                    class="blue" placeholder="Internal Notes" ng-maxlength="vm.maxLengthForDescription" md-maxlength="vm.maxLengthForDescription"></textarea>
+                          <div>
+                            <span>Hint: Internal only, Will not print on sales order</span>
+                          </div>
+                          <div ng-messages="vm.frmSalesOrderDetails.internalComment.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription, vm.frmSalesOrderDetails.internalComment.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div flex-gt-lg="50" flex-gt-md="" flex-sm="100" layout="row" class="padding-4" layout-wrap>
+            <div class="cm-section-main  margin-rs-right-0" flex="100">
+              <div class="cm-section-inner" flex="100">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          Header Shipping <br /> Comments<md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Header Shipping Comments will be derived from Customer's Comments Tab</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <textarea type="text" ng-disabled="vm.isDisable" cols="300" rows="2" max-rows="4" name="shippingComment" ng-model="vm.salesorder.shippingComment"
+                                    placeholder="Shipping Comment" ng-maxlength="vm.maxLengthForDescription" md-maxlength="vm.maxLengthForDescription"
+                                    data-focusButton="saveBtn" last-element elementcondition="{{vm.frmSalesOrderDetails.$dirty ? true : false}}"></textarea>
+                          <div>
+                            <span>Hint: Will print on sales order and packing slip, Invoice</span>
+                          </div>
+                          <div ng-messages="vm.frmSalesOrderDetails.shippingComment.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription, vm.frmSalesOrderDetails.shippingComment.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div layout="row" layout-sm="column" layout-wrap flex="100">
+          <div flex-gt-md="25" flex="50" layout="row" class="padding-4" layout-wrap ng-if="vm.autoCompleteCustomer.keyColumnId && vm.viewCustMainContactOtherDet">
+            <view-contact-person-det layout
+                                     param-contact-person-det="vm.contactpersondetail"
+                                     param-other-det="vm.viewCustMainContactOtherDet"
+                                     param-cont-person-action-btn-det="vm.custPersonViewActionBtnDet"
+                                     param-select-contact-callback-fn="vm.selectMainContactPerson"
+                                     param-refresh-contact-person-callback-fn="vm.refreshContactPerson"
+                                     param-add-update-contact-callback-fn="vm.EditPerson"></view-contact-person-det>
+          </div>
+          <div flex-gt-md="25" flex="50" layout="row" class="padding-4" ng-if="vm.autoCompleteCustomer.keyColumnId && vm.viewCustAddrOtherDet">
+            <view-cust-address-contact-det layout param-address-det="vm.billingAddress"
+                                           param-contact-person-det="vm.selectedContactPerson"
+                                           param-addr-action-btn-det="vm.custAddrViewActionBtnDet"
+                                           param-cont-person-action-btn-det="vm.contPersonViewActionBtnDet"
+                                           param-add-update-addr-callback-fn="vm.addEditAddress"
+                                           param-select-addr-callback-fn="vm.selectAddress"
+                                           param-other-det="vm.viewCustAddrOtherDet"
+                                           param-add-update-contact-callback-fn="vm.addEditContactPerson"
+                                           param-select-contact-callback-fn="vm.selectContactPerson"
+                                           param-delete-addr-callback-fn="vm.removeAddress"
+                                           param-refresh-address-callback-fn="vm.refreshAddress"
+                                           param-delete-cont-person-callback-fn="vm.deleteAddrContanctPersonCallBack"></view-cust-address-contact-det>
+          </div>
+          <div flex-gt-md="25" flex="50" class="padding-4" ng-if="vm.autoCompleteCustomer.keyColumnId && vm.viewShipCustAddrOtherDet" layout="row">
+            <view-cust-address-contact-det layout param-address-det="vm.shippingAddress"
+                                           param-contact-person-det="vm.selectedShipContactPerson"
+                                           param-addr-action-btn-det="vm.custShipAddrViewActionBtnDet"
+                                           param-cont-person-action-btn-det="vm.contShipPersonViewActionBtnDet"
+                                           param-add-update-addr-callback-fn="vm.addEditShipAddress"
+                                           param-select-addr-callback-fn="vm.selectShipToAddress"
+                                           param-other-det="vm.viewShipCustAddrOtherDet"
+                                           param-add-update-contact-callback-fn="vm.addEditShipContactPerson"
+                                           param-select-contact-callback-fn="vm.selectShipContactPerson"
+                                           param-delete-addr-callback-fn="vm.removeAddress"
+                                           param-refresh-address-callback-fn="vm.refreshAddress"
+                                           param-delete-cont-person-callback-fn="vm.deleteAddrContanctPersonCallBack"></view-cust-address-contact-det>
+          </div>
+          <div flex-gt-md="25" flex="50" class="padding-4" ng-if="vm.autoCompleteCustomer.keyColumnId && vm.viewMarkCustAddrOtherDet" layout="row">
+            <view-cust-address-contact-det layout param-address-det="vm.intermediateAddress"
+                                           param-contact-person-det="vm.selectedMarkContactPerson"
+                                           param-addr-action-btn-det="vm.custMarkAddrViewActionBtnDet"
+                                           param-cont-person-action-btn-det="vm.contMarkPersonViewActionBtnDet"
+                                           param-add-update-addr-callback-fn="vm.addEditMarkAddress"
+                                           param-select-addr-callback-fn="vm.selectMarkToAddress"
+                                           param-other-det="vm.viewMarkCustAddrOtherDet"
+                                           param-add-update-contact-callback-fn="vm.addEditMarkContactPerson"
+                                           param-select-contact-callback-fn="vm.selectMarkContactPerson"
+                                           param-delete-addr-callback-fn="vm.removeMarkAddress"
+                                           param-refresh-address-callback-fn="vm.refreshAddress"
+                                           param-delete-cont-person-callback-fn="vm.removeMarkContactPerson"></view-cust-address-contact-det>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div layout="row" class="layout-row ph-8" ng-if="(!vm.custInvoiceID)">
+      <label class="label-danger no-bg padding-0 margin-0 font-size-20" ng-if="!vm.id">
+        Note:SO# and SO Date must be saved in order to add SO Line Details.
+      </label>
+    </div>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <div flex="100" layout="row" layout-wrap class="ph-8">
+      <div class="cm-section-main" flex>
+        <div class="cm-section-header cm-height-auto">
+          <div flex layout layout-align="start center">
+            <div flex="50" layout>
+              <h2 class="padding-left-10">{{((vm.salesDetail.isLine===1 && vm.salesDetail.lineID)  || (vm.salesDetail.isLine===3 && vm.updateOther))? (vm.copyisDisable? 'View':'Update'):'Add'}} Line Details</h2>
+            </div>
+            <div flex="50" layout>
+              <md-input-container flex="100" ng-if="vm.autoCompleteSearchDetail && vm.SODetailList" class="autocompletecustom margin-bottom-0" flex-xs="100">
+                <custom-auto-complete datalist="vm.SODetailList"
+                                      column-name="vm.autoCompleteSearchDetail.columnName"
+                                      controller-name="vm.autoCompleteSearchDetail.controllerName"
+                                      view-template-url="vm.autoCompleteSearchDetail.viewTemplateURL"
+                                      key-column-name="vm.autoCompleteSearchDetail.keyColumnName"
+                                      input-name="vm.autoCompleteSearchDetail.inputName"
+                                      placeholder-name="vm.autoCompleteSearchDetail.placeholderName"
+                                      key-column-id="vm.autoCompleteSearchDetail.keyColumnId"
+                                      is-required="vm.autoCompleteSearchDetail.isRequired"
+                                      is-addnew="vm.autoCompleteSearchDetail.isAddnew"
+                                      callback-fn="vm.autoCompleteSearchDetail.callbackFn"
+                                      add-data="vm.autoCompleteSearchDetail.addData"
+                                      is-disabled="false"
+                                      on-select-callback-fn="vm.autoCompleteSearchDetail.onSelectCallbackFn">
+                </custom-auto-complete>
+                <p class="margin-0">PO Line# | Assy ID/PID | MPN | PO Qty </p>
+              </md-input-container>
+            </div>
+          </div>
+          <!--Line Header Buttons-->
+          <div class="cm-ml-auto cm-square-icon-btn cm-btn-group" flex layout layout-align="end center">
+            <span ng-if="vm.salesDetail.id" class="label-box" ng-class="{'label-warning':!vm.salesDetail.isCancle && vm.salesDetail.salesOrderDetStatus === 1, 'label-success':!vm.salesDetail.isCancle && vm.salesDetail.salesOrderDetStatus === 2 ,'label-danger' :vm.salesDetail.isCancle}">
+              {{vm.salesDetail.salesOrderDetStatusConvertedValue}}
+            </span>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.resetDetail(item);" ng-disabled="!vm.salesDetail.id || !vm.copyisDisable">
+              <md-icon md-font-icon="icon-plus"></md-icon>
+              <md-tooltip>Add Line</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.EditCurrentRecord()"
+                       ng-disabled="!vm.salesDetail.id || !vm.copyisDisable">
+              <md-icon role="img" md-font-icon="icon-pencil"></md-icon><md-tooltip md-direction="top">Update</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.EditCurrentRecord()"
+                       ng-disabled="!vm.salesDetail.id || vm.copyisDisable">
+              <md-icon role="img" md-font-icon="icon-eye"></md-icon><md-tooltip md-direction="top">View</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.goToShipPlanDetails(vm.salesDetail)"
+                       ng-disabled="!vm.salesDetail.id || (vm.salesDetail.isSkipKitCreation||vm.salesDetail.isCancle || vm.salesDetail.partCategory!== vm.PartCategory.SubAssembly)">
+              <md-icon role="img" md-font-icon="icons-plan-kit"></md-icon><md-tooltip md-direction="top">Plan Kit</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.goToSalesCommission(vm.salesDetail,$event)"
+                       ng-disabled="!vm.salesDetail.id || (vm.salesDetail.quoteFrom === vm.salesCommissionFrom.NA.id || vm.salesDetail.partType===vm.partTypes.Other || vm.salesDetail.isCancle)">
+              <md-icon role="img" md-font-icon="icons-sales-commission"></md-icon><md-tooltip md-direction="top">Sales Commission</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.ViewAssemblyStockStatus(vm.salesDetail, $event)"
+                       ng-disabled="!vm.salesDetail.id ||(vm.salesDetail.partType!==vm.partTypes.SubAssembly)">
+              <md-icon role="img" md-font-icon="icons-view-assembly-stock"></md-icon><md-tooltip md-direction="top">View Assembly Stock Details</md-tooltip>
+            </md-button>
+            <!--ng-style="(vm.salesDetail.refSODetID) && {'opacity':0.3,'cursor': not-allowed}"-->
+            <md-button ng-disabled="vm.salesDetail.refSODetID || !vm.salesDetail.id" ng-class="{'other-charges-icon-color':vm.salesDetail.SalesOtherDetail.length>0 && vm.salesDetail.salesOrderDetStatus !==2,'icon-border-lightblue':vm.checkInlineOtherCharges(vm.salesDetail)}"
+                       class="md-icon-button md-primary md-raised md-mini" ng-click="vm.gotoSalesOrderOtherCharges(vm.salesDetail, $event)">
+              <md-icon ng-class="{'other-charges-icon-color':vm.salesDetail.SalesOtherDetail.length>0 && vm.salesDetail.salesOrderDetStatus !==2}" role="img" md-font-icon="t-icons-other-charges"></md-icon><md-tooltip md-direction="top">View Other Charges</md-tooltip>
+            </md-button>
+            <md-button ng-class="{'release-line-bg':vm.salesDetail.SalesDetail.length>1 ,'light-green-background-color':vm.salesDetail.salesOrderDetStatus === 2}"
+                       class="md-icon-button md-primary md-raised md-mini" ng-click="vm.openReleaseLinePopup(vm.salesDetail, $event)"
+                       ng-disabled="!vm.salesDetail.id || (vm.salesDetail.partType===vm.partTypes.Other || vm.salesDetail.isCancle)">
+              <md-icon ng-class="{'release-line-bg':vm.salesDetail.SalesDetail.length>1 ||(vm.salesDetail && vm.salesDetail.id && vm.checkSumAndColor(vm.salesDetail)) ,'light-green-background-color':vm.salesDetail.salesOrderDetStatus === 2}" role="img" md-font-icon="icons-release-line"></md-icon><md-tooltip md-direction="top">Release Detail</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.haltResumeSalesOrder(vm.salesDetail, $event)"
+                       ng-disabled="!vm.salesDetail.id || (vm.salesDetail.partType===vm.partTypes.Other || vm.salesDetail.isCancle || !vm.salesorder.status)">
+              <img role="img" ng-src="{{vm.salesDetail.salesOrderHaltImage || vm.haltImagePath }}" /><md-tooltip md-direction="top">{{vm.salesDetail.salesOrderHalt}}</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.haltResumeHistoryList(vm.salesDetail, $event)"
+                       ng-disabled="!vm.salesDetail.id || (vm.salesDetail.partType===vm.partTypes.Other || vm.salesDetail.isCancle)">
+              <md-icon role="img" md-font-icon="icons-halt-resume-history"></md-icon><md-tooltip md-direction="top">Halt/Resume History</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-disabled="!vm.salesDetail.id || (!(vm.salesDetail.quoteFrom !== vm.salesCommissionFrom.NA.id && vm.salesDetail.partType!==vm.partTypes.Other))" ng-click="vm.exportSalesCommission(vm.salesDetail, $event)">
+              <md-icon role="img" md-font-icon="t-icons-sales-commission export-icon"></md-icon><md-tooltip md-direction="top">Export Sales Commission</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-disabled="(vm.BlanketPODetails.LINKBLANKETPO !== vm.salesorder.blanketPOOption || vm.salesorder.status==0 || !vm.salesDetail.id)" ng-click="vm.openLinkedBlanketPO(vm.salesDetail, $event)">
+              <md-icon role="img" ng-class="{'release-line-bg':vm.salesDetail.isBlanketPOMapped }" md-font-icon="t-icons-link-future-po"></md-icon><md-tooltip md-direction="top">Linked PO(s)</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-disabled="(vm.BlanketPODetails.LINKBLANKETPO !== vm.salesorder.blanketPOOption || vm.salesorder.status==0 || !vm.salesDetail.id)" ng-click="vm.addNewBlanketPO(vm.salesDetail, $event)">
+              <md-icon role="img" md-font-icon="t-icons-future-po add-icon"></md-icon><md-tooltip md-direction="top">Add PO</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.navigateDetailRecords(vm.navDirection.FIRST,true)"
+                       ng-disabled="(!vm.sourceData) || (vm.sourceData && (vm.sourceData.length === 0 ||  vm.currentSODetIndex === 0))">
+              <md-icon md-font-icon="mdi-download mdi-rotate-90 mdi" class="material-icons mat-icon"></md-icon>
+              <md-tooltip>First</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.navigateDetailRecords(vm.navDirection.PREVIOUS,true)"
+                       ng-disabled="(!vm.salesDetail.id && !vm.sourceData) || (vm.sourceData && (vm.currentSODetIndex === 0 || vm.sourceData.length === 0))">
+              <md-icon md-font-icon="mdi-arrow-left-bold mdi" class="material-icons mat-icon"></md-icon>
+              <md-tooltip>Previous</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.navigateDetailRecords(vm.navDirection.NEXT,true)"
+                       ng-disabled="(!vm.salesDetail.id) || (vm.sourceData && vm.currentSODetIndex === vm.sourceData.length-1)">
+              <md-icon md-font-icon="mdi-arrow-right-bold mdi" class="material-icons mat-icon"></md-icon>
+              <md-tooltip>Next</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.navigateDetailRecords(vm.navDirection.LAST,true)"
+                       ng-disabled="(!vm.sourceData) || (!vm.salesDetail.id) || (vm.sourceData && (vm.sourceData.length === 0 || vm.currentSODetIndex === vm.sourceData.length-1))">
+              <md-icon md-font-icon="mdi-download mdi-rotate-270 mdi" class="material-icons mat-icon"></md-icon>
+              <md-tooltip>Last</md-tooltip>
+            </md-button>
+            <md-menu md-position-mode="right bottom">
+              <md-button class="md-icon-button" ng-click="$mdMenu.open();" md-prevent-menu-close="md-prevent-menu-close">
+                <md-icon md-font-icon="icon-dots-vertical" class="icon s24"></md-icon>
+              </md-button>
+              <md-menu-content width="3">
+                <md-menu-item>
+                  <md-button ng-disabled="!vm.copyisDisable || !vm.salesDetail.id" ng-click="vm.deleteCurrentRecord(vm.salesDetail)">Delete</md-button>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </div>
+        </div>
+        <form name="vm.salesOrderDetForm" flex layout="row" layout-wrap class="md-inline-form cm-sales-order-app-details" novalidate>
+          <div class="cm-section-inner cm-layout-wrap-1400" flex="100" layout="row" ng-if="vm.salesDetail.isLine===1">
+            <div layout="row" flex="40" flex-lg="60" layout-wrap class="mr-10 cm-1450-margin-right-0" flex-md="100" flex-sm="100">
+              <div layout="row" flex="100">
+                <div layout="row" flex="55">
+                  <div class="cm-section-main margin-right-5 flex-100" flex="100">
+                    <div class="cm-section-inner flex-100" flex="100">
+                      <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                        <tbody>
+                          <tr ng-show="!vm.salesDetail.lineID">
+                            <th><p class="label-container"></p></th>
+                            <td>
+                              <md-input-container flex="100">
+                                <md-radio-group layout-align="start center" class="ml-0" layout-wrap
+                                                name="isActive" id="isActive" ng-model="vm.salesDetail.isLine" flex="100" ng-change="vm.changeSalesDetail()"
+                                                ng-disabled="!vm.id || vm.isDisable">
+                                  <md-radio-button id="addline" flex class="margin-top-0 margin-right-0 pr-5-imp"
+                                                   ng-value="1">Add Line</md-radio-button>
+                                  <md-radio-button id="otherexpense" release flex class="margin-top-0 margin-left-0 pr-5-imp"
+                                                   ng-value="3">Add Line (Other)</md-radio-button>
+                                </md-radio-group>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr ng-show="vm.salesDetail.lineID">
+                            <th>
+                              <p class="label-container">
+                                SO Line#
+                              </p>
+                            </th>
+                            <td>
+                              <md-input-container flex="100" class="margin-bottom-0">
+                                <input type="number" name="lineID" id="lineID" ng-model="vm.salesDetail.lineID" placeholder="SO Line#" disabled />
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <!-- add part line -->
+                              <p class="label-container">
+                                <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">MPN</a><span ng-if="vm.id && !vm.isDisable && !vm.salesDetDisable && !vm.salesShippedStatus.shippedqty">&nbsp;*</span>
+                              </p>
+                            </th>
+                            <td>
+                              <md-input-container ng-if="vm.autocompleteAssy && (!(vm.salesorder.isRmaPO && vm.salesorder.orgSalesOrderID))" class="autocompletecustom margin-bottom-0" flex="100">
+                                <custom-auto-complete-search class="min-width-initial"
+                                                             on-search-fn="vm.autocompleteAssy.onSearchFn"
+                                                             column-name="vm.autocompleteAssy.columnName"
+                                                             controller-name="vm.autocompleteAssy.controllerName"
+                                                             view-template-url="vm.autocompleteAssy.viewTemplateURL"
+                                                             key-column-name="vm.autocompleteAssy.keyColumnName"
+                                                             input-name="vm.autocompleteAssy.inputName"
+                                                             placeholder-name="vm.autocompleteAssy.placeholderName"
+                                                             key-column-id="vm.autocompleteAssy.keyColumnId"
+                                                             is-required="vm.autocompleteAssy.isRequired"
+                                                             parent-column-name="vm.autocompleteAssy.parentColumnName"
+                                                             is-addnew="vm.autocompleteAssy.isAddnew"
+                                                             custom-auto-focus="{{vm.isFocus}}"
+                                                             add-data="vm.autocompleteAssy.addData"
+                                                             is-disabled="!vm.id || vm.isDisable || vm.salesDetDisable || vm.salesShippedStatus.shippedqty || vm.copyisDisable"
+                                                             callback-fn="vm.autocompleteAssy.callbackFn"
+                                                             on-select-callback-fn="vm.autocompleteAssy.onSelectCallbackFn">
+                              </md-input-container>
+                              <md-input-container flex="100" ng-if="vm.autoCompleteOrgPODetail && (vm.salesorder.isRmaPO && vm.salesorder.orgSalesOrderID)" class="autocompletecustom margin-bottom-0">
+                                <custom-auto-complete datalist="vm.rmaOrgPODetailList"
+                                                      column-name="vm.autoCompleteOrgPODetail.columnName"
+                                                      key-column-name="vm.autoCompleteOrgPODetail.keyColumnName"
+                                                      input-name="vm.autoCompleteOrgPODetail.inputName"
+                                                      placeholder-name="vm.autoCompleteOrgPODetail.placeholderName"
+                                                      key-column-id="vm.autoCompleteOrgPODetail.keyColumnId"
+                                                      is-required="vm.autoCompleteOrgPODetail.isRequired"
+                                                      is-disabled="!vm.id || vm.isDisable || !vm.salesorder.isRmaPO || vm.copyisDisable"
+                                                      is-addnew="vm.autoCompleteOrgPODetail.isAddnew"
+                                                      on-select-callback-fn="vm.autoCompleteOrgPODetail.onSelectCallbackFn"
+                                                      is-Uppercase-search-text="vm.autoCompleteOrgPODetail.isUppercaseSearchText">
+                                </custom-auto-complete>
+                              </md-input-container>
+                              <md-input-container flex="100" class="margin-bottom-0" ng-if="!vm.autocompleteAssy">
+                                <input type="text" name="autocompleteAssy" id="autocompleteAssy" disabled />
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">Assy ID/PID</a>
+                              </p>
+                            </th>
+                            <td class="w-300">
+                              <common-pid-code-label-link class="margin-top-5"
+                                                          ng-if="vm.autocompleteAssy.keyColumnId || vm.autoCompleteOrgPODetail.keyColumnId"
+                                                          component-id="vm.salesDetail.partID"
+                                                          label="'Assy ID/PID'"
+                                                          value="vm.salesDetail.PIDCode"
+                                                          is-copy="true"
+                                                          rohs-icon="vm.salesDetail.rohsIcon"
+                                                          rohs-status="vm.salesDetail.rohsName"
+                                                          is-formated="true"
+                                                          is-assembly="true"></common-pid-code-label-link>
+                              <div class="text-left" ng-if="!vm.salesDetail.partID">
+                                <label class="padding-top-5">-</label>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">MPN</a>
+                              </p>
+                            </th>
+                            <td class="w-300">
+                              <common-pid-code-label-link class="margin-top-5"
+                                                          ng-if="vm.autocompleteAssy.keyColumnId || vm.autoCompleteOrgPODetail.keyColumnId"
+                                                          component-id="vm.salesDetail.partID"
+                                                          label="'MPN'"
+                                                          value="vm.salesDetail.mfgPN"
+                                                          is-copy="true"
+                                                          rohs-icon="vm.salesDetail.rohsIcon"
+                                                          rohs-status="vm.salesDetail.rohsName"
+                                                          is-formated="true"
+                                                          is-assembly="true"></common-pid-code-label-link>
+                              <div class="text-left" ng-if="!vm.salesDetail.partID">
+                                <label class="padding-top-5">-</label>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.gotoManufacturerList();">
+                                  {{vm.LabelConstant.MFG.MFG}}
+                                </a>
+                              </p>
+                            </th>
+                            <td>
+                              <div class="margin-top-3 h4 text-bold">
+                                <span ng-class="{'text-underline': vm.salesDetail.mfrName, 'cursor-pointer': vm.salesDetail.mfrName}" ng-click="vm.salesDetail.mfrName ? vm.goToManufacturerDetail(vm.salesDetail.mfrID) : ''">
+                                  <b>{{vm.salesDetail.mfrName?vm.salesDetail.mfrName:'-'}}</b>
+                                </span>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                <div layout="column" flex="45">
+                  <div class="cm-section-main flex-100" flex="100">
+                    <div class="cm-section-inner flex-100" flex="100">
+                      <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                        <tbody>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                <md-checkbox ng-model="vm.salesDetail.isHotJob" name="isRushJob" class="margin-0 margin-right-8imp"
+                                             ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable">
+                                  Rush Job
+                                </md-checkbox>
+                                <a class="cm-text-decoration" ng-click="vm.goToUomList();" tabindex="-1">UOM</a>
+                              </p>
+                            </th>
+                            <td class="">
+                              <md-input-container flex="100" class="margin-bottom-0">
+                                <input type="text" name="unitName" id="unitName" ng-model="vm.salesDetail.unitName" placeholder="UOM" disabled />
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                Sales Commission&nbsp;<a class="cm-text-decoration" tabindex="-1" ng-click="vm.employeelist();">To</a>
+                              </p>
+                            </th>
+                            <td class="">
+                              <md-input-container ng-if="vm.autoCompleteSalesDetCommosssionTo" class="md-block autocompletecustom" flex="100">
+                                <custom-auto-complete datalist="vm.SalesCommissionEmployeeList"
+                                                      column-name="vm.autoCompleteSalesDetCommosssionTo.columnName"
+                                                      controller-name="vm.autoCompleteSalesDetCommosssionTo.controllerName"
+                                                      view-template-url="vm.autoCompleteSalesDetCommosssionTo.viewTemplateURL"
+                                                      key-column-name="vm.autoCompleteSalesDetCommosssionTo.keyColumnName"
+                                                      input-name="vm.autoCompleteSalesDetCommosssionTo.inputName"
+                                                      placeholder-name="vm.autoCompleteSalesDetCommosssionTo.placeholderName"
+                                                      key-column-id="vm.autoCompleteSalesDetCommosssionTo.keyColumnId"
+                                                      is-required="vm.autoCompleteSalesDetCommosssionTo.isRequired"
+                                                      is-addnew="vm.autoCompleteSalesDetCommosssionTo.isAddnew"
+                                                      is-disabled="!vm.autocompleteAssy.keyColumnId || vm.copyisDisable || vm.isDisable || vm.salesDetDisable || !vm.salesDetail.isCustom"
+                                                      callback-fn="vm.autoCompleteSalesDetCommosssionTo.callbackFn"
+                                                      on-select-callback-fn="vm.autoCompleteSalesDetCommosssionTo.onSelectCallbackFn">
+                                </custom-auto-complete>
+                              </md-input-container>
+                              <md-input-container flex="100" class="margin-bottom-0" ng-if="!vm.autoCompleteSalesDetCommosssionTo">
+                                <input type="text" ng-disabled="true" name="autoCompleteSalesDetCommosssionTo">
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th><p class="label-container">Nickname</p></th>
+                            <td class="">
+                              <div class="text-left">
+                                <label class="padding-top-5"
+                                       ng-class="{'text-decoration-underline cursor-pointer':vm.salesDetail.nickName}"
+                                       ng-click="vm.salesDetail.partID ? vm.goToComponentDetailTab(vm.salesDetail.partID):''">{{vm.salesDetail.nickName ? vm.salesDetail.nickName : '-'}}</label>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr ng-if="vm.salesDetail.partType==vm.partTypes.SubAssembly">
+                            <th><p class="label-container">Ready To Ship</p></th>
+                            <td class="">
+                              <div class="text-left">
+                                <label class="padding-top-5 font-size-15" ng-click="vm.autocompleteAssy.keyColumnId || vm.autoCompleteOrgPODetail.keyColumnId?vm.openAssyStock($event):''" ng-class="{'text-decoration-underline cursor-pointer':vm.autocompleteAssy.keyColumnId}">{{vm.autocompleteAssy.keyColumnId?vm.salesDetail.readyToShip:'-'}}</label>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="container-box flex-100 mt-5">
+                    <div class="cm-section-inner flex-100" flex="100">
+                      <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                        <tbody>
+                          <tr>
+                            <td colspan="2">
+                              <p class="label-container">
+                                <md-checkbox ng-model="vm.salesDetail.isCustomerConsign" ng-change="vm.salesDetail.materialTentitiveDocDate=null;" name="isCustomerConsign" class="margin-0 margin-right-8imp"
+                                             ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable">
+                                  Customer Consigned Material
+                                </md-checkbox>
+                              </p>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th><p class="label-container">Promised Dock Date</p></th>
+                            <td>
+                              <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 cm-min-width-100">
+                                <input type="text" class="float-left"
+                                       custom-auto-focus="false"
+                                       id="ccmDate"
+                                       name="ccmDate"
+                                       min-value="vm.salesorder.poDate"
+                                       allow-past-date="true"
+                                       allow-future-date="true"
+                                       datetime-picker="{{$root.dateDisplayFormat}}"
+                                       ng-model="vm.salesDetail.materialTentitiveDocDate"
+                                       ng-change="vm.onChangeccmDate()"
+                                       enable-time="false"
+                                       ng-disabled="!vm.id || vm.isDisable || !vm.salesDetail.isCustomerConsign || vm.copyisDisable"
+                                       ui-options="{clearOnBlur  : true}"
+                                       ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                       ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                       model-view-value="true"
+                                       datepicker-options="vm.ccmDateOptions"
+                                       is-open="vm.ccmDateOptions.ccmDateOpenFlag"
+                                       close-text="Close" />
+                                <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.ccmDateOptions.ccmDateOpenFlag=(!vm.id || vm.isDisable || vm.copyisDisable || !vm.salesDetail.isCustomerConsign ? false : true)" ng-disabled="!vm.id || vm.isDisable || !vm.salesDetail.isCustomerConsign">
+                                </md-icon>
+                                <div ng-messages="vm.salesOrderDetForm.ccmDate.$error" role="alert">
+                                  <div ng-message="valid">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                  <div ng-message="datetime">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                  <div ng-message="minvalue">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_CUST_CONS_MATERIAL_DOCK_DATE}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div layout="row" flex="100" ng-if="!vm.salesorder.isBlanketPO">
+                <fieldset class="container-box" flex>
+                  <legend class="mb-5">Blanket PO</legend>
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-no-padding middle-align-table cm-table-cell-height-auto">
+                    <tbody>
+                      <tr>
+                        <td class="width-100px">
+                          <md-button class="md-primary md-raised mt-0"
+                                     aria-label="sales" ng-click="vm.openBlanketPODetails($event)" id="btnBPO" ng-disabled="vm.isDisable || vm.copyisDisable || !vm.id || !vm.autocompleteAssy.keyColumnId || vm.pendingBlanketPOAssyList.length==0">
+                            Blanket PO({{vm.pendingBlanketPOAssyList?vm.pendingBlanketPOAssyList.length:0}})
+                          </md-button>
+                        </td>
+                        <th>
+                          <p class="label-container">SO#</p>
+                        </th>
+                        <td>
+                          <div class="text-left">
+                            <label class="padding-top-3 font-size-15" ng-click="vm.salesOrderNumber?vm.goToSalesOrder(vm.blanketPOID):''" ng-class="{'text-decoration-underline cursor-pointer':vm.salesOrderNumber}">{{vm.salesOrderNumber?vm.salesOrderNumber:'-'}}</label>
+                            <copy-text ng-if="vm.salesOrderNumber" label="'SO#'"
+                                       text="vm.salesOrderNumber"></copy-text>
+                          </div>
+                        </td>
+                        <th><p class="label-container">Open Qty</p></th>
+                        <td>
+                          <div class="text-left">
+                            <label class="padding-top-3 font-size-15">{{vm.availableQty?vm.availableQty:'-'}}</label>
+                          </div>
+                        </td>
+                        <th><p class="label-container">Total Qty</p></th>
+                        <td>
+                          <div class="text-left">
+                            <label class="padding-top-3 font-size-15" ng-click="vm.totalQty?vm.goToSalesOrder(vm.blanketPOID):''" ng-class="{'text-decoration-underline cursor-pointer':vm.totalQty}">{{vm.totalQty?vm.totalQty:'-'}}</label>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <md-button class="md-primary md-raised mt-0"
+                                     aria-label="sales" ng-click="vm.clearBlanketPODetails($event)" id="btnClearPO" ng-disabled="vm.isDisable || vm.copyisDisable || !vm.id || !vm.autocompleteAssy.keyColumnId || !vm.salesOrderNumber">
+                            Clear PO
+                          </md-button>
+                        </td>
+                        <th>
+                          <p class="label-container">PO#</p>
+                        </th>
+                        <td>
+                          <div class="text-left">
+                            <label class="padding-top-3 font-size-15" ng-click="vm.poNumber?vm.goToSalesOrder(vm.blanketPOID):''" ng-class="{'text-decoration-underline cursor-pointer':vm.poNumber}">{{vm.poNumber?vm.poNumber:'-'}}</label>
+                            <copy-text ng-if="vm.poNumber" label="'PO#'"
+                                       text="vm.poNumber"></copy-text>
+                          </div>
+                        </td>
+                        <th><p class="label-container">Cumulative Release Qty</p></th>
+                        <td colspan="2">
+                          <div class="text-left">
+                            <label class="padding-top-3 font-size-15" ng-click="vm.assignedQty?vm.blanketPOAssy($event):''" ng-class="{'text-decoration-underline cursor-pointer':vm.assignedQty}">{{vm.assignedQty?vm.assignedQty:'-'}}</label>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </fieldset>
+              </div>
+              <div layout="row" flex="100" class="mt-5">
+                <div class="cm-section-main flex-100" flex="100">
+                  <div class="cm-section-inner flex-100" flex="100">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                      <tbody>
+                        <tr>
+                          <th><p class="label-container">Part Description</p></th>
+                          <td colspan="3">
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <textarea type="text" name="partDescription" id="partDescription" rows="1" cols="350"
+                                        ng-model="vm.salesDetail.partDescription"
+                                        ng-disabled="vm.isDisable || vm.copyisDisable"
+                                        placeholder="Part Description"
+                                        ng-maxlength="vm.maxLengthForDescription"
+                                        md-maxlength="vm.maxLengthForDescription"></textarea>
+                              <div ng-messages="vm.salesOrderDetForm.partDescription.$touched && vm.salesOrderDetForm.partDescription.$error" role="alert">
+                                <div ng-message="maxlength" class="cm-white-space-normal">
+                                  <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.salesOrderDetForm.partDescription.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                              <!--<md-tooltip style="white-space: normal;word-break: break-all;width: 350px;height: auto;" ng-if="vm.salesDetail && vm.salesDetail.partDescription">{{vm.salesDetail.partDescription}}</md-tooltip>-->
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th><p class="label-container">Cancellation Reason</p></th>
+                          <td colspan="3">
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="text" name="cancleReason" id="cancleReason" ng-model="vm.salesDetail.cancleReason" placeholder="Cancellation Reason" disabled />
+                            </md-input-container>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div flex="15" flex-xl="15" flex-lg="15" flex-md="100" flex-sm="100" class="cm-cust-po material-section-devider cm-1450-margin-right-0 cm-1450-padding-right-0">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th class="width-100px">
+                      <p class="label-container cm-white-space-normal">
+                        PO Line# <span ng-if="vm.id && !vm.isDisable && !vm.copyisDisable">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                      </p>
+                    </th>
+                    <td class="cm-1601-width-120">
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="text" name="custPOLineNumber" id="custPOLineNumber" ng-model="vm.salesDetail.custPOLineNumber" required placeholder="PO Line#" ng-maxlength="10" custom-blur="vm.checkCustomerPOLine()"
+                               ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable" capitalize class="input-text-uppercase" md-maxlength="10" />
+                        <div ng-messages="vm.salesOrderDetForm.custPOLineNumber.$touched && vm.salesOrderDetForm.custPOLineNumber.$error" role="alert">
+                          <div ng-message="maxlength" class="cm-white-space-normal">
+                            <span>{{vm.getMaxLengthValidation(10, vm.salesOrderDetForm.custPOLineNumber.$viewValue.length)}}</span>
+                          </div>
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="width-100px">
+                      <p class="label-container cm-white-space-normal">
+                        Orig. PO Line#
+                      </p>
+                    </th>
+                    <td class="cm-1601-width-120">
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="text" name="custOrgPOLineNumber" id="custOrgPOLineNumber" ng-model="vm.salesDetail.custOrgPOLineNumber"
+                               placeholder="PO Line#" ng-maxlength="10"
+                               ng-disabled="vm.isDisable || vm.copyisDisable || !(vm.salesorder.orgPONumber || vm.salesorder.reworkPONumber)" capitalize class="input-text-uppercase" md-maxlength="10" />
+                        <div ng-messages="vm.salesOrderDetForm.custOrgPOLineNumber.$touched && vm.salesOrderDetForm.custOrgPOLineNumber.$error" role="alert">
+                          <div ng-message="maxlength" class="cm-white-space-normal">
+                            <span>{{vm.getMaxLengthValidation(10, vm.salesOrderDetForm.custOrgPOLineNumber.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr ng-if="vm.salesorder.isLegacyPO">
+                    <th><p class="label-container">Orig. PO Qty</p></th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="number" name="originalPOQty" id="originalPOQty" ng-model="vm.salesDetail.originalPOQty" ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable" onkeypress="return OnlyNumeric(event)" placeholder="PO Qty" min="1" ng-max="9999999" step="1" />
+                        <div ng-messages="vm.salesOrderDetForm.originalPOQty.$touched && vm.salesOrderDetForm.originalPOQty.$error" role="alert">
+                          <div ng-message="min || number || step || max">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container">{{vm.salesorder.isLegacyPO?'Open PO Qty':'PO Qty'}}<span ng-if="vm.id && !vm.isDisable && !vm.copyisDisable">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <!--custom-blur="vm.changeQty($event,1)"-->
+                        <input type="number" name="qty" id="qty" ng-model="vm.salesDetail.qty" ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable" onkeypress="return OnlyNumeric(event)" placeholder="PO Qty" min="1" ng-max="{{vm.salesDetail.originalPOQty?vm.salesDetail.originalPOQty:9999999}}" required step="1"
+                               ng-model-options="{ debounce: 250 }" custom-blur="vm.onChangePOQty(null, $event);vm.changeQtyCustomPrice($event,1)" />
+                        <div ng-messages="vm.salesOrderDetForm.qty.$touched && vm.salesOrderDetForm.qty.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="min || number || step">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="max">
+                            <span>{{vm.salesDetail.originalPOQty?vm.CORE_MESSAGE_CONSTANT.INVALID_SO_ORG_PO_QTY_Max: vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th></th>
+                    <td>
+                      <md-input-container flex="100">
+                        <md-radio-group layout-align="start center" layout-wrap
+                                        name="quoteFrom" id="quoteFrom"
+                                        ng-model="vm.salesDetail.quoteFrom" flex="100"
+                                        ng-change="vm.onChangeQuoteFrom(null,$event,true)" class="ml-0">
+                          <md-radio-button id="fromRfq" flex class="margin-top-0 margin-right-0 pr-5-imp"
+                                           ng-value="vm.salesCommissionFrom.NA.id">{{vm.salesCommissionFrom.NA.value}}</md-radio-button>
+                          <md-radio-button id="fromRfq" flex class="margin-top-0 margin-left-0 margin-right-0 pr-5-imp"
+                                           ng-disabled="vm.salesDetail.partCategory === vm.PartCategory.Component || !vm.salesDetail.isCustom"
+                                           ng-value="vm.salesCommissionFrom.FromRFQ.id">{{vm.salesCommissionFrom.FromRFQ.value}}</md-radio-button>
+                          <md-radio-button id="fromPartMaster" release flex class="margin-top-0 margin-left-0 pr-5-imp"
+                                           ng-value="vm.salesCommissionFrom.FromPartMaster.id" ng-disabled="!vm.salesDetail.isCustom">{{vm.salesCommissionFrom.FromPartMaster.value}}</md-radio-button>
+                        </md-radio-group>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="width-100px">
+                      <p class="label-container cm-white-space-normal">
+                        <a class="cm-text-decoration" tabindex="-1" ng-click="vm.rfqListPage();">Quote Group</a>
+                      </p>
+                    </th>
+                    <td class="cm-1601-sale-width-120">
+                      <md-input-container ng-if="vm.autoCompleteQuoteGroup" class="autocompletecustom margin-bottom-0 cm-min-width-100" flex="100">
+                        <custom-auto-complete datalist="vm.quoteGroupDetails"
+                                              column-name="vm.autoCompleteQuoteGroup.columnName"
+                                              key-column-name="vm.autoCompleteQuoteGroup.keyColumnName"
+                                              input-name="vm.autoCompleteQuoteGroup.inputName"
+                                              placeholder-name="vm.autoCompleteQuoteGroup.placeholderName"
+                                              key-column-id="vm.autoCompleteQuoteGroup.keyColumnId"
+                                              is-required="vm.autoCompleteQuoteGroup.isRequired"
+                                              is-addnew="vm.autoCompleteQuoteGroup.isAddnew"
+                                              callback-fn="vm.autoCompleteQuoteGroup.callbackFn"
+                                              is-disabled="!vm.id || !vm.autocompleteAssy.keyColumnId || vm.isDisable || vm.copyisDisable || vm.salesDetDisable || (vm.salesDetail.quoteFrom !== vm.salesCommissionFrom.FromRFQ.id)"
+                                              on-select-callback-fn="vm.autoCompleteQuoteGroup.onSelectCallbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container" ng-class="{'underline':vm.autocompleteAssy.keyColumnId}" ng-click="vm.goToSalesPriceMatrix(vm.autocompleteAssy.keyColumnId)">Quote#&nbsp;<check-unique-on-blur ng-if="!((vm.autoCompleteQuoteGroup.keyColumnId && vm.salesDetail.quoteNumber) || (vm.salesDetail.quoteFrom !== vm.salesCommissionFrom.FromRFQ.id))"></check-unique-on-blur></p>
+                    </th>
+                    <td colspan="3">
+                      <div class="text-left" ng-if="(vm.autoCompleteQuoteGroup.keyColumnId && vm.salesDetail.quoteNumber && vm.salesDetail.quoteFrom === vm.salesCommissionFrom.FromRFQ.id)">
+                        <label class="margin-top-5 text-decoration-underline cursor-pointer"
+                               ng-click="vm.goToRFQUpdate(vm.salesDetail.refRFQGroupID,vm.salesDetail.rfqAssyID)">{{vm.salesDetail.quoteNumber}}</label>
+                      </div>
+                      <div class="text-left" layout="row" layout-align="space-between center"
+                           ng-if="(vm.salesDetail.quoteFrom === vm.salesCommissionFrom.FromPartMaster.id || vm.salesDetail.quoteFrom === vm.salesCommissionFrom.NA.id)">
+                        <label class="margin-top-5" ng-if="!vm.salesDetail.quoteNumber">-</label>
+                        <label class="margin-top-5 text-decoration-underline cursor-pointer color-black text-bold"
+                               ng-click="vm.goToComponentSalesPriceMatrixTab(vm.salesDetail.partID)">{{vm.salesDetail.quoteNumber}}</label>
+                        <md-button class="margin-0 md-icon-button md-ink-ripple cm-refresh-button" tabindex="-1"
+                                   ng-click="vm.onChangeQuoteFrom()"><md-icon class="mdi mdi-refresh padding-top-2"></md-icon></md-button>
+                      </div>
+                      <md-input-container flex="100" class="margin-bottom-0" ng-if="!vm.autoCompleteQuoteGroup.keyColumnId && (vm.salesDetail.quoteFrom === vm.salesCommissionFrom.FromRFQ.id)">
+                        <input type="text" class="md-truncate" name="quoteNumber" id="quoteNumber" ng-model="vm.salesDetail.quoteNumber"
+                               custom-blur="vm.checkRFQQuoteNumberUnique()"
+                               placeholder="Quote Number" ng-maxlength="15"
+                               ng-disabled="vm.autoCompleteQuoteGroup.keyColumnId || vm.isDisable || vm.copyisDisable || (vm.salesDetail.quoteFrom === vm.salesCommissionFrom.FromPartMaster.id)" />
+                        <div ng-messages="vm.salesOrderDetForm.quoteNumber.$touched && vm.salesOrderDetForm.quoteNumber.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(15,vm.salesOrderDetForm.quoteNumber.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="width-100px">
+                      <p class="label-container cm-white-space-normal">
+                        Quote Qty Turn Time <span ng-if="(vm.autoCompleteQuoteGroup.keyColumnId || vm.salesDetail.quoteFrom === vm.salesCommissionFrom.FromPartMaster.id) && !vm.isDisable && !vm.copyisDisable">&nbsp;*</span>
+                      </p>
+                    </th>
+                    <td class="cm-1601-sale-width-120">
+                      <md-input-container ng-if="vm.autocompleteQtyTurnTime" class="autocompletecustom margin-bottom-0 cm-min-width-100" flex="100">
+                        <custom-auto-complete datalist="vm.quoteQtyTurnTimeDetails"
+                                              column-name="vm.autocompleteQtyTurnTime.columnName"
+                                              key-column-name="vm.autocompleteQtyTurnTime.keyColumnName"
+                                              input-name="vm.autocompleteQtyTurnTime.inputName"
+                                              placeholder-name="vm.autocompleteQtyTurnTime.placeholderName"
+                                              key-column-id="vm.autocompleteQtyTurnTime.keyColumnId"
+                                              is-required="(vm.autoCompleteQuoteGroup.keyColumnId || vm.salesDetail.quoteFrom === vm.salesCommissionFrom.FromPartMaster.id) ? true : false"
+                                              is-addnew="vm.autocompleteQtyTurnTime.isAddnew"
+                                              callback-fn="vm.autocompleteQtyTurnTime.callbackFn"
+                                              is-disabled="(!vm.autoCompleteQuoteGroup.keyColumnId && vm.salesDetail.quoteFrom === vm.salesCommissionFrom.FromRFQ.id) || !vm.autocompleteAssy.keyColumnId || vm.copyisDisable || vm.isDisable || vm.salesDetDisable || (vm.salesDetail.quoteFrom === vm.salesCommissionFrom.NA.id)"
+                                              on-select-callback-fn="vm.autocompleteQtyTurnTime.onSelectCallbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                      <md-input-container flex="100" class="margin-bottom-0" ng-if="!vm.autocompleteQtyTurnTime">
+                        <input type="text" ng-disabled="true" name="autocompleteQtyTurnTime">
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        Price ($)<span ng-if="vm.id && !vm.isDisable && !vm.copyisDisable">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="number" name="price" id="price" ng-model="vm.salesDetail.price"
+                               onkeypress="return OnlyNumbersWithDot(event)" placeholder="Price" min="0" required
+                               step="{{$root.unitInputStep}}" input-number-decimal-place ng-max="999999.99999"
+                               custom-blur="vm.onChangePrice();"
+                               ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable" />
+                        <div ng-messages="vm.salesOrderDetForm.price.$touched && vm.salesOrderDetForm.price.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="number || step || min || max">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container">Ext. Price ($)</p></th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="number" name="extPrice" id="extPrice" ng-model="vm.salesDetail.extPrice" step="{{$root.unitInputStep}}" ng-disabled="true" placeholder="Ext. Price" />
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div flex-xl="15" flex-lg="auto" flex-md="100" flex-sm="100" class="cm-po-qty material-section-devider cm-1450-margin-right-0 cm-1450-padding-right-0 ">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th></th>
+                    <th class="width-100">
+                      <md-checkbox id='isSkipKitCreation'
+                                   class="margin-top-5imp"
+                                   ng-keydown="vm.setNavigationFromDOCreate($event)"
+                                   ng-change="vm.ChangeSkipKitCreation()"
+                                   ng-model="vm.salesDetail.isSkipKitCreation" name="isSkipKitCreation"
+                                   ng-disabled="vm.isDisable || vm.copyisDisable || vm.salesDetail.partCategory === vm.PartCategory.Component">
+                        {{vm.LabelConstant.SalesOrder.DoNotCreateKit}}
+                      </md-checkbox>
+                    </th>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container">MRP Qty<span ng-if="vm.id && !vm.isDisable && !vm.salesDetail.isSkipKitCreation && !vm.copyisDisable">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="number" name="mrpQty" id="mrpQty" ng-model="vm.salesDetail.mrpQty" onkeypress="return OnlyNumeric(event)" placeholder="MRP Qty"
+                               min="{{vm.salesDetail.isSkipKitCreation ? 0 : 1}}"
+                               ng-max="9999999" required step="1" custom-blur="vm.changeQty($event,2)"
+                               ng-disabled="!vm.id || vm.isDisable || vm.salesDetail.isSkipKitCreation || vm.copyisDisable" />
+                        <div ng-messages="vm.salesOrderDetForm.mrpQty.$touched && vm.salesOrderDetForm.mrpQty.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="min  || number || step || max">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container">Kit Qty<span ng-if="vm.id && !vm.isDisable && !vm.salesDetail.isSkipKitCreation && !vm.copyisDisable">&nbsp;*</span></p></th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="number" name="kitQty" id="kitQty" ng-model="vm.salesDetail.kitQty" onkeypress="return OnlyNumeric(event)" placeholder="Kit Qty"
+                               min="{{vm.salesDetail.isSkipKitCreation ? 0 : 1}}" required step="1" custom-blur="vm.changeQty($event,3)"
+                               ng-disabled="!vm.id || vm.isDisable || vm.salesDetail.isSkipKitCreation || vm.copyisDisable" />
+                        <div ng-messages="vm.salesOrderDetForm.kitQty.$touched && vm.salesOrderDetForm.kitQty.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="min || number || step ">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th></th>
+                    <td>
+                      <md-button name="btnSalesCommisson"
+                                 class="md-primary md-raised"
+                                 aria-label="Sales Commission" ng-click="vm.goToSalesCommission(vm.salesDetail,$event,true)"
+                                 ng-disabled="!(vm.salesDetail.quoteFrom !== vm.salesCommissionFrom.NA.id &&
+                                    vm.salesDetail.partID &&
+                                    vm.salesDetail.qty &&
+                                    vm.autocompleteQtyTurnTime.keyColumnId &&
+                                    vm.salesDetail.price)">
+                        Sales Commission ({{(vm.salesDetail && vm.salesDetail.salesCommissionList && vm.salesDetail.quoteFrom!=vm.salesCommissionFrom.NA.id) ? vm.salesDetail.salesCommissionList.length : 0}})
+                      </md-button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container cm-white-space-normal">Total Releases</p></th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="number" name="shippingQty" id="shippingQty" ng-model="vm.salesDetail.shippingQty" min="1" onkeypress="return OnlyNumeric(event)" placeholder="Total Releases" max="100" step="1" custom-blur="vm.changeReleaseLine($event)"
+                               ng-disabled="true" />
+                        <div ng-messages="vm.salesOrderDetForm.shippingQty.$touched && vm.salesOrderDetForm.shippingQty.$error" role="alert">
+                          <div ng-message="max || number || step ||min">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container cm-white-space-normal">Build Weeks</p></th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="number" name="week" id="week" ng-model="vm.salesDetail.prcNumberofWeek" onkeypress="return OnlyNumeric(event)" placeholder="Week" max="999" step="1"
+                               ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable" />
+                        <div ng-messages="vm.salesOrderDetForm.week.$touched && vm.salesOrderDetForm.week.$error" role="alert">
+                          <div ng-message="max || number || step">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container cm-white-space-normal">Tentative # of Builds</p></th>
+                    <td>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="number" name="ttNumberBuilds" id="ttNumberBuilds" ng-model="vm.salesDetail.tentativeBuild" onkeypress="return OnlyNumeric(event)" placeholder="Tentative Number Builds" max="100" step="1"
+                               ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable" />
+                        <div ng-messages="vm.salesOrderDetForm.ttNumberBuilds.$touched && vm.salesOrderDetForm.ttNumberBuilds.$error" role="alert">
+                          <div ng-message="max || number || step">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div flex="30" flex-xl="30" flex-gt-lg="40" flex-lg="60" flex-md="100" flex-sm="100">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-width-auto">
+                <tbody>
+                  <tr ng-if="!(vm.salesorder.isBlanketPO && vm.salesorder.blanketPOOption==vm.BlanketPODetails.LINKBLANKETPO)">
+                    <th><p class="label-container">Requested Dock Date {{vm.salesDetail.isAgreeToShip?'(Revised)':''}}<span ng-if="vm.id && !vm.isDisable &&!vm.copyisDisable && !vm.salesDetail.requestedShipDate && !(vm.salesorder.isBlanketPO && vm.salesorder.blanketPOOption==vm.BlanketPODetails.LINKBLANKETPO)">&nbsp;*</span></p></th>
+                    <td>
+                      <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                        <input type="text" class="float-left"
+                               custom-auto-focus="false"
+                               id="requestedDockDate"
+                               name="requestedDockDate"
+                               min-value="vm.salesorder.poDate"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-model="vm.salesDetail.requestedDockDate"
+                               ng-change="vm.onChangerequestedDockDate()"
+                               ng-blur="vm.getPromisedDate()"
+                               ng-keydown="vm.setNavigationFromDockDate($event)"
+                               enable-time="false"
+                               ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable || vm.salesDetail.shippingQty>1 || vm.salesDetail.requestedShipDate || (vm.salesorder.isBlanketPO && vm.salesorder.blanketPOOption==vm.BlanketPODetails.LINKBLANKETPO)"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="vm.requestedDockDateOptions"
+                               is-open="vm.requestedDockDateOptions.requestedDockDateOpenFlag"
+                               close-text="Close" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.requestedDockDateOptions.requestedDockDateOpenFlag=(!vm.id || vm.isDisable || vm.copyisDisable || (vm.salesorder.isBlanketPO && vm.salesorder.blanketPOOption==vm.BlanketPODetails.LINKBLANKETPO) || vm.salesDetail.shippingQty>1 ? false : true)" ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable || vm.salesDetail.shippingQty>1 || (vm.salesorder.isBlanketPO && vm.salesorder.blanketPOOption==vm.BlanketPODetails.LINKBLANKETPO)">
+                        </md-icon>
+                        <div ng-messages="vm.salesOrderDetForm.requestedDockDate.$error" role="alert">
+                          <div ng-message="valid">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="datetime">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="minvalue">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_REQUESTED_DOCK_DATE_PO_DATE}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <th><p class="label-container">Promised Ship Date {{vm.salesDetail.isAgreeToShip?'(Revised)':''}}<span ng-if="vm.id && !vm.isDisable && !vm.copyisDisable && !(vm.salesorder.isBlanketPO && vm.salesorder.blanketPOOption==vm.BlanketPODetails.LINKBLANKETPO)">&nbsp;*</span></p></th>
+                    <td>
+                      <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                        <input type="text" class="float-left"
+                               custom-auto-focus="false"
+                               id="promisedShipDate"
+                               name="promisedShipDate"
+                               min-value="vm.salesorder.poDate"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               ng-keydown="vm.setNavigationFromPromisedDate($event)"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-model="vm.salesDetail.promisedShipDate"
+                               ng-change="vm.onChangepromisedShipDate()"
+                               enable-time="false"
+                               ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable || vm.salesDetail.shippingQty>1 || (vm.salesorder.isBlanketPO && vm.salesorder.blanketPOOption==vm.BlanketPODetails.LINKBLANKETPO)"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="vm.promisedShipDateOptions"
+                               is-open="vm.promisedShipDateOptions.promisedShipDateOpenFlag"
+                               close-text="Close" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.promisedShipDateOptions.promisedShipDateOpenFlag=(!vm.id || vm.isDisable || vm.copyisDisable  || (vm.salesorder.isBlanketPO && vm.salesorder.blanketPOOption==vm.BlanketPODetails.LINKBLANKETPO) || vm.salesDetail.shippingQty>1 ? false : true)" ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable || vm.salesDetail.shippingQty>1 || (vm.salesorder.isBlanketPO && vm.salesorder.blanketPOOption==vm.BlanketPODetails.LINKBLANKETPO)">
+                        </md-icon>
+                        <div ng-messages="vm.salesOrderDetForm.promisedShipDate.$error" role="alert">
+                          <div ng-message="valid">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="datetime">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="minvalue">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_PROMISED_SHIP_DATE_PO_DATE}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container">Requested Ship Date {{vm.salesDetail.isAgreeToShip?'(Revised)':''}}<span ng-if="vm.id && !vm.isDisable && !vm.copyisDisable && !vm.salesDetail.requestedDockDate && !(vm.salesorder.isBlanketPO && vm.salesorder.blanketPOOption==vm.BlanketPODetails.LINKBLANKETPO)">&nbsp;*</span></p></th>
+                    <td>
+                      <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                        <input type="text" class="float-left"
+                               custom-auto-focus="false"
+                               id="requestedShipDate"
+                               name="requestedShipDate"
+                               min-value="vm.salesorder.poDate"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               ng-keydown="vm.setNavigationFromShipDate($event)"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-model="vm.salesDetail.requestedShipDate"
+                               ng-change="vm.onChangerequestedShipDate()"
+                               enable-time="false"
+                               ng-blur="vm.getPromisedDateFromShipDate()"
+                               ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable || vm.salesDetail.shippingQty>1 || vm.salesDetail.requestedDockDate || (vm.salesorder.isBlanketPO && vm.salesorder.blanketPOOption==vm.BlanketPODetails.LINKBLANKETPO)"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="vm.requestedShipDateOptions"
+                               is-open="vm.requestedShipDateOptions.requestedShipDateOpenFlag"
+                               close-text="Close" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.requestedShipDateOptions.requestedShipDateOpenFlag=(!vm.id || vm.isDisable || vm.copyisDisable || (vm.salesorder.isBlanketPO && vm.salesorder.blanketPOOption==vm.BlanketPODetails.LINKBLANKETPO) || vm.salesDetail.shippingQty>1 ? false : true)" ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable || vm.salesDetail.shippingQty>1 || (vm.salesorder.isBlanketPO && vm.salesorder.blanketPOOption==vm.BlanketPODetails.LINKBLANKETPO)">
+                        </md-icon>
+                        <div ng-messages="vm.salesOrderDetForm.ccmDate.$error" role="alert">
+                          <div ng-message="valid">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="datetime">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="minvalue">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_REQUESTED_SHIP_DATE_PO_DATE}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <th><p class="label-container cm-white-space-normal">Purchased Material Dock Date</p></th>
+                    <td>
+                      <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                        <input type="text" class="float-left"
+                               custom-auto-focus="false"
+                               id="pmDate"
+                               name="pmDate"
+                               min-value="vm.salesorder.poDate"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-model="vm.salesDetail.materialDueDate"
+                               ng-change="vm.onChangepmDate()"
+                               enable-time="false"
+                               ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="vm.pmDateOptions"
+                               is-open="vm.pmDateOptions.pmDateOpenFlag"
+                               close-text="Close" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.pmDateOptions.pmDateOpenFlag=(!vm.id || vm.isDisable || vm.copyisDisable? false : true)" ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable">
+                        </md-icon>
+                        <div ng-messages="vm.salesOrderDetForm.pmDate.$error" role="alert">
+                          <div ng-message="valid">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="datetime">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="minvalue">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_PURCHASE_MATERIAL_DOCK_DATE}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr ng-if="vm.salesorder.isBlanketPO && vm.salesorder.blanketPOOption==vm.BlanketPODetails.LINKBLANKETPO">
+                    <th><p class="label-container cm-white-space-normal">Requested Blanket PO Start Date</p></th>
+                    <td>
+                      <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                        <input type="text" class="float-left"
+                               custom-auto-focus="false"
+                               id="requestedBPOStartDate"
+                               name="requestedBPOStartDate"
+                               min-value="vm.salesDetail.materialDueDate || vm.salesorder.poDate"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-model="vm.salesDetail.requestedBPOStartDate"
+                               ng-change="vm.onChangerequestedBPOStartDate()"
+                               enable-time="false"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="vm.requestedBPOStartDateOptions"
+                               is-open="vm.requestedBPOStartDateOptions.requestedBPOStartDateOpenFlag"
+                               close-text="Close" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.requestedBPOStartDateOptions.requestedBPOStartDateOpenFlag=(vm.isDisable || vm.copyisDisable ? false : true)" ng-disabled="vm.isDisable || vm.copyisDisable">
+                        </md-icon>
+                        <div ng-messages="vm.salesOrderDetForm.requestedBPOStartDate.$error" role="alert">
+                          <div ng-message="valid">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="datetime">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="minvalue">
+                            <span>{{vm.salesDetail.materialDueDate?vm.BPOMoreThanPMDD: vm.BPOMoreThanPO}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <th><p class="label-container cm-white-space-normal">Blanket PO End Date</p></th>
+                    <td>
+                      <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                        <input type="text" class="float-left"
+                               custom-auto-focus="false"
+                               id="blanketPOEndDate"
+                               name="blanketPOEndDate"
+                               min-value="vm.salesDetail.requestedBPOStartDate || vm.salesDetail.materialDueDate || vm.salesorder.poDate"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-model="vm.salesDetail.blanketPOEndDate"
+                               ng-change="vm.onChangeblanketPOEndDate()"
+                               enable-time="false"
+                               ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="vm.blanketPOEndDateOptions"
+                               is-open="vm.blanketPOEndDateOptions.blanketPOEndDateOpenFlag"
+                               close-text="Close" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.blanketPOEndDateOptions.blanketPOEndDateOpenFlag=(!vm.id || vm.isDisable || vm.copyisDisable? false : true)" ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable">
+                        </md-icon>
+                        <div ng-messages="vm.salesOrderDetForm.blanketPOEndDate.$error" role="alert">
+                          <div ng-message="valid">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="datetime">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="minvalue">
+                            <span>{{vm.salesDetail.requestedBPOStartDate?vm.BPOEndMoreThanBPSD:vm.salesDetail.materialDueDate?vm.BPOEndMoreThanPMDD:vm.BPOEndMoreThanPO}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container cm-white-space-normal">
+                        Line Internal Notes
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                          <md-tooltip md-direction="top">Auto derived from Part Master's Part Comments (Internal Notes)</md-tooltip>
+                        </md-icon>
+                      </p>
+                    </th>
+                    <td colspan="3">
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <textarea name="internalComment" id="internalComment"
+                                  rows="2"
+                                  max-rows="3" class="blue"
+                                  ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable"
+                                  ng-model="vm.salesDetail.internalComment" ng-maxlength="vm.maxLengthForDescription" md-maxlength="vm.maxLengthForDescription" placeholder="Internal Notes"></textarea>
+                        <div>
+                          <span>Hint: Internal only, Will not print on sales order</span>
+                        </div>
+                        <div ng-messages="vm.salesOrderDetForm.internalComment.$touched && vm.salesOrderDetForm.internalComment.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.salesOrderDetForm.internalComment.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        Line Shipping Comments
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                          <md-tooltip md-direction="top">Auto derived from Part Master's Shipping Comments</md-tooltip>
+                        </md-icon>
+                      </p>
+                    </th>
+                    <td colspan="3">
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <textarea name="comment" id="comment"
+                                  rows="2"
+                                  max-rows="3"
+                                  ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable"
+                                  ng-model="vm.salesDetail.remark" md-maxlength="vm.maxLengthForDescription" ng-maxlength="vm.maxLengthForDescription" placeholder="Comment"></textarea>
+                        <div>
+                          <span>Hint: Will print on sales order and packing slip</span>
+                        </div>
+                        <div ng-messages="vm.salesOrderDetForm.comment.$touched && vm.salesOrderDetForm.comment.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.salesOrderDetForm.comment.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-right" colspan="4">
+                      <div class="cm-btn-group">
+                        <md-button class="md-primary md-raised" ng-if="vm.salesDetail.lineID"
+                                   ng-class="{'md-formdirty': vm.salesOrderDetForm.$dirty}"
+                                   aria-label="sales" ng-click="vm.addSalesDetail(vm.navDirection.PREVIOUS,$event)" id="btnAddPrevDet"
+                                   ng-disabled="vm.isDisable || vm.copyisDisable || !vm.id || vm.isSaveButtonDisable || (vm.sourceData && vm.currentSODetIndex === 0)">
+                          UPDATE & PREVIOUS
+                        </md-button>
+                        <md-button class="md-primary md-raised" ng-if="vm.salesDetail.lineID"
+                                   ng-class="{'md-formdirty': vm.salesOrderDetForm.$dirty}"
+                                   aria-label="sales" ng-click="vm.addSalesDetail(vm.navDirection.NEXT,$event)" id="btnAddNxtDet"
+                                   ng-disabled="vm.isDisable || vm.copyisDisable || !vm.id || vm.isSaveButtonDisable || (vm.sourceData && vm.currentSODetIndex === vm.sourceData.length-1)">
+                          UPDATE & NEXT
+                        </md-button>
+                        <md-button class="md-primary md-raised"
+                                   ng-class="{'md-formdirty': vm.salesOrderDetForm.$dirty}"
+                                   aria-label="sales" ng-click="vm.addSalesDetail(vm.navDirection.CURR,$event)" id="btnAddCurrDet" ng-disabled="vm.isDisable || vm.copyisDisable || !vm.id || vm.isSaveButtonDisable">
+                          {{(vm.salesDetail.lineID)?'Update':'Save'}}
+                        </md-button>
+                        <md-button class="md-primary md-raised"
+                                   ng-class="{'md-formdirty': vm.salesOrderDetForm.$dirty}"
+                                   aria-label="sales" ng-click="vm.addSalesDetail(vm.navDirection.NEW,$event)" id="btnAddNewDet" ng-disabled="vm.isDisable || vm.copyisDisable || !vm.id || vm.isSaveButtonDisable">
+                          {{(vm.salesDetail.lineID)?'Update':'Save'}} & NEW
+                        </md-button>
+                        <md-button class="md-raised md-default" aria-label="reset" ng-click="vm.resetDetail(false,true)" id="btnResetDet" ng-disabled="!vm.id">
+                          Reset
+                        </md-button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="4">
+                      <b>Hint: Either Requested Dock Date{{vm.salesDetail.isAgreeToShip?' (Revised)':''}} or Requested Ship Date{{vm.salesDetail.isAgreeToShip?' (Revised)':''}} is required.</b>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="cm-section-inner" flex="100" layout-md="column" layout-sm="column" layout="row" ng-if="vm.salesDetail.isLine===3">
+            <div flex="30" flex-md="100" flex-sm="100" class="material-section-devider">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                <tbody>
+                  <tr ng-if="!vm.updateOther">
+                    <th><p class="label-container"></p></th>
+                    <td>
+                      <md-input-container flex="100">
+                        <md-radio-group layout-align="start center" layout-wrap
+                                        name="isActive" id="isActive" ng-model="vm.salesDetail.isLine" flex="100" ng-change="vm.changeSalesDetail()" ng-disabled="!vm.id">
+                          <md-radio-button flex class="margin-top-0 margin-right-0"
+                                           ng-value="1">Add Line</md-radio-button>
+                          <md-radio-button id="otherexpense" release flex class="margin-top-0 margin-left-10"
+                                           ng-value="3">Add Line (Other)</md-radio-button>
+                        </md-radio-group>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">MPN</a><span ng-if="vm.id && !vm.isDisable &&!vm.copyisDisable">&nbsp;*</span>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container ng-if="vm.autocompleteOtherCharges" class="autocompletecustom margin-bottom-0" flex>
+                        <custom-auto-complete datalist="vm.OtherPartTypeComponents"
+                                              column-name="vm.autocompleteOtherCharges.columnName"
+                                              controller-name="vm.autocompleteOtherCharges.controllerName"
+                                              view-template-url="vm.autocompleteOtherCharges.viewTemplateURL"
+                                              key-column-name="vm.autocompleteOtherCharges.keyColumnName"
+                                              input-name="vm.autocompleteOtherCharges.inputName"
+                                              placeholder-name="vm.autocompleteOtherCharges.placeholderName"
+                                              key-column-id="vm.autocompleteOtherCharges.keyColumnId"
+                                              is-required="(vm.id && !vm.isDisable && !vm.copyisDisable)?vm.autocompleteOtherCharges.isRequired:false"
+                                              is-disabled="!vm.id || vm.isDisable || vm.copyisDisable"
+                                              is-addnew="vm.autocompleteOtherCharges.isAddnew"
+                                              add-data="vm.autocompleteOtherCharges.addData"
+                                              custom-auto-focus="{{vm.isFocus}}"
+                                              on-select-callback-fn="vm.autocompleteOtherCharges.onSelectCallbackFn"
+                                              callback-fn="vm.autocompleteOtherCharges.callbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">{{vm.LabelConstant.MFG.PID}}</a>
+                      </p>
+                    </th>
+                    <td>
+                      <common-pid-code-label-link class="margin-top-4"
+                                                  ng-if="vm.autocompleteOtherCharges.keyColumnId"
+                                                  component-id="vm.salesDetail.partID"
+                                                  label="vm.LabelConstant.MFG.PID"
+                                                  value="vm.salesDetail.PIDCode"
+                                                  is-copy="true"
+                                                  rohs-icon="vm.salesDetail.rohsIcon"
+                                                  rohs-status="vm.salesDetail.rohsName"
+                                                  is-formated="true"
+                                                  is-assembly="true"></common-pid-code-label-link>
+                      <div class="text-left" ng-if="!vm.autocompleteOtherCharges.keyColumnId">
+                        <label class="padding-top-5">-</label>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">MPN</a>
+                      </p>
+                    </th>
+                    <td>
+                      <common-pid-code-label-link class="margin-top-5"
+                                                  ng-if="vm.autocompleteOtherCharges.keyColumnId"
+                                                  component-id="vm.salesDetail.partID"
+                                                  label="'MPN'"
+                                                  value="vm.salesDetail.mfgPN"
+                                                  is-copy="true"
+                                                  rohs-icon="vm.salesDetail.rohsIcon"
+                                                  rohs-status="vm.salesDetail.rohsName"
+                                                  is-formated="true"
+                                                  is-assembly="true"></common-pid-code-label-link>
+                      <div class="text-left" ng-if="!vm.salesDetail.partID">
+                        <label class="padding-top-5">-</label>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.gotoManufacturerList();">
+                          {{vm.LabelConstant.MFG.MFG}}
+                        </a>
+                      </p>
+                    </th>
+                    <td>
+                      <div class="margin-top-3 h4 text-bold">
+                        <span ng-class="{'text-underline': vm.salesDetail.mfrName, 'cursor-pointer': vm.salesDetail.mfrName}" ng-click="vm.salesDetail.mfrName ? vm.goToManufacturerDetail(vm.salesDetail.mfrID) : ''">
+                          <b>{{vm.salesDetail.mfrName?vm.salesDetail.mfrName:'-'}}</b>
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container">Description</p></th>
+                    <td colspan="3">
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <textarea name="partDescription" md-maxlength="vm.maxLengthForDescription" ng-maxlength="vm.maxLengthForDescription" ng-model="vm.salesDetail.partDescription" rows="3" max-rows="4" placeholder="Description" ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable"></textarea>
+                        <div ng-messages="vm.salesOrderDetForm.partDescription.$touched && vm.salesOrderDetForm.partDescription.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.salesOrderDetForm.partDescription.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div flex="40">
+              <div layout flex="100">
+                <div flex="40" flex-md="100" flex-sm="100" class="material-section-devider">
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main ">
+                    <tbody>
+                      <tr>
+                        <th class="width-100px">
+                          <p class="label-container cm-white-space-normal">
+                            PO Line# <span ng-if="vm.id && !vm.isDisable && !vm.copyisDisable">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                          </p>
+                        </th>
+                        <td class="cm-1601-width-120">
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="text" name="custPOLineNumberOtherCharges" id="custPOLineNumberOtherCharges" ng-model="vm.salesDetail.custPOLineNumber" required placeholder="Cust PO Line#" ng-maxlength="10" custom-blur="vm.checkCustomerPOLine(true)"
+                                   ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable" capitalize class="input-text-uppercase" md-maxlength="10" />
+                            <div ng-messages="vm.salesOrderDetForm.custPOLineNumberOtherCharges.$touched && vm.salesOrderDetForm.custPOLineNumberOtherCharges.$error" role="alert">
+                              <div ng-message="maxlength" class="cm-white-space-normal">
+                                <span>{{vm.getMaxLengthValidation(10, vm.salesOrderDetForm.custPOLineNumberOtherCharges.$viewValue.length)}}</span>
+                              </div>
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th><p class="label-container">Qty<span ng-if="!vm.isDisable && !vm.copyisDisable">&nbsp;*</span></th>
+                        <td>
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="number" name="otherqty" id="otherqty" ng-model="vm.salesDetail.qty" required
+                                   ng-disabled="vm.isDisable || vm.copyisDisable" min="1" ng-max="9999999" step="1"
+                                   custom-blur="vm.changePrice()"
+                                   onkeypress="return OnlyNumeric(event)" placeholder="PO Qty" />
+                            <div ng-messages="vm.salesOrderDetForm.otherqty.$touched && vm.salesOrderDetForm.otherqty.$error" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="min || number || step || max">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            Price ($)<span ng-if="vm.id && !vm.copyisDisable && !vm.isDisable && vm.autocompleteOtherCharges.keyColumnId">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="number" name="price" id="price" ng-model="vm.salesDetail.price" onkeypress="return OnlyNumbersWithDot(event)" placeholder="Price" min="0" ng-required="(vm.id && !vm.isDisable && vm.autocompleteOtherCharges.keyColumnId)" step="{{$root.unitInputStep}}" input-number-decimal-place ng-max="999999.99999" custom-blur="vm.changePrice()"
+                                   ng-disabled="!vm.id || vm.copyisDisable|| vm.isDisable || !vm.autocompleteOtherCharges.keyColumnId" />
+                            <div ng-messages="vm.salesOrderDetForm.price.$touched && vm.salesOrderDetForm.price.$error" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="number || step || min || max">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th><p class="label-container">Ext. Price ($)</p></th>
+                        <td>
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="number" name="extPrice" id="extPrice" ng-model="vm.salesDetail.extPrice" step="{{$root.unitInputStep}}" ng-disabled="true" placeholder="Ext. Price" />
+                          </md-input-container>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div flex="60" flex-md="100" flex-sm="100" class="material-section-devider">
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="label-container cm-white-space-normal">
+                            Associate To {{vm.autocompleteSelectAssyID.placeholderName}}
+                          </p>
+                        </th>
+                        <td colspan="2">
+                          <md-input-container flex="100" ng-if="vm.autocompleteSelectAssyID"
+                                              class="autocompletecustom min-width-initial">
+                            <custom-auto-complete datalist="vm.salesFilterDet"
+                                                  column-name="vm.autocompleteSelectAssyID.columnName"
+                                                  key-column-name="vm.autocompleteSelectAssyID.keyColumnName"
+                                                  input-name="vm.autocompleteSelectAssyID.inputName"
+                                                  placeholder-name="vm.autocompleteSelectAssyID.placeholderName"
+                                                  key-column-id="vm.autocompleteSelectAssyID.keyColumnId"
+                                                  is-required="vm.autocompleteSelectAssyID.isRequired"
+                                                  is-disabled="!vm.id || vm.isDisable || vm.copyisDisable || !vm.autocompleteOtherCharges.keyColumnId"
+                                                  is-addnew="vm.autocompleteSelectAssyID.isAddnew"
+                                                  on-select-callback-fn="vm.autocompleteSelectAssyID.onSelectCallbackFn">
+                            </custom-auto-complete>
+                            <div>
+                              <span>(PO Line# | PID | MPN)</span>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">MPN</a>
+                          </p>
+                        </th>
+                        <td>
+                          <common-pid-code-label-link class="margin-top-5"
+                                                      ng-if="vm.autocompleteSelectAssyID.keyColumnId"
+                                                      component-id="vm.partID"
+                                                      label="'MPN'"
+                                                      value="vm.selectedPartNumber"
+                                                      is-copy="true"
+                                                      rohs-icon="vm.rohsIcon"
+                                                      rohs-status="vm.rohsName"
+                                                      is-formated="true"
+                                                      is-assembly="true"></common-pid-code-label-link>
+                          <div class="text-left" ng-if="!vm.partID">
+                            <label class="padding-top-5">-</label>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container cm-white-space-normal">
+                            {{vm.autoFrequency.placeholderName}}<span ng-if="vm.id && !vm.isDisable && !vm.copyisDisable && vm.autocompleteOtherCharges.keyColumnId && vm.autocompleteSelectAssyID.keyColumnId">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" ng-if="vm.autoFrequency"
+                                              class="autocompletecustom min-width-initial">
+                            <custom-auto-complete datalist="vm.OtherPartFrequency"
+                                                  ng-if="vm.autocompleteSelectAssyID.keyColumnId"
+                                                  column-name="vm.autoFrequency.columnName"
+                                                  key-column-name="vm.autoFrequency.keyColumnName"
+                                                  input-name="vm.autoFrequency.inputName"
+                                                  placeholder-name="vm.autoFrequency.placeholderName"
+                                                  key-column-id="vm.autoFrequency.keyColumnId"
+                                                  is-required="vm.autocompleteSelectAssyID.keyColumnId"
+                                                  is-disabled="!vm.id || vm.copyisDisable || vm.isDisable || !vm.autocompleteOtherCharges.keyColumnId"
+                                                  is-addnew="vm.autoFrequency.isAddnew"
+                                                  on-select-callback-fn="vm.autoFrequency.onSelectCallbackFn">
+                            </custom-auto-complete>
+                            <input type="text" name="autoFrequency" id="autoFrequency" ng-if="!vm.autocompleteSelectAssyID.keyColumnId" ng-model="vm.salesDetail.soReleaseLine" ng-disabled="true" />
+                          </md-input-container>
+                        </td>
+                        <td>
+                          <md-input-container flex="100" ng-if="vm.autoFrequencyType"
+                                              class="autocompletecustom min-width-initial">
+                            <custom-auto-complete datalist="vm.FrequencyTypeList"
+                                                  ng-if="vm.autocompleteSelectAssyID.keyColumnId"
+                                                  column-name="vm.autoFrequencyType.columnName"
+                                                  key-column-name="vm.autoFrequencyType.keyColumnName"
+                                                  input-name="vm.autoFrequencyType.inputName"
+                                                  placeholder-name="vm.autoFrequencyType.placeholderName"
+                                                  key-column-id="vm.autoFrequencyType.keyColumnId"
+                                                  is-required="vm.autocompleteSelectAssyID.keyColumnId"
+                                                  is-disabled="!vm.id || vm.copyisDisable || vm.isDisable || !vm.autocompleteOtherCharges.keyColumnId"
+                                                  is-addnew="vm.autoFrequencyType.isAddnew"
+                                                  on-select-callback-fn="vm.autoFrequencyType.onSelectCallbackFn">
+                            </custom-auto-complete>
+                            <input type="text" name="autoFrequencyType" id="autoFrequencyType" ng-if="!vm.autocompleteSelectAssyID.keyColumnId" ng-model="vm.salesDetail.soReleaseLine" disabled />
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container cm-white-space-normal">
+                            Of Release#<span ng-if="vm.id && !vm.copyisDisable && !vm.isDisable && vm.autocompleteOtherCharges.keyColumnId && vm.autocompleteSelectAssyID.keyColumnId && !(vm.autoFrequency.keyColumnId && vm.autoFrequency.keyColumnId!==2)">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td colspan="2">
+                          <md-input-container flex="100" ng-if="vm.autoCompleteReleaseLine"
+                                              class="autocompletecustom min-width-initial">
+                            <custom-auto-complete datalist="vm.assyReleaseLineList"
+                                                  column-name="vm.autoCompleteReleaseLine.columnName"
+                                                  key-column-name="vm.autoCompleteReleaseLine.keyColumnName"
+                                                  input-name="vm.autoCompleteReleaseLine.inputName"
+                                                  placeholder-name="vm.autoCompleteReleaseLine.placeholderName"
+                                                  key-column-id="vm.autoCompleteReleaseLine.keyColumnId"
+                                                  is-required="(vm.autoFrequency.keyColumnId && vm.autoFrequency.keyColumnId!==2)?false:vm.autocompleteSelectAssyID.keyColumnId"
+                                                  is-disabled="!vm.id || vm.copyisDisable || vm.isDisable || !vm.autocompleteOtherCharges.keyColumnId || (vm.autoFrequency.keyColumnId && vm.autoFrequency.keyColumnId!==2)"
+                                                  is-addnew="vm.autoCompleteReleaseLine.isAddnew"
+                                                  on-select-callback-fn="vm.autoCompleteReleaseLine.onSelectCallbackFn">
+                            </custom-auto-complete>
+                            <div>
+                              <span>(Release# | Qty | (Requested Dock Date{{vm.salesDetail.isAgreeToShip?' (Revised)':''}} OR Requested Ship Date{{vm.salesDetail.isAgreeToShip?' (Revised)':''}}))</span>
+                            </div>
+                          </md-input-container>
+                          <md-input-container flex="100" ng-if="!vm.autoCompleteReleaseLine"
+                                              class="autocompletecustom min-width-initial">
+                            <input type="text" name="soReleaseLine" id="soReleaseLine" ng-model="vm.salesDetail.soReleaseLine" ng-disabled="true" />
+                            <div>
+                              <span>(Release# | Qty | (Requested Dock Date{{vm.salesDetail.isAgreeToShip?' (Revised)':''}} OR Requested Ship Date{{vm.salesDetail.isAgreeToShip?' (Revised)':''}}))</span>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div layout="row" flex="100" class="mt-5 material-section-devider" ng-if="!vm.salesorder.isBlanketPO">
+                <fieldset class="container-box" flex>
+                  <legend class="mb-5">Blanket PO</legend>
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-no-padding middle-align-table cm-table-cell-height-auto">
+                    <tbody>
+                      <tr>
+                        <td class="width-100px">
+                          <md-button class="md-primary md-raised mt-0"
+                                     aria-label="sales" ng-click="vm.openBlanketPODetails($event)" id="btnBPO" ng-disabled="vm.isDisable || vm.copyisDisable || !vm.id || !vm.autocompleteOtherCharges.keyColumnId || vm.pendingBlanketPOAssyList.length==0">
+                            Blanket PO({{vm.pendingBlanketPOAssyList?vm.pendingBlanketPOAssyList.length:0}})
+                          </md-button>
+                        </td>
+                        <th>
+                          <p class="label-container">SO#</p>
+                        </th>
+                        <td>
+                          <div class="text-left">
+                            <label class="padding-top-3 font-size-15" ng-click="vm.salesOrderNumber?vm.goToSalesOrder(vm.blanketPOID):''" ng-class="{'text-decoration-underline cursor-pointer':vm.salesOrderNumber}">{{vm.salesOrderNumber?vm.salesOrderNumber:'-'}}</label>
+                          </div>
+                        </td>
+                        <th><p class="label-container">Open PO Qty</p></th>
+                        <td>
+                          <div class="text-left">
+                            <label class="padding-top-3 font-size-15">{{vm.availableQty?vm.availableQty:'-'}}</label>
+                          </div>
+                        </td>
+                        <th><p class="label-container">PO Qty</p></th>
+                        <td>
+                          <div class="text-left">
+                            <label class="padding-top-3 font-size-15" ng-click="vm.totalQty?vm.goToSalesOrder(vm.blanketPOID):''" ng-class="{'text-decoration-underline cursor-pointer':vm.totalQty}">{{vm.totalQty?vm.totalQty:'-'}}</label>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <md-button class="md-primary md-raised mt-0"
+                                     aria-label="sales" ng-click="vm.clearBlanketPODetails($event)" id="btnClearPO" ng-disabled="vm.isDisable || vm.copyisDisable || !vm.id || !vm.autocompleteOtherCharges.keyColumnId || !vm.salesOrderNumber">
+                            Clear PO
+                          </md-button>
+                        </td>
+                        <th>
+                          <p class="label-container">PO#</p>
+                        </th>
+                        <td>
+                          <div class="text-left">
+                            <label class="padding-top-3 font-size-15" ng-click="vm.poNumber?vm.goToSalesOrder(vm.blanketPOID):''" ng-class="{'text-decoration-underline cursor-pointer':vm.poNumber}">{{vm.poNumber?vm.poNumber:'-'}}</label>
+                          </div>
+                        </td>
+                        <th><p class="label-container">Cumulative Release Qty</p></th>
+                        <td colspan="2">
+                          <div class="text-left">
+                            <label class="padding-top-3 font-size-15" ng-click="vm.assignedQty?vm.blanketPOAssy($event):''" ng-class="{'text-decoration-underline cursor-pointer':vm.assignedQty}">{{vm.assignedQty?vm.assignedQty:'-'}}</label>
+                          </div>
+                        </td>
+
+                      </tr>
+                    </tbody>
+                  </table>
+                </fieldset>
+              </div>
+            </div>
+            <div flex="30" flex-md="100" flex-sm="100">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-width-auto">
+                <tbody>
+                  <tr>
+                    <th><p class="label-container cm-white-space-normal">Requested Dock Date {{vm.salesDetail.isAgreeToShip?'(Revised)':''}}</p></th>
+                    <td>
+                      <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                        <input type="text" class="float-left"
+                               custom-auto-focus="false"
+                               id="requestedDockDate"
+                               name="requestedDockDate"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-model="vm.salesDetail.requestedDockDate"
+                               enable-time="false"
+                               ng-disabled="true"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="vm.requestedDockDateOptions"
+                               is-open="vm.requestedDockDateOptions.requestedDockDateOpenFlag"
+                               close-text="Close" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-disabled="true">
+                        </md-icon>
+                      </md-input-container>
+                    </td>
+                    <th><p class="label-container cm-white-space-normal">Promised Ship Date {{vm.salesDetail.isAgreeToShip?'(Revised)':''}}</p></th>
+                    <td>
+                      <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                        <input type="text" class="float-left"
+                               custom-auto-focus="false"
+                               id="promisedShipDate"
+                               name="promisedShipDate"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-model="vm.salesDetail.promisedShipDate"
+                               enable-time="false"
+                               ng-disabled="true"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="vm.promisedShipDateOptions"
+                               is-open="vm.promisedShipDateOptions.promisedShipDateOpenFlag"
+                               close-text="Close" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-disabled="true">
+                        </md-icon>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><p class="label-container cm-white-space-normal">Requested Ship Date {{vm.salesDetail.isAgreeToShip?'(Revised)':''}}</p></th>
+                    <td>
+                      <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                        <input type="text" class="float-left"
+                               custom-auto-focus="false"
+                               id="requestedShipDate"
+                               name="requestedShipDate"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-model="vm.salesDetail.requestedShipDate"
+                               enable-time="false"
+                               ng-disabled="true"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="vm.requestedShipDateOptions"
+                               is-open="vm.requestedShipDateOptions.requestedShipDateOpenFlag"
+                               close-text="Close" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-disabled="true">
+                        </md-icon>
+                      </md-input-container>
+                    </td>
+                    <th><p class="label-container cm-white-space-normal">Customer Consigned Material Promised Dock Date</p></th>
+                    <td>
+                      <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                        <input type="text" class="float-left"
+                               custom-auto-focus="false"
+                               id="ccmDate"
+                               name="ccmDate"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-model="vm.salesDetail.materialTentitiveDocDate"
+                               enable-time="false"
+                               ng-disabled="true"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="vm.ccmDateOptions"
+                               is-open="vm.ccmDateOptions.ccmDateOpenFlag"
+                               close-text="Close" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-disabled="true">
+                        </md-icon>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        Line Internal Notes
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                          <md-tooltip md-direction="top">Auto derived from Part Master's Part Comments (Internal Notes)</md-tooltip>
+                        </md-icon>
+                      </p>
+                    </th>
+                    <td colspan="3">
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <textarea name="internalComment" id="internalComment"
+                                  rows="2" class="blue"
+                                  max-rows="3"
+                                  ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable"
+                                  ng-model="vm.salesDetail.internalComment" ng-maxlength="vm.maxLengthForDescription" md-maxlength="vm.maxLengthForDescription" placeholder="Internal Notes"></textarea>
+                        <div>
+                          <span>Hint: Internal only, Will not print on sales order</span>
+                        </div>
+                        <div ng-messages="vm.salesOrderDetForm.internalComment.$touched && vm.salesOrderDetForm.internalComment.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.salesOrderDetForm.internalComment.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        Line Shipping Comments
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                          <md-tooltip md-direction="top">Auto derived from Part Master's Shipping Comments</md-tooltip>
+                        </md-icon>
+                      </p>
+                    </th>
+                    <td colspan="3">
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <textarea name="comment" id="comment"
+                                  rows="2"
+                                  max-rows="3"
+                                  ng-disabled="!vm.id || vm.isDisable || vm.copyisDisable" md-maxlength="vm.maxLengthForDescription"
+                                  ng-model="vm.salesDetail.remark" ng-maxlength="vm.maxLengthForDescription" placeholder="Comment"></textarea>
+                        <div>
+                          <span>Hint: Will print on sales order and packing slip</span>
+                        </div>
+                        <div ng-messages="vm.salesOrderDetForm.comment.$touched && vm.salesOrderDetForm.comment.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.salesOrderDetForm.comment.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-right" colspan="4">
+                      <div class="cm-btn-group">
+                        <md-button class="md-primary md-raised" ng-if="vm.updateOther"
+                                   ng-class="{'md-formdirty': vm.salesOrderDetForm.$dirty}"
+                                   aria-label="sales" ng-click="vm.addSalesDetail(vm.navDirection.PREVIOUS,$event)" id="btnAddPrevDet" ng-disabled="vm.isDisable || vm.copyisDisable || !vm.id || vm.isSaveButtonDisable  || (vm.sourceData &&  vm.currentSODetIndex === 0)">
+                          UPDATE & PREVIOUS
+                        </md-button>
+                        <md-button class="md-primary md-raised" ng-if="vm.updateOther"
+                                   ng-class="{'md-formdirty': vm.salesOrderDetForm.$dirty}"
+                                   aria-label="sales" ng-click="vm.addSalesDetail(vm.navDirection.NEXT,$event)" id="btnAddNxtDet" ng-disabled="vm.isDisable || vm.copyisDisable || !vm.id || vm.isSaveButtonDisable || (vm.sourceData && vm.currentSODetIndex === vm.sourceData.length-1)">
+                          UPDATE & NEXT
+                        </md-button>
+                        <md-button class="md-primary md-raised"
+                                   ng-class="{'md-formdirty': vm.salesOrderDetForm.$dirty}"
+                                   aria-label="sales" ng-click="vm.addSalesDetail(vm.navDirection.CURR,$event)" id="btnAddCurrDet" ng-disabled="vm.isDisable || vm.copyisDisable || !vm.id || vm.isSaveButtonDisable">
+                          {{(vm.updateOther)?'Update':'Save'}}
+                        </md-button>
+                        <md-button class="md-primary md-raised"
+                                   ng-class="{'md-formdirty': vm.salesOrderDetForm.$dirty}"
+                                   aria-label="sales" ng-click="vm.addSalesDetail(vm.navDirection.NEW,$event)" id="btnAddNewDet" ng-disabled="vm.isDisable || vm.copyisDisable || !vm.id || vm.isSaveButtonDisable">
+                          {{(vm.updateOther)?'Update':'Save'}} & NEW
+                        </md-button>
+                        <md-button class="md-raised md-default" aria-label="reset" ng-click="vm.resetDetail()" id="btnResetDet" ng-disabled="!vm.id">
+                          Reset
+                        </md-button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="content-card margin-top-5 margin-8" layout="row" flex="100" ng-if="(vm.pagingInfo && ((!vm.IsEdit )  || (vm.IsEdit && vm.saleDet && ParentNme)))">
+      <md-card layout="column" class="margin-0" flex layout-align="space-between stretch" ng-if="vm.id && vm.autoCompleteCustomer && vm.autoCompleteCustomer.keyColumnId">
+        <ui-grid-extention load-data="vm.loadData"
+                           grid-option="vm.gridOptions"
+                           grid-id="vm.gridConfig.gridManageSalesOrder"
+                           header="vm.sourceHeader"
+                           grid-data="vm.sourceData"
+                           total-data-count="vm.totalSourceDataCount"
+                           reset-grid="vm.resetSourceGrid"
+                           selectted-rows="vm.selectedRowsList"
+                           paging-info="vm.pagingInfo"
+                           current-item="vm.currentdata"
+                           empty-state="vm.emptyState"
+                           get-data-down="vm.getDataDown"
+                           delete-multiple-data="vm.deleteMultipleData">
+      </md-card>
+    </div>
+    <div layout="row" flex="100" class="empty-state text-center full-height" layout-align="center center" layout-wrap ng-if="vm.IsemptyState">
+      <div class="emty-icon" flex="100">
+        <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+      </div>
+      <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+      <p flex="100">
+        {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+      </p>
+      <p flex="100">
+        <md-button class="md-fab md-mini" aria-label="Add Customer" ng-click="addAssyRecord(null,$event)">
+          <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+          <md-tooltip>Add New Assembly</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-mini" aria-label="Add Customer" ng-click="vm.refreshAssemblyDetails(null,$event)">
+          <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-refresh"></md-icon>
+          <md-tooltip>Refresh Assembly</md-tooltip>
+        </md-button>
+      </p>
+    </div>
+  </div>
+</div>
+<style>
+  .gridheight {
+    height: 500px !important;
+  }
+
+  .ui-grid-cell-focus {
+    border: 0 !important;
+    height: 100%;
+  }
+
+  .form-control {
+    width: 100% !important;
+  }
+
+  .ui-grid-cell-contents {
+    width: 100%;
+    overflow: visible;
+  }
+</style>

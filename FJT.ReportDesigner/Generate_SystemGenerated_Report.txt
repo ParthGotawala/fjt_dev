@@ -1,0 +1,120 @@
+----------------------------------------------------------------------------------------------
+Steps to Add System generated report. - Bhavik thummar (01 April 2021)
+----------------------------------------------------------------------------------------------
+1. set 'IsDevelopmentMode' flag = 'true' in appsettings.json(FJT.ReportDesigner).(in production mode have to set false.)
+2. open URL 'https://localhost:44361/DesignReport/SystemGeneratedReport' 
+	- this url open one blank report designer.
+3. now you can develop any report from scratch or you can open any report(tool-bar:- File/Open) and start development on that report.
+	- (you can open default header-footer template or copy from another report.)
+	- (NOTE:- basically we create report in XML format, but if you open report of another format then your report will save in that format.(you can check report format by open that .mrt file in notepad))
+4. after generate report, you can download that report from click on 'Save As' button(tool-bar:- File/Save AS).(you can not save report in open file, you have to must download)
+	- after download move that report in 'FJT.ReportDesigner/Reports/SystemGenerated'
+5. after create report you have to manually entry in below tables. make Sure your report FileName Same as 'reportmaster' table 'filename' column.
+	1. 'reportmaster' 
+	2. 'report_parameter_setting_mapping' 
+	3. 'reportmasterparameter'
+		- you can see eample as given below for how can we insert record in above tables.
+
+---------------------------------------------
+	Steps for - Edit Systemgenerated report
+---------------------------------------------
+1. open url as given above in Step 2 (make sure 'IsDevelopmentMode' = true as written in above step-1)
+2. now you can open report that you want to edit.
+3. after done editing follow above step-4 (download report, then copy or replace that report file in '/Reports/SystemGenerated')
+	(make sure your file name is same as in 'report master' table column -'fileName') 
+
+---------------------------------------------
+	example of Manually Entry in Database
+---------------------------------------------
+
+INSERT INTO `reportmaster`
+(`reportName`,`rdlcReportFileName`,`reportTitle`,`createdAt`,`createdBy`,`createByRoleId`,`fileName`,`status`,`entityId`,`reportGenerationType`,`reportCategoryId`,`isDefaultReport`)
+VALUES
+('EnterReportNameHere','EnterReportNameHere','EnterRreportTitle',fun_DatetimetoUTCDateTime(),'1',1,'your .mrt file name','P',-17,4,550,1);
+
+(Note:-  you have to change only below columns 
+	- 'reportName' 
+		- set any report Name
+	- 'rdlcReportFileName' 
+		- As it is used for RDLC but it is not nullable so we can keep name same as 'reportName' column.
+	- 'reportTitle'  
+		- Set report title which you want to display in Report Header.
+	- 'fileName' 
+		- Set fileName as your  physical .mrt filename.
+	- 'entityId'  
+		- Set entityId - you can see entity name in `entity` table. This is only for entity reports
+	- 'status'
+		- you can set status as 'P' or 'D'('P' = Published. 'D' = Draft).
+	- 'reportCategoryId' 
+		- Set reportCategoryId - you can see reportCategory name in `genericcategory` table. // Optional for entity report and if any specific then take from `genericcategory`
+	- 'isDefaultReport' 
+		- If you have to set default report of those entity type.(note:- as standard we have set only one default report per entity)
+	- reportGenerationType: 
+		- For any report created by developer have to set type = 4 but if it is template then type = 3
+		- We have total 4 types of report
+			1: Static [ Developed by Developer ] [ RDLC ]
+			2: Dynamic created [ New , Clone ] [ Developed by End user ]
+			3: Template [ predefined Template, developed by developer]
+			4: Static [ Developed by Developer [ Stimulsoft ]
+)
+
+====================================================================================================================================
+(you have to insert all parameter(those you used for pass value from Ui) and not configure in this table.)
+
+INSERT INTO `report_parameter_setting_mapping`
+(`reportParamName`,`dbColumnName`,`displayName`,`isHiddenParameter`,`type`,`dataSourceId`,`options`,`createdBy`,`createByRoleId`,`createdAt`)
+VALUES
+('reportParamName','dbColumnName','displayName','1','type',null ,null,'1',1,fun_DatetimetoUTCDateTime());
+
+(Note:-  you have to change only below columns 
+	- 'reportParamName' 
+		- Enter report parameter name that we used in Stimulsoft variable/parameter name.
+	- 'dbColumnName' 
+		- Enter any dbColumnName.
+	- 'displayName'  
+		- Enter any Display name - this name is used in UI for Display parameter name.
+	- 'isHiddenParameter' 
+		- If 'isHiddenParameter' is true then user can not add/remove this parameter from any report(in UI). 
+		- Added this column to indicate parameter is for system generated (Entity) report.
+	- 'type' 
+		- Set type that we have to use in Ui. write type value from below. e.g. if your Input type is 'AUTOCOMPLETE' then write only - 'A' in type column.
+		-	INPUT_TYPES: {
+			  AUTOCOMPLETE: 'A',
+			  CHECKBOX: 'C',
+			  RADIOBUTTON: 'R',
+			  DATE_PICKER: 'D',
+			  TIME_PICKER: 'T',
+			  MULTI_SELECTION: 'M',
+			  SINGLE_SELECTION: 'S',
+			  MULTISELECT_CHECKBOX: 'MSC',
+			  TEXTBOX: 'TB'
+			},
+
+	- 'dataSourceId'(foreign-key) - 
+		- Used for bind data-source in AutoComplete/MultiSelect. 
+		- Enter 'id' of  'fixed_entity_dataelement' table -
+			- If the data-source is not available in 'fixed_entity_dataelement' table, then you have to insert manually entry for that data-source in 'fixed_entity_dataelement' table.
+	- 'options' 
+		- if parameter is multiselect checkBox or radio button then insert option Value here in json format.
+			- e.g.,- radioButton  => {"1":{ "Key":"abc", "Value":"abcValue"},"2":{ "Key":"xyz", "Value":"xyzValue"}}
+				   - MultiSelect checkBox => {"1":{ "Key":"abc"},"2":{ "Key":"xyz"}}
+)
+
+====================================================================================================================================
+(you have to map parameter with report.(only hidden parameter we have to map manually, other parameter we can add/remove from UI.).)
+
+INSERT INTO `reportmasterparameter`
+(`reportId`,`parmeterMappingid`,`isRequired`,`createdBy`,`createByRoleId`,`createdAt`)
+VALUES
+(101,20,0,'Created by',1,fun_DatetimetoUTCDateTime());
+
+(Note:-  you have to change only below columns 
+	- 'reportId' 
+		- Enter reportId from 'id' column of 'reportmaster' that you have inserted record in `reportmaster`.
+	- 'parmeterMappingid' 
+		- Enter parmeterMappingid from 'id' column of `report_parameter_setting_mapping` 
+	- 'isRequired'  
+		- Always true for hidden parameter
+)
+
+

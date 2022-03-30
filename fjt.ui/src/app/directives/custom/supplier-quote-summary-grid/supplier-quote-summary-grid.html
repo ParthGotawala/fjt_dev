@@ -1,0 +1,240 @@
+<div cg-busy="{promise:vm.cgBusyLoading}">
+  <form name="vm.supplierQuoteFilterInfo" novalidate>
+    <div layout="row" class="advanced-filters">
+      <div layout="row" flex="25" layout-md="column" layout-sm="column" class="mb-10 ml-10 padding-top-8">
+        <!--Suppliers-->
+        <div layout="column" flex="100">
+          <div layout="column" class="alias-list-main cm-supplier-quote-list-filter" flex>
+            <div class="title alias-list-title" layout="row" flex="100" layout-align="space-between center">
+              <span class="label-container width-auto padding-right-7">
+                <a class="cm-text-decoration underline" ng-click="vm.goToSupplierList();" tabindex="-1">Supplier</a>
+              </span>
+              <div layout="row" layout-align="center center" flex="100" class="cm-part-mfr-list-search">
+                <md-input-container md-no-float flex="100" layout="row" class="margin-0 pos-rel">
+                  <input type="text" name="supplierSearchText" id="supplierSearchText" ng-model="vm.supplierSearchText"
+                         placeholder="Type here to search"
+                         ng-model-options="{ debounce:vm.debounce }"
+                         ng-maxlength="50" autocomplete="off"
+                         ng-change="vm.searchsupplierList()">
+                  <md-button ng-if="vm.supplierSearchText" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3" ng-click="vm.clearsupplierSearchText()">
+                    <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close font-size-12 color-white"></md-icon>
+                  </md-button>
+                </md-input-container>
+              </div>
+              <div layout="row" layout-align="center center">
+                <a class="cm-text-decoration color-white underline"
+                   ng-click="vm.clearSupplierFilter();"
+                   tabindex="-1"
+                   ng-if="vm.supplierCodeDetailModel.length">
+                  Clear
+                </a>
+                <md-button ng-click="vm.getMfgSearch();" class="md-primary md-link-ripple cm-part-advance-filter-btn">
+                  <md-icon md-font-icon="icon-reload">
+                    <md-tooltip>Reload</md-tooltip>
+                  </md-icon>
+                </md-button>
+              </div>
+            </div>
+            <select ng-model="vm.supplierCodeDetailModel" size="10" multiple="" class="cm-auto-scroll"
+                    ng-if="vm.supplierCodeListToDisplay && vm.supplierCodeListToDisplay.length">
+              <option ng-repeat="x in vm.supplierCodeListToDisplay" value="{{x.id}}">{{x.mfgCodeName}}</option>
+            </select>
+            <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="!vm.supplierCodeListToDisplay || vm.supplierCodeListToDisplay.length == 0">
+              <p flex="100" class="empty-state-title font-size-17-imp">{{vm.EmptyMesssageFilter.MESSAGE}}</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="padding-top-8 mb-10" layout>
+        <div layout="column" class="pl-5  width-130">
+          <div flex="100" layout="row">
+            <div flex layout="row">
+              <fieldset flex="100" class="container-box">
+                <legend class="margin-0">Quote Status</legend>
+                <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                  <div layout="column" class="cm-checkbox-auto margin-top-10 margin-left-10">
+                    <md-checkbox ng-model="vm.draft" ng-change="vm.quoteStatusFilter()" class="mv-0 margin-bottom-10-imp">Draft</md-checkbox>
+                    <md-checkbox ng-model="vm.published" ng-change="vm.quoteStatusFilter()" class="mv-0 margin-bottom-10-imp">Published</md-checkbox>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div layout="column" flex class="mb-10 padding-top-8">
+        <div layout>
+          <div layout flex layout-md="column" layout-sm="column">
+            <div layout="row" flex flex-md="100" flex-sm="100" class="ml-5">
+              <fieldset flex="100" class="container-box width-100p">
+                <legend class="margin-0">Search Quote#</legend>
+                <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                  <div class="input-wrapper" layout="row" layout-align="start center">
+                    <md-radio-group class=" mb-5" flex="100" layout="row" ng-model="vm.checkSerachSQType" name="checkSerachSQType">
+                      <md-radio-button ng-value="vm.CheckSearchTypeList[1].id" class="md-primary margin-top-0">Contains</md-radio-button>
+                      <md-radio-button ng-value="vm.CheckSearchTypeList[0].id" class="md-primary margin-top-0">Exact</md-radio-button>
+                    </md-radio-group>
+                  </div>
+                  <div class="input-wrapper" layout="row" flex="100" layout-align="start center">
+                    <md-input-container flex="100" class="mv-0">
+                      <input type="text" id="advanceSearchSQ" name="advanceSearchSQ"
+                             ng-model="vm.advanceSearchSQ"
+                             ng-maxlength="50"
+                             autocomplete="off" ng-keypress="vm.scanSearchKey($event)" />
+                      <div ng-messages="vm.supplierQuoteFilterInfo.advanceSearchSQ.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50,vm.supplierQuoteFilterInfo.advanceSearchSQ.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+          <div layout="row" layout-md="column" layout-sm="column" class="margin-right-10">
+            <fieldset flex="100" class="container-box cm-supplier-check-box margin-left-5 margin-pro-rs-left-0">
+              <legend class="margin-0">Quote Date</legend>
+              <div class="input-wrapper margin-left-10" layout="row" flex="100" layout-align="start start">
+                <common-date-filter from-date="vm.supplierQuote.fromDate"
+                                    to-date="vm.supplierQuote.toDate"
+                                    reset-filter="vm.resetDateFilter">
+                </common-date-filter>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+        <div layout="row" flex="100" layout-md="column" layout-sm="column">
+          <div flex layout="column">
+            <div layout="row" flex flex-md="100" flex-sm="100" class="ml-5">
+              <fieldset flex="100" class="container-box width-100p">
+                <legend class="margin-0">Search MPN/ SPN</legend>
+                <div layout="row" flex="100" layout-md="column" layout-sm="column" class="cm-po-part-height-scroll">
+                  <md-input-container class="cm-widget-chip md-block full-chip margin-0" flex="100" md-no-float>
+                    <md-contact-chips ng-model="vm.partIds" flex="100" layout="row" class="cm-so-contact-chip"
+                                      md-contacts="vm.searchMfrPn($query)"
+                                      md-contact-name="mfgPN"
+                                      md-contact-image=""
+                                      md-contact-email=""
+                                      md-require-match="true"
+                                      md-highlight-flags="i"
+                                      filter-selected="true"
+                                      secondary-placeholder="Add another to search"
+                                      placeholder="Type here to search">
+                    </md-contact-chips>
+                  </md-input-container>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+          <div class="input-wrapper pt-5 ml-10" layout="row" flex-gt-lg="30" layout-align="end end">
+            <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.advanceFilterSearch()">
+              Apply Filters
+            </md-button>
+            <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.resetFilter()">
+              Reset
+            </md-button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div layout="row" layout-align="start center" layout-wrap flex="100" class="padding-left-10 padding-top-10"
+         ng-if="vm.generateFilterChip">
+      <span class="font-weight-600">
+        Applied Filters:
+      </span>
+      <div ng-repeat="item in vm.SupplierQuoteAdvanceFilter" layout="row" layout-align="start center" class="cm-tracking-chip-mian padding-left-5"
+           ng-if="!item.isDeleted">
+        <div class="tracking-number-chip" layout="row" layout-align="start center">
+          <label>
+            {{item.value}}
+            <md-tooltip md-direction="top" ng-if="item.tooltip" class="tooltip-height-auto"
+                        ng-bind-html="item.tooltip">
+            </md-tooltip>
+          </label>
+          <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeAppliedFilter(item, $index)" ng-disabled="item.isDisable">
+            <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+            <md-tooltip ng-if="!item.isDisable">Click to remove this filter</md-tooltip>
+          </md-button>
+        </div>
+      </div>
+      <div layout="row" layout-align="start center" class="cm-tracking-chip-mian">
+        <div class="tracking-number-chip" layout="row" layout-align="start center">
+          <label>
+            Clear All
+          </label>
+          <md-tooltip>Clear All Filters</md-tooltip>
+          <md-button class="md-icon-button md-primary md-mini" ng-click="vm.resetFilter()">
+            <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+            <md-tooltip>Clear All Filters</md-tooltip>
+          </md-button>
+        </div>
+      </div>
+    </div>
+    <div layout="row" layout-align="start center" layout-wrap flex="100" class="pt-5"
+         ng-if="vm.isUiGridColumnFiltersApplied && vm.gridOptions.gridApi && vm.gridOptions.gridApi.grid.columns.length > 0">
+      <span class="font-weight-600">
+        Grid Filters:
+      </span>
+      <div ng-repeat="item in vm.gridOptions.gridApi.grid.columns" layout="row" layout-align="start center" class="cm-tracking-chip-mian"
+           ng-if="item.filters[0].term">
+        <div class="tracking-number-chip" layout="row" layout-align="start center" ng-if="item.filters[0].term">
+          <label>
+            {{item.displayName}}
+            <md-tooltip md-direction="top" ng-if="item.filters[0].term" class="tooltip-height-auto"
+                        ng-bind-html="item.filters[0].term">
+            </md-tooltip>
+          </label>
+          <md-button class="md-icon-button md-primary md-mini" ng-click="vm.clearGridColumnFilter(item, $index)">
+            <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+            <md-tooltip>Click to remove this filter</md-tooltip>
+          </md-button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <div ng-show="!vm.isNoDataFound">
+    <md-card layout="column" flex layout-align="space-between stretch">
+      <ui-grid-extention grid-id="vm.gridConfig.gridSupplierQuoteSummary"
+                         load-data="vm.loadData"
+                         grid-option="vm.gridOptions"
+                         header="vm.sourceHeader"
+                         grid-data="vm.sourceData"
+                         total-data-count="vm.totalSourceDataCount"
+                         reset-grid="vm.resetSourceGrid"
+                         selectted-rows="vm.selectedRowsList"
+                         paging-info="vm.pagingInfo"
+                         current-item="vm.currentdata"
+                         get-data-down="vm.getDataDown"
+                         empty-state="vm.emptyState"
+                         scroll-class="vm.setScrollClass"
+                         delete-multiple-data="vm.deleteMultipleData">
+    </md-card>
+  </div>
+  <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound">
+    <div class="emty-icon" flex="100">
+      <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+    </div>
+    <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+    <p flex="100">
+      {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+    </p>
+    <p flex="100">
+      <md-button class="md-fab md-mini" aria-label="Add Supplier Quote" ng-click="vm.addSupplierQuote()">
+        <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+        <md-tooltip> Add Supplier Quote</md-tooltip>
+      </md-button>
+      <md-button class="md-fab md-mini" aria-label="Refresh Supplier Quote" ng-click="vm.loadData()">
+        <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+        <md-tooltip>Refresh Supplier Quote</md-tooltip>
+      </md-button>
+    </p>
+  </div>
+</div>
+
+<style>
+  .md-contact-suggestion .md-contact-name {
+    width: auto !important;
+  }
+</style>

@@ -1,0 +1,111 @@
+<md-dialog aria-label="CustomerTrackingNumber" class="operation-pop-main cm-custom-label-common" flex=50 cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.customerTrackingNumberForm">
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>Tracking# </h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.close()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding" layout="column">
+      <md-content class="md-padding custom-scroll padding-5-imp">
+        <div layout="row" class="layout-align-end">
+          <div class="ui-grid-cell-contents" style="text-align:center">
+            <span>Customer Packing Slip Status:</span>
+            <span class="label-box" ng-class="vm.getCoPackingSlipStatusClassName">
+              {{vm.trackingNumberData.custPackingSlipStatusalue}}
+            </span>
+          </div>
+          <div class="ui-grid-cell-contents" style="text-align:center">
+            <span>Customer Invoice Status:</span>
+            <span class="label-box" ng-class="vm.getCoInvoiceStatusClassName">
+              {{vm.trackingNumberData.custInvoiceStatusValue}}
+            </span>
+          </div>
+        </div>
+        <div flex="100" layout="row" layout-align="start start" layout-wrap>
+          <div class="cm-section-main" layout="row" layout-wrap flex="100">
+            <div class="cm-section-inner" flex="100" layout="row" layout-wrap>
+              <div flex="100" layout="row">
+                <md-input-container flex="100" class="margin-bottom-0 padding-bottom-5" md-no-float>
+                  <input type="text" name="trackingNumber" id="trackingNumber" ng-model="vm.trackingNumberDet.trackNumber" placeholder="Enter Tracking Number"
+                         ng-maxlength="100"
+                         ng-change="vm.checkUniqueTrackNumber()"
+                         ng-keypress="vm.addTrackingNumberToList($event);"
+                         ng-if=" vm.isVissible"
+                         capitalize class="input-text-uppercase">
+                  <span class="font-size-10"
+                        ng-if=" vm.isVissible">
+                    <b>Type and press Enter.</b>
+                  </span>
+                  <div ng-messages="vm.customerTrackingNumberForm.trackingNumber.$error"
+                       role="alert">
+                    <div ng-message="maxlength">
+                      <span>{{vm.getMaxLengthValidation(100, vm.customerTrackingNumberForm.trackingNumber.$viewValue.length)}}</span>
+                    </div>
+                    <div ng-message="duplicate">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.DUPLICATE}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+                <md-button class="md-primary md-raised ml-10 m-0"
+                           ng-click="vm.resetTrackingNumberDet()"
+                           ng-if=" vm.isVissible">
+                  Clear
+                  <md-tooltip>Clear</md-tooltip>
+                </md-button>
+              </div>
+              <div class="cm-tracking-chip-container">
+                <div ng-repeat="trackItem in vm.customerPackingSlipTrackNumber" ng-if="vm.customerPackingSlipTrackNumber.length > 0" layout="row" layout-align="start center" class="cm-tracking-chip-mian">
+                  <div class="tracking-number-chip tracking-number-copy-chip pv-3" layout="row" layout-align="start center">
+                    <label ng-class="{'padding-0-10-imp width-auto':( (vm.trackingNumberData.IsLocked  && !vm.isUserSuperAdmin)) || !vm.enableCustTrackingFeature || vm.trackingNumberData.isOnlyView}">{{trackItem.trackNumber}}</label>
+                    <div class="md-icon-button md-primary m-5 md-mini border-radius-0"
+                         ng-mouseover="vm.checkCopyStatus()"
+                         ng-click="vm.copyTrackinNumber($event,trackItem.trackNumber);">
+                      <md-icon md-font-icon="icon-content-copy s18" class="material-icons mat-icon"></md-icon>
+                      <md-tooltip md-direction="top" ng-show="!vm.copystatus">Copy Tracking#</md-tooltip>
+                      <md-tooltip md-direction="top" ng-show="vm.copystatus">Copied</md-tooltip>
+                    </div>
+
+                    <md-button class="md-icon-button md-primary md-mini margin-0"
+                               ng-if=" vm.isVissible"
+                               ng-click="vm.editTrackingNumber(trackItem)">
+                      <md-icon md-font-icon="icon-pencil" class="material-icons mat-icon"></md-icon>
+                      <md-tooltip>Update Tracking#</md-tooltip>
+                    </md-button>
+                    <md-button class="md-icon-button md-primary md-mini"
+                               ng-if=" vm.isVissible"
+                               ng-click="vm.removeTrackNumber(trackItem, $index)">
+                      <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                      <md-tooltip>Remove Tracking#</md-tooltip>
+                    </md-button>
+                  </div>
+                </div>
+                <div ng-if="vm.customerPackingSlipTrackNumber.length === 0" class="flex grey-500-fg layout-align-center layout-row">
+                  <label>No Tracking Number</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised"
+                 ng-if=" vm.isVissible"
+                 ng-disabled="vm.disableClose" ng-click="vm.close()">Cancel</md-button>
+      <md-button class="md-default md-raised"
+                 ng-if="( (vm.trackingNumberData.IsLocked  && !vm.isUserSuperAdmin)) || !vm.enableCustTrackingFeature  || vm.trackingNumberData.isOnlyView"
+                 ng-disabled="vm.disableClose" ng-click="vm.close()">Close</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.saveCustomerTrackingNumber(vm.BUTTON_TYPE.SAVE)" aria-label="Submit" id="saveCTrackingNumber"
+                 ng-if=" vm.isVissible"
+                 ng-disabled="vm.disableSave" ng-class="{'md-formdirty': vm.customerTrackingNumberForm.$dirty }">Save</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.saveCustomerTrackingNumber(vm.BUTTON_TYPE.SAVEANDEXIT)" aria-label="Submit" id="saveNExitCTrackingNumber"
+                 ng-if=" vm.isVissible"
+                 ng-disabled="vm.disableSave" ng-class="{'md-formdirty': vm.customerTrackingNumberForm.$dirty }">Save & Exit</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

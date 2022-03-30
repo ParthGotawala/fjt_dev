@@ -1,0 +1,185 @@
+<md-dialog aria-label="analytics" cg-busy="{promise:vm.cgBusyLoading}" class="cm-custom-label-common" draggable>
+  <form name="vm.copyOpMstDocToWOOpForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Copy Documents To Work Order Operation</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll" layout="row">
+      <md-content class="custom-scroll md-padding" flex="100">
+        <div layout="row" layout-align="end end" class="padding-top-10"
+             ng-if="vm.allActiveWorkorderList.length || (vm.allActiveWorkorderList.length == 0 && vm.queryWOOp.search.length > 0)">
+          <div layout="row" flex-xs="50">
+            <!--<md-input-container class="md-block search-header margin-0 error-none">
+              <input type="text" ng-model="vm.queryWOOp.search"
+                     ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Search">
+            </md-input-container>
+            <md-button class="md-primary md-raised margin-0 margin-left-5-imp margin-right-5-imp" ng-click="vm.queryWOOp.search = '';" ng-disabled="!vm.queryWOOp.search">
+              Reset
+            </md-button>-->
+            <md-button class="md-primary md-raised margin-0" ng-click="vm.queryWOOp.search = '';vm.refreshWorkOrderListToCopyOpDoc();">
+              Refresh
+            </md-button>
+          </div>
+        </div>
+        <div layout="row" class="input-wrapper cm-section-inner-popup cm-copy-op-mst-doc">
+          <md-table-container flex="100">
+            <table md-table class="dataTable hover  md-data-table md-data-table row-border table-row-select">
+              <thead md-head md-order="vm.queryWOOp.order">
+                <tr md-row>
+                  <th class="secondary-text">
+                    <md-checkbox ng-model="vm.isSelectAllWOToCopyDocFolder"
+                                 name="isSelectAllWOToCopyDocFolder" ng-change="vm.selectAllWOToCopyDocFolder()"
+                                 ng-disabled="vm.queryWOOp.search.length > 0 && (vm.allActiveWorkorderList | filter: vm.queryWOOp.search).length == 0">
+                    </md-checkbox>
+                  </th>
+                  <th md-column class="secondary-text">
+                    <div class="table-header">
+                      <span class="column-title">{{vm.LabelConstant.Workorder.WO}}</span>
+                    </div>
+                  </th>
+                  <th md-column class="secondary-text">
+                    <div class="table-header">
+                      <span class="column-title">{{vm.LabelConstant.Workorder.Status}}</span>
+                    </div>
+                  </th>
+                  <th md-column class="secondary-text cm-white-space-normal width-125">
+                    <span class="column-title">{{vm.LabelConstant.Workorder.FromWOVersion}}</span>
+                  </th>
+                  <th md-column class="secondary-text cm-white-space-normal width-125">
+                    <span class="column-title">
+                      {{vm.LabelConstant.Workorder.NewWOVersion}}
+                      <span class="color-red">&nbsp;*</span>
+                    </span>
+                  </th>
+                  <th md-column class="secondary-text cm-white-space-normal width-125">
+                    <span class="column-title">{{vm.LabelConstant.Workorder.FromWOOpVersion}}</span>
+                  </th>
+                  <th md-column class="secondary-text cm-white-space-normal width-125">
+                    <span class="column-title">
+                      {{vm.LabelConstant.Workorder.NewWOOpVersion}}
+                      <span class="color-red">&nbsp;*</span>
+                    </span>
+                  </th>
+                  <th md-column class="secondary-text cm-white-space-normal width-150">
+                    <span class="column-title">Need To Change Version</span>
+                  </th>
+                  <!--<th md-column class="secondary-text">
+                    <div class="table-header">
+                      <span class="column-title">{{vm.LabelConstant.Workorder.BroadcastMsgForVersionChange}}</span>
+                    </div>
+                  </th>-->
+                </tr>
+              </thead>
+              <tbody md-body>
+                <tr class="document-body-tr" nd-row ng-repeat="woItem in vm.allActiveWorkorderList"
+                    ng-form name="activeWODetForm_{{woItem.woID}}">
+                  <!--| filter: vm.queryWOOp.search | orderBy: vm.queryWOOp.order-->
+                  <td md-cell class="cursor-pointer">
+                    <md-checkbox ng-model="woItem.isselectWOForCopyDocFolder"
+                                 name="isselectWOForCopyDocFolder" ng-change="vm.checkAnyDocFolderSelected()">
+                    </md-checkbox>
+                  </td>
+                  <td md-cell class="nowrap">
+                    <a tabindex="-1" class="cm-text-decoration"
+                       ng-mousedown="vm.goToWorkorderDetails(woItem.woID);$event.preventDefault();">
+                      {{woItem.woNumber}}
+                    </a>
+                  </td>
+                  <td md-cell>
+                    <span class="label-box" ng-class="woItem.woStatusClassName">
+                      {{woItem.woStatusText}}
+                    </span>
+                  </td>
+                  <td md-cell class="cm-white-space-normal width-125">{{woItem.woVersion}}</td>
+                  <td md-cell class="cm-white-space-normal width-125">
+                    <md-input-container flex="100">
+                      <input type="text" name="woToVersion_{{woItem.woID}}"
+                             ng-model="woItem.woToVersion"
+                             class="input-text-uppercase"
+                             onkeypress="return onlyAlphabets(event)"
+                             capitalize placeholder="New Work Order Version" ng-maxlength="255" required>
+                      <div ng-messages="vm.copyOpMstDocToWOOpForm['activeWODetForm_'+woItem.woID]['woToVersion_'+woItem.woID].$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255, vm.copyOpMstDocToWOOpForm['activeWODetForm_'+woItem.woID]['woToVersion_'+woItem.woID].$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <td md-cell class="cm-white-space-normal width-125">{{woItem.workorderOperation.opVersion}}</td>
+                  <td md-cell class="cm-white-space-normal width-125">
+                    <md-input-container flex="100">
+                      <input type="text" name="WOOpToVersion_{{woItem.woID}}" ng-model="woItem.workorderOperation.WOOpToVersion"
+                             class="input-text-uppercase"
+                             onkeypress="return onlyAlphabets(event)"
+                             capitalize placeholder="New OP Version" ng-maxlength="255" required>
+                      <div ng-messages="vm.copyOpMstDocToWOOpForm['activeWODetForm_'+woItem.woID]['WOOpToVersion_'+woItem.woID].$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255, vm.copyOpMstDocToWOOpForm['activeWODetForm_'+woItem.woID]['WOOpToVersion_'+woItem.woID].$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <td md-cell class="cm-white-space-normal width-150">
+                    <div layout="row">
+                      <md-checkbox ng-model="woItem.requiredToChangeVersion"
+                                   name="requiredToChangeVersion" class="margin-0">
+                        <p class="pt-2 width-120">
+                          Change Version
+                        </p>
+                      </md-checkbox>
+                    </div>
+                  </td>
+                  <!--<td md-cell>
+                    <md-input-container class="margin-bottom-0" flex="100">
+                      <input type="text" name="message" ng-model="woItem.broadcastMessage"
+                             placeholder="Broadcast message" ng-maxlength="500">
+                      <div ng-messages="vm.copyOpMstDocToWOOpForm.message.$error"
+                           role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MAX_LENGTH}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>-->
+                </tr>
+              </tbody>
+            </table>
+          </md-table-container>
+        </div>
+        <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+             ng-if="vm.queryWOOp.search.length > 0 && (vm.allActiveWorkorderList | filter: vm.queryWOOp.search).length == 0">
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.emptySearch.IMAGEURL}}" />
+          </div>
+          <p class="empty-state-title" flex="100">{{vm.emptySearch.MESSAGE}}</p>
+        </div>
+        <div class="empty-state full-height margin-top-80" layout="row" layout-wrap layout-align="center center"
+             ng-if="!vm.allActiveWorkorderList.length && !vm.queryWOOp.search.length">
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.CommonStateMessage.IMAGEURL}}" />
+          </div>
+          <p class="empty-state-title" flex="100">{{vm.CommonStateMessage.MESSAGE}}</p>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.saveFolderDocToWO()" aria-label="Submit"
+                 ng-class="{'md-formdirty': vm.checkFormDirty(vm.copyOpMstDocToWOOpForm,null)}"
+                 ng-disabled="vm.saveDisable">Copy to Selected Work Order</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

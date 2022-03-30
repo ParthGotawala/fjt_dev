@@ -1,0 +1,98 @@
+<md-dialog aria-label="ProductionStock" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+    <form name="vm.productionStockForm">
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>{{vm.data.title}}: {{vm.opName}}</h2>
+                <!--<h2>On Going Production</h2>-->
+                <span flex></span>
+                <div layout="row" layout-align="center center">
+                    <md-button class="md-primary md-raised">{{vm.data.woNumber}}</md-button>
+                </div>
+                <md-button class="md-icon-button" ng-click="vm.cancel()">
+                    <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content class="customer-modal no-padding margin-top-10 custom-scroll" layout="column">
+            <div layout="row" flex="100" layout-align="end center" ng-if="vm.ProductionList.length > 0" >
+                <div layout="row" layout-align="end end" flex-xs="50" ng-if="vm.ProductionList.length > 0">
+                    <md-input-container class="md-block search-header margin-0 error-none">
+                        <input type="text" ng-model="vm.query.search" ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Search">
+                    </md-input-container>
+                    <md-button class="md-icon-button toolbar-button " aria-label="Search" ng-if="!vm.query.search">
+                        <md-icon md-font-icon="icon-magnify" role="img"></md-icon>
+                    </md-button>
+                    <md-button class="md-icon-button toolbar-button " aria-label="Clear" ng-if="vm.query.search" ng-click="vm.query.search = ''">
+                        <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                    </md-button>
+                </div>
+                <md-button class="md-primary md-raised " ng-click="vm.openAddProductionStock($event);">
+                    Add More
+                </md-button>
+            </div>
+            <md-content>
+        
+                <md-table-container flex="100"  ng-if="vm.ProductionList.length > 0" ng-hide="(vm.ProductionList  | filter: vm.query.search).length == 0 && vm.query.search">
+                    <table md-table class="md-data-table table-row-select" md-row-select ng-model="vm.selectedItems">
+                        <thead md-head md-order="vm.query.order">
+                            <tr md-row>
+                                <th md-column>#</th>
+                                <th md-column md-order-by="employee.name">Name</th>
+                                <th md-column md-numeric md-order-by="totalQty" width="50">Total Qty</th>
+                                <th md-column md-numeric md-order-by="passQty" width="50">Passed Qty</th>
+                                <th md-column md-numeric md-order-by="reprocessQty" width="50">Reprocess Required Qty</th>
+                                <th md-column md-numeric md-order-by="observedQty" width="50">Defect Observed Qty</th>
+                                <th md-column md-numeric md-order-by="reworkQty" width="50">Rework Required Qty</th>
+                                <th md-column md-numeric md-order-by="scrapQty" width="50">Scrapped Qty</th>
+                                <th md-column md-numeric md-order-by="boardWithMissingPartsQty" width="50">Board with Missing Parts Qty</th>
+                                <th md-column md-numeric md-order-by="bypassQty" width="50">Bypassed Qty</th>
+                                <th md-column md-order-by="isFirstArticle">1st Article</th>
+                            </tr>
+                        </thead>
+                        <tbody md-body>
+                            <tr md-row ng-repeat="data in vm.ProductionList
+                                                                | filter: vm.query.search
+                                                                | orderBy: vm.query.order
+                                                                | limitTo: vm.query.limit : (vm.query.page -1) * vm.query.limit">
+                                <td md-cell>{{$index+1}}</td>
+                                <td  md-cell class="padding-10">{{data.employee.name}}</td>
+                                <td  md-cell class="padding-10">{{data.totalQty ? data.totalQty : '-' | numberWithoutDecimal}}</td>
+                                <td  md-cell class="padding-10">{{data.passQty ? data.passQty : '-' | numberWithoutDecimal}}</td>
+                                <td  md-cell class="padding-10">{{data.reprocessQty ? data.reprocessQty : '-' | numberWithoutDecimal}}</td>
+                                <td  md-cell class="padding-10">{{data.observedQty ? data.observedQty : '-' | numberWithoutDecimal}}</td>
+                                <td  md-cell class="padding-10">{{data.reworkQty ? data.reworkQty : '-' | numberWithoutDecimal}}</td>
+                                <td  md-cell class="padding-10">{{data.scrapQty ? data.scrapQty : '-' | numberWithoutDecimal}}</td>
+                                <td  md-cell class="padding-10">{{data.boardWithMissingPartsQty ? data.boardWithMissingPartsQty : '-' | numberWithoutDecimal}}</td>
+                                <td  md-cell class="padding-10">{{data.bypassQty ? data.bypassQty : '-' | numberWithoutDecimal}}</td>
+                                <td  md-cell class="padding-10">{{data.isFirstArticle == true ? "Yes" : "No"}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </md-table-container>
+                <md-table-pagination md-limit="vm.query.limit" md-limit-options="limitOptions" md-page="vm.query.page" md-total="{{vm.ProductionList.length}}" md-page-select md-boundary-links="false" ng-if="(vm.ProductionList | filter: vm.query.search).length != 0 && vm.query.isPagination"></md-table-pagination>
+
+                <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+                     ng-if="(vm.ProductionList  | filter: vm.query.search).length == 0 && vm.query.search">
+                    <div class="emty-icon" flex="100">
+                        <img ng-src="{{vm.emptySearch.IMAGEURL}}" />
+                    </div>
+                    <p class="empty-state-title" flex="100">{{vm.emptySearch.MESSAGE}}</p>
+                </div>
+                <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.ProductionList.length == 0">
+                    <div class="emty-icon" flex="100">
+                        <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                    </div>
+                    <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+                    <p flex="100">
+                        {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+                    </p>
+                    <p flex="100">
+                        <md-button class="md-fab md-mini" aria-label="Add Stock" ng-click="vm.openAddProductionStock($event)">
+                            <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+                        </md-button>
+                    </p>
+                </div>
+            </md-content>
+        </md-dialog-content>
+    </form>
+</md-dialog>

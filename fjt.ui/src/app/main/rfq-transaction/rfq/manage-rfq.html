@@ -1,0 +1,1314 @@
+<div id="forms" class="page-layout simple fullwidth md-inline-form cm-custom-label-common doc-page breadcrumb-fixed no-box-shadow" layout-align="start start" layout="row" layout-wrap cg-busy="{promise:vm.cgBusyLoading}">
+  <ms-form-wizard flex="100" layout="row">
+    <!-- HEADER -->
+    <div class="header md-accent-bg" layout="row" layout-align="space-between center">
+      <div layout="row" layout-align="start center">
+        <div layout="row">
+          <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" ng-click="vm.goBack(vm.rfqDetails)">
+            <!--<md-icon md-font-icon="icon-arrow-left" class="material-icons icon-arrow-left">
+            </md-icon>-->
+            <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+            </md-icon>
+          </md-button>
+          <div class="white-fg" layout="column" layout-align="start start">
+            <!--<md-icon md-font-icon="icon-library-books"></md-icon>&nbsp;
+            <span class="header-title">{{vm.rfq.id?"Update":"Add"}} RFQ</span>-->
+            <div class="h2" layout="row" layout-align="start center">
+              <pagetitle is-list="false" is-display-menu-name="true" prefix-content="vm.rfq.id ? 'Update' : 'Add'" suffix-content=""></pagetitle>
+            </div>
+            <div layout="row" layout-align="start center">
+              <breadcrumbs></breadcrumbs>
+            </div>
+          </div>
+
+        </div>
+        <div layout="row" ng-if="vm.autoCompleteRFQ" class="margin-left-20">
+          <div class="text-right white-text cm-manage-packing-title mt-10 mr-5">
+            {{vm.autoCompleteRFQ.placeholderName}}:
+          </div>
+          <div class="margin-top-6">
+            <md-input-container ng-if="vm.autoCompleteRFQ" class="width-100p autocompletecustom margin-0 widget-dashboard-search-area part-header-search-area" flex="100" flex-gt-xs="100">
+              <custom-auto-complete-search on-search-fn="vm.autoCompleteRFQ.onSearchFn"
+                                           column-name="vm.autoCompleteRFQ.columnName"
+                                           key-column-name="vm.autoCompleteRFQ.keyColumnName"
+                                           key-column-id="vm.autoCompleteRFQ.keyColumnId"
+                                           input-name="vm.autoCompleteRFQ.inputName"
+                                           placeholder-name="vm.autoCompleteRFQ.placeholderName"
+                                           is-required="vm.autoCompleteRFQ.isRequired"
+                                           is-addnew="vm.autoCompleteRFQ.isAddnew"
+                                           callback-fn="vm.autoCompleteRFQ.callbackFn"
+                                           on-select-callback-fn="vm.autoCompleteRFQ.onSelectCallbackFn">
+              </custom-auto-complete-search>
+            </md-input-container>
+          </div>
+          <div>
+            <md-button class="md-primary md-raised mb-0" ng-click="vm.addRFQ()" ng-if="vm.rfq.id">
+              Add RFQ
+            </md-button>
+          </div>
+        </div>
+        <div class="product-count">
+          <span class="lableheader" style="max-width:300px !important" ng-if="vm.customer">
+            <span><a class="cm-text-decoration" ng-click="vm.goTocustomerList()">{{vm.lebelConstant.Customer.Customer}}</a>:</span>
+            <span>&nbsp;<a class="cm-text-decoration" ng-click="vm.goToCustomer()"><b>{{vm.customer}}<md-tooltip>{{vm.customer}}</md-tooltip></b></a></span>
+          </span>
+          <span class="lableheader" style="max-width:300px !important" ng-if="vm.rfq.id && vm.isCustomerAccess">
+            <span>{{vm.lebelConstant.Assembly.QuoteGroup}}:</span>
+            <b class="cm-assbly-header-label">&nbsp;{{vm.rfq.id}}<md-tooltip>{{vm.rfq.id}}</md-tooltip></b>
+          </span>
+          <span class="lableheader" style="max-width:300px !important" ng-if="vm.rfq.id && vm.isCustomerAccess">
+            <span>{{vm.lebelConstant.BOM.QuoteGroupAssy}}:</span>
+            <b class="cm-assbly-header-label">&nbsp;{{vm.rfq.rfqAssembly.length}}<md-tooltip>{{vm.rfq.rfqAssembly.length}}</md-tooltip></b>
+          </span>
+        </div>
+      </div>
+
+      <div layout-align="end center" layout="row">
+        <md-button class="md-primary md-raised md-ink-ripple" id="saveBtn"
+                   ng-disabled="vm.saveDisable"
+                   ng-class="{'md-formdirty': vm.checkFormDirty(msWizard.currentStepForm(),vm.checkDirtyObject)||vm.isFormDirty}"
+                   ng-if="!vm.rfq.id || (vm.rfq.id && vm.isCustomerAccess)" ng-click="vm.CheckStepAndAction(msWizard,true,$event)">
+          <!--ng-disabled="msWizard.currentStepInvalid() || !vm.checkFormDirty(msWizard.currentStepForm(),vm.checkDirtyObject)"-->
+          Save
+        </md-button>
+        <!--<md-button id="btnShowRequiredValidation" type="submit" ng-hide="true"></md-button>-->
+        <md-button class="md-default md-raised" ng-click="vm.goBack(vm.rfqDetails)">
+          Close
+        </md-button>
+      </div>
+    </div>
+    <!-- / CONTENT HEADER -->
+    <!-- / HEADER -->
+    <!-- CONTENT -->
+    <div class="content-card padding-top-side rfq-tables pos-rel full-height" flex="100" cg-busy="{promise:vm.cgBusyLoading}">
+      <div>
+        <md-tabs validate-step="true" is-valid="vm.isStepValid" class="fielddetail manage-customer-tabing padding-bottom-0" md-dynamic-height md-selected="vm.selectedTabIndex" id="manage-customer-tabing">
+          <!--Detail-->
+          <md-tab md-on-select="vm.onMainTabChanges(vm.rfqDetails,msWizard)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.rfq.id">1</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.rfq.id">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Detail</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div layout="row" layout-wrap class="cm-custom-label-common padding-0" excel-reader er-options="vm.eroOptions" ng-if="!vm.rfq.id || (vm.rfq.id && vm.isCustomerAccess)">
+                <form name="vm.rfqDetails" class="md-inline-form padding-bottom-0 cm-fullwidth padding-0" ms-form-wizard-form novalidate>
+                  <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+                  <div flex="100" class="padding-10" layout="row" ng-if="vm.IsDetailTab">
+                    <div class="cm-section-main" flex="100">
+                      <div class="cm-section-header" flex="100">
+                        <h2>Quote Information</h2>
+                      </div>
+                      <div class="cm-section-inner" flex="100">
+                        <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                          <div flex-gt-lg="50" flex-lg="65" layout-wrap flex-md="100" flex-sm="100">
+                            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                              <tbody>
+                                <tr>
+                                  <th>
+                                    <div layout="row">
+                                      <p class="label-container">
+                                        <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goTocustomerList()">{{vm.lebelConstant.Customer.Customer}}</a><span ng-hide="vm.rfq.rfqAssembly.length>1 || vm.rfq.id || vm.isBOMAdded">&nbsp;*</span>
+                                      </p>
+                                      <div class="icon-question-mark-circle help-icon">
+                                        <md-tooltip md-direction="top">{{ vm.RFQ_MESSEGE_CONSTANT.CUSTOMER_INFO}}</md-tooltip>
+                                      </div>
+                                    </div>
+                                  </th>
+                                  <td>
+                                    <md-input-container ng-if="vm.autoCompleteCustomer" class="autocompletecustom width-100p cm-rfq-ac-zindex margin-0" flex="100" custom-auto-focus="true">
+                                      <custom-auto-complete datalist="vm.CustomerList"
+                                                            column-name="vm.autoCompleteCustomer.columnName"
+                                                            controller-name="vm.autoCompleteCustomer.controllerName"
+                                                            view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                                            key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                                            input-name="vm.autoCompleteCustomer.inputName"
+                                                            key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                                            is-required="vm.autoCompleteCustomer.isRequired"
+                                                            is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                                            callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                                            add-data="vm.autoCompleteCustomer.addData"
+                                                            is-disabled="vm.rfq.rfqAssembly.length>1 || vm.rfq.id || vm.isBOMAdded"
+                                                            on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn">
+                                      </custom-auto-complete>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th>
+                                    <p class="label-container">
+                                      <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToEmployeelist();">RFQ Created By</a><span>&nbsp;*</span>
+                                    </p>
+                                  </th>
+                                  <td>
+                                    <md-input-container ng-if="vm.autoCompleteEmployee" class="autocompletecustom" flex="100">
+                                      <custom-auto-complete datalist="vm.employeeList"
+                                                            column-name="vm.autoCompleteEmployee.columnName"
+                                                            controller-name="vm.autoCompleteEmployee.controllerName"
+                                                            view-template-url="vm.autoCompleteEmployee.viewTemplateURL"
+                                                            key-column-name="vm.autoCompleteEmployee.keyColumnName"
+                                                            key-column-id="vm.autoCompleteEmployee.keyColumnId"
+                                                            input-name="vm.autoCompleteEmployee.inputName"
+                                                            placeholder-name="vm.autoCompleteEmployee.placeholderName"
+                                                            is-required="vm.autoCompleteEmployee.isRequired"
+                                                            add-data="vm.autoCompleteEmployee.addData"
+                                                            is-addnew="vm.autoCompleteEmployee.isAddnew"
+                                                            callback-fn="vm.autoCompleteEmployee.callbackFn">
+                                      </custom-auto-complete>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th>
+                                    <p class="label-container">
+                                      <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToEmployeelist();">Sales Commission To</a><span>&nbsp;*</span>
+                                    </p>
+                                  </th>
+                                  <td>
+                                    <md-input-container ng-if="vm.autoCompleteSalesCommosssionTo" class="md-block autocompletecustom" flex="100">
+                                      <custom-auto-complete datalist="vm.SalesCommissionEmployeeList"
+                                                            column-name="vm.autoCompleteSalesCommosssionTo.columnName"
+                                                            controller-name="vm.autoCompleteSalesCommosssionTo.controllerName"
+                                                            view-template-url="vm.autoCompleteSalesCommosssionTo.viewTemplateURL"
+                                                            key-column-name="vm.autoCompleteSalesCommosssionTo.keyColumnName"
+                                                            input-name="vm.autoCompleteSalesCommosssionTo.inputName"
+                                                            placeholder-name="vm.autoCompleteSalesCommosssionTo.placeholderName"
+                                                            key-column-id="vm.autoCompleteSalesCommosssionTo.keyColumnId"
+                                                            is-required="vm.autoCompleteSalesCommosssionTo.isRequired"
+                                                            is-addnew="vm.autoCompleteSalesCommosssionTo.isAddnew"
+                                                            callback-fn="vm.autoCompleteSalesCommosssionTo.callbackFn">
+                                      </custom-auto-complete>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                              <tbody>
+                                <tr>
+                                  <td>
+                                    <div layout="row" class="margin-left-15" style="clear:both" ng-if="!vm.rfq.id">
+                                      <label class="label-danger no-bg padding-0 margin-0 font-size-13">Note: RFQ is not saved yet into internal database. Please save it first to add price group details.</label>
+                                    </div>
+                                    <div layout="row">
+                                      <md-button class="md-primary md-raised md-ink-ripple" ng-disabled="!vm.rfq.id || vm.rfq.rfqPriceGroup.length==0" ng-click="vm.ShowPriceGroupMatrixView($event,(!vm.rfq.id || vm.rfq.rfqPriceGroup.length==0))">
+                                        View Matrix
+                                      </md-button>
+                                      <md-button class="md-primary md-raised md-ink-ripple" ng-disabled="vm.disabledPriceGroup || !vm.rfq.id" ng-click="vm.AddPriceGroup($event,vm.rfq,null,vm.rfqDetails)">
+                                        Add Price Group
+                                      </md-button>
+                                      <md-button class="md-primary md-raised md-ink-ripple" ng-disabled="!vm.rfq.id" ng-click="vm.ExportRFQPriceGroup(vm.rfq.id,true)">
+                                        Export Template
+                                      </md-button>
+                                      <md-button class="md-primary md-raised md-ink-ripple" ng-disabled="!vm.rfq.id" ng-click="vm.importPriceGroup($event)">
+                                        Import Price Group
+                                      </md-button>
+                                      <md-button class="md-primary md-raised md-ink-ripple" ng-disabled="vm.disabledExportPriceGroup || !vm.rfq.id" ng-click="vm.ExportRFQPriceGroup(vm.rfq.id,false)">
+                                        Export Price Group Detail
+                                      </md-button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                            <div layout="row" layout-wrap flex="100" ng-if="vm.rfq.rfqPriceGroup.length>0">
+                              <div flex="100" class="cm-section-main margin-top-5">
+                                <div flex="100" class="cm-section-inner cm-overflow-auto">
+                                  <table class="width-100p cm-table-input-main scan-serial-number-detail rfq-price-group-table border" border="1">
+                                    <thead>
+                                      <tr>
+                                        <td class="cm-action">
+                                          <span class="label-container p-5">Action</span>
+                                        </td>
+                                        <td class="cm-no">
+                                          <span class="label-container p-5">#</span>
+                                        </td>
+                                        <td class="cm-price-grp">
+                                          <span class="label-container p-5">Price Group</span>
+                                        </td>
+                                        <td class="cm-assy-details-qty">
+                                          <span class="label-container p-5">Assy Details with Qty</span>
+                                        </td>
+                                        <td class="cm-delete">
+                                          <span class="label-container p-5">Delete</span>
+                                        </td>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr ng-repeat="item in vm.rfq.rfqPriceGroup track by $index">
+                                        <td class="p-5 cm-action">
+                                          <md-button class="md-primary md-icon-button bdrbtn" ng-click="vm.AddPriceGroup($event,vm.rfq,item,vm.rfqDetails,$index)">
+                                            <md-icon role="img" md-font-icon="icon-pencil"></md-icon>
+                                            <md-tooltip md-direction="top">Edit</md-tooltip>
+                                          </md-button>
+                                        </td>
+                                        <td class="p-5 cm-no">
+                                          <md-input-container class="margin-0" flex="100">
+                                            <span class="label-container p-5">
+                                              {{$index+1}}
+                                            </span>
+                                          </md-input-container>
+                                        </td>
+                                        <td class="p-5 cm-price-grp cm-overflow-hidden">
+                                          <md-input-container class="margin-0" flex="100">
+                                            <span class="label-container p-5">
+                                              {{item.name}}
+                                            </span>
+                                            <md-tooltip>{{item.name}}</md-tooltip>
+                                          </md-input-container>
+                                        </td>
+                                        <td class="p-5 cm-assy-details-qty">
+                                          <div layout="row" layout-wrap>
+                                            <div layuot="row" ng-repeat="detail in item.rfqPriceGroupDetail track by $index">
+                                              <span ng-if="detail.qty && detail.PIDCode" layout="row">
+                                                <common-pid-code-label-link component-id="detail.partID"
+                                                                            label="vm.lebelConstant.Assembly.ID"
+                                                                            value="detail.PIDCode"
+                                                                            is-copy="true"
+                                                                            is-custom-part="detail.isCustom"
+                                                                            cust-part-number="detail.custAssyPN"
+                                                                            rohs-icon="detail.RoHSIcon"
+                                                                            rohs-status="detail.rohsName"
+                                                                            is-assembly="true"
+                                                                            is-mfg="true"
+                                                                            mfg-label="vm.LabelConstant.Assembly.MFGPN"
+                                                                            mfg-value="detail.mfgPN"
+                                                                            is-copy-ahead-label="true">
+                                                </common-pid-code-label-link>&nbsp;({{detail.qty}})
+                                              </span>&nbsp;
+                                            </div>
+                                          </div>
+                                        </td>
+                                        <td class="p-5 cm-delete">
+                                          <md-input-container class="margin-0" flex="100">
+                                            <md-button class="md-primary md-icon-button bdrbtn" ng-click="vm.removePriceGroup(item,$index,vm.rfqDetails)">
+                                              <md-icon role="img" md-font-icon="icon-trash"></md-icon>
+                                              <md-tooltip md-direction="top">Delete</md-tooltip>
+                                            </md-button>
+                                          </md-input-container>
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div layout="row" layout-wrap flex-gt-lg="50" flex-lg="35" flex-md="100" flex-sm="100">
+                            <div layout="row" flex="100" flex-xs="100" layout-align="space-between center">
+                              <div layout="column">
+                                <span class="label-container margin-0">
+                                  <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToRequirementTemplate();">
+                                    Customer Quote Note
+                                  </a>
+                                </span>
+                                <span class="label-container margin-0" ng-if="vm.rfqDetails.quoteNote.$error.taMaxText" style="color:red; font-size:12px">
+                                  {{vm.getMaxLengthValidation(vm.taToolbar.MAX_LENGTH, vm.rfqDetails.quoteNote.$viewValue.length,vm.rfqDetails.quoteNote.$viewValue)}}
+                                </span>
+                              </div>
+                              <div layout="row" class="cm-rfq-textarea-button">
+                                <button class="md-primary md-icon-button md-mini" ng-click="vm.OpenQuoteTemplateList(vm.rfq,vm.rfqDetails.quoteNote,$event);">
+                                  <md-icon md-font-icon="icon-clipboard-text" class="material-icons mat-icon"></md-icon>
+                                  <md-tooltip>Select Customer Quote Note</md-tooltip>
+                                </button>
+                              </div>
+                            </div>
+                            <md-input-container class="md-block margin-0 cm-rfq-text-angular" flex="100">
+                              <text-angular class="text-angular-editor-scroll" ta-toolbar="vm.taToolbar.INLINE" cg-busy-loading="vm.cgBusyLoading" ng-class="{'text-angular-custom-border':vm.rfqDetails.quoteNote.$error.taMaxText}" ng-model="vm.rfq.quoteNote"
+                                            name="quoteNote"
+                                            ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"></text-angular>
+                            </md-input-container>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div flex="100" layout="column" class="padding-10" ng-if="vm.IsDetailTab">
+                    <div class="cm-section-main" flex="100">
+                      <div class="cm-section-header" flex="100">
+                        <h2>Assembly Information</h2>
+                      </div>
+                      <md-tabs validate-step="true" is-valid="vm.isAssyStepValid" md-selected="vm.selectedAssyIndex" class="cm-assbly-tab manage-customer-tabing cm-rfq-tab" md-dynamic-height>
+                        <md-button class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-0" ng-click="vm.addAssy(vm.rfqDetails,'rfqAssyform_')">
+                          Add Assy
+                        </md-button>
+                        <md-tab ng-click="vm.onTabChanges($index,rfqAssy.id,vm.rfqDetails,'rfqAssyform_')" ng-repeat="rfqAssy in vm.rfq.rfqAssembly track by $index" class="border-top">
+                          <md-tab-label class="border-bottom-div">
+                            <div layout="row" layout-align="start center">
+                              <span class="ms-form-wizard-step-label" ng-style="{'color':vm.rfqDetails['rfqAssyform_'+ $index].$valid?'':'red'}">
+                                <span ng-if="(rfqAssy.PIDCode)">{{rfqAssy.PIDCode}}</span>
+                                <span ng-if="!(rfqAssy.PIDCode)">Assembly #{{$index+1}}</span>
+                              </span>
+                              <md-button class="md-icon-button margin-0 md-primary dashboard-tab-btn" ng-if="!rfqAssy.isReadyForPricing" ng-click="vm.removeAssy(rfqAssy,vm.rfqDetails)">
+                                <md-icon md-font-icon="icon-close" class="icon"></md-icon>
+                              </md-button>
+                            </div>
+                          </md-tab-label>
+                          <md-tab-body>
+                            <ng-form name="rfqAssyform_{{$index}}" layout="row" flex="100">
+                              <div layout="column" flex="100" ng-init="assemblyIndex = $index">
+                                <div layout="row" layout-wrap class="border-top">
+                                  <div flex="100" class="padding-10" layout-wrap layout="row">
+                                    <div flex="100" layout="row">
+                                      <div class="cm-section-main" flex="100">
+                                        <div class="cm-section-inner">
+                                          <div flex="100" layout="row" layout-md="column" layout-sm="column">
+                                            <div layout="row" flex-md="100" flex-sm="100">
+                                              <div class="cm-section-main" flex="100">
+                                                <div class="cm-section-inner" layout="row" flex="100">
+                                                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                                    <tbody>
+                                                      <tr>
+                                                        <th>
+                                                          <p class="label-container">
+                                                            <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goTocomponentList();">{{vm.lebelConstant.Assembly.ID}}</a><span ng-hide="rfqAssy.isBom || !vm.autoCompleteCustomer.keyColumnId">&nbsp;*</span>
+                                                          </p>
+                                                        </th>
+                                                        <td class="width-20p">
+                                                          <div layout="row">
+                                                            <md-input-container ng-if="rfqAssy.autoCompleteAssy" class="autocompletecustom margin-0" flex="100" custom-auto-focus="true">
+                                                              <custom-auto-complete datalist="vm.assyList"
+                                                                                    column-name="rfqAssy.autoCompleteAssy.columnName"
+                                                                                    controller-name="rfqAssy.autoCompleteAssy.controllerName"
+                                                                                    view-template-url="rfqAssy.autoCompleteAssy.viewTemplateURL"
+                                                                                    key-column-name="rfqAssy.autoCompleteAssy.keyColumnName"
+                                                                                    input-name="rfqAssy.autoCompleteAssy.inputName"
+                                                                                    placeholder-name="rfqAssy.autoCompleteAssy.placeholderName"
+                                                                                    key-column-id="rfqAssy.autoCompleteAssy.keyColumnId"
+                                                                                    is-required="rfqAssy.autoCompleteAssy.isRequired && vm.autoCompleteCustomer.keyColumnId"
+                                                                                    is-addnew="rfqAssy.autoCompleteAssy.isAddnew"
+                                                                                    callback-fn="rfqAssy.autoCompleteAssy.callbackFn"
+                                                                                    add-data="rfqAssy.autoCompleteAssy.addData"
+                                                                                    callback-fn-param="rfqAssy"
+                                                                                    is-disabled="rfqAssy.isBom || !vm.autoCompleteCustomer.keyColumnId"
+                                                                                    on-select-callback-fn="rfqAssy.autoCompleteAssy.onSelectCallbackFn">
+                                                              </custom-auto-complete>
+                                                            </md-input-container>
+                                                            <div layout="row" class="rohs-bom-image text-left" ng-if="rfqAssy.RoHSIcon">
+                                                              <span>
+                                                                <img ng-src="{{rfqAssy.RoHSIcon}}">
+                                                                <md-tooltip ng-if="rfqAssy.rohsName">{{rfqAssy.rohsName}}</md-tooltip>
+                                                              </span>
+                                                            </div>
+                                                          </div>
+                                                        </td>
+                                                        <th>
+                                                          <p class="label-container">{{vm.lebelConstant.Assembly.Rev}}</p>
+                                                        </th>
+                                                        <td>
+                                                          <md-input-container class="margin-0" flex="100">
+                                                            <input type="text" name="assyRev_{{$index}}"
+                                                                   ng-model="rfqAssy.rev"
+                                                                   ng-disabled="true"
+                                                                   placeholder="Assembly Description" />
+                                                          </md-input-container>
+                                                        </td>
+                                                        <th>
+                                                          <p class="label-container">{{vm.lebelConstant.Assembly.MFGPN}}</p>
+                                                        </th>
+                                                        <td class="width-16p">
+                                                          <md-input-container class="margin-0" flex="100">
+                                                            <input type="text" name="mfgPN_{{$index}}"
+                                                                   ng-model="rfqAssy.mfgPN"
+                                                                   ng-disabled="true"
+                                                                   placeholder="Assy#" />
+                                                          </md-input-container>
+                                                        </td>
+                                                        <th>
+                                                          <p class="label-container">{{vm.lebelConstant.Assembly.NickName}}</p>
+                                                        </th>
+                                                        <td colspan="4">
+                                                          <md-input-container class="margin-0" flex="100">
+                                                            <input type="text" name="assyNikName_{{$index}}"
+                                                                   ng-model="rfqAssy.nickName"
+                                                                   ng-disabled="true"
+                                                                   placeholder="Nickname" />
+                                                          </md-input-container>
+                                                        </td>
+                                                      </tr>
+                                                      <tr>
+                                                        <th><p class="label-container">{{vm.lebelConstant.BOM.BusinessRisk}}</p></th>
+                                                        <td>
+                                                          <md-input-container class="margin-0" flex="100">
+                                                            <input type="text" name="businessRisk_{{$index}}"
+                                                                   ng-model="rfqAssy.businessRisk"
+                                                                   ng-disabled="true"
+                                                                   placeholder="Business Risk" />
+                                                          </md-input-container>
+                                                        </td>
+                                                        <th>
+                                                          <p class="label-container" ng-if="!rfqAssy.isSummaryComplete">{{vm.lebelConstant.BOM.InternalVersion}}</p>
+                                                          <p class="label-container" ng-if="rfqAssy.isSummaryComplete">{{vm.lebelConstant.BOM.LastQuotedInternalVersion}}</p>
+                                                        </th>
+                                                        <td>
+                                                          <md-input-container class="margin-0" flex="100">
+                                                            <input type="text" ng-if="!rfqAssy.isSummaryComplete" name="currentversion_{{$index}}"
+                                                                   ng-model="rfqAssy.currentVersion"
+                                                                   ng-disabled="true"
+                                                                   placeholder="Live Version" />
+                                                            <input type="text" ng-if="rfqAssy.isSummaryComplete" name="quotedVersion_{{$index}}"
+                                                                   ng-model="rfqAssy.quotedVersion"
+                                                                   ng-disabled="true"
+                                                                   placeholder="Quoted Version" />
+                                                          </md-input-container>
+                                                        </td>
+                                                        <th>
+                                                          <p class="label-container">RoHS Deviation</p>
+                                                        </th>
+                                                        <td>
+                                                          <md-input-container class="margin-0" flex="100">
+                                                            <input type="text" name="rohsDeviation_{{$index}}"
+                                                                   ng-model="rfqAssy.rohsDeviation"
+                                                                   ng-disabled="true"
+                                                                   placeholder="RoHS Deviation" />
+                                                          </md-input-container>
+                                                        </td>
+                                                        <th ng-if="rfqAssy.statusDisplay">
+                                                          <p class="label-container">RFQ Status</p>
+                                                        </th>
+                                                        <td ng-if="rfqAssy.statusDisplay">
+                                                          <span class="label-box label padding-5-imp font-size-13"
+                                                                ng-class="{'label-success':rfqAssy.statusDisplay == vm.statusGridHeaderDropdown[3].value,
+                                                                            'label-info':rfqAssy.statusDisplay == vm.statusGridHeaderDropdown[2].value,
+                                                                            'label-danger':rfqAssy.statusDisplay == vm.statusGridHeaderDropdown[4].value,
+                                                                            'red A200-bg':rfqAssy.statusDisplay == vm.statusGridHeaderDropdown[5].value,
+                                                                            'label-warning':rfqAssy.statusDisplay == vm.statusGridHeaderDropdown[1].value}">
+                                                            {{rfqAssy.statusDisplay}}
+                                                          </span>
+                                                        </td>
+                                                        <th ng-if="rfqAssy.quoteProgressStatusDisplay">
+                                                          <p class="label-container">Quote Progress</p>
+                                                        </th>
+                                                        <td ng-if="rfqAssy.quoteProgressStatusDisplay">
+                                                          <span class="label-box label padding-5-imp font-size-13"
+                                                                ng-class="{'label-success':rfqAssy.quoteProgressStatusDisplay == vm.quoteProgressGridHeaderDropdown[4].value,
+                                                                            'label-info':rfqAssy.quoteProgressStatusDisplay == vm.quoteProgressGridHeaderDropdown[3].value,
+                                                                            'label-primary':rfqAssy.quoteProgressStatusDisplay == vm.quoteProgressGridHeaderDropdown[2].value,
+                                                                            'label-warning':rfqAssy.quoteProgressStatusDisplay == vm.quoteProgressGridHeaderDropdown[1].value}">
+                                                            {{rfqAssy.quoteProgressStatusDisplay}}
+                                                          </span>
+                                                        </td>
+                                                      </tr>
+                                                      <tr>
+                                                        <th><p class="label-container">{{vm.lebelConstant.Assembly.Description}}</p></th>
+                                                        <td colspan="5">
+                                                          <md-input-container class="margin-0" flex="100">
+                                                            <textarea name="assyDescription_{{$index}}"
+                                                                      ng-model="rfqAssy.assemblyDescription"
+                                                                      ng-disabled="true"
+                                                                      cols="350"
+                                                                      placeholder="Assembly Description"></textarea>
+                                                          </md-input-container>
+                                                        </td>
+                                                        <td colspan="4">
+                                                          <span ng-if="rfqAssy.id">
+                                                            <rfq-assembly-quote-status class="alignment-Item" row-data="rfqAssy"></rfq-assembly-quote-status>
+                                                          </span>
+                                                        </td>
+                                                        <td>
+                                                          <span ng-if="rfqAssy.id">
+                                                            <md-button class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-0" type="button" ng-click="vm.getRFQProgressCount(rfqAssy)">Refresh</md-button>
+                                                          </span>
+                                                        </td>
+                                                      </tr>
+                                                      <tr>
+                                                        <th><p class="label-container">{{vm.lebelConstant.Assembly.AssyNote}}</p></th>
+                                                        <td colspan="10">
+                                                          <md-input-container class="margin-0" flex="100">
+                                                            <textarea name="SpecialNotes_{{$index}}"
+                                                                      ng-model="rfqAssy.specialNote"
+                                                                      ng-disabled="true"
+                                                                      ng-maxlength="255" cols="350"
+                                                                      placeholder="Special Notes"></textarea>
+                                                          </md-input-container>
+                                                        </td>
+                                                      </tr>
+                                                    </tbody>
+                                                  </table>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <div layout="row" flex-md="100" flex-sm="100" class="margin-left-5 margin-pro-rs-left-0" ng-if="rfqAssy.partID">
+                                              <div class="cm-section-main" flex="100">
+                                                <div class="cm-section-inner" layout="row" flex="100">
+                                                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                                    <tbody>
+                                                      <tr rowspan="2">
+                                                        <td>
+                                                          <div layout-align="end start" class="height-100" layout="row">
+                                                            <md-button ng-if="rfqAssy.partID" class="md-primary md-raised margin-2 width-160 height-70 font-size-20-imp" ng-click="vm.goToComponent(rfqAssy.partID)">
+                                                              Update Assy
+                                                            </md-button>
+                                                          </div>
+                                                        </td>
+                                                      </tr>
+                                                      <tr rowspan="2">
+                                                        <td class="padding-0">
+                                                          <div layout-align="end start" layout="row">
+                                                            <md-button ng-if="rfqAssy.id" class="md-primary md-raised margin-2 width-160 height-70 font-size-20-imp" ng-click="vm.goToBOM(rfqAssy.id,rfqAssy.partID)">
+                                                              RFQ BOM
+                                                            </md-button>
+                                                          </div>
+                                                        </td>
+                                                      </tr>
+                                                    </tbody>
+                                                  </table>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div flex="100" layout="row" class="margin-top-5" layout-wrap ng-if="!vm.rfq.id ||rfqAssy.id ==  vm.rfqassyId">
+                                            <div flex="33">
+                                              <div class="cm-section-main full-height margin-right-5" flex="100">
+                                                <div class="cm-normal-header" flex="100">
+                                                  <h2>Standards</h2>
+                                                  <div layout="row" class="cm-header-button">
+                                                    <md-button class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-right-5" type="button" ng-disabled="rfqAssy.isSummaryComplete || !rfqAssy.autoCompleteAssy.keyColumnId || vm.disableStandardButton" ng-click="vm.addStandardClass($event,rfqAssy,$index,vm.rfqDetails, rfqAssy.autoCompleteAssy.keyColumnId,(rfqAssy.isSummaryComplete || !rfqAssy.autoCompleteAssy.keyColumnId || vm.disableStandardButton))">Add</md-button>
+                                                  </div>
+                                                </div>
+                                                <div class="cm-section-inner">
+                                                  <div layout="row">
+                                                    <div flex="100" layout="row" class="part-attribute-body" layout-align="start start">
+                                                      <label ng-if="!rfqAssy.isSummaryComplete">
+                                                        <label ng-if="rfqAssy.rfqAssyStandardClass.length==0 || !rfqAssy.autoCompleteAssy.keyColumnId">There is no Standards added in part.</label>
+                                                        <label ng-repeat="standard in rfqAssy.rfqAssyStandardClass track by $index" class="margin-5 label-box" ng-style="{'background-color': standard.colorCode}">{{standard.standard + (standard.class?(' '+ standard.class):'')}}</label>
+                                                      </label>
+                                                      <label ng-if="rfqAssy.isSummaryComplete">
+                                                        <label ng-if="rfqAssy.rfqAssyQouteStandardClass.length==0 || !rfqAssy.autoCompleteAssy.keyColumnId">There is no Standards added in part.</label>
+                                                        <label ng-repeat="standard in rfqAssy.rfqAssyQouteStandardClass track by $index" class="margin-5 label-box" ng-style="{'background-color': standard.colorCode}">{{standard.standard + (standard.class?(' '+ standard.class):'')}}</label>
+                                                      </label>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              </div>
+
+                                            </div>
+                                            <div flex="33">
+                                              <div class="cm-section-main full-height margin-right-5" flex="100">
+                                                <div class="cm-normal-header" flex="100">
+                                                  <h2>Require Functional Type</h2>
+                                                  <div layout="row" class="cm-header-button">
+                                                    <md-button class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-right-5" type="button" ng-disabled="rfqAssy.isSummaryComplete || !rfqAssy.autoCompleteAssy.keyColumnId || vm.disableFunctionaltypeButton" ng-click="vm.openFunctionalTypePartPopup($event,rfqAssy,$index,vm.rfqDetails, rfqAssy.autoCompleteAssy.keyColumnId,(rfqAssy.isSummaryComplete || !rfqAssy.autoCompleteAssy.keyColumnId || vm.disableFunctionaltypeButton))">Add</md-button>
+                                                  </div>
+                                                </div>
+                                                <div class="cm-section-inner">
+                                                  <div layout="row">
+                                                    <label ng-if="rfqAssy.selectedFunctionalTypeParts.length>0">
+                                                      <label ng-repeat="parts in rfqAssy.selectedFunctionalTypeParts track by $index" class="margin-5 label-box label-primary">{{parts.name}}</label>
+                                                    </label>
+                                                    <label ng-if="rfqAssy.selectedFunctionalTypeParts.length==0|| !rfqAssy.autoCompleteAssy.keyColumnId">
+                                                      {{vm.RFQ_MESSEGE_CONSTANT.REQUIRE_FUNCTIONAL_TYPE_EMPTY_MSG}}
+                                                    </label>
+                                                  </div>
+                                                </div>
+                                              </div>
+
+                                            </div>
+                                            <div flex="33">
+                                              <div class="cm-section-main full-height" flex="100">
+                                                <div class="cm-normal-header" flex="100">
+                                                  <h2>Require Mounting Type</h2>
+                                                  <div layout="row" class="cm-header-button">
+                                                    <md-button class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-right-5" type="button" ng-disabled="rfqAssy.isSummaryComplete || !rfqAssy.autoCompleteAssy.keyColumnId || vm.disableMountingtypeButton" ng-click="vm.openMountingTypePartPopup($event,rfqAssy,$index,vm.rfqDetails, rfqAssy.autoCompleteAssy.keyColumnId,(rfqAssy.isSummaryComplete || !rfqAssy.autoCompleteAssy.keyColumnId || vm.disableMountingtypeButton))">Add</md-button>
+                                                  </div>
+                                                </div>
+                                                <div class="cm-section-inner">
+                                                  <div layout="row">
+                                                    <div flex="100" layout="row" class="part-attribute-body" layout-align="start start">
+                                                      <label ng-if="rfqAssy.selectedMountingTypeParts.length>0">
+                                                        <label ng-repeat="parts in rfqAssy.selectedMountingTypeParts track by $index" class="margin-5 label-box label-primary">{{parts.name}}</label>
+                                                      </label>
+                                                      <label ng-if="rfqAssy.selectedMountingTypeParts.length==0|| !rfqAssy.autoCompleteAssy.keyColumnId">
+                                                        {{vm.RFQ_MESSEGE_CONSTANT.REQUIRE_MOUNTING_TYPE_EMPTY_MSG}}
+                                                      </label>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              </div>
+
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div flex="100" layout="row" class="margin-top-5" layout-md="column" layout-sm="column" ng-if="!vm.rfq.id || rfqAssy.id ==  vm.rfqassyId">
+                                      <div layout="row" flex="70" flex-md="100" flex-sm="100">
+                                        <div class="cm-section-main" flex="100">
+                                          <div class="cm-section-inner" layout="row" flex="100" layout-md="column" layout-sm="column">
+                                            <div class="overflow-auto-rs" flex="45" layout-wrap layout="row" flex-md="100" flex-sm="100">
+                                              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                                <tbody>
+                                                  <tr>
+                                                    <th>
+                                                      <p class="label-container">
+                                                        <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToAssyTypeList();">Assy Type</a><span ng-hide="rfqAssy.isSummaryComplete">&nbsp;*</span>
+                                                      </p>
+                                                    </th>
+                                                    <td colspan="3" ng-if="!rfqAssy.autoCompleteAssyType">
+                                                      <md-input-container class="autocompletecustom margin-0" flex="100">
+                                                        <custom-auto-complete datalist="vm.assyTypeList" class="min-width-initial"
+                                                                              is-disabled="true">
+                                                        </custom-auto-complete>
+                                                      </md-input-container>
+                                                    </td>
+                                                    <td colspan="3" ng-if="rfqAssy.autoCompleteAssyType">
+                                                      <md-input-container class="autocompletecustom margin-0" flex="100">
+                                                        <custom-auto-complete datalist="vm.assyTypeList"
+                                                                              column-name="rfqAssy.autoCompleteAssyType.columnName"
+                                                                              controller-name="rfqAssy.autoCompleteAssyType.controllerName"
+                                                                              view-template-url="rfqAssy.autoCompleteAssyType.viewTemplateURL"
+                                                                              key-column-name="rfqAssy.autoCompleteAssyType.keyColumnName"
+                                                                              input-name="rfqAssy.autoCompleteAssyType.inputName"
+                                                                              placeholder-name="rfqAssy.autoCompleteAssyType.placeholderName"
+                                                                              key-column-id="rfqAssy.autoCompleteAssyType.keyColumnId"
+                                                                              is-addnew="rfqAssy.autoCompleteAssyType.isAddnew"
+                                                                              add-Data="rfqAssy.autoCompleteAssyType.addData"
+                                                                              callback-fn="rfqAssy.autoCompleteAssyType.callbackFn"
+                                                                              callback-fn-param="rfqAssy"
+                                                                              is-disabled="rfqAssy.isSummaryComplete"
+                                                                              is-required="rfqAssy.autoCompleteAssyType.isRequired"
+                                                                              on-select-callback-fn="rfqAssy.autoCompleteAssyType.onSelectCallbackFn">
+                                                        </custom-auto-complete>
+                                                      </md-input-container>
+                                                    </td>
+                                                  </tr>
+                                                  <tr>
+                                                    <th>
+                                                      <p class="label-container">
+                                                        <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToJobList();">Job Type</a><span ng-hide="rfqAssy.isSummaryComplete">&nbsp;*</span>
+                                                      </p>
+                                                    </th>
+                                                    <td colspan="3" ng-if="!rfqAssy.autoCompleteJobType">
+                                                      <md-input-container class="autocompletecustom margin-0" flex="100">
+                                                        <custom-auto-complete datalist="vm.jobTypeList" class="min-width-initial"
+                                                                              is-disabled="true">
+                                                        </custom-auto-complete>
+                                                      </md-input-container>
+                                                    </td>
+                                                    <td colspan="3" ng-if="rfqAssy.autoCompleteJobType">
+                                                      <md-input-container class="autocompletecustom margin-0" flex="100">
+                                                        <custom-auto-complete datalist="vm.jobTypeList"
+                                                                              column-name="rfqAssy.autoCompleteJobType.columnName"
+                                                                              controller-name="rfqAssy.autoCompleteJobType.controllerName"
+                                                                              view-template-url="rfqAssy.autoCompleteJobType.viewTemplateURL"
+                                                                              key-column-name="rfqAssy.autoCompleteJobType.keyColumnName"
+                                                                              input-name="rfqAssy.autoCompleteJobType.inputName"
+                                                                              placeholder-name="rfqAssy.autoCompleteJobType.placeholderName"
+                                                                              key-column-id="rfqAssy.autoCompleteJobType.keyColumnId"
+                                                                              is-required="rfqAssy.autoCompleteJobType.isRequired"
+                                                                              is-addnew="rfqAssy.autoCompleteJobType.isAddnew"
+                                                                              add-data="rfqAssy.autoCompleteJobType.addData"
+                                                                              is-disabled="rfqAssy.isSummaryComplete"
+                                                                              callback-fn="rfqAssy.autoCompleteJobType.callbackFn"
+                                                                              callback-fn-param="rfqAssy"
+                                                                              on-select-callback-fn="rfqAssy.autoCompleteJobType.onSelectCallbackFn">
+                                                        </custom-auto-complete>
+                                                      </md-input-container>
+                                                    </td>
+                                                  </tr>
+                                                  <tr>
+                                                    <th>
+                                                      <p class="label-container">
+                                                        <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToRFQType();">RFQ Type</a><span ng-hide="rfqAssy.isSummaryComplete">&nbsp;*</span>
+                                                      </p>
+                                                    </th>
+                                                    <td ng-if="!rfqAssy.autoCompleteRfqType">
+                                                      <md-input-container class="autocompletecustom margin-0" flex="100">
+                                                        <custom-auto-complete datalist="vm.RfqTypeList" class="min-width-initial"
+                                                                              is-disabled="true">
+                                                        </custom-auto-complete>
+                                                      </md-input-container>
+                                                    </td>
+                                                    <td ng-if="rfqAssy.autoCompleteRfqType">
+                                                      <md-input-container class="autocompletecustom margin-0" flex="100">
+                                                        <custom-auto-complete datalist="vm.RfqTypeList" class="min-width-initial"
+                                                                              column-name="rfqAssy.autoCompleteRfqType.columnName"
+                                                                              controller-name="rfqAssy.autoCompleteRfqType.controllerName"
+                                                                              view-template-url="rfqAssy.autoCompleteRfqType.viewTemplateURL"
+                                                                              key-column-name="rfqAssy.autoCompleteRfqType.keyColumnName"
+                                                                              input-name="rfqAssy.autoCompleteRfqType.inputName"
+                                                                              placeholder-name="rfqAssy.autoCompleteRfqType.placeholderName"
+                                                                              key-column-id="rfqAssy.autoCompleteRfqType.keyColumnId"
+                                                                              is-required="rfqAssy.autoCompleteRfqType.isRequired"
+                                                                              is-addnew="rfqAssy.autoCompleteRfqType.isAddnew"
+                                                                              add-data="rfqAssy.autoCompleteRfqType.addData"
+                                                                              is-disabled="rfqAssy.isSummaryComplete"
+                                                                              callback-fn="rfqAssy.autoCompleteRfqType.callbackFn"
+                                                                              callback-fn-param="rfqAssy"
+                                                                              on-select-callback-fn="rfqAssy.autoCompleteRfqType.onSelectCallbackFn">
+                                                        </custom-auto-complete>
+                                                      </md-input-container>
+                                                    </td>
+                                                    <th>
+                                                      <p class="label-container">Priority</p>
+                                                    </th>
+                                                    <td>
+                                                      <md-input-container class="margin-0" flex="100">
+                                                        <md-select name="quotePriority_{{$index}}"
+                                                                   ng-model="rfqAssy.quotePriority"
+                                                                   placeholder="Priority"
+                                                                   ng-disabled="rfqAssy.isSummaryComplete"
+                                                                   ng-required="false"
+                                                                   md-container-class="containerClass">
+                                                          <md-option ng-value="vm.quotePriority.NONE.VALUE">{{vm.quotePriority.NONE.TYPE}}</md-option>
+                                                          <md-option ng-value="vm.quotePriority.ONE.VALUE">{{vm.quotePriority.ONE.TYPE}}</md-option>
+                                                          <md-option ng-value="vm.quotePriority.TWO.VALUE">{{vm.quotePriority.TWO.TYPE}}</md-option>
+                                                          <md-option ng-value="vm.quotePriority.THREE.VALUE">{{vm.quotePriority.THREE.TYPE}}</md-option>
+                                                          <md-option ng-value="vm.quotePriority.FOUR.VALUE">{{vm.quotePriority.FOUR.TYPE}}</md-option>
+                                                          <md-option ng-value="vm.quotePriority.FIVE.VALUE">{{vm.quotePriority.FIVE.TYPE}}</md-option>
+                                                        </md-select>
+                                                      </md-input-container>
+                                                    </td>
+                                                  </tr>
+                                                  <tr>
+                                                    <th><p class="label-container">Quote Entry Date<span ng-hide="rfqAssy.isSummaryComplete">&nbsp;*</span></p></th>
+                                                    <td>
+                                                      <md-input-container class="datepicker input-width margin-0 padding-right-0-imp" ng-disabled="rfqAssy.isSummaryComplete">
+                                                        <input type="text" class="float-left"
+                                                               name="quoteInDate_{{$index}}"
+                                                               datetime-picker="{{$root.dateDisplayFormat}}"
+                                                               enable-date="true"
+                                                               enable-time="false"
+                                                               ng-disabled="rfqAssy.isSummaryComplete"
+                                                               ng-model="rfqAssy.quoteInDate"
+                                                               ng-change="vm.checkDueDate(rfqAssy,vm.rfqDetails['rfqAssyform_'+ $index]['quoteDueDate_'+ $index])"
+                                                               datepicker-options="rfqAssy.quoteInDateOptions"
+                                                               ui-options="{clearOnBlur  : true}"
+                                                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                                               model-view-value="true"
+                                                               ng-required="true"
+                                                               is-open="rfqAssy.quoteInDateOptions.quoteInDateOpenFlag" />
+                                                        <md-icon md-font-icon="icon-calendar calender-icon" ng-hide="rfqAssy.isSummaryComplete" ng-click="rfqAssy.quoteInDateOptions.quoteInDateOpenFlag = true">
+                                                        </md-icon>
+                                                        <div ng-messages="vm.rfqDetails['rfqAssyform_'+ $index]['quoteInDate_'+ $index].$error" role="alert">
+                                                          <div ng-message="valid">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                          </div>
+                                                          <div ng-message="required">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                          </div>
+                                                          <div ng-message="datetime">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                          </div>
+                                                        </div>
+                                                      </md-input-container>
+                                                    </td>
+                                                    <th>
+                                                      <p class="label-container">Quote Due Date<span ng-hide="rfqAssy.isSummaryComplete">&nbsp;*</span></p>
+                                                    </th>
+                                                    <td>
+                                                      <md-input-container class="datepicker input-width margin-0 padding-right-0-imp">
+                                                        <input type="text" class="float-left"
+                                                               name="quoteDueDate_{{$index}}"
+                                                               datetime-picker="{{$root.dateDisplayFormat}}"
+                                                               enable-date="true"
+                                                               ng-disabled="rfqAssy.isSummaryComplete"
+                                                               enable-time="false"
+                                                               ng-model="rfqAssy.quoteDueDate"
+                                                               ng-change="vm.checkDueDate(rfqAssy,vm.rfqDetails['rfqAssyform_'+ $index]['quoteDueDate_'+ $index])"
+                                                               datepicker-options="rfqAssy.quoteDueDateOptions"
+                                                               ui-options="{clearOnBlur  : true}"
+                                                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                                               model-view-value="true"
+                                                               ng-required="true"
+                                                               is-open="rfqAssy.quoteDueDateOptions.quoteDueDateOpenFlag" />
+                                                        <md-icon md-font-icon="icon-calendar calender-icon" ng-hide="rfqAssy.isSummaryComplete" ng-click="rfqAssy.quoteDueDateOptions.quoteDueDateOpenFlag = true">
+                                                        </md-icon>
+                                                        <div ng-messages="vm.rfqDetails['rfqAssyform_'+ $index]['quoteDueDate_'+ $index].$error" role="alert">
+                                                          <div ng-message="mindate">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                          </div>
+                                                          <div ng-message="required">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                          </div>
+                                                          <div ng-message="datetime">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                          </div>
+                                                        </div>
+                                                      </md-input-container>
+                                                    </td>
+                                                  </tr>
+                                                  <tr ng-if="rfqAssy.isSummaryComplete">
+                                                    <th><p class="label-container">Quote Valid Till<span>&nbsp;*</span></p></th>
+                                                    <td>
+                                                      <md-input-container class="datepicker input-width margin-0 padding-right-0-imp">
+                                                        <input type="text" class="float-left"
+                                                               name="quoteValidTillDate_{{$index}}"
+                                                               datetime-picker="{{$root.dateDisplayFormat}}"
+                                                               enable-date="true"
+                                                               enable-time="false"
+                                                               ng-model="rfqAssy.quoteValidTillDate"
+                                                               datepicker-options="rfqAssy.quoteValidTillDateOptions"
+                                                               ui-options="{clearOnBlur  : true}"
+                                                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                                               model-view-value="true"
+                                                               ng-required="true"
+                                                               is-open="rfqAssy.quoteValidTillDateOptions.quoteValidTillDateOpenFlag" />
+                                                        <md-icon md-font-icon="icon-calendar calender-icon"  ng-click="rfqAssy.quoteValidTillDateOptions.quoteValidTillDateOpenFlag = true">
+                                                        </md-icon>
+                                                        <div ng-messages="vm.rfqDetails['rfqAssyform_'+ $index]['quoteValidTillDate_'+ $index].$error" role="alert">
+                                                          <div ng-message="valid">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                          </div>
+                                                          <div ng-message="required">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                          </div>
+                                                          <div ng-message="datetime">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                          </div>
+                                                        </div>
+                                                      </md-input-container>
+                                                    </td>
+                                                  </tr>
+                                                </tbody>
+                                              </table>
+                                            </div>
+                                            <div flex class="margin-left-5 margin-pro-rs-left-0" layout-wrap layout="row" flex-md="100" flex-sm="100">
+                                              <md-input-container flex="100" class="md-block margin-0">
+                                                <div layout="row" flex="100" flex-xs="100" layout-align="space-between center">
+                                                  <div layout="column">
+                                                    <span class="label-container margin-0">
+                                                      <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToRequirementTemplate();">Assembly Requirement</a>
+                                                    </span>
+                                                    <span class="label-container margin-0" ng-if="vm.rfqDetails['rfqAssyform_'+ $index]['assyaddreq_'+ $index].$error.taMaxText" style="color:red; font-size:12px">{{vm.getMaxLengthValidation(vm.taToolbar.MAX_LENGTH, vm.rfqDetails['rfqAssyform_'+ $index]['assyaddreq_'+ $index].$viewValue.length,vm.rfqDetails['rfqAssyform_'+ $index]['assyaddreq_'+ $index].$viewValue)}}</span>
+                                                  </div>
+                                                  <div layout="column" class="cm-rfq-textarea-button">
+                                                    <button class="md-primary md-icon-button md-mini" ng-hide="rfqAssy.isSummaryComplete" aria-label="Show Templates" ng-click="vm.OpenTemplateList(rfqAssy,vm.rfqDetails['rfqAssyform_'+ $index]['assyaddreq_'+ $index],$event);">
+                                                      <md-icon md-font-icon="icon-clipboard-text" class="material-icons mat-icon"></md-icon>
+                                                      <md-tooltip>Select Assembly Requirement</md-tooltip>
+                                                    </button>
+                                                  </div>
+                                                </div>
+                                                <text-angular flex="100" class="RFQ-info-text-area text-angular-editor-scroll" ta-toolbar="vm.taToolbar.INLINE" cg-busy-loading="vm.cgBusyLoading"
+                                                              ng-model="rfqAssy.additionalRequirement" name="assyaddreq_{{$index}}"
+                                                              ng-class="{'text-angular-custom-border':vm.rfqDetails['rfqAssyform_'+ $index]['assyaddreq_'+ $index].$error.taMaxText}"
+                                                              ta-disabled="rfqAssy.isSummaryComplete"
+                                                              ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"></text-angular>
+
+                                              </md-input-container>
+                                            </div>
+                                            <div layout="row" class="margin-left-5" flex flex-md="100" flex-sm="100">
+                                              <md-input-container flex="100" class="md-block margin-0">
+                                                <div layout="row" flex="100" flex-xs="100" layout-align="space-between center">
+                                                  <div layout="column">
+                                                    <span class="label-container">Internal Assembly Note</span>
+                                                    <span class="label-container" ng-if="vm.rfqDetails['rfqAssyform_'+ $index]['assyNote_'+ $index].$error.taMaxText" style="color:red; font-size:12px">{{vm.getMaxLengthValidation(vm.taToolbar.MAX_LENGTH, vm.rfqDetails['rfqAssyform_'+ $index]['assyNote_'+ $index].$viewValue.length,vm.rfqDetails['rfqAssyform_'+ $index]['assyNote_'+ $index].$viewValue)}}</span>
+                                                  </div>
+                                                </div>
+                                                <text-angular class="RFQ-info-text-area text-angular-editor-scroll" cols="10" ta-toolbar="vm.taToolbar.INLINE" cg-busy-loading="vm.cgBusyLoading"
+                                                              ta-disabled="rfqAssy.isSummaryComplete" ng-model="rfqAssy.assyNote" name="assyNote_{{$index}}"
+                                                              ng-class="{'text-angular-custom-border':vm.rfqDetails['rfqAssyform_'+ $index]['assyNote_'+ $index].$error.taMaxText}"
+                                                              ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"></text-angular>
+                                              </md-input-container>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div layout="row" flex="30" class="margin-left-5 margin-pro-rs-left-0" flex-md="100" flex-sm="100">
+                                        <div class="cm-section-main" flex="100">
+                                          <div class="cm-section-header" flex="100">
+                                            <h2>Planning Section</h2>
+                                          </div>
+                                          <div class="cm-section-inner">
+                                            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                              <tbody>
+                                                <tr>
+                                                  <th>
+                                                    <p class="label-container padding-top-5">Life Expectancy:</p>
+                                                  </th>
+                                                  <td>
+                                                    <div layout="row" layout-align="space-between center" class="margin-left-5" flex flex-md="100" flex-sm="100">
+                                                      <md-radio-group layout="row" ng-model="rfqAssy.isRepeat" ng-disabled="rfqAssy.isSummaryComplete" ng-change="vm.repeatChange(rfqAssy,$index);" name="isRepeat_{{$index}}">
+                                                        <md-radio-button ng-value="vm.lifeExpectancy.REPEAT.VALUE" class="md-primary margin-right-10">{{vm.lifeExpectancy.REPEAT.TYPE}}</md-radio-button>
+                                                        <md-radio-button ng-value="vm.lifeExpectancy.ONE_TIME.VALUE" class="md-primary"> {{vm.lifeExpectancy.ONE_TIME.TYPE}}</md-radio-button>
+                                                      </md-radio-group>
+                                                      <md-button class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-right-5" type="button" ng-disabled="vm.disabledMiscBuild || rfqAssy.isSummaryComplete" ng-click="vm.AddMiscBuild($event,rfqAssy,vm.rfqDetails['rfqAssyform_'+ $index]['rfqAssyMiscBuild_'+$index])">{{rfqAssy.rfqAssyMiscBuild.length>0?'Update':'Add'}} {{vm.lifeExpectancy.MISC_BUILD.TYPE}} ({{rfqAssy.rfqAssyMiscBuild.length}})</md-button>
+                                                    </div>
+                                                  </td>
+                                                </tr>
+                                                <tr ng-hide="true">
+                                                  <td>
+                                                    <input class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-right-5" name="rfqAssyMiscBuild_{{$index}}" type="text" ng-hide="true" ng-model="rfqAssy.rfqAssyMiscBuild" />
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <th>
+                                                    <p class="label-container">Proposed Build Qty<span ng-if="rfqAssy.isRepeat && !rfqAssy.isSummaryComplete">&nbsp;*</span></p>
+                                                  </th>
+                                                  <td>
+                                                    <md-input-container class="margin-0" flex="100" md-no-float>
+                                                      <input type="number" name="proposedBuildQty_{{$index}}" ng-disabled="rfqAssy.isSummaryComplete || !rfqAssy.isRepeat" ng-model="rfqAssy.proposedBuildQty"
+                                                             class="input-text" min="1" onkeypress="return OnlyNumeric(event)"
+                                                             placeholder="Proposed Build Qty" ng-required="rfqAssy.isRepeat" maxlength="9"
+                                                             custom-blur="vm.qtyChange(rfqAssy,'proposedBuildQty')">
+                                                      <div ng-messages="vm.rfqDetails['rfqAssyform_'+ $index]['proposedBuildQty_'+ $index].$error" role="alert">
+                                                        <div ng-message="required">
+                                                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                        </div>
+                                                        <div ng-message="min">
+                                                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                                                        </div>
+                                                        <div ng-message="maxlength">
+                                                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                        <div ng-message="number">
+                                                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                      </div>
+                                                    </md-input-container>
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <th>
+                                                    <p class="label-container">Time Period</p>
+                                                  </th>
+                                                  <td>
+                                                    <md-input-container class="margin-0" flex="100" md-no-float>
+                                                      <md-select flex="100" name="timePeriod_{{$index}}"
+                                                                 ng-model="rfqAssy.timePeriod"
+                                                                 placeholder="Time Period"
+                                                                 ng-disabled="rfqAssy.isSummaryComplete || !rfqAssy.isRepeat"
+                                                                 ng-required="false"
+                                                                 ng-change="vm.qtyChange(rfqAssy,'timeperiod')"
+                                                                 md-container-class="containerClass">
+                                                        <md-option ng-value="vm.unitOfTime.DAYLY.VALUE">{{vm.unitOfTime.DAYLY.TYPE}}</md-option>
+                                                        <md-option ng-value="vm.unitOfTime.WEEKLY.VALUE">{{vm.unitOfTime.WEEKLY.TYPE}}</md-option>
+                                                        <md-option ng-value="vm.unitOfTime.MONTHLY.VALUE">{{vm.unitOfTime.MONTHLY.TYPE}}</md-option>
+                                                        <md-option ng-value="vm.unitOfTime.QUARTERLY.VALUE">{{vm.unitOfTime.QUARTERLY.TYPE}}</md-option>
+                                                        <md-option ng-value="vm.unitOfTime.YEARLY.VALUE">{{vm.unitOfTime.YEARLY.TYPE}}</md-option>
+                                                      </md-select>
+                                                      <div ng-messages="vm.rfqDetails['rfqAssyform_'+ $index]['timePeriod_'+ $index].$error" role="alert">
+                                                        <div ng-message="required">
+                                                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                        </div>
+                                                      </div>
+                                                    </md-input-container>
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <th>
+                                                    <p class="label-container">Number Of Build<span ng-if="rfqAssy.isRepeat && !rfqAssy.isSummaryComplete">&nbsp;*</span></p>
+                                                  </th>
+                                                  <td>
+                                                    <md-input-container class="margin-0" flex="100" md-no-float>
+                                                      <input type="number" name="noOfBuild_{{$index}}" ng-disabled="rfqAssy.isSummaryComplete || !rfqAssy.isRepeat" ng-model="rfqAssy.noOfBuild"
+                                                             class="input-text" min="1" onkeypress="return OnlyNumeric(event)"
+                                                             placeholder="Number Of Build" ng-required="rfqAssy.isRepeat" maxlength="9"
+                                                             custom-blur="vm.qtyChange(rfqAssy,'noOfBuild')">
+                                                      <div ng-messages="vm.rfqDetails['rfqAssyform_'+ $index]['noOfBuild_'+ $index].$error" role="alert">
+                                                        <div ng-message="required">
+                                                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                        </div>
+                                                        <div ng-message="min">
+                                                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                                                        </div>
+                                                        <div ng-message="maxlength">
+                                                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                        <div ng-message="number">
+                                                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                      </div>
+                                                    </md-input-container>
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <th>
+                                                    <p class="label-container">EAU<span ng-if="rfqAssy.isRepeat && !rfqAssy.isSummaryComplete">&nbsp;*</span></p>
+                                                  </th>
+                                                  <td>
+                                                    <md-input-container class="margin-0" flex="100" md-no-float>
+                                                      <input type="number" name="eau_{{$index}}" ng-disabled="rfqAssy.isSummaryComplete || !rfqAssy.isRepeat" ng-model="rfqAssy.eau"
+                                                             class="input-text" min="1" onkeypress="return OnlyNumeric(event)"
+                                                             placeholder="EAU" ng-required="rfqAssy.isRepeat" maxlength="9"
+                                                             custom-blur="vm.qtyChange(rfqAssy,'eau')">
+                                                      <div ng-messages="vm.rfqDetails['rfqAssyform_'+ $index]['eau_'+ $index].$error" role="alert">
+                                                        <div ng-message="required">
+                                                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                        </div>
+                                                        <div ng-message="min">
+                                                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                                                        </div>
+                                                        <div ng-message="maxlength">
+                                                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                        <div ng-message="number">
+                                                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                      </div>
+                                                    </md-input-container>
+                                                  </td>
+                                                </tr>
+                                              </tbody>
+                                            </table>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="cm-normal-header" flex="100" ng-if="!vm.rfq.id ||rfqAssy.id ==  vm.rfqassyId">
+                                    <h2>Assembly Quantity</h2>
+                                    <div layout="row" class="cm-header-button">
+                                      <md-button class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-right-5" type="button" ng-disabled="rfqAssy.isSummaryComplete" ng-click="vm.addAssyQty(rfqAssy,vm.rfqDetails,rfqAssy.isSummaryComplete)">Add Qty</md-button>
+                                      <md-button class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-right-0" ng-if="!rfqAssy.generateCombination" ng-disabled="rfqAssy.isSummaryComplete" ng-click="rfqAssy.generateCombination = true" type="button">Generate combination</md-button>
+                                      <md-button class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-right-0" ng-disabled="rfqAssy.isSummaryComplete" ng-click="vm.removeAllAssyQty(rfqAssy,vm.rfqDetails,rfqAssy.isSummaryComplete)" type="button">Remove All Qty</md-button>
+                                    </div>
+                                  </div>
+                                  <div flex="100" class="padding-10 border-bottom" layout-wrap layout="row" ng-if="!vm.rfq.id ||rfqAssy.id ==  vm.rfqassyId">
+                                    <div class="cm-section-main margin-bottom-10" flex="100" ng-if="rfqAssy.generateCombination">
+                                      <div class="cm-section-inner" flex="100" layout="row" layout-md="column" layout-sm="column">
+                                        <div flex layout-wrap layout="row" layout-md="column" layout-sm="column">
+                                          <div class="icon-question-mark-circle help-icon margin-top-8" flex-md="100" flex-sm="100">
+                                            <!--<md-tooltip md-direction="top">Generate Records based on given input</md-tooltip>-->
+                                            <md-tooltip md-direction="top">{{ vm.RFQ_MESSEGE_CONSTANT.GENERATE_QTY_COMBINATION_INFO}}</md-tooltip>
+                                          </div>
+                                          <div flex="20" flex-lg="30" layout="row" flex-md="100" flex-sm="100">
+                                            <div class=" input-wrapper" layout="row" layout-wrap flex="100">
+                                              <p class="margin-top-0 margin-bottom-0 label-container" layout="row" layout-align="start start">Qty Type:</p>
+                                              <md-radio-group layout="row" class="margin-0" ng-model="rfqAssy.GeneratedQtyType" ng-disabled="rfqAssy.isSummaryComplete" name="qtyType_{{$index}}">
+                                                <md-radio-button ng-repeat="qtyType in vm.QtytypeOptions" ng-value="qtyType.value" class="md-primary">{{qtyType.text}}</md-radio-button>
+                                              </md-radio-group>
+                                            </div>
+                                          </div>
+                                          <div flex="20" flex-lg="15" layout="row" class="input-wrapper" flex-md="100" flex-sm="100">
+                                            <p class="margin-top-0 margin-bottom-0 label-container" layout-align="start start" layout="row">Quote Qty </p>
+                                            <md-input-container class="margin-0" flex="100" md-no-float>
+                                              <input type="text" name="genQty_{{$index}}" ng-disabled="rfqAssy.isSummaryComplete" ng-model="rfqAssy.GeneratedQuentity"
+                                                     class="input-text" pattern="^[0-9,]*$" placeholder="ex. 100,200,500,1000">
+                                              <div ng-messages="vm.rfqDetails['rfqAssyform_'+ $index]['genQty_'+ $index].$error" role="alert">
+                                                <div ng-message="pattern">
+                                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                </div>
+                                              </div>
+                                            </md-input-container>
+                                          </div>
+                                          <div flex="20" flex-lg="15" layout="row" class="input-wrapper" flex-md="100" flex-sm="100">
+                                            <p class="margin-top-0 margin-bottom-0 label-container" layout-align="start start" layout="row">Turn Time </p>
+                                            <md-input-container class="margin-0" flex="100" md-no-float>
+                                              <input type="text" name="GenTurntime_{{$index}}" ng-disabled="rfqAssy.isSummaryComplete" ng-model="rfqAssy.GeneratedTurnTime"
+                                                     class="input-text" pattern="^[0-9,]*$" placeholder="ex. 5,10,20">
+
+                                              <div ng-messages="vm.rfqDetails['rfqAssyform_'+ $index]['GenTurntime_'+ $index].$error" role="alert">
+                                                <div ng-message="pattern">
+                                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                </div>
+                                              </div>
+                                            </md-input-container>
+                                          </div>
+                                          <div flex="20" layout="row" class="input-wrapper" flex-md="100" flex-sm="100">
+                                            <p class="margin-top-0 margin-bottom-0 label-container" layout-align="start start" layout="row">Unit Of Time </p>
+                                            <md-input-container class="margin-0" flex="100" md-no-float>
+                                              <md-select ng-model="rfqAssy.GeneratedUnitOfTime" ng-disabled="rfqAssy.isSummaryComplete" name="unitOfTime_{{$index}}">
+                                                <md-option ng-value="vm.unitOfTime.BUSINESS_DAY.VALUE">{{vm.unitOfTime.BUSINESS_DAY.TYPE}}</md-option>
+                                                <md-option ng-value="vm.unitOfTime.WEEK_DAY.VALUE">{{vm.unitOfTime.WEEK_DAY.TYPE}}</md-option>
+                                                <md-option ng-value="vm.unitOfTime.WEEK.VALUE">{{vm.unitOfTime.WEEK.TYPE}}</md-option>
+                                              </md-select>
+                                            </md-input-container>
+                                          </div>
+                                          <div flex="15" layout="row" class="input-wrapper" flex-md="100" flex-sm="100">
+                                            <div>
+                                              <md-button class="md-primary md-raised md-button margin-0 md-ink-ripple" ng-click="vm.generatequentity(rfqAssy,vm.rfqDetails)"
+                                                         ng-disabled="(!rfqAssy.GeneratedQuentity || !rfqAssy.GeneratedTurnTime || !rfqAssy.GeneratedUnitOfTime)">
+                                                Generate Combination
+                                              </md-button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <md-button class="md-primary md-raised md-ink-ripple margin-0" ng-click="rfqAssy.generateCombination = false" type="button">Close</md-button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div flex="100" layout="row" class="cm-assly-qty-main custom-scroll">
+                                      <div class="cm-add-assembly-section" ng-repeat="rfqAssyQuantity in rfqAssy.rfqAssyQuantity track by $index" ng-init="rfqAssyQuantity.assemblyQuantityIndex = $index" ng-if="rfqAssy.rfqAssyQuantity.length>0">
+                                        <div flex="100" layout-wrap layout="row">
+                                          <div layout="row" layout-align="space-between center" flex="100">
+                                            <div layout="row" class="cm-overflow-hidden">
+                                              <table cellspacing="0" cellpadding="0" class="cm-table-input-main scan-serial-number-detail">
+                                                <tbody>
+                                                  <tr ng-if="rfqAssyQuantity.rfqPriceGroup.name">
+                                                    <th>
+                                                      <p class="label-container margin-0">Price Group: </p>
+                                                    </th>
+                                                    <td>
+                                                      <span flex="100" class="label-container">
+                                                        <b>{{rfqAssyQuantity.rfqPriceGroup.name}}</b>
+                                                        <md-tooltip>{{rfqAssyQuantity.rfqPriceGroup.name}}</md-tooltip>
+                                                      </span>
+                                                    </td>
+                                                  </tr>
+                                                </tbody>
+                                              </table>
+                                            </div>
+                                            <div layout="row" class="margin-bottom-5">
+                                              <md-button class="md-primary md-icon-button md-raised md-mini" ng-disabled="rfqAssy.isSummaryComplete || rfqAssyQuantity.rfqPriceGroupId" ng-click="vm.removeAssyQty(rfqAssy,rfqAssyQuantity,vm.rfqDetails,'insertquantity_'+ $parent.$parent.$index + '_','rfqAssyform_'+ $parent.$parent.$index)">
+                                                <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                                                <md-tooltip md-direction="left">Remove Quantity</md-tooltip>
+                                              </md-button>
+                                            </div>
+                                          </div>
+                                          <div flex="100">
+                                            <div flex="100" class="padding-right-5">
+                                              <p flex="25" class="margin-top-0 margin-bottom-0 margin-right-5 label-container" layout-align="start start" layout="row">Qty Type:</p>
+                                              <md-radio-group ng-model="rfqAssyQuantity.quantityType" layout="row" ng-disabled="rfqAssy.isSummaryComplete || rfqAssyQuantity.rfqPriceGroupId" name="qtyType_{{$parent.$index}}_{{$index}}">
+                                                <md-radio-button ng-repeat="qtyType in vm.QtytypeOptions" ng-value="qtyType.value" class="md-primary">{{qtyType.text}}</md-radio-button>
+                                              </md-radio-group>
+                                            </div>
+                                            <div flex="100">
+                                              <p class="label-container" layout-align="start center" flex="25">Quote Qty<span ng-hide="rfqAssy.isSummaryComplete || rfqAssyQuantity.rfqPriceGroupId">&nbsp;*</span></p>
+                                              <div layout="row" flex="100">
+                                                <md-input-container flex="100" class="input-width margin-bottom-5">
+                                                  <input type="number" ng-disabled="rfqAssy.isSummaryComplete || rfqAssyQuantity.rfqPriceGroupId" required onkeypress="return OnlyNumeric(event)" min="1" custom-auto-focus="{{rfqAssyQuantity.focus}}"
+                                                         ng-change="vm.checkSameQty(rfqAssy.rfqAssyQuantity,rfqAssyQuantity.requestQty,vm.rfqDetails,rfqAssyQuantity,'insertquantity_'+ $parent.$parent.$index + '_','rfqAssyform_'+ $parent.$parent.$index)"
+                                                         name="insertquantity_{{$parent.$parent.$index}}_{{$index}}" ng-model="rfqAssyQuantity.requestQty" maxlength="9" />
+                                                  <div ng-messages="vm.rfqDetails['rfqAssyform_'+ $parent.$parent.$index]['insertquantity_'+ $parent.$parent.$index + '_' + $index].$error" role="alert">
+                                                    <div ng-message="maxlength">
+                                                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                    </div>
+                                                    <div ng-message="required">
+                                                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                    </div>
+                                                    <div ng-message="min">
+                                                      <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                                                    </div>
+                                                    <div ng-message="duplicate">
+                                                      <span>{{vm.RFQ_MESSEGE_CONSTANT.DUPLICATE}}</span>
+                                                    </div>
+                                                    <div ng-message="number">
+                                                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                    </div>
+                                                  </div>
+                                                </md-input-container>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div flex="100" class="margin-top-5" layout="row">
+                                            <p class="label-container" layout-align="start center" flex="35">Turn Time<span ng-hide="rfqAssy.isSummaryComplete || rfqAssyQuantity.rfqPriceGroupId">&nbsp;*</span></p>
+                                            <p class="label-container" layout-align="start center" flex="65">Unit Of Time<span ng-hide="rfqAssy.isSummaryComplete || rfqAssyQuantity.rfqPriceGroupId">&nbsp;*</span></p>
+                                          </div>
+                                          <div flex="100" layout="row" ng-repeat="rfqAssyQtyTurnTime in rfqAssyQuantity.rfqAssyQtyTurnTime track by $index" ng-init="assemblyQuantityTurnIndex = $index">
+                                            <div flex="100" layout="row">
+                                              <md-input-container flex="35" class="input-width margin-bottom-5">
+                                                <input type="number" ng-disabled="rfqAssy.isSummaryComplete || rfqAssyQuantity.rfqPriceGroupId" onkeypress="return OnlyNumeric(event)" required ng-model="rfqAssyQtyTurnTime.turnTime" min="1"
+                                                       name="qtyTurnTime_{{$parent.$parent.$parent.$index}}_{{$parent.$parent.$index}}_{{$index}}" maxlength="9" custom-auto-focus="{{rfqAssyQtyTurnTime.focus}}" />
+                                                <div ng-messages="vm.rfqDetails['rfqAssyform_'+ $parent.$parent.$parent.$index]['qtyTurnTime_'+ $parent.$parent.$parent.$index + '_'+ $parent.$index + '_' + $index].$error" role="alert">
+                                                  <div ng-message="required">
+                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                  </div>
+                                                  <div ng-message="min">
+                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                                                  </div>
+                                                  <div ng-message="number">
+                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                  </div>
+                                                  <div ng-message="maxlength">
+                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                  </div>
+                                                </div>
+                                              </md-input-container>
+                                              <md-input-container class="md-block margin-0" flex="65">
+                                                <md-select ng-model="rfqAssyQtyTurnTime.unitOfTime" ng-disabled="rfqAssy.isSummaryComplete || rfqAssyQuantity.rfqPriceGroupId" name="unitOfTime_{{$parent.$parent.$parent.$index}}_{{$parent.$parent.$index}}_{{$index}}" ng-required="true">
+                                                  <md-option ng-value="vm.unitOfTime.BUSINESS_DAY.VALUE">{{vm.unitOfTime.BUSINESS_DAY.TYPE}}</md-option>
+                                                  <md-option ng-value="vm.unitOfTime.WEEK_DAY.VALUE">{{vm.unitOfTime.WEEK_DAY.TYPE}}</md-option>
+                                                  <md-option ng-value="vm.unitOfTime.WEEK.VALUE">{{vm.unitOfTime.WEEK.TYPE}}</md-option>
+                                                </md-select>
+                                                <div ng-messages="vm.rfqDetails['rfqAssyform_'+ $parent.$parent.$parent.$index]['unitOfTime_'+$parent.$parent.$parent.$index + '_'+ $parent.$parent.$index + '_' + $index].$error" role="alert">
+                                                  <div ng-message="required">
+                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                  </div>
+                                                </div>
+                                              </md-input-container>
+                                              <div layout="row" layout-align="start center" ng-hide="rfqAssyQuantity.rfqAssyQtyTurnTime.length==1">
+                                                <md-button class="md-icon-button md-primary md-mini" ng-disabled="rfqAssy.isSummaryComplete || rfqAssyQuantity.rfqPriceGroupId" ng-click="vm.removeAssyQtyTurnTime(rfqAssy,rfqAssyQuantity,rfqAssyQtyTurnTime,vm.rfqDetails)">
+                                                  <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                                                  <md-tooltip>Remove Qty Turn Time</md-tooltip>
+                                                </md-button>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div flex="100" layout-align="center" class="margin-top-10" layout="row" ng-disabled="rfqAssy.isSummaryComplete || rfqAssyQuantity.rfqPriceGroupId">
+                                            <md-button class="md-primary md-raised md-button margin-0 md-ink-ripple"
+                                                       last-element elementcondition="{{((rfqAssy.rfqAssyQuantity.length - 1) == $index ? true : false)}}"
+                                                       ng-disabled="rfqAssy.isSummaryComplete|| rfqAssyQuantity.rfqPriceGroupId" ng-click="vm.addAssyQtyTurnTime(rfqAssy,rfqAssyQuantity,(rfqAssy.isSummaryComplete|| rfqAssyQuantity.rfqPriceGroupId))">
+                                              Add Turn Time
+                                            </md-button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="rfqAssy.rfqAssyQuantity.length==0">
+                                        <div class="emty-icon" flex="100">
+                                          <img ng-src="{{vm.EmptyMesssage.RFQ_ASSY_QUANTITY.IMAGEURL}}" />
+                                        </div>
+                                        <p flex="100" class="empty-state-title" ng-bind-html="vm.EmptyMesssage.RFQ_ASSY_QUANTITY.MESSAGE"></p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </ng-form>
+                          </md-tab-body>
+                        </md-tab>
+                      </md-tabs>
+                    </div>
+                  </div>
+                </form>
+                <input id="fiexcel" name="file" type="file" class="hidden" style="height:0px;width:0px;left: -100%;position:absolute">
+              </div>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="(vm.rfq.id && vm.isCustomerAccess == false)">
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.EmptyMesssage.PERSONNAL_CUSTOMER_UNAUTHORIZE_ACCESS.IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title" ng-bind-html="vm.EmptyMesssage.PERSONNAL_CUSTOMER_UNAUTHORIZE_ACCESS.MESSAGE"></p>
+                <p flex="100">
+                  {{vm.EmptyMesssage.PERSONNAL_CUSTOMER_UNAUTHORIZE_ACCESS.CONTACT_ADMINISTRATOR}}
+                </p>
+              </div>
+            </md-tab-body>
+          </md-tab>
+
+          <!--Miscellaneous-->
+          <md-tab md-on-select="vm.onMainTabChanges(vm.OtherDetailTabName,msWizard)" ng-disabled="!vm.rfq.id">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.rfq.id">2</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.rfq.id">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.rfq.id)}" class="ms-form-wizard-step-text">{{vm.OtherDetailTitle}}</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.wizardOtherDetail" class="md-inline-form" ms-form-wizard-form novalidate ng-if="vm.isCustomerAccess">
+                <div layout="column" class="cm-tab-misc" layout-gt-xs="100" ng-if="vm.IsOtherDetailTab == true">
+                  <view-data-element entity="{{vm.Entity}}" dataelement-list="vm.dataElementList" ref-trans-id="{{vm.rfq.id}}"
+                                     entity-id="vm.entityID" file-list="vm.fileList"
+                                     curr-active-form="vm.wizardOtherDetail"></view-data-element>
+                </div>
+              </form>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isCustomerAccess == false">
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.EmptyMesssage.PERSONNAL_CUSTOMER_UNAUTHORIZE_ACCESS.IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title" ng-bind-html="vm.EmptyMesssage.PERSONNAL_CUSTOMER_UNAUTHORIZE_ACCESS.MESSAGE"></p>
+                <p flex="100">
+                  {{vm.EmptyMesssage.PERSONNAL_CUSTOMER_UNAUTHORIZE_ACCESS.CONTACT_ADMINISTRATOR}}
+                </p>
+              </div>
+            </md-tab-body>
+          </md-tab>
+        </md-tabs>
+      </div>
+    </div>
+    <!-- / CONTENT -->
+  </ms-form-wizard>
+</div>
+

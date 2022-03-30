@@ -1,0 +1,133 @@
+<md-dialog aria-label="StandardClass" cg-busy="{promise:vm.cgBusyLoading}" flex="45" flex-lg="60"
+           draggable >
+    <form name="vm.StandardClassForm" class="md-inline-form" novalidate>
+        <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+        <md-toolbar>
+          <div class="md-toolbar-tools">
+            <h2>{{vm.StandardClassModel.classID?'Update':'Add'}} Standard Category</h2>
+            <span flex></span>
+            <md-button class="md-primary md-raised" id="headerAddBtn" ng-click="vm.saveAndProceed(vm.BUTTON_TYPE.ADDNEW)">Add Standard Category</md-button>
+            <md-button class="md-icon-button" ng-click="vm.cancel()">
+              <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+            </md-button>
+          </div>
+        </md-toolbar>
+        <md-dialog-content class="customer-modal no-padding custom-scroll cm-custom-label-common">
+            <md-content class="padding-10 mh-5">
+                <div layout="row" flex="100" layout-wrap>
+                    <div class="cm-section-main border-0" flex="100" layout="row">
+                        <div class="cm-section-inner" flex="100">
+                            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                <tbody>
+                                    <tr>
+                                        <th>
+                                            <p class="label-container">
+                                                <a class="cm-text-decoration" ng-click="vm.goToStandard();" tabindex="-1">Standard</a><span>&nbsp;*</span>
+                                            </p>
+                                        </th>
+                                        <td>
+                                            <md-input-container ng-if="vm.autoCompleteCertificateStandard" 
+                                                                class="md-block autocompletecustom" 
+                                                                flex-gt-xs >
+                                                <custom-auto-complete datalist="vm.certificateStandardList"
+                                                                      column-name="vm.autoCompleteCertificateStandard.columnName"
+                                                                      controller-name="vm.autoCompleteCertificateStandard.controllerName"
+                                                                      view-template-url="vm.autoCompleteCertificateStandard.viewTemplateURL"
+                                                                      key-column-name="vm.autoCompleteCertificateStandard.keyColumnName"
+                                                                      input-name="vm.autoCompleteCertificateStandard.inputName"
+                                                                      placeholder-name="vm.autoCompleteCertificateStandard.placeholderName"
+                                                                      key-column-id="vm.autoCompleteCertificateStandard.keyColumnId"
+                                                                      is-required="vm.autoCompleteCertificateStandard.isRequired"
+                                                                      add-data="vm.autoCompleteCertificateStandard.addData"
+                                                                      is-addnew="vm.autoCompleteCertificateStandard.isAddnew"
+                                                                      callback-fn="vm.autoCompleteCertificateStandard.callbackFn"
+                                                                      on-select-callback-fn="vm.autoCompleteCertificateStandard.onSelectCallbackFn"
+                                                                      custom-auto-focus="true">
+                                                </custom-auto-complete>
+                                            </md-input-container>
+                                        </td>
+                                        <th><p class="label-container">Category<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                                        <td>
+                                            <div layout="row" flex>
+                                                <md-input-container class="md-block" flex-gt-xs>
+                                                    <input type="text" name="className" id="className" ng-model="vm.StandardClassModel.className"
+                                                           placeholder="Category" required custom-blur="vm.checkDuplicateCategory();" ng-maxlength="100" md-maxlength="100">
+                                                    <div ng-messages="vm.StandardClassForm.className.$error" role="alert">
+                                                        <div ng-message="required">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                        </div>
+                                                        <div ng-message="maxlength">
+                                                            <span>{{vm.getMaxLengthValidation(100, vm.StandardClassForm.className.$viewValue.length)}}</span>
+                                                        </div>
+                                                    </div>
+                                                </md-input-container>
+                                              </div>
+                                            </td>
+                                            <td>
+                                            <div layout="row" class="">
+                                            <md-radio-group layout="row" ng-model="vm.StandardClassModel.isActive" name="radioActive">
+                                                <md-radio-button ng-value="true">Enable</md-radio-button>
+                                                <md-radio-button ng-value="false">Disable</md-radio-button>
+                                            </md-radio-group>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                      <th><p class="label-container">Description<span>&nbsp;</span></p></th>
+                                      <td colspan="3">
+                                        <div layout="row" flex>
+                                          <md-input-container class="md-block" flex-gt-xs>
+                                            <textarea id="description"
+                                                      name="description"
+                                                      ng-model="vm.StandardClassModel.description"
+                                                      ng-maxlength="1000"
+                                                      md-maxlength="1000"
+                                                      rows="2"
+                                                      placeholder="Description">
+                                                      </textarea>
+                                            <div ng-messages="vm.StandardClassForm.description.$error"
+                                                 role="alert">
+                                              <div ng-message="maxlength">
+                                                <span>{{vm.getMaxLengthValidation(1000, vm.StandardClassForm.description.$viewValue.length)}}</span>
+                                              </div>
+                                            </div>
+                                          </md-input-container>
+                                          </div>
+                                      </td>
+                                      <td>
+                                        <div class="pl-10" layout="row">
+                                          <div class="md-block colorpicker" flex="30" >
+                                            <!--<p class="margin-bottom-0 margin-top-0 label-container" ng-if="vm.StandardClassModel.colorCode">Select Color Code</p>-->
+                                            <md-button name="colorCode" class="md-default md-raised black-500-fg ml-0"
+                                                       ng-click="vm.getColor($event,vm.StandardClassModel.colorCode)"
+                                                       style="background-color:{{vm.StandardClassModel.colorCode}} !important">Select Color Code</md-button>
+                                            <div ng-messages="vm.StandardClassForm.colorCode.$error"
+                                                 role="alert">
+                                              <div ng-if="vm.StandardClassModel.colorCode.length>20">
+                                                <span>{{vm.CORE_MESSAGE_CONSTANT.MAX_LENGTH}}</span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div class="margin-top-15">
+                                          </div>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                </div>
+            </md-content>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+          <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+          <!-- Check vm.isChange flag for color picker dirty object-->
+
+          <md-button class="md-primary md-raised" ng-click="vm.save(vm.BUTTON_TYPE.SAVE)" aria-label="Submit" ng-class="{'md-formdirty':  vm.StandardClassForm.$dirty}">Save</md-button>
+          <md-button class="md-primary md-raised" data-focusButton="headerAddBtn" last-element elementcondition="true" ng-click="vm.save(vm.BUTTON_TYPE.SAVEANDEXIT);" aria-label="Submit" ng-class="{'md-formdirty': vm.StandardClassForm.$dirty}">{{vm.CORE_MESSAGE_CONSTANT.SAVE_AND_EXIT}}</md-button>
+
+        </md-dialog-actions>
+    </form>
+</md-dialog>

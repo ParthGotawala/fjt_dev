@@ -1,0 +1,395 @@
+<div id="customer-list" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <!-- TOP BACKGROUND -->
+  <div class="top-bg md-accent-bg"></div>
+  <!-- / TOP BACKGROUND -->
+  <!-- CENTER -->
+  <div class="center margin-left-0 margin-right-0" layout="column" flex>
+    <!-- CONTENT HEADER -->
+    <div class="header" layout="row" layout-align="space-between center">
+      <div class="white-fg" layout="column" layout-align="start start">
+        <div class="h2" layout="row" layout-align="start center">
+          <pagetitle is-list="true" is-display-menu-name="true" prefix-content="vm.IsManfucaturer ? vm.LabelConstant.MFG.Manufacturer : vm.LabelConstant.MFG.Supplier"></pagetitle>
+        </div>
+        <div layout="row" layout-align="start center">
+          <breadcrumbs></breadcrumbs>
+        </div>
+      </div>
+      <div layout="row" layout-align="center center" flex>
+        <div layout="row" flex="60" class="part-master-header-search">
+          <md-input-container md-no-float flex>
+            <input type="text" name="attributesSearchHeader" id="attributesSearchHeader"
+                   ng-model="vm.attributesSearchHeader"
+                   placeholder="Enter Keyword, item, model or part number"
+                   ng-maxlength="50" autocomplete="off"
+                   ng-keyup="vm.refreshGridData(null,true,$event)"
+                   ng-change="vm.setHeaderSearchFlag()"
+                   capitalize class="input-text-uppercase">
+          </md-input-container>
+          <md-button ng-click="vm.clearHeaderSearch()" ng-if="vm.attributesSearchHeader" class="md-primary md-link-ripple cm-part-advance-filter-btn">
+            <md-icon md-font-icon="icon-close">
+              <md-tooltip ng-if="(vm.attributesSearchHeader) ? true : false">Clear</md-tooltip>
+            </md-icon>
+          </md-button>
+          <md-button class="md-primary md-raised margin-top-imp" ng-click="vm.refreshGridData(null,true)">
+            Search
+          </md-button>
+        </div>
+      </div>
+      <div class="part-filters-legend" layout-align="center-center">
+        <div layout="row" layout-align="start center">
+          <div class="legend-section progressive-filters"></div>
+          <label>Progressive Filters</label>
+        </div>
+        <div layout="row" layout-align="start center">
+          <div class="legend-section non-progressive-filters"></div>
+          <label>Non Progressive Filters</label>
+        </div>
+      </div>
+      <div layout="row" layout-align="center center" flex="20" ng-if="vm.remainingParts">
+        <div class="inline-block cm-progressbar-part-costing" flex="65">
+          <span class="font-size-12 white-fg">Part updating in-progress</span>
+          <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+          <p class="font-size-12 margin-bottom-0"><span class="white-fg">{{vm.LabelConstant.COMMON.TimeRemain}}:</span> <b>{{vm.messageToShowProgress}}</b></p>
+          <p class="font-size-12"><span class="white-fg">Parts Remaining:</span> <b>{{vm.remainingParts}} (Total: {{vm.totalParts}})</b></p>
+        </div>
+      </div>
+      <div layout="row" class="cm-square-icon-btn">
+        <div layout="column" ng-if="vm.remainingParts">
+          <md-button ng-disabled="!vm.stopExternalPartUpdateFeature"
+                     class="md-primary cm-feture-btn-color md-raised" aria-label="Stop External Part Update" ng-click="vm.stopExternalPartUpdate($event)">
+            Stop External Part Updating
+          </md-button>
+          <span class="font-weight-600 font-size-10 margin-left-10" ng-if="!vm.stopExternalPartUpdateFeature">
+            {{vm.LabelConstant.FeatureEnableText}}
+          </span>
+        </div>
+        <md-button class="md-icon-button md-primary md-raised md-mini" ng-if="vm.isNoDataFound != true"
+                   ng-click="vm.addEditRecord(null,$event)">
+          <md-icon md-font-icon="t-icons-add-mfr-pn add-icon" ng-if="(vm.IsManfucaturer)" class="material-icons"></md-icon>
+          <md-icon md-font-icon="t-icons-supplier-part add-icon" ng-if="(!vm.IsManfucaturer)" class="material-icons"></md-icon>
+          <md-tooltip>Add {{(vm.IsManfucaturer ? vm.LabelConstant.MFG.Manufacturer : vm.LabelConstant.MFG.Supplier)}} Part</md-tooltip>
+        </md-button>
+      </div>
+    </div>
+    <!-- / CONTENT HEADER -->
+    <!-- CONTENT CARD -->
+    <div class="content-card padding-top-side" layout="column" flex>
+      <div layout="row" flex="100">
+        <ms-form-wizard flex>
+          <md-tabs class="fielddetail manage-customer-tabing padding-0 cm-part-list-page-tab-wrapper cm-part-master-rs"
+                   md-dynamic-height md-selected="vm.selectedIndex" id="manage-customer-tabing">
+            <md-tab ng-click="vm.onTabChanges(true, true)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-text">Manufacturer Parts</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div flex="100" layout="row" layout-wrap>
+                  <div flex="100"
+                       ng-if="vm.IsManfucaturer &&
+                                         vm.showFilters &&
+                                         vm.filteredMfgCodeList &&
+                                         vm.filteredMfgCodeForSupplierPartsList &&
+                                         vm.filteredPartStatusList &&
+                                         vm.filteredPackagingList &&
+                                         vm.filteredFunctionalTypeList &&
+                                         vm.filteredMountingTypeList &&
+                                         vm.filteredPartTypeList"
+                       ng-show="!vm.showGroupWiseList">
+                    <manage-componemt-advanced-filter class="advanced-filters"
+                                                      mfg-type="vm.mfgType"
+                                                      apply-filters="vm.refreshGridData"
+                                                      clear-group-filters="vm.clearGroupFilters"
+                                                      clear-grid-data="vm.clearGridData"
+                                                      advanced-filter-options="vm.advancedFilterOptions"
+                                                      search="vm.keywords"
+                                                      packaging-list="vm.packagingListForFilters"
+                                                      package-case-list="vm.packageCaseListForFilters"
+                                                      rohs-list="vm.rohsListForFilters"
+                                                      filtered-mfg-code-list="vm.filteredMfgCodeList"
+                                                      filtered-mfg-code-for-supplier-parts-list="vm.filteredMfgCodeForSupplierPartsList"
+                                                      filtered-part-status-list="vm.filteredPartStatusList"
+                                                      filtered-packaging-list="vm.filteredPackagingList"
+                                                      filtered-package-case-list="vm.filteredPackageCaseListForFilters"
+                                                      filtered-functional-type-list="vm.filteredFunctionalTypeList"
+                                                      filtered-external-functional-type-list="vm.filteredExternalFunctionalTypeList"
+                                                      filtered-mounting-type-list="vm.filteredMountingTypeList"
+                                                      filtered-external-mounting-type-list="vm.filteredExternalMountingTypeList"
+                                                      filtered-part-type-list="vm.filteredPartTypeList"
+                                                      filtered-standards-list="vm.filteredStandardsList"
+                                                      filtered-rohs-list="vm.filteredRoHSList"
+                                                      filtered-external-rohs-status-list="vm.filteredExternalRoHSList"
+                                                      filtered-country-list="vm.filteredCountryList"
+                                                      filtered-operational-attribute-list="vm.filteredOperationalAttributeList"
+                                                      filtered-assembly-type-list="vm.filteredAssemblyTypeList"
+                                                      header-search-text="vm.attributesSearchHeader"
+                                                      grid-options="vm.gridOptions">
+                    </manage-componemt-advanced-filter>
+                  </div>
+                  <div ng-if="vm.IsManfucaturer && vm.isGridVisible" ng-show="!vm.isNoDataFound && !vm.showGroupWiseList" class="padding-10" flex="100">
+                    <div layout="row" flex="100">
+                      <div ng-if="vm.selectedGroupText" layout="row" layout-align="start center" class="cm-tracking-chip-mian">
+                        <div class="tracking-number-chip" layout="row" layout-align="start center">
+                          <label>
+                            {{vm.selectedGroupText}}
+                            <md-tooltip md-direction="top" ng-if="vm.selectedGroupText" class="tooltip-height-auto"
+                                        ng-bind-html="vm.selectedGroupText">
+                            </md-tooltip>
+                          </label>
+                          <md-button class="md-icon-button md-primary md-mini" ng-click="vm.clearGroupFilters(true)">
+                            <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                            <md-tooltip>Click to remove this filter</md-tooltip>
+                          </md-button>
+                        </div>
+                      </div>
+                    </div>
+                    <md-card layout="column" class="margin-0 " flex layout-align="space-between stretch">
+                      <ui-grid-extention load-data="vm.loadData"
+                                         class="part-master-grid"
+                                         grid-option="vm.gridOptions"
+                                         header="vm.sourceHeader"
+                                         grid-data="vm.sourceData"
+                                         total-data-count="vm.totalSourceDataCount"
+                                         reset-grid="vm.resetSourceGrid"
+                                         selectted-rows="vm.selectedRowsList"
+                                         paging-info="vm.pagingInfo"
+                                         current-item="vm.currentdata"
+                                         get-data-down="vm.getDataDown"
+                                         empty-state="vm.emptyState"
+                                         delete-multiple-data="vm.deleteMultipleData"
+                                         cloud-update-multiple-data="vm.cloudUpdateMultipleData"
+                                         grid-id="vm.gridMfgPartList">
+                    </md-card>
+                  </div>
+                  <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                       ng-if="(vm.isNoDataFound == true && (vm.isGridVisible || vm.isGroupSectionVisiable)) ||
+                                                (!vm.isGridVisible && !vm.isGroupSectionVisiable)">
+                    <div class="emty-icon" flex="100">
+                      <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                    </div>
+                    <p flex="100" class="empty-state-title" ng-if="vm.isGridVisible || vm.isNoGroupDataFound">{{vm.EmptyMesssage.MESSAGE}}</p>
+                    <p flex="100" class="empty-state-title" ng-if="(!vm.isGridVisible && !vm.isNoGroupDataFound)">{{vm.EmptyMesssage.MESSAGE_ON_LOAD}}</p>
+                    <p flex="100" ng-if="vm.isGridVisible || vm.isNoGroupDataFound">
+                      {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+                    </p>
+                    <p flex="100" ng-if="vm.isGridVisible || vm.isNoGroupDataFound">
+                      <md-button class="md-fab md-mini" aria-label="Add Part" ng-click="vm.addEditRecord(null,$event)">
+                        <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+                        <md-tooltip md-direction="top">Add {{vm.mfgTypeName}} Part</md-tooltip>
+                      </md-button>
+                      <md-button class="md-fab md-mini" aria-label="Refresh" ng-click="vm.loadData()">
+                        <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+                        <md-tooltip md-direction="top">Refresh</md-tooltip>
+                      </md-button>
+                    </p>
+                  </div>
+                </div>
+                <div flex="100" layout="row" layout-wrap layout-align="center start" ng-if="vm.showGroupWiseList && !vm.isNoDataFound">
+                  <div layout="column" class="padding-right-10" flex="60">
+                    <div layout="column" class="alias-list-main margin-10 grouping-list-main" flex>
+                      <div class="title alias-list-title h-30" layout="row" flex="100" layout-align="space-between center">
+                        <span>Top Search Results</span>
+                      </div>
+                      <div flex="100" class="cm-auto-scroll">
+                        <div flex="100" class="padding-left-5" ng-repeat="item in vm.groupWiseListData">
+                          <div layout="row" flex="100" layout-align="center center">
+                            <div flex="100">
+                              <span class="text-underline grouping-category" ng-click="vm.refreshGridData(null,true,$event,item)">{{item.groupName}}</span>&nbsp;<span>({{item.recCount}} items)</span>
+                            </div>
+                            <!--<div flex="40" class="nowrap">
+                              <span>{{item.groupNameText}}</span>
+                            </div>-->
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </md-tab-body>
+            </md-tab>
+            <md-tab ng-click="vm.onTabChanges(false, true)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-text">Supplier Parts</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div flex="100" layout="row" layout-wrap>
+                  <div flex="100"
+                       ng-if="vm.IsDistributor &&
+                                         vm.showFilters &&
+                                         vm.filteredMfgCodeList &&
+                                         vm.filteredMfgCodeForSupplierPartsList &&
+                                         vm.filteredPartStatusList &&
+                                         vm.filteredPackagingList &&
+                                         vm.filteredFunctionalTypeList &&
+                                         vm.filteredMountingTypeList &&
+                                         vm.filteredPartTypeList"
+                       ng-show="!vm.showGroupWiseList">
+                    <manage-componemt-advanced-filter class="advanced-filters"
+                                                      mfg-type="vm.mfgType"
+                                                      apply-filters="vm.refreshGridData"
+                                                      clear-group-filters="vm.clearGroupFilters"
+                                                      clear-grid-data="vm.clearGridData"
+                                                      advanced-filter-options="vm.advancedFilterOptions"
+                                                      search="vm.keywords"
+                                                      packaging-list="vm.packagingListForFilters"
+                                                      package-case-list="vm.packageCaseListForFilters"
+                                                      rohs-list="vm.rohsListForFilters"
+                                                      filtered-mfg-code-list="vm.filteredMfgCodeList"
+                                                      filtered-mfg-code-for-supplier-parts-list="vm.filteredMfgCodeForSupplierPartsList"
+                                                      filtered-part-status-list="vm.filteredPartStatusList"
+                                                      filtered-packaging-list="vm.filteredPackagingList"
+                                                      filtered-package-case-list="vm.filteredPackageCaseListForFilters"
+                                                      filtered-functional-type-list="vm.filteredFunctionalTypeList"
+                                                      filtered-external-functional-type-list="vm.filteredExternalFunctionalTypeList"
+                                                      filtered-mounting-type-list="vm.filteredMountingTypeList"
+                                                      filtered-external-mounting-type-list="vm.filteredExternalMountingTypeList"
+                                                      filtered-part-type-list="vm.filteredPartTypeList"
+                                                      filtered-standards-list="vm.filteredStandardsList"
+                                                      filtered-rohs-list="vm.filteredRoHSList"
+                                                      filtered-external-rohs-status-list="vm.filteredExternalRoHSList"
+                                                      filtered-country-list="vm.filteredCountryList"
+                                                      filtered-operational-attribute-list="vm.filteredOperationalAttributeList"
+                                                      filtered-assembly-type-list="vm.filteredAssemblyTypeList"
+                                                      header-search-text="vm.attributesSearchHeader"
+                                                      grid-options="vm.gridOptions">
+                    </manage-componemt-advanced-filter>
+                  </div>
+                  <div ng-if="vm.IsDistributor && vm.isGridVisible" ng-show="!vm.isNoDataFound && !vm.showGroupWiseList" flex="100">
+                    <div layout="row" class="padding-left-10 padding-top-10" flex="100" ng-if="vm.totalSourceDataCount">
+                      <div ng-if="vm.selectedGroupText" layout="row" layout-align="start center" class="cm-tracking-chip-mian">
+                        <div class="tracking-number-chip" layout="row" layout-align="start center">
+                          <label>
+                            {{vm.selectedGroupText}}
+                            <md-tooltip md-direction="top" ng-if="vm.selectedGroupText" class="tooltip-height-auto"
+                                        ng-bind-html="vm.selectedGroupText">
+                            </md-tooltip>
+                          </label>
+                          <md-button class="md-icon-button md-primary md-mini" ng-click="vm.clearGroupFilters(true)">
+                            <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                            <md-tooltip>Click to remove this filter</md-tooltip>
+                          </md-button>
+                        </div>
+                      </div>
+                    </div>
+                    <md-card layout="column" flex layout-align="space-between stretch">
+                      <ui-grid-extention load-data="vm.loadData"
+                                         class="part-master-grid"
+                                         grid-option="vm.gridOptions"
+                                         header="vm.sourceHeader"
+                                         grid-data="vm.sourceData"
+                                         total-data-count="vm.totalSourceDataCount"
+                                         reset-grid="vm.resetSourceGrid"
+                                         selectted-rows="vm.selectedRowsList"
+                                         paging-info="vm.pagingInfo"
+                                         current-item="vm.currentdata"
+                                         get-data-down="vm.getDataDown"
+                                         empty-state="vm.emptyState"
+                                         delete-multiple-data="vm.deleteMultipleData"
+                                         grid-id="vm.gridSupplierPartList">
+                    </md-card>
+                  </div>
+                  <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                       ng-if="(vm.isNoDataFound == true && (vm.isGridVisible || vm.isGroupSectionVisiable)) ||
+                                                (!vm.isGridVisible && !vm.isGroupSectionVisiable)">
+                    <div class="emty-icon" flex="100">
+                      <img ng-src="{{vm.SupplierEmptyMesssage.IMAGEURL}}" />
+                    </div>
+                    <p flex="100" class="empty-state-title" ng-if="vm.isGridVisible || vm.isNoGroupDataFound">{{vm.SupplierEmptyMesssage.MESSAGE}}</p>
+                    <p flex="100" class="empty-state-title" ng-if="(!vm.isGridVisible && !vm.isNoGroupDataFound)">{{vm.SupplierEmptyMesssage.MESSAGE_ON_LOAD}}</p>
+                    <p flex="100" ng-if="vm.isGridVisible || vm.isNoGroupDataFound">
+                      {{vm.SupplierEmptyMesssage.ADDNEWMESSAGE}}
+                    </p>
+                    <p flex="100" ng-if="vm.isGridVisible || vm.isNoGroupDataFound">
+                      <md-button class="md-fab md-mini" aria-label="Add Part" ng-click="vm.addEditRecord(null,$event)">
+                        <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+                        <md-tooltip md-direction="top">Add {{vm.mfgTypeName}} Part</md-tooltip>
+                      </md-button>
+                      <md-button class="md-fab md-mini" aria-label="Refresh" ng-click="vm.loadData()">
+                        <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+                        <md-tooltip md-direction="top">Refresh</md-tooltip>
+                      </md-button>
+                    </p>
+                  </div>
+                </div>
+                <div flex="100" layout="row" layout-wrap layout-align="center start" ng-if="vm.showGroupWiseList && !vm.isNoDataFound">
+                  <div layout="column" class="padding-right-10" flex="60">
+                    <div layout="column" class="alias-list-main margin-10 grouping-list-main" flex>
+                      <div class="title alias-list-title h-30" layout="row" flex="100" layout-align="space-between center">
+                        <span>Top Search Results</span>
+                      </div>
+                      <div flex="100" class="cm-auto-scroll">
+                        <div flex="100" class="padding-left-5" ng-repeat="item in vm.groupWiseListData">
+                          <div layout="row" flex="100" layout-align="center center">
+                            <div flex="100">
+                              <span class="text-underline grouping-category" ng-click="vm.refreshGridData(null,true,$event,item)">{{item.groupName}}</span>&nbsp;<span>({{item.recCount}} items)</span>
+                            </div>
+                            <!--<div flex="40" class="nowrap">
+                              <span>{{item.groupNameText}}</span>
+                            </div>-->
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </md-tab-body>
+            </md-tab>
+            <div layout="row" class="cm-part-master-rs-btn">
+              <md-button class="md-primary md-raised" aria-label="Import Part" ng-if="vm.IsManfucaturer" ng-click="vm.importDetail($event)">
+                Import {{vm.mfgTypeName}} Parts <span ng-if="vm.apiVerificationErrorCount">({{vm.apiVerificationErrorCount}})</span>
+              </md-button>
+              <div layout="column">
+                <md-button ng-disabled="!vm.selectedRowsList || vm.selectedRowsList.length == 0" class="md-primary md-raised mr0" aria-label="PartStat Export" ng-click="vm.excelExportSelectedComponent()">
+                  PartStat Export
+                </md-button>
+                <span class="font-weight-600 font-size-10">
+                  {{vm.LabelConstant.SelectRecordsEnableButton}}
+                </span>
+              </div>
+              <md-button ng-if="vm.selectedIndex==0" class="md-primary md-raised mr0" aria-label="Show External Values" ng-click="vm.showExternalValuesPopup($event)">
+                Show External Attributes
+              </md-button>
+              <md-button ng-if="vm.selectedIndex==0" class="md-primary md-raised mr0" aria-label="Refresh Part" ng-click="vm.refreshComponent($event)">
+                Refresh Parts
+              </md-button>
+              <md-button ng-if="vm.selectedIndex==0" class="md-primary md-raised" aria-label="Map Part" ng-click="vm.checkNoneTypeComponent($event)">
+                Map Parts
+              </md-button>
+              <div layout="column">
+                <md-button ng-disabled="!vm.selectedRowsList || vm.selectedRowsList.length == 0 || !vm.updatePartsAttributesFeature"
+                           class="md-primary cm-feture-btn-color md-raised" aria-label="Update Part(s) Attributes" ng-click="vm.updatePartsAttributes($event)">
+                  Update Part(s) Attributes
+                </md-button>
+                <span class="font-weight-600 font-size-10" ng-if="!vm.updatePartsAttributesFeature">
+                  {{vm.LabelConstant.FeatureEnableText}}
+                </span>
+                <span class="font-weight-600 font-size-10" ng-if="vm.updatePartsAttributesFeature">
+                  {{vm.LabelConstant.SelectRecordsEnableButton}}
+                </span>
+              </div>
+              <div layout="column">
+                <md-button ng-disabled="(!vm.updatePartsMPNPID)"
+                           class="md-primary cm-feture-btn-color md-raised" aria-label="Update Part {{vm.LabelConstant.MFG.MFGPN}}/{{vm.LabelConstant.MFG.PID}}" ng-click="vm.updatePartsMPNAndPIDCode($event)">
+                  Update Part {{vm.LabelConstant.MFG.MFGPN}}/{{vm.LabelConstant.MFG.PID}}
+                </md-button>
+                <span class="font-weight-600 font-size-10" ng-if="!vm.updatePartsMPNPID">
+                  {{vm.LabelConstant.FeatureEnableText}}
+                </span>
+              </div>
+            </div>
+          </md-tabs>
+        </ms-form-wizard>
+      </div>
+    </div>
+    <!-- / CONTENT CARD -->
+
+  </div>
+  <!-- / CENTER -->
+</div>
+<!-- When user hover on the image at that time this is used-->
+<div ng-include="'app/view/image-preview-template/image-preview-template.html'"></div>

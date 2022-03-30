@@ -1,0 +1,434 @@
+<md-dialog aria-label="SelectPart" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="95">
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Add Supplier RMA & RMA Packing Slip</h2>
+      <span flex></span>
+      <popup-header-label label-data="vm.headerdata"></popup-header-label>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content class="no-padding">
+    <md-content class="padding-10">
+      <div layout-wrap class="cm-custom-label-common">
+        <form name="vm.supplierRMADetailForm" layout="row" layout-wrap class="md-inline-form padding-bottom-0 flex-100" novalidate>
+          <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+          <div layout="row" layout-wrap flex="100">
+            <div flex="33" class="cm-section-main margin-right-5">
+              <div class="cm-section-inner" flex="100">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToSupplierList();" tabindex="-1">{{vm.autoCompleteSupplier.placeholderName}}</a><span>&nbsp;*</span></p></th>
+                      <td>
+                        <md-input-container ng-if="vm.autoCompleteSupplier" class="autocompletecustom width-100p" flex="100">
+                          <custom-auto-complete datalist="vm.supplierList"
+                                                column-name="vm.autoCompleteSupplier.columnName"
+                                                controller-name="vm.autoCompleteSupplier.controllerName"
+                                                view-template-url="vm.autoCompleteSupplier.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteSupplier.keyColumnName"
+                                                input-name="vm.autoCompleteSupplier.inputName"
+                                                placeholder-name="vm.autoCompleteSupplier.placeholderName"
+                                                key-column-id="vm.autoCompleteSupplier.keyColumnId"
+                                                is-required="vm.autoCompleteSupplier.isRequired"
+                                                is-addnew="vm.autoCompleteSupplier.isAddnew"
+                                                callback-fn="vm.autoCompleteSupplier.callbackFn"
+                                                add-data="vm.autoCompleteSupplier.addData"
+                                                on-select-callback-fn="vm.autoCompleteSupplier.onSelectCallbackFn"
+                                                is-disabled="vm.objData.mfgCodeID">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToSupplierRMAList();" tabindex="-1">{{vm.LabelConstant.SupplierRMA.RMANumber}}</a><span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="rmaNumber" id="rmaNumber" ng-model="vm.supplierRMA.poNumber" placeholder="RMA#" required ng-maxlength="50" custom-blur="vm.checkUniqueRMANumber()" capitalize class="input-text-uppercase">
+                          <div ng-messages="vm.supplierRMADetailForm.rmaNumber.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(50, vm.supplierRMADetailForm.rmaNumber.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <th><p class="label-container">{{vm.LabelConstant.SupplierRMA.RMADate}}<span>&nbsp;*</span></p></th>
+                      <td>
+                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                          <input name="rmaDate" type="text" class="float-left"
+                                 id="rmaDate"
+                                 max-value="vm.currentDate"
+                                 max-value-is-today-date="true"
+                                 allow-past-date="true"
+                                 allow-future-date="false"
+                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                 ng-model="vm.supplierRMA.poDate"
+                                 enable-time="false"
+                                 ui-options="{clearOnBlur: false}"
+                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                 model-view-value="true"
+                                 datepicker-options="vm.rmaDateOptions"
+                                 ng-change="vm.checkDateValidation()"
+                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.poDate]"
+                                 required
+                                 ng-disabled="vm.isDisableRMADate" />
+                          <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.poDate] = (vm.isDisableRMADate ? false : true)">
+                          </md-icon>
+                          <div ng-messages="vm.supplierRMADetailForm.rmaDate.$error" role="alert">
+                            <div ng-message="maxvalue">
+                              <span>{{vm.getMaxDateValidation('RMA date', 'today date')}}</span>
+                            </div>
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="datetime || mask || parse">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <th><p class="label-container">{{vm.LabelConstant.SupplierRMA.ShippedDate}}<span>&nbsp;*</span></p></th>
+                      <td>
+                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                          <input name="shippedDate" type="text" class="float-left"
+                                 id="shippedDate"
+                                 allow-past-date="true"
+                                 allow-future-date="true"
+                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                 ng-model="vm.supplierRMA.receiptDate"
+                                 enable-time="false"
+                                 ui-options="{clearOnBlur: false}"
+                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                 model-view-value="true"
+                                 datepicker-options="vm.receiptDateOptions"
+                                 ng-change="vm.checkDateValidation()"
+                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.receiptDate]"
+                                 required />
+                          <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.receiptDate] = true">
+                          </md-icon>
+                          <div ng-messages="vm.supplierRMADetailForm.shippedDate.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="minvalue">
+                              <span>{{vm.getMinDateValidation('Shipped to date', 'packing slip date')}}</span>
+                            </div>
+                            <div ng-message="datetime || mask || parse">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="mindate">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.SHIPPED_DATE_GREATER_EQUAL_THAN_PACKING_SLIP_DATE}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <th><p class="label-container">{{vm.LabelConstant.SupplierRMA.InternalRMARemark}}</p></th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <textarea type="text" max-rows="4" rows="2" name="internalRemark"
+                                    ng-model="vm.supplierRMA.internalRemark" placeholder="Internal RMA Remark"
+                                    ng-maxlength="vm.maxLengthForDescription"></textarea>
+                          <div ng-messages="vm.supplierRMADetailForm.internalRemark.$touched && vm.supplierRMADetailForm.internalRemark.$error"
+                               role="alert">
+                            <div ng-message="maxlength">
+                              <span>
+                                {{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.supplierRMADetailForm.internalRemark.$viewValue.length) }}
+                              </span>
+                            </div>
+                          </div>
+                          <div>
+                            <span>Hint: Internal only, Will not print on packing slip</span>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div flex="33" class="cm-section-main margin-right-5">
+              <div class="cm-section-inner" flex="100">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration" ng-click="vm.goToSupplierRMAList();" tabindex="-1">{{vm.LabelConstant.SupplierRMA.PackingSlipNumber}}</a>
+                          <md-icon class="icon-question-mark-circle help-icon">
+                            <md-tooltip md-direction="top">Packing Slip# generated based on 'RPS' as prefix, packing slip date and incremental number.</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0 cm-cust-packingslip-pos">
+                          <input type="text" name="packingSlipNumber" id="packingSlipNumber" ng-model="vm.supplierRMA.packingSlipNumber" placeholder="Packing Slip#" ng-maxlength="50" disabled>
+                        </md-input-container>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <th><p class="label-container">{{vm.LabelConstant.SupplierRMA.PackingSlipDate}}<span>&nbsp;*</span></p></th>
+                      <td>
+                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                          <input name="packingSlipDate" type="text" class="float-left"
+                                 id="packingSlipDate"
+                                 max-value="vm.currentDate"
+                                 max-value-is-today-date="true"
+                                 allow-past-date="true"
+                                 allow-future-date="false"
+                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                 ng-model="vm.supplierRMA.packingSlipDate"
+                                 enable-time="false"
+                                 ui-options="{clearOnBlur: false}"
+                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                 model-view-value="true"
+                                 datepicker-options="vm.packingSlipDateOptions"
+                                 ng-change="vm.checkDateValidation()"
+                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.packingSlipDate]"
+                                 required />
+                          <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.packingSlipDate] = true">
+                          </md-icon>
+                          <div ng-messages="vm.supplierRMADetailForm.packingSlipDate.$error" role="alert">
+                            <div ng-message="maxvalue">
+                              <span>{{vm.getMaxDateValidation('Packing slip date', 'today date')}}</span>
+                            </div>
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="datetime || mask || parse">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="mindate">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.PACKING_SLIP_DATE_GREATER_EQUAL_THAN_RMA_DATE}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <th><p class="label-container">{{vm.LabelConstant.SupplierRMA.RMARemark}}</p></th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <textarea type="text" max-rows="4" rows="2" name="remark"
+                                    ng-model="vm.supplierRMA.remark"
+                                    ng-maxlength="vm.maxLengthForDescription"
+                                    placeholder="RMA Remark"></textarea>
+                          <div ng-messages="vm.supplierRMADetailForm.remark.$touched && vm.supplierRMADetailForm.remark.$error"
+                               role="alert">
+                            <div ng-message="maxlength">
+                              <span>
+                                {{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.supplierRMADetailForm.remark.$viewValue.length) }}
+                              </span>
+                            </div>
+                          </div>
+                          <div>
+                            <span>Hint: Will print on packing slip</span>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div flex class="cm-section-main">
+              <div class="cm-section-inner" flex="100">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration" ng-click="vm.goToShippingMethodList();" tabindex="-1">{{vm.LabelConstant.SupplierRMA.ShippingMethod}}</a><span>&nbsp;*</span>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container ng-if="vm.autoCompleteShippingMethod" class="autocompletecustom margin-bottom-0" flex>
+                          <custom-auto-complete datalist="vm.shippingMethodList"
+                                                column-name="vm.autoCompleteShippingMethod.columnName"
+                                                controller-name="vm.autoCompleteShippingMethod.controllerName"
+                                                view-template-url="vm.autoCompleteShippingMethod.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteShippingMethod.keyColumnName"
+                                                input-name="vm.autoCompleteShippingMethod.inputName"
+                                                placeholder-name="vm.autoCompleteShippingMethod.placeholderName"
+                                                key-column-id="vm.autoCompleteShippingMethod.keyColumnId"
+                                                is-required="vm.autoCompleteShippingMethod.isRequired"
+                                                is-addnew="vm.autoCompleteShippingMethod.isAddnew"
+                                                add-data="vm.autoCompleteShippingMethod.addData"
+                                                callback-fn="vm.autoCompleteShippingMethod.callbackFn"
+                                                on-select-callback-fn="vm.autoCompleteShippingMethod.onSelectCallbackFn">
+                          </custom-auto-complete>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration" ng-click="vm.goToCarrierList();" tabindex="-1">{{vm.LabelConstant.SupplierRMA.Carrier}}</a><span>&nbsp;*</span>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container ng-if="vm.autoCompleteCarrier" class="autocompletecustom margin-bottom-0" flex>
+                          <custom-auto-complete datalist="vm.carrierList"
+                                                column-name="vm.autoCompleteCarrier.columnName"
+                                                controller-name="vm.autoCompleteCarrier.controllerName"
+                                                view-template-url="vm.autoCompleteCarrier.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteCarrier.keyColumnName"
+                                                input-name="vm.autoCompleteCarrier.inputName"
+                                                placeholder-name="vm.autoCompleteCarrier.placeholderName"
+                                                key-column-id="vm.autoCompleteCarrier.keyColumnId"
+                                                is-required="vm.autoCompleteCarrier.isRequired"
+                                                is-addnew="vm.autoCompleteCarrier.isAddnew"
+                                                add-data="vm.autoCompleteCarrier.addData"
+                                                callback-fn="vm.autoCompleteCarrier.callbackFn"
+                                                on-select-callback-fn="vm.autoCompleteCarrier.onSelectCallbackFn">
+                          </custom-auto-complete>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <th><p class="label-container">{{vm.LabelConstant.SupplierRMA.CarrierAccount}}</p></th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="carrierAccountNumber" id="carrierAccountNumber" ng-model="vm.supplierRMA.carrierAccountNumber" placeholder="Carrier Account#" ng-maxlength="50">
+                          <div ng-messages="vm.supplierRMADetailForm.carrierAccountNumber.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(50, vm.supplierRMADetailForm.carrierAccountNumber.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <th></th>
+                      <td>
+                        <div layout="row">
+                          <md-checkbox name="shippingInsurance" id="shippingInsurance" ng-model="vm.supplierRMA.shippingInsurance" class="margin-0"></md-checkbox>
+                          <p class="label-container">{{vm.LabelConstant.SupplierRMA.ShippingInsurance}}</p>
+                        </div>
+                      </td>
+                    </tr>
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-5" flex="100" flex-gt-md="100" layout="row" flex-md="100" flex-sm="100">
+
+            <div flex="50" class="cm-section-main margin-right-10">
+              <div class="cm-normal-header" flex="100">
+                <h2>Tracking#</h2>
+              </div>
+              <div class="cm-section-inner cm-rma-tracking-height-scroll" flex="100" layout="row" layout-wrap>
+                <div flex="35" layout="row">
+                  <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                    <input type="text" name="trackingNumber" id="trackingNumber" ng-model="vm.trackingNumberDet.trackNumber" placeholder="Enter Tracking#"
+                           ng-maxlength="100"
+                           ng-disabled="vm.disableTrackingNumber"
+                           ng-keypress="vm.addTrackingNumberToList($event);">
+                    <span class="font-size-10">
+                      <b>Type and press Enter.</b>
+                    </span>
+                    <div ng-messages="vm.supplierRMADetailForm.trackingNumber.$error" role="alert">
+                      <div ng-message="maxlength">
+                        <span>{{vm.getMaxLengthValidation(100, vm.supplierRMADetailForm.trackingNumber.$viewValue.length)}}</span>
+                      </div>
+                      <div ng-message="duplicate">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.DUPLICATE}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </div>
+                <div ng-repeat="item in vm.supplierRMA.supplierRMATrackNumber" layout="row" layout-align="start center" class="cm-tracking-chip-mian">
+                  <div class="tracking-number-chip" layout="row" layout-align="start center">
+                    <label ng-click="vm.editTrackingNumber(item)">{{item.trackNumber}}</label>
+                    <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeTrackNumber(item, $index)" tabindex="-1">
+                      <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                      <md-tooltip>Remove Tracking#</md-tooltip>
+                    </md-button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div flex="25">
+              <div flex="100" class="mt-5">
+                <div layout="column">
+                  <view-cust-address-contact-det param-address-det="vm.rmaAddress"
+                                                 param-contact-person-det="vm.rmaAddressContactPerson"
+                                                 param-addr-action-btn-det="vm.rmaAddressViewActionBtnDet"
+                                                 param-cont-person-action-btn-det="vm.rmaAddressContPersonViewActionBtnDet"
+                                                 param-add-update-addr-callback-fn="vm.ShipToAddressAddUpdateCallback"
+                                                 param-select-addr-callback-fn="vm.ShipToAddressAddUpdateCallback"
+                                                 param-other-det="vm.rmaAddressViewAddrOtherDet"
+                                                 param-add-update-contact-callback-fn="vm.ShipToContactPersonAddUpdateCallback"
+                                                 param-select-contact-callback-fn="vm.ShipToContactPersonAddUpdateCallback"
+                                                 param-refresh-address-callback-fn="vm.refreshAddress"
+                                                 param-delete-addr-callback-fn=""
+                                                 param-delete-cont-person-callback-fn="">
+                  </view-cust-address-contact-det>
+                </div>
+              </div>
+            </div>
+
+            <div flex="25" class="padding-left-10">
+              <div flex="100" class="mt-5">
+                <div layout="column">
+                  <view-cust-address-contact-det param-address-det="vm.rmaMarkForAddress"
+                                                 param-contact-person-det="vm.markedForAddressContactPerson"
+                                                 param-addr-action-btn-det="vm.rmaMarkedForAddressViewActionBtnDet"
+                                                 param-cont-person-action-btn-det="vm.rmaMarkedForAddressContPersonViewActionBtnDet"
+                                                 param-add-update-addr-callback-fn="vm.rmaMarkedForAddressAddUpdateCallback"
+                                                 param-select-addr-callback-fn="vm.rmaMarkedForAddressAddUpdateCallback"
+                                                 param-other-det="vm.rmaMarkedAddressViewAddrOtherDet"
+                                                 param-add-update-contact-callback-fn="vm.markedForContactPersonAddUpdateCallback"
+                                                 param-select-contact-callback-fn="vm.markedForContactPersonAddUpdateCallback"
+                                                 param-delete-addr-callback-fn="vm.removeRMAMarkForAddress"
+                                                 param-refresh-address-callback-fn="vm.refreshMarkedForAddress"
+                                                 param-delete-cont-person-callback-fn="">
+                  </view-cust-address-contact-det>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </md-content>
+  </md-dialog-content>
+
+  <md-dialog-actions layout="row">
+    <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+    <md-button class="md-primary md-raised" id="saveBtn"
+               ng-disabled="vm.saveDisable || vm.saveBtnDisableFlag"
+               ng-class="{'md-formdirty': vm.supplierRMADetailForm.$dirty}"
+               ng-click="vm.saveRMADetail();" aria-label="Submit">Save</md-button>
+  </md-dialog-actions>
+</md-dialog>

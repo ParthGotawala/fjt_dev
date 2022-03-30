@@ -1,0 +1,925 @@
+<div class="content-card cm-custom-label-common md-inline-form" layout="column" flex cg-busy="{promise:vm.cgBusyLoading}">
+  <div layout="row" ng-if="vm.isFilterHidden">
+    <div layout="row" flex="100" layout-align="end end" ng-if="vm.isFilterHidden" class="mb-10 umid-advance-filter">
+      <md-button class="md-primary md-raised md-ink-ripple ml-0" ng-click="vm.binTransfer()" ng-if="vm.isFilterHidden">Xfer Bin</md-button>
+      <md-button class="md-primary md-raised md-ink-ripple ml-0" ng-click="vm.scanAndRestrictUMID($event)" ng-if="vm.isFilterHidden">Restrict/Unrestrict UMID</md-button>
+    </div>
+  </div>
+  <div layout="row">
+
+    <form name="vm.filtersInfo" class="md-inline-form cm-custom-label-common" flex>
+
+      <div layout="row" flex="100" layout-align="start start" class="mb-10 container-box umid-advance-filter advanced-filters" layout-wrap>
+
+        <div layout="row" flex="100" class="overflow-auto-rs">
+
+          <!-- Manufacturer -->
+          <div layout="column" class="pr-5" flex="15" ng-if="!vm.isFilterHidden">
+            <div layout="column" class="alias-list-main cm-alias-list-min-height" flex>
+              <div class="title alias-list-title" layout="row" flex="100" layout-align="space-between center">
+                <span class="label-container width-auto">
+                  <a class="cm-text-decoration underline" ng-click="vm.goToManufacturerList();"
+                     tabindex="-1">Manufacturer</a>
+                </span>
+                <div layout="row" layout-align="center center" flex="100" class="cm-part-mfr-list-search">
+                  <md-input-container md-no-float flex="100" layout="row" class="margin-0 pos-rel">
+                    <input type="text" name="mfrSearchText" id="mfrSearchText" ng-model="vm.mfrSearchText"
+                           placeholder="Type here to search"
+                           ng-maxlength="50" autocomplete="off"
+                           ng-model-options="{ debounce: vm.configTimeout }"
+                           ng-change="vm.searchMfrList()">
+                    <md-button ng-if="vm.mfrSearchText" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3"
+                               ng-click="vm.clearMfrSearchText()">
+                      <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close font-size-12 color-white"></md-icon>
+                    </md-button>
+                  </md-input-container>
+                </div>
+                <div layout="row" layout-align="center center">
+                  <a class="cm-text-decoration color-white underline"
+                     ng-click="vm.clearManufacturerFilter();"
+                     tabindex="-1"
+                     ng-if="vm.filter.mfgCodeDetailModel.length">
+                    Clear
+                  </a>
+                  <md-button ng-click="vm.getMfgSearch(true);" class="md-primary md-link-ripple cm-part-advance-filter-btn">
+                    <md-icon md-font-icon="icon-reload">
+                      <md-tooltip>Reload</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                </div>
+              </div>
+              <select ng-model="vm.filter.mfgCodeDetailModel" size="10" multiple="" class="cm-auto-scroll"
+                      ng-if="vm.mfgCodeListToDisplay && vm.mfgCodeListToDisplay.length">
+                <option ng-repeat="x in vm.mfgCodeListToDisplay" value="{{x.id}}">{{x.mfgCodeName}}</option>
+              </select>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                   ng-if="(!vm.mfgCodeListToDisplay || vm.mfgCodeListToDisplay.length == 0) && vm.mfrSearchText">
+                <p flex="100" class="empty-state-title font-size-17-imp">{{vm.EmptyMesssage.MESSAGE}}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Supplier -->
+          <div layout="column" class="pr-5" flex="15" ng-if="!vm.isFilterHidden">
+            <div layout="column" class="alias-list-main cm-alias-list-min-height" flex>
+              <div class="title alias-list-title" layout="row" flex="100" layout-align="space-between center">
+                <span class="label-container width-auto">
+                  <a class="cm-text-decoration underline" ng-click="vm.goToSupplierList();"
+                     tabindex="-1">Supplier</a>
+                </span>
+                <md-icon class="margin-right-10 margin-top-5 icon-question-mark-circle help-icon">
+                  <md-tooltip md-direction="bottom" class="tooltip-height-auto">
+                    <span ng-bind-html="vm.UMID_LIST_SUPPLIER_FILTER"></span>
+                  </md-tooltip>
+                </md-icon>
+                <div layout="row" layout-align="center center" flex="100" class="cm-part-supplier-list-search">
+                  <md-input-container md-no-float flex="100" layout="row" class="margin-0 pos-rel">
+                    <input type="text" name="supplierSearchText" id="supplierSearchText" ng-model="vm.supplierSearchText"
+                           placeholder="Type here to search"
+                           ng-maxlength="50" autocomplete="off"
+                           ng-model-options="{ debounce: vm.configTimeout }"
+                           ng-change="vm.searchsupplierList()">
+                    <md-button ng-if="vm.supplierSearchText" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3"
+                               ng-click="vm.clearsupplierSearchText()">
+                      <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close font-size-12 color-white"></md-icon>
+                    </md-button>
+                  </md-input-container>
+                </div>
+                <div layout="row" layout-align="center center">
+                  <a class="cm-text-decoration color-white underline"
+                     ng-click="vm.clearSupplierFilter();"
+                     tabindex="-1"
+                     ng-if="vm.filter.supplierCodeDetailModel.length">
+                    Clear
+                  </a>
+                  <md-button ng-click="vm.getMfgSearch(false);" class="md-primary md-link-ripple cm-part-advance-filter-btn">
+                    <md-icon md-font-icon="icon-reload">
+                      <md-tooltip>Reload</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                </div>
+              </div>
+              <select ng-model="vm.filter.supplierCodeDetailModel" size="10" multiple="" class="cm-auto-scroll"
+                      ng-if="vm.supplierCodeListToDisplay && vm.supplierCodeListToDisplay.length">
+                <option ng-repeat="x in vm.supplierCodeListToDisplay" value="{{x.id}}">{{x.mfgCodeName}}</option>
+              </select>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                   ng-if="(!vm.supplierCodeListToDisplay || vm.supplierCodeListToDisplay.length == 0) && vm.supplierSearchText">
+                <p flex="100" class="empty-state-title font-size-17-imp">{{vm.EmptyMesssage.MESSAGE}}</p>
+              </div>
+            </div>
+          </div>
+
+          <!--Allocated Kit-->
+          <div layout="column" class="pr-5" flex="20">
+            <div layout="column" class="alias-list-main cm-alias-list-main-static-block" flex>
+              <div class="title alias-list-title cm-alias-list-title-static-block" layout="row" flex="100" layout-align="space-between center">
+                <span class="label-container width-auto">
+                  <a class="cm-text-decoration underline" ng-click="vm.goToKitDataList();"
+                     tabindex="-1">
+                    Allocated Kit
+                  </a>
+                </span>
+                <div layout="row" layout-align="center center" flex="100" class="cm-part-mfr-list-search">
+                  <md-input-container md-no-float flex="100" layout="row" class="margin-0 pos-rel">
+                    <input type="text" name="allocatedKitSearchText" id="allocatedKitSearchText" ng-model="vm.allocatedKitSearchText"
+                           placeholder="Type here to search"
+                           ng-maxlength="50" autocomplete="off"
+                           ng-model-options="{debounce: vm.configTimeout}"
+                           ng-change="vm.searchAllocatedKitList()">
+                    <md-button ng-if="vm.allocatedKitSearchText" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3"
+                               ng-click="vm.clearAllocatedKitSearchText()">
+                      <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close font-size-12 color-white"></md-icon>
+                    </md-button>
+                  </md-input-container>
+                </div>
+                <div layout="row" layout-align="center center">
+                  <a class="cm-text-decoration underline"
+                     ng-click="vm.clearKitFilter();"
+                     tabindex="-1"
+                     ng-if="vm.filter.allocatedKit.length">
+                    Clear
+                  </a>
+                  <md-button ng-click="vm.getAllocatedKitList();" class="md-primary md-link-ripple cm-part-advance-filter-btn">
+                    <md-icon md-font-icon="icon-reload">
+                      <md-tooltip>Reload</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                </div>
+              </div>
+              <select ng-model="vm.filter.allocatedKit" size="10" multiple="" class="cm-auto-scroll" ng-if="vm.allocatedKitListToDisplay && vm.allocatedKitListToDisplay.length"
+                      ng-options="item.kitName for item in vm.allocatedKitListToDisplay">
+              </select>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                   ng-if="(!vm.allocatedKitListToDisplay || vm.allocatedKitListToDisplay.length === 0) && vm.allocatedKitSearchText">
+                <p flex="100" class="empty-state-title font-size-17-imp">{{vm.EmptyMesssage.MESSAGE}}</p>
+              </div>
+            </div>
+          </div>
+
+          <!--Warehouse type-->
+          <div layout flex="25">
+            <div layout="column" flex="30" class="pr-5">
+              <div layout="column" class="alias-list-main cm-alias-list-main-static-block" flex>
+                <div class="title alias-list-title cm-alias-list-title-static-block" layout="row" flex="100" layout-align="space-between center">
+                  <span>
+                    <a class="cm-text-decoration underline" ng-click="vm.goToWHList();"
+                       tabindex="-1">
+                      Warehouse Type
+                    </a>
+                  </span>
+                  <div layout="row" layout-align="center center">
+                    <a class="cm-text-decoration underline"
+                       ng-click="vm.clearWarehouseFilter();"
+                       tabindex="-1"
+                       ng-if="vm.filter.warehouseType.length">
+                      <md-icon md-font-icon="icon-close" class="color-white s18">
+                        <md-tooltip>Clear</md-tooltip>
+                      </md-icon>
+                    </a>
+                  </div>
+                </div>
+                <select ng-model="vm.filter.warehouseType" size="10" multiple="" class="cm-auto-scroll">
+                  <option ng-repeat="x in vm.warehouseType" value="{{x.key}}">{{x.value}}</option>
+                </select>
+              </div>
+            </div>
+
+            <!--Inventory type-->
+            <div layout="column" flex class="pr-5">
+              <div layout="column" class="alias-list-main cm-alias-list-main-static-block" flex>
+                <div class="title alias-list-title cm-alias-list-title-static-block" layout="row" flex="100" layout-align="space-between center">
+                  <span>
+                    Inventory Type
+                  </span>
+                  <div layout="row" layout-align="center center">
+                    <a class="cm-text-decoration underline"
+                       ng-click="vm.clearInventoryTypeFilter();"
+                       tabindex="-1"
+                       ng-if="vm.filter.inventoryType.length">
+                      <md-icon md-font-icon="icon-close" class="color-white s18">
+                        <md-tooltip>Clear</md-tooltip>
+                      </md-icon>
+                    </a>
+                  </div>
+                </div>
+                <select ng-model="vm.filter.inventoryType" size="10" multiple="" class="cm-auto-scroll">
+                  <option ng-repeat="x in vm.InventoryType" value="{{x.value}}">{{x.Name}}</option>
+                </select>
+              </div>
+            </div>
+
+            <!--MISC type-->
+            <div layout="column" flex="30" class="pr-5">
+              <div layout="column" class="alias-list-main cm-alias-list-main-static-block" flex>
+                <div class="title alias-list-title cm-alias-list-title-static-block" layout="row" flex="100" layout-align="space-between center">
+                  <span>
+                    MISC
+                  </span>
+                  <div layout="row" layout-align="center center">
+                    <a class="cm-text-decoration underline"
+                       ng-click="vm.clearMISCFilter();"
+                       tabindex="-1"
+                       ng-if="vm.filter.miscType.length">
+                      <md-icon md-font-icon="icon-close" class="color-white s18">
+                        <md-tooltip>Clear</md-tooltip>
+                      </md-icon>
+                    </a>
+                  </div>
+                </div>
+                <select ng-model="vm.filter.miscType" size="10" multiple="" class="cm-auto-scroll" ng-change="vm.setCustomerStock()">
+                  <option ng-repeat="x in vm.miscFilter" value="{{x.Name}}">{{x.Name}}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div layout="column" flex="10" class="pr-5">
+            <div layout="column" class="alias-list-main cm-alias-list-main-static-block" flex>
+              <div class="title alias-list-title cm-alias-list-title-static-block" layout="row" flex="100"
+                   layout-align="space-between center">
+                <span class="label-container width-auto">
+                  <a class="cm-text-decoration underline" ng-click="vm.goToPersonnelList();" tabindex="-1">Created By</a>
+                </span>
+                <div layout="row" layout-align="center center" flex="100" class="cm-part-mfr-list-search">
+                  <md-input-container md-no-float flex="100" layout="row" class="margin-0 pos-rel">
+                    <input type="text" name="employeeSearchText" id="employeeSearchText"
+                           ng-model="vm.employeeSearchText" placeholder="Type here to search"
+                           ng-model-options="{debounce:vm.debounce }" ng-maxlength="50" autocomplete="off"
+                           ng-change="vm.searchEmployeeList()">
+                    <md-button ng-if="vm.employeeSearchText"
+                               class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3"
+                               ng-click="vm.clearEmployeeSearchText()">
+                      <md-icon role="img" md-font-icon="icon-close"
+                               class="material-icons mat-icon icon-close font-size-12 color-white"></md-icon>
+                    </md-button>
+                  </md-input-container>
+                </div>
+                <div layout="row" layout-align="center center">
+                  <a class="cm-text-decoration color-white underline" ng-click="vm.clearEmployeeFilter();" tabindex="-1"
+                     ng-if="vm.filter.employeeDetailModel.length">
+                    Clear
+                  </a>
+                  <md-button ng-click="vm.getEmployeeList();" class="md-primary md-link-ripple cm-part-advance-filter-btn">
+                    <md-icon md-font-icon="icon-reload">
+                      <md-tooltip>Reload</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                </div>
+              </div>
+              <select ng-model="vm.filter.employeeDetailModel" size="10" multiple="" class="cm-auto-scroll"
+                      ng-if="vm.employeeListToDisplay && vm.employeeListToDisplay.length">
+                <option ng-repeat="x in vm.employeeListToDisplay" value="{{x.userID}}">{{x.initialName}}</option>
+              </select>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center"
+                   layout-wrap ng-if="!vm.employeeListToDisplay || vm.employeeListToDisplay.length == 0">
+                <p flex="100" class="empty-state-title font-size-17-imp">{{vm.EmptyMesssageFilter.MESSAGE}}</p>
+              </div>
+            </div>
+          </div>
+          <!-- In Transist & Exprire Material && Non COFC -->
+          <div class="flex-15 layout-column">
+            <fieldset flex="100" layout="column" class="container-box">
+              <md-input-container>
+                <md-checkbox ng-model="vm.filter.isNonCofc" layout="row" layout-align="start center" aria-label="isNonCofc" flex="100" ng-change="vm.changeToTransit()">
+                  <span>Non COFC</span>
+                </md-checkbox>
+              </md-input-container>
+              <md-input-container>
+                <md-checkbox ng-model="vm.filter.inTransist" layout="row" layout-align="start center" aria-label="inTransist" flex="100" ng-change="vm.changeToTransit()">
+                  <span>In Transit (Bin to Bin)</span>
+                </md-checkbox>
+              </md-input-container>
+              <md-input-container>
+                <md-checkbox ng-model="vm.filter.expireMaterial" layout="row" layout-align="start center" aria-label="packaging" flex="100">
+                  <span>Expired Material</span>
+                </md-checkbox>
+              </md-input-container>
+              <div ng-if="vm.filter.expireMaterial" layout="row">
+                <p class="label-container">
+                  <b>Material Expiring in next</b>
+                </p>
+                <md-input-container class="cm-material-ex-day w-60">
+                  <input name="ExpiredMaterialDays" id="ExpiredMaterialDays" type="text" ng-model="vm.filter.expiredDay" class="text-right"
+                         min="0" maxlength="4" onkeypress="return OnlyNumeric(event)" placeholder="Expired Material Within Day" />
+                </md-input-container>
+                <p class="label-container">
+                  <b>day(s).</b>
+                </p>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+
+        <div layout="row" flex="100" ng-if="vm.isMoreFilterVisible" class="mt-5">
+          <!--Functional Type-->
+          <div layout="column" class="pr-5 width-320" flex="15" ng-if="!vm.isFilterHidden">
+            <div layout="column" class="alias-list-main cm-alias-list-main-static-block" flex>
+              <div class="title alias-list-title cm-alias-list-title-static-block" layout="row" flex="100" layout-align="space-between center">
+                <span class="label-container width-auto">
+                  <a class="cm-text-decoration underline" ng-click="vm.goToFunctionalTypeList();"
+                     tabindex="-1">Functional Type</a>
+                </span>
+                <div layout="row" layout-align="center center" flex="100" class="cm-part-mfr-list-search">
+                  <md-input-container md-no-float flex="100" layout="row" class="margin-0 pos-rel">
+                    <input type="text" name="functionalTypeSearchText" id="functionalTypeSearchText" ng-model="vm.functionalTypeSearchText"
+                           placeholder="Type here to search"
+                           ng-maxlength="50" autocomplete="off"
+                           ng-model-options="{ debounce: vm.configTimeout }"
+                           ng-change="vm.searchFunctionalTypeList()">
+                    <md-button ng-if="vm.functionalTypeSearchText" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3"
+                               ng-click="vm.clearFunctionalTypeSearchText()">
+                      <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close font-size-12 color-white"></md-icon>
+                    </md-button>
+                  </md-input-container>
+                </div>
+                <div layout="row" layout-align="center center">
+                  <a class="cm-text-decoration underline"
+                     ng-click="vm.clearFunctionalTypeFilter();"
+                     tabindex="-1"
+                     ng-if="vm.filter.functionalType.length">
+                    Clear
+                  </a>
+                  <md-button ng-click="vm.getFunctionalType();" class="md-primary md-link-ripple cm-part-advance-filter-btn">
+                    <md-icon md-font-icon="icon-reload">
+                      <md-tooltip>Reload</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                </div>
+              </div>
+              <select ng-model="vm.filter.functionalType" size="10" multiple="" class="cm-auto-scroll"
+                      ng-if="vm.functionalTypeListToDisplay && vm.functionalTypeListToDisplay.length">
+                <option ng-repeat="x in vm.functionalTypeListToDisplay" value="{{x.id}}">{{x.partTypeName}}</option>
+              </select>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                   ng-if="(!vm.functionalTypeListToDisplay || vm.functionalTypeListToDisplay.length === 0) && vm.functionalTypeSearchText">
+                <p flex="100" class="empty-state-title font-size-17-imp">{{vm.EmptyMesssage.MESSAGE}}</p>
+              </div>
+            </div>
+          </div>
+
+          <!--Mounting Type-->
+          <div layout="column" class="pr-5" flex="15" ng-if="!vm.isFilterHidden">
+            <div layout="column" class="alias-list-main cm-alias-list-main-static-block" flex>
+              <div class="title alias-list-title cm-alias-list-title-static-block" layout="row" flex="100" layout-align="space-between center">
+                <span class="label-container width-auto">
+                  <a class="cm-text-decoration underline" ng-click="vm.goToMountingTypeList();"
+                     tabindex="-1">
+                    Mounting Type
+                  </a>
+                </span>
+                <div layout="row" layout-align="center center" flex="100" class="cm-part-mfr-list-search">
+                  <md-input-container md-no-float flex="100" layout="row" class="margin-0 pos-rel">
+                    <input type="text" name="mountingTypeSearchText" id="mountingTypeSearchText" ng-model="vm.mountingTypeSearchText"
+                           placeholder="Type here to search"
+                           ng-maxlength="50" autocomplete="off"
+                           ng-model-options="{ debounce: vm.configTimeout }"
+                           ng-change="vm.searchMountingTypeList()">
+                    <md-button ng-if="vm.mountingTypeSearchText" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3"
+                               ng-click="vm.clearMountingTypeSearchText()">
+                      <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close font-size-12 color-white"></md-icon>
+                    </md-button>
+                  </md-input-container>
+                </div>
+                <div layout="row" layout-align="center center">
+                  <a class="cm-text-decoration underline"
+                     ng-click="vm.clearMountingTypeFilter();"
+                     tabindex="-1"
+                     ng-if="vm.filter.mountingType.length">
+                    Clear
+                  </a>
+                  <md-button ng-click="vm.getMountingTypeList();" class="md-primary md-link-ripple cm-part-advance-filter-btn">
+                    <md-icon md-font-icon="icon-reload">
+                      <md-tooltip>Reload</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                </div>
+              </div>
+              <select ng-model="vm.filter.mountingType" size="10" multiple="" class="cm-auto-scroll" ng-if="vm.mountingTypeListToDisplay && vm.mountingTypeListToDisplay.length">
+                <option ng-repeat="x in vm.mountingTypeListToDisplay" value="{{x.id}}">{{x.name}}</option>
+              </select>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                   ng-if="(!vm.mountingTypeListToDisplay || vm.mountingTypeListToDisplay.length === 0) && vm.mountingTypeSearchText">
+                <p flex="100" class="empty-state-title font-size-17-imp">{{vm.EmptyMesssage.MESSAGE}}</p>
+              </div>
+            </div>
+          </div>
+
+          <!--Cost Category-->
+          <div layout="column" flex="15" class="pr-5">
+            <div layout="column" class="alias-list-main cm-alias-list-main-static-block" flex>
+              <div class="title alias-list-title cm-alias-list-title-static-block" layout="row" flex="100" layout-align="space-between center">
+                <span class="label-container width-auto">
+                  <a class="cm-text-decoration underline" ng-click="vm.goToCostCategoryList();"
+                     tabindex="-1">
+                    Cost Category
+                  </a>
+                </span>
+                <div layout="row" layout-align="center center" flex="100" class="cm-part-mfr-list-search">
+                  <md-input-container md-no-float flex="100" layout="row" class="margin-0 pos-rel">
+                    <input type="text" name="costCategorySearchText" id="costCategorySearchText" ng-model="vm.costCategorySearchText"
+                           placeholder="Type here to search"
+                           ng-maxlength="50" autocomplete="off"
+                           ng-model-options="{debounce: vm.configTimeout}"
+                           ng-change="vm.searchCostCategoryList()">
+                    <md-button ng-if="vm.costCategorySearchText" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3"
+                               ng-click="vm.clearCostCategorySearchText()">
+                      <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close font-size-12 color-white"></md-icon>
+                    </md-button>
+                  </md-input-container>
+                </div>
+                <div layout="row" layout-align="center center">
+                  <a class="cm-text-decoration underline"
+                     ng-click="vm.clearCostCategoryFilter();"
+                     tabindex="-1"
+                     ng-if="vm.filter.costCategory.length">
+                    Clear
+                  </a>
+                  <md-button ng-click="vm.getCostCategoryFromUMID();" class="md-primary md-link-ripple cm-part-advance-filter-btn">
+                    <md-icon md-font-icon="icon-reload">
+                      <md-tooltip>Reload</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                </div>
+              </div>
+              <select ng-model="vm.filter.costCategory" size="10" multiple="" class="cm-auto-scroll" ng-if="vm.costCategoryListToDisplay && vm.costCategoryListToDisplay.length">
+                <option ng-repeat="x in vm.costCategoryListToDisplay" value="{{x.id}}">{{x.displayName}}</option>
+              </select>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                   ng-if="(!vm.costCategoryListToDisplay || vm.costCategoryListToDisplay.length === 0) && vm.costCategorySearchText">
+                <p flex="100" class="empty-state-title font-size-17-imp">{{vm.EmptyMesssage.MESSAGE}}</p>
+              </div>
+            </div>
+          </div>
+
+          <!--Standard-->
+          <div layout="column" flex="15" class="pr-5" ng-if="!vm.isFilterHidden">
+            <div layout="column" class="alias-list-main cm-alias-list-main-static-block" flex>
+              <div class="title alias-list-title cm-alias-list-title-static-block" layout="row" flex="100" layout-align="space-between center">
+                <span class="label-container width-auto">
+                  <a class="cm-text-decoration underline" ng-click="vm.goToStandardCaregoryList();"
+                     tabindex="-1">
+                    Standard
+                  </a>
+                </span>
+                <div layout="row" layout-align="center center" flex="100" class="cm-part-mfr-list-search">
+                  <md-input-container md-no-float flex="100" layout="row" class="margin-0 pos-rel">
+                    <input type="text" name="standardsSearchText" id="standardsSearchText" ng-model="vm.standardsSearchText"
+                           placeholder="Type here to search"
+                           ng-maxlength="50" autocomplete="off"
+                           ng-model-options="{debounce: vm.configTimeout}"
+                           ng-change="vm.searchStandardsList()">
+                    <md-button ng-if="vm.standardsSearchText" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3"
+                               ng-click="vm.clearStandardsSearchText()">
+                      <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close font-size-12 color-white"></md-icon>
+                    </md-button>
+                  </md-input-container>
+                </div>
+                <div layout="row" layout-align="center center">
+                  <a class="cm-text-decoration underline"
+                     ng-click="vm.clearStandardFilter();"
+                     tabindex="-1"
+                     ng-if="vm.filter.standard.length">
+                    Clear
+                  </a>
+                  <md-button ng-click="vm.getStandard();" class="md-primary md-link-ripple cm-part-advance-filter-btn">
+                    <md-icon md-font-icon="icon-reload">
+                      <md-tooltip>Reload</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                </div>
+              </div>
+              <select ng-model="vm.filter.standard" size="10" multiple="" class="cm-auto-scroll" ng-if="vm.standardsListToDisplay && vm.standardsListToDisplay.length">
+                <option ng-repeat="x in vm.standardsListToDisplay" value="{{x.certificateStandardID}}">{{x.fullName}}</option>
+              </select>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                   ng-if="(!vm.standardsListToDisplay || vm.standardsListToDisplay.length === 0) && vm.standardsSearchText">
+                <p flex="100" class="empty-state-title font-size-17-imp">{{vm.EmptyMesssage.MESSAGE}}</p>
+              </div>
+            </div>
+          </div>
+
+          <!--Department-->
+          <div layout="column" flex="15" class="pr-5 width-325">
+            <div layout="column" class="alias-list-main cm-alias-list-main-static-block" flex>
+              <div class="title alias-list-title cm-alias-list-title-static-block" layout="row" flex="100" layout-align="space-between center">
+                <span class="label-container width-auto">
+                  <a class="cm-text-decoration underline" ng-click="vm.goToWHList();"
+                     tabindex="-1">
+                    {{vm.LabelConstant.TransferStock.ParentWH}}
+                  </a>
+                </span>
+                <div layout="row" layout-align="center center" flex="100" class="cm-part-mfr-list-search">
+                  <md-input-container md-no-float flex="100" layout="row" class="margin-0 pos-rel">
+                    <input type="text" name="parentWarehouseSearchText" id="parentWarehouseSearchText" ng-model="vm.parentWarehouseSearchText"
+                           placeholder="Type here to search"
+                           ng-maxlength="50" autocomplete="off"
+                           ng-model-options="{debounce: vm.configTimeout}"
+                           ng-change="vm.searchParentWarehouseList()">
+                    <md-button ng-if="vm.parentWarehouseSearchText" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3"
+                               ng-click="vm.clearParentWarehouseSearchText()">
+                      <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close font-size-12 color-white"></md-icon>
+                    </md-button>
+                  </md-input-container>
+                </div>
+                <div layout="row" layout-align="center center">
+                  <a class="cm-text-decoration underline"
+                     ng-click="vm.clearDepartmentFilter();"
+                     tabindex="-1"
+                     ng-if="vm.filter.department.length">
+                    Clear
+                  </a>
+                  <md-button ng-click="vm.getKitDepartment();" class="md-primary md-link-ripple cm-part-advance-filter-btn">
+                    <md-icon md-font-icon="icon-reload">
+                      <md-tooltip>Reload</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                </div>
+              </div>
+              <select ng-model="vm.filter.department" size="10" multiple="" class="cm-auto-scroll" ng-if="vm.parentWarehouseListToDisplay && vm.parentWarehouseListToDisplay.length">
+                <option ng-repeat="x in vm.parentWarehouseListToDisplay" value="{{x.ID}}">{{x.Name}}</option>
+              </select>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                   ng-if="(!vm.parentWarehouseListToDisplay || vm.parentWarehouseListToDisplay.length === 0) && vm.parentWarehouseSearchText">
+                <p flex="100" class="empty-state-title font-size-17-imp">{{vm.EmptyMesssage.MESSAGE}}</p>
+              </div>
+            </div>
+          </div>
+
+          <!--Warehouses-->
+          <div layout="column" flex="15" class="pr-5">
+            <div layout="column" class="alias-list-main" flex>
+              <div class="title alias-list-title" layout="row" flex="100" layout-align="space-between center">
+                <span class="label-container width-auto">
+                  <a class="cm-text-decoration underline" ng-click="vm.goToWHList();"
+                     tabindex="-1">
+                    Warehouse
+                  </a>
+                </span>
+                <div layout="row" layout-align="center center" flex="100" class="cm-part-mfr-list-search">
+                  <md-input-container md-no-float flex="100" layout="row" class="margin-0 pos-rel">
+                    <input type="text" name="warehouseSearchText" id="warehouseSearchText" ng-model="vm.warehouseSearchText"
+                           placeholder="Type here to search"
+                           ng-maxlength="50" autocomplete="off"
+                           ng-model-options="{debounce: vm.configTimeout}"
+                           ng-change="vm.searchWarehouseList()">
+                    <md-button ng-if="vm.warehouseSearchText" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3"
+                               ng-click="vm.clearWarehouseSearchText()">
+                      <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close font-size-12 color-white"></md-icon>
+                    </md-button>
+                  </md-input-container>
+                </div>
+                <div layout="row" layout-align="center center">
+                  <a class="cm-text-decoration underline"
+                     ng-click="vm.clearWarehouseListFilter();"
+                     tabindex="-1"
+                     ng-if="vm.filter.warehouse.length">
+                    Clear
+                  </a>
+                  <md-button ng-click="vm.getKitDepartment(false);" class="md-primary md-link-ripple cm-part-advance-filter-btn">
+                    <md-icon md-font-icon="icon-reload">
+                      <md-tooltip>Reload</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                </div>
+              </div>
+              <select ng-model="vm.filter.warehouse" size="10" multiple="" class="cm-auto-scroll" ng-if="vm.warehouseListToDisplay && vm.warehouseListToDisplay.length">
+                <option ng-repeat="x in vm.warehouseListToDisplay" value="{{x.ID}}">{{x.Name}}</option>
+              </select>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                   ng-if="(!vm.warehouseListToDisplay || vm.warehouseListToDisplay.length === 0) && vm.warehouseSearchText">
+                <p flex="100" class="empty-state-title font-size-17-imp">{{vm.EmptyMesssage.MESSAGE}}</p>
+              </div>
+            </div>
+          </div>
+
+          <!--Rohs-->
+          <div layout="column" flex="15">
+            <div layout="column" class="alias-list-main cm-alias-list-main-static-block" flex>
+              <div class="title alias-list-title cm-alias-list-title-static-block" layout="row" flex="100" layout-align="space-between center">
+                <span class="label-container width-auto">
+                  <a class="cm-text-decoration underline" ng-click="vm.goToRoHSStatusList();"
+                     tabindex="-1">
+                    RoHS
+                  </a>
+                </span>
+                <div layout="row" layout-align="center center" flex="100" class="cm-part-mfr-list-search">
+                  <md-input-container md-no-float flex="100" layout="row" class="margin-0 pos-rel">
+                    <input type="text" name="rohsSearchText" id="rohsSearchText" ng-model="vm.rohsSearchText"
+                           placeholder="Type here to search"
+                           ng-maxlength="50" autocomplete="off"
+                           ng-model-options="{debounce: vm.configTimeout}"
+                           ng-change="vm.searchRohsList()">
+                    <md-button ng-if="vm.rohsSearchText" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3"
+                               ng-click="vm.clearRohsSearchText()">
+                      <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close font-size-12 color-white"></md-icon>
+                    </md-button>
+                  </md-input-container>
+                </div>
+                <div layout="row" layout-align="center center">
+                  <a class="cm-text-decoration color-white underline"
+                     ng-click="vm.clearRohsFilter();"
+                     tabindex="-1"
+                     ng-if="vm.filter.rohsStatus.length">
+                    Clear
+                  </a>
+                  <md-button ng-click="vm.getRoHSList();" class="md-primary md-link-ripple cm-part-advance-filter-btn">
+                    <md-icon md-font-icon="icon-reload">
+                      <md-tooltip>Reload</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                </div>
+              </div>
+              <select ng-model="vm.filter.rohsStatus" size="10" multiple="" class="cm-auto-scroll" ng-if="vm.rohsListToDisplay && vm.rohsListToDisplay.length">
+                <option ng-repeat="x in vm.rohsListToDisplay" value="{{x.id}}">{{x.value}}</option>
+              </select>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                   ng-if="(!vm.rohsListToDisplay || vm.rohsListToDisplay.length === 0) && vm.rohsSearchText">
+                <p flex="100" class="empty-state-title font-size-17-imp">{{vm.EmptyMesssage.MESSAGE}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div layout="row" flex="100" class="layout-wrap-rs-1024">
+          <!--Innoauto Search-->
+          <div layout class="mt-5 pr-5">
+            <fieldset class="container-box margin-bottom-5" flex="100">
+              <legend class="margin-0">{{vm.CORE.LabelConstant.Show_Light_Instruction}}</legend>
+              <div class="input-wrapper" layout="row" layout-align="start center">
+                <md-checkbox ng-model="vm.isComapnyLevel" name="isComapnyLevel">
+                  Search Company Level
+                  <md-icon class="icon-question-mark-circle help-icon h-16">
+                    <md-tooltip md-direction="top">
+                      {{vm.CORE_MESSAGE_CONSTANT.SEARCH_COMPANY_LEVEL}}
+                    </md-tooltip>
+                  </md-icon>
+                </md-checkbox>
+                <div class="cm-switch-light cm-switch-new">
+                  <md-input-container flex="100" class="md-input-has-value mid">
+                    <md-radio-group class="rocker" ng-class="{'cm-show-btn':vm.clickButton,'cm-cancel-btn':(!vm.clickButton && !(vm.checkPartForSearch())),'cm-button-disable':vm.checkPartForSearch() }" ng-change="vm.changeEvent(vm.clickButton,$event)" ng-model="vm.clickButton">
+                      <md-radio-button ng-value="true" class="cm-show md-button switch-left" ng-disabled="vm.checkPartForSearch() ||  vm.showStatus">Show Light</md-radio-button>
+                      <md-radio-button ng-value="false" class="cm-cancel md-button switch-right" ng-disabled="vm.checkPartForSearch() || !vm.showStatus">Cancel</md-radio-button>
+                    </md-radio-group>
+                  </md-input-container>
+                </div>
+                <div class="margin-left-10 margin-top-20">
+                  <md-button class="md-primary md-raised md-ink-ripple ml-0" ng-click="vm.transferStock({updateStock:false})">{{vm.LabelConstant.UMIDManagement.TransferMaterial}}</md-button>
+                </div>
+              </div>
+              <span class="font-weight-600 font-size-10 ml-8">
+                {{vm.CORE.LabelConstant.Show_Light_Instruction_Select}}
+              </span>
+              <p class="font-weight-600 font-size-10 ml-8">Search request timeout {{vm.TimeOut}} seconds, You can increase timeout limit from <a tabindex="-1" class="underline cursor-pointer" ng-click="vm.goDatakeysPage()">Settings/System/Data Keys</a></p>
+            </fieldset>
+          </div>
+          <div class="mr-5 mt-5" layout>
+            <fieldset flex="100" class="container-box margin-bottom-5">
+              <legend class="margin-0">Stock Status</legend>
+              <div class="input-wrapper margin-0" layout="row" flex="100" layout-align="start center">
+                <md-radio-group ng-model="vm.filter.isInStock">
+                  <div>
+                    <md-radio-button ng-value="All" name="isInStock">All</md-radio-button>
+                  </div>
+                  <div>
+                    <md-radio-button ng-value="true" name="isInStock">In-Stock UMID</md-radio-button>
+                  </div>
+                  <div>
+                    <md-radio-button ng-value="false" name="isInStock">Empty UMID</md-radio-button>
+                  </div>
+                </md-radio-group>
+              </div>
+            </fieldset>
+          </div>
+          <!--Created On-->
+
+          <div class="mr-5 mt-5" layout="column">
+            <fieldset flex class="container-box margin-bottom-5">
+              <legend class="margin-0">Created On</legend>
+              <div class="margin-left-10" layout="row" flex="100" layout-align="start start">
+                <common-date-filter from-date="vm.filter.fromDate" to-date="vm.filter.toDate" reset-filter="vm.resetDateFilter"></common-date-filter>
+              </div>
+            </fieldset>
+            <fieldset flex class="container-box mb-5">
+              <legend class="margin-0">Search UMID&nbsp;/&nbsp;PID&nbsp;/&nbsp;{{vm.CORE.LabelConstant.MFG.MFGPN}}</legend>
+              <div class="margin-0" layout="row" flex="100" layout-align="start start">
+                <div class="input-wrapper" layout="row" layout-align="start center">
+                  <md-radio-group class=" mb-5" flex="100" layout="row" ng-model="vm.filter.searchType" name="checkSerachType">
+                    <md-radio-button ng-value="vm.CustomSearchTypeForList.Contains" class="md-primary margin-top-0">Contains</md-radio-button>
+                    <md-radio-button ng-value="vm.CustomSearchTypeForList.Exact" class="md-primary margin-top-0">Exact</md-radio-button>
+                  </md-radio-group>
+                </div>
+                <div class="input-wrapper" layout="row" layout-align="start center" flex="90">
+                  <md-input-container flex="100" class="margin-bottom-0">
+                    <input type="text" id="searchPidUmidMfgPN" name="searchPidUmidMfgPN" ng-model="vm.filter.searchPidUmidMfgPN" placeholder="Search UMID/PID/{{vm.CORE.LabelConstant.MFG.MFGPN}}" ng-keypress="vm.scanSearchKey($event)" />
+                  </md-input-container>
+                </div>
+                <div flex="7" layout="row" ng-if="vm.filter.searchPidUmidMfgPN">
+                  <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removePidUmidMfgPN($event)">
+                    <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                    <md-tooltip>Reset</md-tooltip>
+                  </md-button>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="mr-5 mt-5" flex layout="column">
+            <fieldset flex class="container-box margin-bottom-5">
+              <legend class="margin-0">
+                Search Customer
+                <md-icon class="cm-padding-left-5-imp icon-question-mark-circle help-icon h-16">
+                  <md-tooltip md-direction="bottom" class="tooltip-height-auto">
+                    <span ng-bind-html="vm.UMID_LIST_CUSTOMER_STOCK_FILTER"></span>
+                  </md-tooltip>
+                </md-icon>
+              </legend>
+              <div class="margin-0" layout="row" flex="100" layout-align="start start">
+                <div layout="row" flex layout-align="start center">
+                  <md-input-container ng-if="vm.autoCompletecustomer" class="autocompletecustom margin-bottom-0" flex="100">
+                    <custom-auto-complete-search class="min-width-initial"
+                                                 on-search-fn="vm.autoCompletecustomer.onSearchFn"
+                                                 column-name="vm.autoCompletecustomer.columnName"
+                                                 controller-name="vm.autoCompletecustomer.controllerName"
+                                                 view-template-url="vm.autoCompletecustomer.viewTemplateURL"
+                                                 key-column-name="vm.autoCompletecustomer.keyColumnName"
+                                                 input-name="vm.autoCompletecustomer.inputName"
+                                                 placeholder-name="vm.autoCompletecustomer.placeholderName"
+                                                 key-column-id="vm.autoCompletecustomer.keyColumnId"
+                                                 is-required="vm.autoCompletecustomer.isRequired"
+                                                 parent-column-name="vm.autoCompletecustomer.parentColumnName"
+                                                 is-addnew="vm.autoCompletecustomer.isAddnew"
+                                                 add-data="vm.autoCompletecustomer.addData"
+                                                 is-disabled="!vm.isCustomerStockNotSelected"
+                                                 on-select-callback-fn="vm.autoCompletecustomer.onSelectCallbackFn">
+                    </custom-auto-complete-search>
+                  </md-input-container>
+                </div>
+              </div>
+            </fieldset>
+            <fieldset flex class="container-box margin-bottom-5">
+              <legend class="margin-0">Scan (Location/Bin)&nbsp;/&nbsp;Warehouse</legend>
+              <div class="margin-0" layout="row" flex="100" layout-align="start start">
+                <div class="input-wrapper" layout="row" flex layout-align="start center">
+                  <md-input-container md-autofocus>
+                    <input name="searchScanLabel" id="searchScanLabel" type="text" ng-model="vm.filter.scanLabel" placeholder="Scan (Location/Bin)/Warehouse" ng-keypress="vm.scanSearchKey($event)" />
+                  </md-input-container>
+                </div>
+                <div flex="10" layout="row" ng-if="vm.filter.scanLabel">
+                  <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeScanLabel($event)">
+                    <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                    <md-tooltip>Reset</md-tooltip>
+                  </md-button>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="mr-5 mt-5" layout>
+            <fieldset class="container-box margin-bottom-5" flex>
+              <legend class="margin-0">Search Internal Date Code</legend>
+              <div class="margin-0" layout="row" flex="100" layout-align="start start">
+                <div class="input-wrapper" layout="row" flex layout-align="start center">
+                  <md-input-container md-autofocus>
+                    <input name="searchDateCode" id="searchDateCode" type="text" ng-model="vm.filter.dateCode" placeholder="Search Date Code"
+                           maxlength="4"
+                           onkeypress="return OnlyNumeric(event)"
+                           ng-keypress="vm.scanSearchKey($event)" />
+                  </md-input-container>
+                </div>
+                <div flex="10" layout="row" ng-if="vm.filter.dateCode">
+                  <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeDateCode($event)">
+                    <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                    <md-tooltip>Reset</md-tooltip>
+                  </md-button>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+
+        <div layout="row" flex="100" class="mt-10">
+          <md-input-container flex="10">
+            <md-select name="textFilterType" ng-model="vm.umidTextAdvanceFilterType"
+                       md-container-class="containerClass">
+              <md-option ng-repeat="option in vm.UMIDTextAdvanceFilterTypeDropDown" ng-value="option.id">{{option.value}}</md-option>
+            </md-select>
+          </md-input-container>
+          <md-input-container md-no-float flex="65">
+            <input type="text" name="textSearch" id="attributesSearch" ng-model="vm.attributesSearch"
+                   placeholder="Enter Description or Detailed Description"
+                   ng-maxlength="50" autocomplete="off"
+                   ng-keydown="vm.createChipForTextSearch($event, vm.attributesSearch)"
+                   ng-change="vm.checkDuplicateTextChip(vm.attributesSearch)"
+                   capitalize class="input-text-uppercase">
+            <span flex="100" class="font-size-10">
+              <b>{{vm.UMID_TEXT_BOX_ADVANCE_FILTER_SEARCH_HELPER_TEXT}}</b>
+            </span>
+            <div ng-messages="vm.filtersInfo.textSearch.$error" md-auto-hide="false" role="alert">
+              <div ng-message="maxlength">
+                <span>{{vm.getMaxLengthValidation(50, vm.filtersInfo.textSearch.$viewValue.length)}}</span>
+              </div>
+              <div ng-message="duplicate">
+                <span>{{vm.CORE_MESSAGE_CONSTANT.DUPLICATE}}</span>
+              </div>
+            </div>
+          </md-input-container>
+          <div class="input-wrapper mb-5" flex layout="row" layout-align="end">
+            <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.advanceFilterSearch()">{{vm.LabelConstant.COMMON.APPLY_FILTERS}}</md-button>
+            <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.clearSelection();" ng-disabled="true">{{vm.LabelConstant.COMMON.CLEAR_ALL}}</md-button>
+            <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.resetPidUmidMfgPN(false)">{{vm.LabelConstant.COMMON.RESET}}</md-button>
+          </div>
+
+        </div>
+
+        <div layout="row" layout-align="start center" layout-wrap flex="100" class="padding-left-10" ng-if="vm.UMIDListTextFilter && vm.UMIDListTextFilter.length !== 0">
+          <div ng-repeat="item in vm.UMIDListTextFilter" layout="row" layout-align="start center" class="cm-tracking-chip-mian" ng-if="!item.isDeleted">
+            <div class="tracking-number-chip" layout="row" layout-align="start center">
+              <label>
+                {{item.value}}
+              </label>
+              <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeAppliedFilter(item, $index)">
+                <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                <md-tooltip>Click to remove this filter</md-tooltip>
+              </md-button>
+            </div>
+          </div>
+        </div>
+
+        <div layout="row" layout-align="start center" layout-wrap flex="100" class="padding-left-10 mb-5" ng-if="vm.generateFilterChip">
+          <span class="font-weight-600">
+            {{vm.LabelConstant.COMMON.APPLIED_FILTERS}}
+          </span>
+          <div ng-repeat="item in vm.UMIDListAdvanceFilter" layout="row" layout-align="start center" class="cm-tracking-chip-mian"
+               ng-if="!item.isDeleted">
+            <div class="tracking-number-chip" layout="row" layout-align="start center">
+              <label>
+                {{item.value}}
+                <md-tooltip md-direction="top" ng-if="item.tooltip" class="tooltip-height-auto"
+                            ng-bind-html="item.tooltip">
+                </md-tooltip>
+              </label>
+              <md-button class="md-icon-button md-primary md-mini" ng-disabled="item.isDisable" ng-click="vm.removeAppliedFilter(item, $index)">
+                <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                <md-tooltip>Click to remove this filter</md-tooltip>
+              </md-button>
+            </div>
+          </div>
+        </div>
+
+        <div layout="row" layout-align="start center" layout-wrap flex="100" class="pt-5"
+             ng-if="vm.isUiGridColumnFiltersApplied && vm.gridOptions.gridApi && vm.gridOptions.gridApi.grid.columns.length > 0">
+          <span class="font-weight-600">
+            {{vm.LabelConstant.COMMON.APPLIED_GRID_FILTERS}}
+          </span>
+          <div ng-repeat="item in vm.gridOptions.gridApi.grid.columns" layout="row" layout-align="start center" class="cm-tracking-chip-mian"
+               ng-if="item.filters[0].term">
+            <div class="tracking-number-chip" layout="row" layout-align="start center" ng-if="item.filters[0].term">
+              <label>
+                {{item.displayName}}
+                <md-tooltip md-direction="top" ng-if="item.filters[0].term" class="tooltip-height-auto"
+                            ng-bind-html="item.filters[0].term">
+                </md-tooltip>
+              </label>
+              <md-button class="md-icon-button md-primary md-mini" ng-click="vm.clearGridColumnFilter(item, $index)">
+                <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                <md-tooltip>Click to remove this filter</md-tooltip>
+              </md-button>
+            </div>
+          </div>
+        </div>
+
+        <div layout="row" flex="100" layout-align="center center" class="mh-10 mt-10 mb-10" ng-class="{'cm-load-more-filters': vm.isFilterHidden, 'cm-load-more-filters-umid': !vm.isFilterHidden}">
+          <md-button class="md-primary md-raised margin-0" ng-click="vm.isMoreFilterVisible = !vm.isMoreFilterVisible" aria-label="Fewer Filters">{{vm.isMoreFilterVisible ? 'Fewer Filters':'More Filters'}}</md-button>
+        </div>
+
+      </div>
+
+    </form>
+
+
+
+  </div>
+
+  <!--<div ng-if="vm.showStatus">
+      <umid-status-list list="vm.umidSelectList"></umid-status-list>
+  </div>-->
+  <div excel-reader er-options="vm.eroOptions" ng-show="!vm.isNoDataFound">
+    <md-card layout="column" class=" margin-0 cm-receivingmaterial-umid" flex layout-align="space-between stretch">
+      <!--class="cm-umid-grid-background"-->
+      <ui-grid-extention ng-class="{'cm-part-umid-list-grid' : vm.isFilterHidden}"
+                         grid-id="vm.gridConfig.gridReceivingMaterial"
+                         load-data="vm.loadData"
+                         grid-option="vm.gridOptions"
+                         header="vm.sourceHeader"
+                         grid-data="vm.sourceData"
+                         total-data-count="vm.totalSourceDataCount"
+                         reset-grid="vm.resetSourceGrid"
+                         selectted-rows="vm.selectedRowsList"
+                         paging-info="vm.pagingInfo"
+                         current-item="vm.currentdata"
+                         get-data-down="vm.getDataDown"
+                         empty-state="vm.emptyState"
+                         delete-multiple-data="vm.deleteMultipleData">
+    </md-card>
+    <input id="fiexcel" name="file" type="file" class="hidden" style="height:0px; width:0px; left: -100%; position:absolute">
+  </div>
+</div>
+

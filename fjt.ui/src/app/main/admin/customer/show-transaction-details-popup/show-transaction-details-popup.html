@@ -1,0 +1,73 @@
+<md-dialog aria-label="Customer" flex="50" class="md-inline-form cm-custom-label-common wo-details-list" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+    <form name="vm.customerBillingAddressForm">
+        <md-toolbar>
+            <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+                <h2>{{vm.title}} Transaction Details</h2>
+                <span flex></span>
+                <div layout="row" layout-align="center center">
+                    <popup-header-label label-data="vm.headerdata"></popup-header-label>
+                </div>
+                <md-button class="md-icon-button" ng-click="vm.cancel()">
+                    <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content class="customer-modal no-padding custom-scroll">
+                <div class="m-10 ph-5">
+                <div layout="row" layout-align="end end" ng-if="vm.transactionList.length > 0">
+                    <div layout="row" flex-xs="50">
+                        <md-input-container class="margin-0"  md-no-float>
+                             <input type="text" ng-model="vm.query.search"  placeholder="Type here to search">
+                        </md-input-container>
+                    </div>
+                    <md-button class="md-raised md-primary mv-1 mr-0 mb-0"
+                               ng-disabled="!vm.query.search"
+                               ng-click="vm.query.search = ''">
+                        Clear
+                    </md-button>
+                </div>
+                <div class="content fullpage-datatable cm-customer-contact-table cm-show-transcation-table" layout="column" flex ng-if="vm.transactionList.length > 0">
+                    <md-table-container layout="row">
+                        <table md-table class="md-data-table table-row-select" md-row-select ng-model="vm.selectedItems" ng-if="vm.transactionList.length > 0">
+                            <thead md-head md-order="vm.query.order">
+                                <tr md-row>
+                                    <th md-column md-order-by="cnt">
+                                        Count
+                                    </th>
+                                    <th md-column md-order-by="msg">
+                                        Transaction
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody md-body>
+                                <tr md-row ng-repeat="item in vm.transactionList
+                                       | filter: vm.query.search
+                                       | orderBy:vm.query.order">
+                                    <td md-cell>{{item.cnt}}</td>
+                                    <td md-cell><a tabindex="-1" class="underline cursor-pointer" ng-click="vm.redirect(item.msg, item, $event)">{{item.msg}}</a></td>
+                                </tr>
+                                <tr md-row ng-if="(vm.transactionList | filter: vm.query.search).length != 0 && vm.query.isPagination ">
+                                    <td md-cell>Total:{{vm.total}}</td>
+                                    <td md-cell></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </md-table-container>
+                    <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+                         ng-if="(vm.transactionList | filter: vm.query.search).length == 0 ">
+                        <div class="emty-icon" flex="100">
+                            <img ng-src="{{vm.empty.IMAGEURL}}" />
+                        </div>
+                        <p class="empty-state-title" flex="100">{{vm.empty.MESSAGE}}</p>
+                    </div>
+                    <md-table-pagination md-limit="vm.query.limit" md-limit-options="limitOptions" md-page="vm.query.page" md-total="{{vm.transactionList.length}}" md-page-select md-boundary-links="false" ng-if="(vm.transactionList | filter: vm.query.search).length != 0 && vm.query.isPagination "></md-table-pagination>
+                </div>
+                  </div>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <md-button class="md-default md-raised" ng-if="!vm.isAlterntePartValidation" ng-click="vm.close()">Close</md-button>
+            <md-button class="md-default md-raised" ng-if="vm.isAlterntePartValidation" ng-click="vm.cancel()">NO</md-button>
+            <md-button class="md-primary md-raised" ng-if="vm.isAlterntePartValidation" ng-click="vm.saveAliasPartsValidation()" aria-label="Submit">Yes</md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

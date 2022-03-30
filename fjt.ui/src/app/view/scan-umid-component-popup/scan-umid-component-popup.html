@@ -1,0 +1,357 @@
+<md-dialog aria-label="Scan Material" class="cm-custom-label-common receiving-pop-main" draggable>
+  <form name="vm.ScanUMIDDetails" class="md-inline-form">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{vm.title}}</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="no-padding custom-scroll mh-5" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+      <md-content class="padding-10">
+        <div>
+          <div layout="row" flex="100" class="work-order-bg-main" layout-wrap>
+            <equipment-header-details flex="90" header-details="vm.data"></equipment-header-details>
+          </div>
+          <md-tabs flex md-dynamic-height class="maintanacetabing manage-customer-tabing padding-0" md-border-bottom>
+            <md-tab label="Scan Material Details" md-on-select="vm.showHistory = false">
+              <div ng-if="!vm.IsShowEditMaterials">
+                <div class="cm-section-main" flex="100">
+                  <div class="cm-section-inner margin-top-10">
+                    <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                      <tbody>
+                        <tr>
+                          <td colspan="10">
+                            <div layout="row" class="float-right">
+                              <!--<div class="feeder-scan-message">
+                        <p ng-class="{'success-text': vm.umidScan.isSuccess}" ng-bind-html="vm.umidScan.errorText"></p>
+                      </div>-->
+                              <div class="text-right cm-btn-group cm-square-icon-btn">
+                                <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10"
+                                           ng-click="vm.goToTransferMaterial()">
+                                  <!--{{vm.LabelConstant.UMIDManagement.TransferBulkMaterial}}-->
+                                  <md-icon md-font-icon="t-icons-transfer-bulk5" class="material-icons"></md-icon>
+                                  <md-tooltip>{{vm.LabelConstant.UMIDManagement.TransferBulkMaterial}}</md-tooltip>
+                                </md-button>
+                                <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10"
+                                           ng-click="vm.uidTranfer($event, {updateStock:false})">
+                                  <md-icon md-font-icon="t-icons-transfer-material" class="material-icons"></md-icon>
+                                  <md-tooltip>{{vm.LabelConstant.UMIDManagement.TransferMaterial}}</md-tooltip>
+                                  <!--{{vm.LabelConstant.UMIDManagement.TransferMaterial}}-->
+                                </md-button>
+                                <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-click="vm.uidTranfer($event, {updateStock:true})">
+                                  <md-icon md-font-icon="t-icons-count111" class="material-icons"></md-icon>
+                                  <md-tooltip>{{vm.LabelConstant.UMIDManagement.CountMaterial}}</md-tooltip>
+                                </md-button>
+                                <!--<md-button class="md-primary md-raised" ng-click="vm.viewUMIDHistoryPopup($event)">
+                          View History
+                        </md-button>-->
+                                <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-click="vm.viewUMIDHistoryPopup($event)">
+                                  <md-icon md-font-icon="t-icons-history-text" class="material-icons"></md-icon>
+                                  <md-tooltip>View History</md-tooltip>
+                                </md-button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table class="cm-table-input-main">
+                      <tbody>
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              <a tabindex="-1" class="cm-text-decoration underline"
+                                 ng-mousedown="vm.goToUMIDList();$event.preventDefault();">
+                                <b>{{vm.LabelConstant.Traveler.Scan_UMID}}</b>
+                              </a>
+                              <span>&nbsp;*</span>
+                              <scan-or-enter></scan-or-enter>
+                            </p>
+                          </th>
+                          <td class="width-235">
+                            <div class="display-flex">
+                              <md-input-container flex="100" class="margin-bottom-0 md-block margin-top-0 scan-label-text">
+                                <input type="text" name="umid" md-select-on-focus
+                                       ng-model="vm.umidScan.umid"
+                                       required ng-maxlength="vm.UMID_MAX_LENGTH"
+                                       placeholder="{{vm.LabelConstant.ScanOREnter.ScanUMID}}" capitalize class="input-text-uppercase"
+                                       ng-keypress="vm.scanLabel($event)"
+                                       ng-disabled="vm.data.isDisableScan"
+                                       md-autofocus>
+                                <span flex="100" class="font-size-10">
+                                  <b>{{vm.LabelConstant.ScanOREnter.ScanUMID}}</b>
+                                </span>
+                                <div ng-messages="vm.ScanUMIDDetails.umid.$error"
+                                     role="alert">
+                                  <div ng-message="required">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                  </div>
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(vm.UMID_MAX_LENGTH,vm.ScanUMIDDetails.umid.$viewValue.length)}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                              <md-button class="md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.umidScan.umid" ng-click="vm.umidScan.umid = '';">
+                                <md-icon md-font-icon="icon-close" role="img" class="mb-10 ml-0"></md-icon>
+                              </md-button>
+                            </div>
+                          </td>
+                          <th ng-if="vm.autoCompleteEmployee && vm.umidScan.isPlacementTracking && !vm.data.isVerify">
+                            <p class="label-container">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToPersonnelList();" tabindex="-1">
+                                <b>Personnel</b>
+                              </a><span ng-if="vm.isUmidScanned">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td ng-if="vm.autoCompleteEmployee && vm.umidScan.isPlacementTracking && !vm.data.isVerify">
+                            <md-input-container flex="100" class="autocompletecustom  cm-custom-autocomplete">
+                              <custom-auto-complete datalist="vm.data.employeeList"
+                                                    column-name="vm.autoCompleteEmployee.columnName"
+                                                    key-column-name="vm.autoCompleteEmployee.keyColumnName"
+                                                    input-name="vm.autoCompleteEmployee.inputName"
+                                                    placeholder-name="vm.autoCompleteEmployee.placeholderName"
+                                                    key-column-id="vm.autoCompleteEmployee.keyColumnId"
+                                                    is-required="vm.autoCompleteEmployee.isRequired"
+                                                    is-disabled="!vm.umidDetails"
+                                                    on-select-callback-fn="vm.autoCompleteEmployee.onSelectCallbackFn">
+                              </custom-auto-complete>
+                            </md-input-container>
+                          </td>
+                          <th ng-if="vm.umidScan.isPlacementTracking && !vm.data.isVerify">
+                            <p class="label-container"><b>{{vm.LabelConstant.BOM.REF_DES}}</b><span ng-if="vm.isUmidScanned">&nbsp;*</span></p>
+                          </th>
+                          <td ng-if="vm.umidScan.isPlacementTracking && !vm.data.isVerify">
+                            <md-input-container flex="100" class="margin-bottom-0 md-block margin-top-0 scan-label-text">
+                              <input type="text" name="refdes" md-select-on-focus ng-model="vm.umidScan.refdes"
+                                     required
+                                     placeholder="{{vm.LabelConstant.BOM.REF_DES}}" capitalize class="input-text-uppercase"
+                                     autocomplete="off"
+                                     ng-change="vm.validateRefDesg()"
+                                     ng-disabled="!vm.umidDetails || vm.data.isDisableScan"
+                                     md-autofocus>
+                              <div ng-messages="vm.ScanUMIDDetails.refdes.$error"
+                                   role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="invalidrefdesg">
+                                  <span>{{vm.InvalidRefDesMessage}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <!--employeeList-->
+                          <th ng-if="vm.umidScan.isPlacementTracking && !vm.data.isVerify">
+                            <p class="label-container"><b>Assy Qty</b></p>
+                          </th>
+                          <td ng-if="vm.umidScan.isPlacementTracking && !vm.data.isVerify">
+                            <md-input-container flex="100" class="margin-bottom-0 md-block margin-top-0 scan-label-text">
+                              <input type="number" name="assyQty" ng-model="vm.umidScan.assyQty"
+                                     placeholder="{{vm.LabelConstant.BOM.REF_DES}}" class="input-text-uppercase"
+                                     ng-disabled="!vm.umidDetails || vm.data.isDisableScan"
+                                     md-autofocus>
+                            </md-input-container>
+                          </td>
+                          <td class="nowrap">
+                            <md-button ng-if="vm.umidScan.isPlacementTracking && !vm.data.isVerify" class="md-primary md-raised mt-0"
+                                       ng-click="vm.validateRefDesg(); vm.saveScanUMIDDetails($event)"
+                                       ng-class="{'md-formdirty': vm.checkFormDirty(vm.ScanUMIDDetails,null)}">
+                              Save
+                            </md-button>
+                            <!--<md-button class="md-primary md-raised mt-0"
+                               ng-click="vm.resetAll($event)"
+                               ng-disabled="!vm.umidScan.isSuccess">
+                      Done
+                    </md-button>-->
+                            <md-button class="md-primary md-raised mt-0"
+                                       ng-click="vm.resetAll($event)">
+                              Clear
+                            </md-button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <div layout>
+                      <div flex="50" class="pr-5">
+                        <table class="cm-table-input-main">
+                          <tbody>
+                            <tr class="feeder-scan-details">
+                              <th ng-if="vm.umidDetails.PIDCode" class="vertical-middle-align border border-right-0">
+                                <div class="avatar-wrapper text-center">
+                                  <img class="md-avatar avatar margin-top-0 margin-bottom-0 height-75 width-75" ng-src="{{vm.umidDetails.imageURL}}" />
+                                </div>
+                              </th>
+                              <td colspan="3" ng-if="vm.umidDetails.PIDCode" class="padding-right-5 border border-left-0">
+                                <table>
+                                  <tr>
+                                    <th>
+                                      UMID#: <a class="cm-text-decoration" ng-click="vm.goToUMIDDetail(vm.umidDetails.refsidid)">{{vm.umidDetails.uid}}</a>
+                                      <copy-text ng-if="vm.umidDetails.uid" label="vm.LabelConstant.TransferStock.UMID" text="vm.umidDetails.uid"></copy-text>
+                                    </th>
+                                  </tr>
+                                  <tr ng-if="vm.umidDetails.mfgCode">
+                                    <th colspan="2">
+                                      <!--<span class="margin-0"><b>{{vm.umidDetails.mfgCode}}</b></span>-->
+                                      <a tabindex="-1" class="cm-text-decoration"
+                                         ng-mousedown="vm.goToManufacturer(vm.umidDetails.mfgCodeID);$event.preventDefault();">
+                                        <b>{{vm.umidDetails.mfgCode}}</b>
+                                      </a>
+                                    </th>
+                                  </tr>
+                                  <tr ng-if="vm.umidDetails.mfgPN">
+                                    <th colspan="2">
+                                      <div layout="row">
+                                        <common-pid-code-label-link class="margin-0" ng-if="vm.umidDetails.mfgPN"
+                                                                    component-id="vm.umidDetails.id"
+                                                                    label="vm.LabelConstant.MFG.MFGPN"
+                                                                    value="vm.umidDetails.mfgPN"
+                                                                    is-copy="true"
+                                                                    rohs-icon="vm.rohsImagePath + vm.umidDetails.rohsIcon"
+                                                                    rohs-status="vm.umidDetails.rohsStatus"
+                                                                    is-search-digi-key="true"
+                                                                    is-search-findchip="true"
+                                                                    is-custom-part="vm.umidDetails.isCustom"></common-pid-code-label-link>
+                                        <span ng-if="vm.umidDetails.pkgQty">({{vm.LabelConstant.KitAllocation.Count}}: {{vm.umidDetails.pkgQty}})</span>
+                                      </div>
+                                    </th>
+                                  </tr>
+                                  <tr>
+                                    <th colspan="2">
+                                      <div layout="row" ng-if="vm.umidDetails.PIDCode">
+                                        <common-pid-code-label-link class="margin-0" ng-if="vm.umidDetails.PIDCode"
+                                                                    component-id="vm.umidDetails.id"
+                                                                    label="vm.LabelConstant.MFG.PID"
+                                                                    value="vm.umidDetails.PIDCode"
+                                                                    is-copy="true"
+                                                                    rohs-icon="vm.rohsImagePath + vm.umidDetails.rohsIcon"
+                                                                    rohs-status="vm.umidDetails.rohsStatus"
+                                                                    is-search-digi-key="true"
+                                                                    is-search-findchip="true"
+                                                                    is-custom-part="vm.umidDetails.isCustom"></common-pid-code-label-link>
+                                      </div>
+                                    </th>
+                                  </tr>
+                                  <tr ng-if="vm.umidDetails.mfgPNDescription">
+                                    <th colspan="2">
+                                      <div layout="row" flex="100" ng-if="vm.umidDetails.mfgPNDescription">
+                                        <span class="margin-0"><b>{{vm.umidDetails.mfgPNDescription}}</b></span>
+                                      </div>
+                                    </th>
+                                  </tr>
+                                  <tr>
+                                    <td colspan="2" ng-if="vm.umidDetails.expiryDateText">
+                                      <span class="margin-0"><b ng-if="vm.umidDetails.expiryDateText" style="color:red">{{vm.umidDetails.expiryDateText}}</b></span>
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div flex layout>
+                        <div flex ng-if="vm.umidDetails.refDesig" class="cm-section-main">
+                          <h2 class="cm-section-header">
+                            <b>{{vm.LabelConstant.BOM.REF_DES}}</b>
+                          </h2>
+                          <div class="cm-section-inner feeder-scan-details">
+                            <div class="md-accent-fg" ng-if="vm.umidDetails.refDesig">
+                              <span class="margin-0"><b ng-if="vm.umidDetails.refDesig">{{vm.umidDetails.refDesig}}</b><copy-text ng-if="vm.umidDetails.refDesig" label="vm.umidDetails.refDesig" text="vm.umidDetails.refDesig"></copy-text></span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div flex layout layout-align="center center">
+                        <div class="feeder-scan-message inline-block pl-10 text-center" ng-if="vm.umidScan.isSuccess">
+                          <img src="../../../assets/images/etc/checkmark-animated.svg" class="width-80 margin-right-10" />
+                          <p class="success-text font-size-28 mv-20" ng-bind-html="vm.umidScan.successText"></p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="feeder-scan-message" flex="100" ng-if="vm.umidScan.errorText">
+                      <p ng-bind-html="vm.umidScan.errorText"></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="cm-section-main" flex="100" ng-if="!vm.data.isVerify && vm.selectedbomLineItemList.length > 0">
+                  <div class="cm-section-inner cm-overflow-auto">
+                    <table class="width-100p">
+                      <tr>
+                        <td colspan="8">
+                          <umid-lineitem-list ng-if="vm.selectedbomLineItemList.length > 0" is-verify="vm.data.isVerify"
+                                              select-lineitem-list="vm.selectedbomLineItemList" set-umid-lineitem="vm.setLineItemDetails(param)"></umid-lineitem-list>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+                <div class="content-card" layout="column" flex ng-show="!vm.isNoDataFound">
+                  <md-card layout="column" class=" margin-0 cm-scan-feeder-com" flex layout-align="space-between stretch">
+                    <ui-grid-extention load-data="vm.loadData"
+                                       grid-id="vm.data.isVerify ? vm.gridConfig.gridVerifyScanMaterial : vm.gridConfig.gridScanMaterial"
+                                       grid-option="vm.gridOptions"
+                                       header="vm.sourceHeader"
+                                       grid-data="vm.sourceData"
+                                       total-data-count="vm.totalSourceDataCount"
+                                       reset-grid="vm.resetSourceGrid"
+                                       selectted-rows="vm.selectedRowsList"
+                                       paging-info="vm.pagingInfo"
+                                       current-item="vm.currentdata"
+                                       get-data-down="vm.getDataDown"
+                                       empty-state="vm.emptyState"
+                                       delete-multiple-data="vm.deleteMultipleData">
+                  </md-card>
+                </div>
+                <!-- / CONTENT CARD -->
+                <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound == true">
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+                </div>
+              </div>
+            </md-tab>
+            <md-tab label="Edit Material History" ng-if="vm.umidScan.isPlacementTracking && !vm.data.isVerify" md-on-select="vm.showHistory = true">
+              <div ng-if="vm.IsShowEditMaterials">
+                <div class="content-card" layout="column" flex ng-show="!vm.isNoDataFound">
+                  <md-card layout="column" class=" margin-0 cm-scan-feeder-com" flex layout-align="space-between stretch">
+                    <ui-grid-extention load-data="vm.loadData"
+                                       grid-id="vm.gridConfig.gridScanPlacementTrackingMaterial"
+                                       grid-option="vm.gridOptions"
+                                       header="vm.sourceHeader"
+                                       grid-data="vm.sourceData"
+                                       total-data-count="vm.totalSourceDataCount"
+                                       reset-grid="vm.resetSourceGrid"
+                                       selectted-rows="vm.selectedRowsList"
+                                       paging-info="vm.pagingInfo"
+                                       current-item="vm.currentdata"
+                                       get-data-down="vm.getDataDown"
+                                       empty-state="vm.emptyState"
+                                       delete-multiple-data="vm.deleteMultipleData">
+                  </md-card>
+                </div>
+                <!-- / CONTENT CARD -->
+                <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound == true">
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+                </div>
+              </div>
+            </md-tab>
+          </md-tabs>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row" layout-align="space-between center">
+      <div flex><p ng-if="vm.IsShowEditMaterials"><b>{{vm.CORE_MESSAGE_CONSTANT.UI_GRID_EDIT_NOTE}}{{vm.CORE_MESSAGE_CONSTANT.SCAN_UMID_EDIT_HISTORY_NOTE}}</b></p></div>
+      <div>
+        <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      </div>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

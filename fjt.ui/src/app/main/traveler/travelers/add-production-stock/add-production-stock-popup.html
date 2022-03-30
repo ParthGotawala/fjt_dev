@@ -1,0 +1,139 @@
+<md-dialog aria-label="ProductionStock" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+    <form name="vm.productionStockForm">
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2 ng-if="!vm.data.isEdit">Add On Going Production</h2>
+                <h2 ng-if="vm.data.isEdit">Update History: {{vm.data.opName}}</h2>
+                <span flex></span>
+                <div layout="row" layout-align="center center">
+                    <md-button class="blue-bg" ng-if="vm.readyStockData">Available Qty: {{vm.readyStockData.returnPending | numberWithoutDecimal}}</md-button>
+                    <md-button class="orange-bg" ng-if="vm.readyStockData && !vm.data.opData.isIssueQty">Cumulative Completed Qty: {{vm.readyStockData.ReadyStock | numberWithoutDecimal}}</md-button>
+                    <md-button class="md-primary md-raised">{{vm.data.woNumber}}</md-button>
+                </div>
+                <md-button class="md-icon-button" ng-click="vm.cancel()">
+                    <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content class="customer-modal no-padding custom-scroll">
+            <md-content class="md-padding">
+                <div layout-wrap layout="row" flex="100">
+                    <md-input-container class="margin-bottom-0 error-none" flex="33" flex-xs="100">
+                        <input type="number" name="totalQty" ng-model="vm.data.totalQty" min="1" 
+                               max="{{vm.readyStockData.totalValidQty}}"
+                               ng-disabled="vm.isOperationTrackBySerialNo" placeholder="Total Qty" required onkeypress="return OnlyNumeric(event)">
+                        <div ng-messages="vm.productionStockForm.totalQty.$error"
+                             role="alert">
+                            <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="min">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                            </div>
+                            <div ng-message="max">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.NOT_MORE_THAN_ISSUEQTY}}</span>
+                            </div>
+                            <div ng-message="number">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                        </div>
+                    </md-input-container>
+                    <md-input-container class="margin-bottom-0 error-none" flex="33" flex-xs="100">
+                        <input type="number" name="passQty" ng-model="vm.data.passQty" min="0" max="{{vm.data.totalQty}}"
+                               ng-disabled="vm.isOperationTrackBySerialNo" placeholder="Passed Qty" onkeypress="return OnlyNumeric(event)">
+                        <div ng-messages="vm.productionStockForm.passQty.$error"
+                             role="alert">
+                            <div ng-message="min">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                            </div>
+                            <div ng-message="max">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.NOT_MORE_THAN_TOTALQTY}}</span>
+                            </div>
+                            <div ng-message="number">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                        </div>
+                    </md-input-container>
+                    <md-input-container class="margin-bottom-0 error-none" flex="33" flex-xs="100" ng-if="!vm.data.opData.isRework">
+                        <input type="number" name="reprocessQty" ng-model="vm.data.reprocessQty" min="0" max="999999"
+                               ng-disabled="vm.isOperationTrackBySerialNo" placeholder="Reprocess Required Qty" onkeypress="return OnlyNumeric(event)">
+                        <div ng-messages="vm.productionStockForm.reprocessQty.$error"
+                             role="alert">
+                            <div ng-message="min">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                            </div>
+                            <div ng-message="max">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.MAX_LENGTH}}</span>
+                            </div>
+                            <div ng-message="number">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                        </div>
+                    </md-input-container>
+                    <md-input-container class="margin-bottom-0 error-none" flex="33" flex-xs="100" ng-if="!vm.data.opData.isRework">
+                        <input type="number" name="observedQty" ng-model="vm.data.observedQty" min="0" max="{{vm.data.totalQty}}"
+                               ng-disabled="vm.isOperationTrackBySerialNo" placeholder="Defect Observed Qty" onkeypress="return OnlyNumeric(event)">
+                        <div ng-messages="vm.productionStockForm.observedQty.$error"
+                             role="alert">
+                            <div ng-message="min">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                            </div>
+                            <div ng-message="max">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.NOT_MORE_THAN_TOTALQTY}}</span>
+                            </div>
+                            <div ng-message="number">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                        </div>
+                    </md-input-container>
+                    <md-input-container class="margin-bottom-0 error-none" flex="33" flex-xs="100" ng-if="!vm.data.opData.isRework">
+                        <input type="number" name="reworkQty" ng-model="vm.data.reworkQty" min="0" max="{{vm.data.totalQty}}"
+                               ng-disabled="vm.isOperationTrackBySerialNo" placeholder="Rework Required Qty" onkeypress="return OnlyNumeric(event)">
+                        <div ng-messages="vm.productionStockForm.reworkQty.$error"
+                             role="alert">
+                            <div ng-message="min">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                            </div>
+                            <div ng-message="max">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.NOT_MORE_THAN_TOTALQTY}}</span>
+                            </div>
+                            <div ng-message="number">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                        </div>
+                    </md-input-container>
+                    <md-input-container class="margin-bottom-0 error-none" flex="33" flex-xs="100" ng-if="!vm.isParallelOperation">
+                        <input type="number" name="scrapQty" ng-model="vm.data.scrapQty" min="0" max="{{vm.data.totalQty}}"
+                               ng-disabled="vm.isOperationTrackBySerialNo" placeholder="Scrapped Qty" onkeypress="return OnlyNumeric(event)">
+                        <div ng-messages="vm.productionStockForm.scrapQty.$error"
+                             role="alert">
+                            <div ng-message="min">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                            </div>
+                            <div ng-message="max">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.NOT_MORE_THAN_TOTALQTY}}</span>
+                            </div>
+                            <div ng-message="number">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                        </div>
+                    </md-input-container>
+                    <md-switch ng-model="vm.data.isFirstArticle" flex="100" flex-xs="100" ng-disabled="vm.data.isViewHistory">
+                        1st Article
+                    </md-switch>
+                </div>
+                <span class="margin-bottom-10" ng-if="vm.productionStockForm.remark.$error.taMaxText" style="color:red; font-size:12px">{{vm.CORE_MESSAGE_CONSTANT.MAX_LENGTH}}</span>
+                <div layout="row">
+                    <text-angular flex="100" ta-toolbar="vm.taToolbar.INLINE" ta-disabled="vm.data.isViewHistory" ng-model="vm.data.remark" cg-busy-loading="vm.cgBusyLoading"
+                                  ng-class="{'text-angular-custom-border':vm.productionStockForm.remark.$error.taMaxText}"
+                                  name="remark" class="" ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"></text-angular>
+                </div>
+            </md-content>
+
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+            <md-button class="md-primary md-raised" ng-disabled="!vm.IsValidQty() || vm.productionStockForm.$invalid || !vm.checkFormDirty(vm.productionStockForm)" ng-click="vm.saveProductionQty()">Save</md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

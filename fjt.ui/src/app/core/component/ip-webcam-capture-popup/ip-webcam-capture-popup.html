@@ -1,0 +1,119 @@
+<md-dialog draggable class="cm-custom-label-common cm-ip-webcam" cg-busy="{promise:vm.cgBusyLoading}">
+  <form name="vm.ipWebCamCaptureImgForm" class="md-inline-form full-height" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-dialog-content class="padding-0 full-height">
+      <div layout="row" flex layout-wrap ng-show="!vm.iszoom" class="capture-view full-height">
+        <div flex="100" layout="row" class="cm-web-camera-bacground" layout-wrap>
+          <div layout="row" class="cm-background-images" layout-aling="centre center" flex layout-wrap>
+            <!--ng-if="!vm.webcamError"-->
+            <div class="cm-varificatin-image" layout="row" layout-align="start start">
+              <div layout="row" class="input-wrapper padding-top-5 cm-camera-bg" flex ng-show="vm.verification.showVideoURL" layout-wrap>
+                <configure-webcam-url verification-det="vm.verification" webcam-det="vm.webcamDet"></configure-webcam-url>
+              </div>
+              <div class="align-vertical-middle padding-top-5" ng-if="!vm.verification.showVideoURL">
+                <label class="lbl-livestream cm-redbgblink" ng-if="!vm.webcamDet.error && !vm.webcamDet.connecting">LIVE</label>
+                <md-button class="md-btn md-primary md-icon-button md-raised margin-right-0" ng-click="vm.editVideoURL()" ng-disabled="vm.webcamDet.connecting">
+                  <md-icon class="icon-pencil"><md-tooltip>{{vm.WebcamURLConfigNote}}</md-tooltip></md-icon>
+                </md-button>
+                <md-button class="md-btn md-primary md-icon-button md-raised margin-right-0" ng-click="vm.refreshVideoURL()" ng-disabled="vm.webcamDet.connecting || !vm.verification.videoURL">
+                  <md-icon class="icon-reload"><md-tooltip>Refresh View</md-tooltip></md-icon>
+                </md-button>
+                <md-button class="md-icon-button md-btn md-icon-button md-raised margin-right-0 md-raised" ng-click="vm.close()">
+                  <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                </md-button>
+              </div>
+            </div>
+            <img src="{{vm.verification.videoURL}}?{{vm.verification.videoURLParams}}" ng-if="!vm.webcamDet.error && !vm.webcamDet.connecting" />
+            <div layout="row" layout-align="center center" flex="100" layout-wrap ng-if="vm.webcamDet.error && !vm.webcamDet.connecting" class="webcam-connecting full-height">
+              <label class="text-center">Webcam could not be started.<br /> Click on Refresh View/Configure IP to reconnect.</label>
+            </div>
+            <div layout="row" layout-align="center center" flex="100" layout-wrap ng-if="vm.webcamDet.connecting" class="webcam-not-found">
+              <label class="text-center">Connecting with webcam...</label>
+            </div>
+          </div>
+          <div layout="row" class="cm-images-buttons" layout-align="end start">
+            <md-button class="md-btn md-primary md-raised margin-0 padding-horizontal-15" ng-click="vm.startCapturingImage()" ng-disabled="vm.capturingImage" ng-if="!vm.webcamDet.error && !vm.webcamDet.connecting">
+              <span ng-if="!vm.capturingImage">CAPTURE</span><span ng-if="vm.capturingImage"> CAPTURING...</span>
+            </md-button>
+            <md-button class="md-btn md-default md-raised mv-0 margin-right-0 padding-horizontal-15" ng-click="vm.cancelCapturing()" ng-if="vm.capturingImage && !vm.webcamDet.error && !vm.webcamDet.connecting">
+              <span>Stop Capturing</span>
+            </md-button>
+            <md-button class="md-btn md-default md-raised mv-0 margin-right-0 padding-horizontal-15" ng-click="vm.close()">
+              <span>Close</span>
+            </md-button>
+          </div>
+        </div>
+      </div>
+      <div layout="row" flex="100" layout-wrap class="container-box full-height black-bg" ng-if="vm.iszoom">
+        <div layout="row" flex="100" layout-wrap>
+          <div flex="100" class="cm-preview-images-buttons" layout-align="end end" layout="row">
+            <md-button class="md-icon-button md-btn md-icon-button md-raised margin-right-0 md-raised" ng-click="vm.close()">
+              <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+            </md-button>
+          </div>
+          <div layout="row" layout-aling="centre center" class="captured-img-container" layout-wrap>
+            <!--class="zoomimg-container cm-inner-background " ng-if="(vm.iszoom && vm.image.path) || (!vm.webcamDet.error && !vm.webcamDet.connecting)"-->
+            <img ng-src="{{vm.image.path}}" data-high-res-src="{{vm.image.path}}" alt="" id="captureFullImg">
+          </div>
+          <div flex="100" class="cm-images-buttons" layout-align="end end" layout="row">
+
+            <div class="margin-right-7 cm-camera-bg mr-10 ph-5" layout="row">
+              <md-checkbox ng-model="vm.isCaptureForCofC" class="cm-margin-5" ng-change="vm.takeDuplicatePicture()"></md-checkbox>
+              <p class="label-container margin-0 pt-5">Add Picture As COFC too</p>
+            </div>
+
+            <div layout="row" class="margin-right-7 cm-camera-bg ph-5 cm-capture-document-type">
+              <p class="label-container cm-document-type-drop-label" ng-if="vm.autoDocumentType">
+                <span class="mr-8">
+                  <a ng-click="vm.goToDocumentType()" class="cursor-pointer color-black text-decoration-underline">
+                    Document Type
+                  </a>
+                </span>
+              </p>
+              <md-input-container flex="100" ng-if="vm.autoDocumentType" class="autocompletecustom min-width-initial margin-bottom-0">
+                <custom-auto-complete datalist="vm.documentTypeList"
+                                      column-name="vm.autoDocumentType.columnName"
+                                      controller-name="vm.autoDocumentType.controllerName"
+                                      view-template-url="vm.autoDocumentType.viewTemplateURL"
+                                      key-column-name="vm.autoDocumentType.keyColumnName"
+                                      input-name="vm.autoDocumentType.inputName"
+                                      placeholder-name="vm.autoDocumentType.placeholderName"
+                                      key-column-id="vm.autoDocumentType.keyColumnId"
+                                      is-required="vm.autoDocumentType.isRequired"
+                                      is-addnew="vm.autoDocumentType.isAddnew"
+                                      add-data="vm.autoDocumentType.addData"
+                                      callback-fn="vm.autoDocumentType.callbackFn"
+                                      on-select-callback-fn="vm.autoDocumentType.onSelectCallback">
+                </custom-auto-complete>
+              </md-input-container>
+            </div>
+
+            <div class="cm-zoom-controls" layout="row">
+              <md-button class="md-default md-raised margin-0" ng-click="vm.zoomIn('captureImageViewer')" ng-disabled="vm.captureImageViewer.zoomValue == 500">
+                <i class="icon-plus icondrag"></i><md-tooltip>Zoom In</md-tooltip>
+              </md-button>
+              <md-button class="md-default md-raised margin-0" ng-click="vm.zoomOut('captureImageViewer')" ng-disabled="vm.captureImageViewer.zoomValue == 100">
+                <i class="icon-minus icondrag"></i><md-tooltip>Zoom Out</md-tooltip>
+              </md-button>
+              <md-button class="md-default md-raised margin-0 fit-to-screen" ng-click="vm.fitToScreen()" ng-disabled="vm.captureImageViewer.zoomValue == 100">
+                <i class="icon-crop-free icondrag"></i><md-tooltip>Fit To Screen</md-tooltip>
+              </md-button>
+            </div>
+
+            <md-button class="md-default md-raised mv-0 margin-right-0  padding-horizontal-15" ng-click="vm.discardLast()">
+              Discard Picture
+            </md-button>
+            <md-button class="md-btn md-primary md-raised mv-0 margin-right-0 padding-horizontal-15" ng-click="vm.saveImage(false)">
+              Save
+            </md-button>
+            <md-button class="md-btn md-default md-raised mv-0 margin-right-0 padding-horizontal-15" ng-click="vm.saveImage(true)">
+              Save & Exit
+            </md-button>
+
+
+          </div>
+        </div>
+      </div>
+    </md-dialog-content>
+  </form>
+</md-dialog>

@@ -1,0 +1,106 @@
+<form name="vm.frmShippingReqEmpDet" class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>  
+  <table class="simple no-padding" ms-responsive-table="" ng-if="vm.shippingReqEmpList.length"  >
+    <thead>
+      <tr>
+        <th>Personnel</th>
+        <th class="text-center">Acknowledge</th>
+        <th>Accepted Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="item in vm.shippingReqEmpList" >
+        <td width="300">
+          <md-input-container ng-if="item.initAutoCompleteEmployees" class="autocompletecustom margin-bottom-0" flex="100">
+            <custom-auto-complete datalist="vm.allEmployeeList"
+                                  column-name="item.initAutoCompleteEmployees.columnName"
+                                  controller-name="item.initAutoCompleteEmployees.controllerName"
+                                  view-template-url="item.initAutoCompleteEmployees.viewTemplateURL"
+                                  key-column-name="item.initAutoCompleteEmployees.keyColumnName"
+                                  input-name="item.initAutoCompleteEmployees.inputName"
+                                  placeholder-name="item.initAutoCompleteEmployees.placeholderName"
+                                  key-column-id="item.initAutoCompleteEmployees.keyColumnId"
+                                  is-required="item.initAutoCompleteEmployees.isRequired"
+                                  is-addnew="item.initAutoCompleteEmployees.isAddnew"
+                                  is-disabled="vm.isPageDisabled || vm.employeeID != vm.shippingRequestModel.requestedBy"
+                                  callback-fn="item.initAutoCompleteEmployees.callbackFn"
+                                  on-select-callback-fn="item.initAutoCompleteEmployees.onSelectCallbackFn">
+            </custom-auto-complete>
+            <!--is-disabled="vm.employeeID != vm.shippingRequestModel.requestedBy || !item.isEditClicked || vm.isPageDisabled"-->
+          </md-input-container>
+        </td>
+        <td class="text-center">
+          <md-checkbox ng-model="item.isAck" aria-label="Is Acknowledge?" class="margin-bottom-0 margin-top-1"
+                       ng-disabled="!item.isEditClicked || item.initAutoCompleteEmployees.keyColumnId != vm.employeeID"
+                       ng-change="vm.isAckClicked(item);"></md-checkbox>
+        </td>
+        <td>
+          <md-input-container class="md-block datepicker padding-right-0-imp" flex="100">
+            <input type="text" class="float-left"
+                   name="acceptedDate{{$index}}"
+                   max-value="vm.todayDate"
+                   max-value-is-today-date="true"
+                   allow-past-date="true"
+                   allow-future-date="false"
+                   datetime-picker="{{$root.dateDisplayFormat}}"
+                   ng-model="item.acceptedDate"
+                   enable-time="false"
+                   ui-options="{clearOnBlur  : true}"
+                   ui-mask="{{$root.uimaskFormat.date.mask}}"
+                   ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                   model-view-value="true"
+                   datepicker-options="vm.deptAcceptedDateOptions"
+                   is-open="item.deptAcceptedDateOpen"
+                   ng-required="item.isAck"
+                   ng-disabled="!item.isEditClicked || item.initAutoCompleteEmployees.keyColumnId != vm.employeeID || vm.isPageDisabled "
+                   />
+            <md-icon md-font-icon="icon-calendar calender-icon" ng-click="item.deptAcceptedDateOpen= !vm.isPageDisabled || item.initAutoCompleteEmployees.keyColumnId == vm.employeeID ">
+            </md-icon>
+            <div ng-messages="vm.frmShippingReqEmpDet['acceptedDate'+$index].$error" role="alert">
+              <div ng-message="maxvalue">
+                <span>{{vm.getMaxDateValidation('Approval Date', 'Today Date')}}</span>
+              </div>
+              <div ng-message="valid">
+                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+              </div>
+              <div ng-message="datetime">
+                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+              </div>
+              <div ng-message="required">
+                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+              </div>
+            </div>
+          </md-input-container>
+        </td>
+        <td>
+          <md-input-container class="autocompletecustom nowrap margin-bottom-0 margin-top-0" flex="100">
+            <md-button class="md-primary md-raised" ng-click="vm.saveShippingReqEmpDet(item)"
+                       ng-if="item.isEditClicked"
+                       ng-disabled="(!item.initAutoCompleteEmployees.keyColumnId)">
+              Save
+            </md-button>
+            <md-button class="md-primary md-raised" ng-if="item.id && !item.isEditClicked"
+                       ng-disabled="(vm.employeeID != vm.shippingRequestModel.requestedBy && vm.employeeID != item.initAutoCompleteEmployees.keyColumnId) || (item.id && item.isAck)"
+                       ng-click="vm.editShippingReqEmpDet(item);">
+
+              Update
+            </md-button>
+            <md-button class="md-primary md-raised" ng-click="vm.deleteShippingReqEmpDet(item)"
+                       ng-disabled="vm.employeeID != vm.shippingRequestModel.requestedBy || !item.id || item.isEditClicked || item.isAck">
+
+              Delete
+            </md-button>
+          </md-input-container>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="empty-state text-center full-height" layout="row" layout-align="center center"
+       flex="100" layout-wrap ng-if="vm.isShippingReqNotFound == true && vm.isDeptTab">
+    <div class="emty-icon" flex="100">
+      <img ng-src="{{vm.EmptyMesssageEmpDet.IMAGE}}" />
+    </div>
+    <p flex="100" class="empty-state-title">{{vm.EmptyMesssageEmpDet.MESSAGE}}</p>
+  </div>
+</form>

@@ -1,0 +1,284 @@
+<md-dialog aria-label="manage-rfq-lineitem-headers cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}"
+  draggable flex="95">
+  <form name="vm.plannPurchaseForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar ng-class="vm.themeClass">
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>Plan Kit</h2>
+        <span flex></span>
+        <div layout="row" layout-align="end center" layout-wrap class="mv-5">
+          <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        </div>
+        <span class="lableheader cm-header-label" layout="row" layout-align="start center" ng-if="vm.getRemainPOQty()>0">
+          <span>
+            {{vm.LabelConstant.SalesOrder.RemainPOQty}}:
+          </span>
+          <b class="cm-assbly-header-label">{{vm.getRemainPOQty()}}<md-tooltip>{{vm.getRemainPOQty()}}</md-tooltip></b>
+        </span>
+        <span class="lableheader cm-header-label" layout="row" layout-align="start center"
+          ng-if="vm.getRemainkitQty()>0">
+          <span>
+            {{vm.LabelConstant.SalesOrder.RemainKitQty}}:
+          </span>
+          <b class="cm-assbly-header-label">{{vm.getRemainkitQty()}}<md-tooltip>{{vm.getRemainkitQty()}}</md-tooltip>
+          </b>
+        </span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding mh-5" layout="column">
+      <md-content layout="column" class="md-padding">
+        <div layout="column" flex class="margin-vertical-5">
+
+          <div class="cm-section-main border-0 mb-5">
+            <div class="cm-section-inner" layout>
+
+              <div layout="row" flex="100">
+
+                <div layout="row" flex="75">
+                  <ol>
+                    <li class="color-red" ng-if="item.length > 0" ng-repeat="(key, item) in vm.errorList">
+                      Row {{key + 1}}
+                      <ul>
+                        <li ng-repeat="data in item">
+                          <ng-bind-html ng-bind-html="data.error"></ng-bind-html>
+                        </li>
+                      </ul>
+                    </li>
+                  </ol>
+                </div>
+
+                <div layout="row" layout-align="end start" flex="25">
+                  <md-button class="md-primary md-raised mr-0" ng-click="vm.viewAssemblyStockStatus()"
+                    ng-if="vm.objPlannDetail.partType === vm.partType.SubAssembly">
+                    View Assembly Stock Details
+                  </md-button>
+
+                  <md-button class="md-primary md-raised mr-0" ng-click="vm.updatekitmrpqty()">
+                    Modify MRP/Kit Qty
+                  </md-button>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+          <div flex layout="row" class="cm-overflow-auto">
+            <div class="content fullpage-datatable cm-kit-release-table" layout="column" flex>
+              <table>
+                <thead>
+                  <tr>
+                    <th class="text-center">
+                      Action
+                    </th>
+                    <th class="w-120">
+                      {{vm.LabelConstant.SalesOrder.KitStatus}}
+                    </th>
+                    <th class="w-140">{{vm.LabelConstant.SalesOrder.KitReturnedStatus}}</th>
+                    <th>{{vm.LabelConstant.SalesOrder.PlannKit}}</th>
+                    <th>{{vm.LabelConstant.SalesOrder.RushJob}}</th>
+                    <th class="w-100">Mismatched Item/Bin</th>
+                    <th>{{vm.LabelConstant.SalesOrder.POOrderQty}}</th>
+                    <th>{{vm.LabelConstant.SalesOrder.KitReleaseQty}}</th>
+                    <th class="w-130">{{vm.LabelConstant.SalesOrder.PODueDate}}</th>
+                    <th>{{vm.LabelConstant.SalesOrder.MFGLeadTime}}</th>
+                    <th class="w-130">{{vm.LabelConstant.SalesOrder.KitReleaseDate}}</th>
+                    <th class="w-130">{{vm.LabelConstant.SalesOrder.MaterialDockDate}}</th>
+                    <th>{{vm.LabelConstant.SalesOrder.RealTimeFeasibility}}</th>
+                    <th>{{vm.LabelConstant.SalesOrder.Shortage}}</th>
+                    <th>{{vm.LabelConstant.SalesOrder.ShortageLines}}</th>
+                    <th>{{vm.LabelConstant.SalesOrder.ReleaseKitNumber}}</th>
+                    <th class="w-150">{{vm.LabelConstant.SalesOrder.ActualKitReleaseDate}}</th>
+                    <th>{{vm.LabelConstant.SalesOrder.ReleaseBy}}</th>
+                    <th>{{vm.LabelConstant.SalesOrder.ReleaseTimeFeasibility}}</th>
+                    <th class="w-90">{{vm.LabelConstant.Workorder.WO}}</th>
+                    <th>{{vm.LabelConstant.SalesOrder.ReleasedComment}}</th>
+                    <th class="w-150">{{vm.LabelConstant.SalesOrder.KitReturnedDate}}</th>
+                    <th class="text-center">
+                      Delete
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="item in vm.plannDetail">
+                    <td class="text-center">
+                      <md-button class="md-primary md-raised m-0" ng-click="vm.openSubAssyStatus($event)"
+                        ng-class="vm.themeClass" ng-disabled="!item.subAssyReleaseCount">Sub Assy Status</md-button>
+                    </td>
+                    <td class="text-center">
+                      <label class="label-box mv-0"
+                        ng-class="{'label-warning': item.kitStatus == vm.Kit_Release_Status.P.value, 'label-success': item.kitStatus == vm.Kit_Release_Status.R.value}"
+                        ng-if="item.kitStatus">
+                        {{vm.Kit_Release_Status[item.kitStatus].name}}
+                      </label>
+                    </td>
+                    <td class="text-center">
+                      <label class="label-box mv-0"
+                        ng-class="{'label-primary-gray': (!item.kitReturnStatus || item.kitReturnStatus == vm.KIT_RETURN_STATUS.NA.value), 'label-warning': item.kitReturnStatus == vm.KIT_RETURN_STATUS.NR.value, 'label-primary': item.kitReturnStatus == vm.KIT_RETURN_STATUS.RS.value, 'label-success': item.kitReturnStatus == vm.KIT_RETURN_STATUS.FR.value}">
+                        {{item.kitReturnStatus ? vm.KIT_RETURN_STATUS[item.kitReturnStatus].name: 'N/A'}}
+                      </label>
+                    </td>
+                    <td class="text-right padding-right-5"
+                      ng-class="{'border-red':item.invalidplannKitNumber,'cursor-not-allow opecity-5':(item.isReleased)}">
+                      <input type="text" id="plannKitNumber{{$index}}" min="1" maxlength="5" class="text-right"
+                        onkeypress="return OnlyNumeric(event, this)" style="width:100%;" ng-model="item.plannKitNumber"
+                        ng-change="vm.changValue()" ng-disabled="item.isReleased"
+                        custom-blur="vm.checkForNewLine(item)">
+                    </td>
+                    <td class="text-center">
+                      <img ng-src="../../../../assets/images/etc/hot-job.png" class="hot-job-icon ml-5"
+                        ng-if="item.rushJob || (item.kitStatus == vm.Kit_Release_Status.R.value && item.Shortage > 0)" />
+                    </td>
+                    <td class="text-right" ng-class="{'opecity-5': !(item.isFirstPlann && item.mismatchItem > 0)}">
+                      <a class="underline cursor-pointer" ng-if="item.isFirstPlann && item.mismatchItem > 0"
+                        ng-click="vm.kitReleaseMismatchDetail(item)">{{item.mismatchItem}}</a>
+                      <span ng-if="!(item.isFirstPlann && item.mismatchItem > 0)">0</span>
+                    </td>
+                    <td class="padding-right-5"
+                      ng-class="{'border-red':item.invalidpoqty,'cursor-not-allow opecity-5':(item.isReleased)}">
+                      <input type="text" id="poqty{{$index}}" min="1" maxlength="7" class="text-right"
+                        onkeypress="return OnlyNumeric(event, this)" style="width:100%;" ng-model="item.poQty"
+                        custom-blur="vm.checkForNewLine(item)" ng-change="vm.changeQty(true,item)"
+                        ng-disabled="item.isReleased">
+                    </td>
+                    <td class="padding-right-5"
+                      ng-class="{'border-red':item.invalidkitQty,'cursor-not-allow opecity-5':(item.isReleased)}">
+                      <input class="padding-right-5 text-right" id="kit{{$index}}" min="1" maxlength="7" type="text"
+                        style="width:100%;" ng-model="item.kitReleaseQty" ng-change="vm.changeQty(false,item)"
+                        custom-blur="vm.checkForNewLine(item)" onkeypress="return OnlyNumeric(event, this)"
+                        ng-disabled="item.isReleased">
+                    </td>
+                    <td ng-class="{'border-red':item.invalidpodate,'cursor-not-allow opecity-5':(item.isReleased)}">
+                      <div layout="row">
+                        <input type="text" class="float-left text-left" id="po{{$index}}" name="po{{$index}}"
+                          allow-past-date="true" allow-future-date="true" datetime-picker="{{$root.dateDisplayFormat}}"
+                          enable-time="false" ui-options="{clearOnBlur: true}"
+                          ui-mask="{{$root.uimaskFormat.date.mask}}"
+                          ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}" model-view-value="true"
+                          datepicker-options="item.poDueDateOptions" is-open="item.poDueDateOptions.poDueDateOpenFlag"
+                          ng-change="vm.changValue()" custom-blur="vm.checkForNewLine(item)" close-text="Close"
+                          ng-disabled="item.isReleased" style="width:100%;" ng-model="item.poDueDate" />
+                        <md-icon md-font-icon="icon-calendar calender-icon"
+                          ng-click="item.poDueDateOptions.poDueDateOpenFlag=item.isReleased?false:true">
+                        </md-icon>
+                      </div>
+                    </td>
+                    <td class="padding-right-5"
+                      ng-class="{'border-red':item.invalidleadtime,'cursor-not-allow opecity-5':(item.isReleased)}">
+                      <input class="padding-right-5 text-right" id="mfrLead{{$index}}" min="1" maxlength="3" type="text"
+                        style="width:100%;" ng-model="item.mfrLeadTime"
+                        custom-blur="vm.checkForNewLine(item,false,true)" onkeypress="return OnlyNumeric(event, this)"
+                        ng-disabled="item.isReleased">
+                    </td>
+                    <td
+                      ng-class="{'border-red':item.invalidkitreleasedate,'cursor-not-allow opecity-5':(item.isReleased)}">
+                      <div layout="row">
+                        <input type="text" class="float-left text-left" id="kitRelease{{$index}}"
+                          name="kitRelease{{$index}}" allow-past-date="true" allow-future-date="true"
+                          datetime-picker="{{$root.dateDisplayFormat}}" enable-time="false"
+                          ui-options="{clearOnBlur: true}" ui-mask="{{$root.uimaskFormat.date.mask}}"
+                          ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}" model-view-value="true"
+                          ng-change="vm.changValue()" ng-disabled="item.isReleased"
+                          custom-blur="vm.checkForNewLine(item,true)" datepicker-options="item.kitReleaseDateOptions"
+                          is-open="item.kitReleaseDateOptions.kitReleaseDateOpenFlag" close-text="Close"
+                          style="width:100%;" ng-model="item.kitReleaseDate" />
+                        <md-icon md-font-icon="icon-calendar calender-icon"
+                          ng-click="item.kitReleaseDateOptions.kitReleaseDateOpenFlag=item.isReleased?false:true">
+                        </md-icon>
+                      </div>
+                    </td>
+                    <td
+                      ng-class="{'border-red':item.invalidmaterialdate,'cursor-not-allow opecity-5':(item.isReleased)}">
+                      <div layout="row">
+                        <input type="text" class="float-left text-left" id="material{{$index}}"
+                          name="material{{$index}}" allow-past-date="true" allow-future-date="true"
+                          datetime-picker="{{$root.dateDisplayFormat}}" enable-time="false"
+                          ui-options="{clearOnBlur  : true}" ui-mask="{{$root.uimaskFormat.date.mask}}"
+                          ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}" model-view-value="true"
+                          ng-change="vm.changValue()" custom-blur="vm.checkForNewLine(item)"
+                          datepicker-options="item.materialDockDateOptions"
+                          is-open="item.materialDockDateOptions.materialDockDateOpenFlag" close-text="Close"
+                          ng-disabled="item.isReleased" style="width:100%;" ng-model="item.materialDockDate" />
+                        <md-icon md-font-icon="icon-calendar calender-icon"
+                          ng-click="item.materialDockDateOptions.materialDockDateOpenFlag=item.isReleased?false:true">
+                        </md-icon>
+
+                      </div>
+                    </td>
+                    <td class="text-right opecity-5 cursor-not-allow opecity-5"><span>{{item.buildFeasibility |
+                        numberWithoutDecimal}}</span></td>
+                    <td class="text-right cursor-not-allow opecity-5"
+                      ng-class="{'text-danger text-bold': item.kitStatus == vm.Kit_Release_Status.R.value && item.Shortage > 0}">
+                      {{item.Shortage | numberWithoutDecimal}}</td>
+                    <td class="text-right">
+                      <a ng-click="vm.checkFeasibility(item)" class="underline cursor-pointer">
+                        <span>{{item.shortageLines | numberWithoutDecimal}}</span>
+                      </a>
+                    </td>
+                    <td class="cursor-not-allow opecity-5 opecity-5">{{item.releaseKitNumber}}</td>
+                    <td class="text-center cursor-not-allow opecity-5">{{item.actualKitReleaseDate}}</td>
+                    <td class="cursor-not-allow opecity-5"><input type="text" id="releasedByName{{$index}}"
+                        class="text-left" style="width:100%;" ng-model="item.releasedByName" disabled></td>
+                    <td class="text-right cursor-not-allow opecity-5"><input type="text"
+                        id="releaseTimeFeasibility{{$index}}" min="1" maxlength="7" class="text-right"
+                        onkeypress="return OnlyNumeric(event, this)" style="width:100%;"
+                        ng-model="item.releaseTimeFeasibility" ng-change="vm.changValue()" disabled></td>
+                    <td class="cursor-not-allow opecity-5">{{item.workorderNumber}}</td>
+                    <td class="text-center">
+                      <md-button class="md-warn md-hue-1 margin-0" ng-disabled="!item.releasedNote"
+                        ng-if="item.kitStatus == vm.Kit_Release_Status.R.value"
+                        ng-click="vm.showReasonForTransaction(item, $event)">View</md-button>
+                    </td>
+                    <td class="text-center opecity-5">{{item.kitReturnDate}}</td>
+                    <td class="text-center">
+                      <md-button class="md-primary md-icon-button bdrbtn"
+                        ng-class="{'cursor-not-allow opecity-5':(item.isDisable || item.isReleased)}"
+                        ng-disabled="item.isDisable || item.isReleased" ng-click="vm.removeRow(item)">
+                        <md-icon role="img" md-font-icon="icon-trash"></md-icon>
+                        <md-tooltip md-direction="top" ng-if="!item.isDisable">Delete</md-tooltip>
+                      </md-button>
+                    </td>
+
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th class="padding-right-5 text-right" colspan="6"><b>TBD:</b></th>
+                    <th class="text-right padding-right-5"><b>{{vm.getRemainPOQty() | numberWithoutDecimal}}</b></th>
+                    <th class="text-right padding-right-5"><b>{{vm.getRemainkitQty() | numberWithoutDecimal}}</b></th>
+                    <th class="text-right padding-right-5" colspan="17"></th>
+                  </tr>
+                  <tr>
+                    <th class="padding-right-5 text-right" colspan="6"><b>Total Qty:</b></th>
+                    <th class="text-right padding-right-5"><b>{{vm.totalPOQty() | numberWithoutDecimal}}</b></th>
+                    <th class="text-right padding-right-5"><b>{{vm.totalKitQty() | numberWithoutDecimal}}</b></th>
+                    <th class="text-right padding-right-5" colspan="17"></th>
+                  </tr>
+                  <tr>
+                    <th class="padding-right-5 text-right" colspan="6"><b>Total PO & Kit Qty:</b></th>
+                    <th class="text-right padding-right-5"><b>{{(vm.objPlannDetail.subPOQty ? vm.objPlannDetail.subPOQty
+                        : vm.objPlannDetail.qty) | numberWithoutDecimal}}</b></th>
+                    <th class="text-right padding-right-5"><b>{{(vm.objPlannDetail.subKitQty ?
+                        vm.objPlannDetail.subKitQty : vm.objPlannDetail.kitQty) | numberWithoutDecimal}}</b></th>
+                    <th class="text-right padding-right-5" colspan="17"></th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-class="{'md-formdirty': vm.plannPurchaseForm.$dirty}"
+        ng-click="vm.checkTotalKitMRPQtyAndSave()" ng-disabled="vm.isSubmitPlan">Save</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

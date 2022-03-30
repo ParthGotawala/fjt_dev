@@ -1,0 +1,390 @@
+<md-content cg-busy="{promise:(vm.cgBusyLoading)}">
+    <div flex="100" layout="row" layout-align="end start" class="margin-10">
+        <div layout-align="space-between start" ng-if="!vm.isNoaddreqFound == true">
+            <md-button class="md-primary md-raised margin-0 margin-left-10" ng-click="vm.GoToQuoteAttributelist()">Quote Attribute List</md-button>
+            <md-button class="md-primary md-raised margin-0 margin-left-10" ng-disabled="vm.assymblyData.isSummaryComplete" ng-click="vm.addUpdateQuoteAttributes()">Add Quote Attribute </md-button>
+        </div>
+    </div>
+    <div class="content fullpage-datatable summary-data-table cm-overflow-auto" ng-show="!vm.isNoDataFound">
+        <table class="table-responsive width-100p" id="summarydetail">
+            <thead>
+                <tr class="bgcolor-summary border-bottom">
+                  <th class="color-white inline-block" width="300px">{{vm.LabelConstant.BOM.QuoteQty}}</th>
+                    <th width="240px" ng-repeat="item in vm.summaryQuote" class="color-white inline-block">
+                      <div width="120px"></div>
+                      <div width="120px" class="text-center" ng-if="!item.rfqPriceGroup">{{item.requestedQty}}</div>
+                      <div width="120px" class="text-center" ng-if="item.rfqPriceGroup">{{item.rfqPriceGroup.name}}({{item.requestedQty}})</div>
+                    </th>
+                </tr>
+                <tr class="bgcolor-summary">
+                    <th class="color-white inline-block" width="300px">Turn Time</th>
+                    <th ng-repeat="item in vm.summaryQuote" width="240px" class="color-white inline-block">
+                        <div width="120px" class="text-center" layout="row">
+                            <span class="width-60 text-left">
+                                <span>{{item.manualTurnTime}} Days <!--{{item.manualTurnType=='D'?'Days':'Weeks'}}--></span>
+                                <!--<input ng-disabled="true" class="text-right" onkeypress="return OnlyNumeric(event, this)" style="height:18px;width:45px;color:rgba(0,0,0,0.87);padding-right:5px !important" type="text" name="manualTurnTime" ng-model="item.manualTurnTime">-->
+                                <!--<span ng-show="false">{{item.manualTurnType='D'}}{{item.manualTurnTypeData='Days'}}</span>-->
+                                <!--<span class="text-right" style="height:18px;width:45px;color:rgba(0,0,0,0.87);padding-right:5px !important">{{item.manualTurnType=='D'?'Days':'Weeks'}}</span>-->
+                                <!--<input ng-disabled="true" class="text-right" onkeypress="return OnlyNumeric(event, this)" style="height:18px;width:45px;color:rgba(0,0,0,0.87);padding-right:5px !important" type="text" name="manualTurnType" ng-model="item.manualTurnTypeData">-->
+                                <!--<select ng-disabled="true" width="50px" style="color:rgba(0,0,0,0.87);" name="carlist" ng-model="item.manualTurnType">
+                                    <option value="">Select</option>
+                                    <option value="W">Weeks</option>
+                                    <option value="D">Days</option>
+                                </select>-->
+                            </span>
+                            <span class="width-100px text-left margin-left-5 margin-right-5">{{item.turnTime}} {{item.timeType==vm.timeType.WEEK.VALUE?vm.timeType.WEEK.TYPE:item.timeType==vm.timeType.BUSINESS_DAY.VALUE?vm.timeType.BUSINESS_DAY.TYPE:vm.timeType.WEEK_DAY.TYPE}}</span>
+                            <span class="width-60 text-left" ng-if="vm.dynamicFieldsTool.length>0">Tooling Qty</span>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- [S] Material Costing Section -->
+                <tr class="ng-scope">
+                    <td class="margin-left-5">
+                        <b style="color:#039be5 !important;" class="inline-block" width="300px"> Material Costing</b>
+                        <md-icon ng-if="!vm.assymblyData.isSummaryComplete"
+                                 ng-click="vm.AddOptionalQuoteAttribute(vm.CostingType.Material)" role="img" md-font-icon="icons-add-edit-black"
+                                 class="material-icons mat-icon cursor-pointer margin-right-5 margin-left-5 cm-small-btn cm-add-edit-btn">
+                            <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete">Add Optional Material Quote Attribute</md-tooltip>
+                        </md-icon>
+                    </td>
+                    <td ng-repeat="item in vm.summaryQuote" width="{{$index == 0?!vm.assymblyData.isSummaryComplete?'210px':'240px':'240px'}}" class="color-white inline-block text-right">
+                        <div width="120px" style="color:#039be5 !important;">Days</div>
+                        <div width="120px"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="ng-scope inline-block" width="300px">
+                        <md-icon role="img" class="material-icons mat-icon  cursor-pointer margin-right-5"></md-icon>
+                        <a class="cm-text-decoration" ng-click="vm.goToPartCosting();"
+                           tabindex="-1">Material Cost</a>($)
+                    </td>
+                    <td ng-repeat="quote in vm.summaryQuote" width="240px" class="inline-block cm-summary-input-boxs">
+                        <input ng-change="vm.changeMaterialDays(quote)" ng-readonly="false" onkeypress="return OnlyNumeric(event, this)"
+                               class="text-right text-price width-60px cursor-not-allow" type="text" name="days" ng-model="quote.days" ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete}"
+                               maxlength="4">
+                        <input ng-readonly="true"
+                               class="text-right text-price width-100px cursor-not-allow" type="text" name="unitPrice" ng-model="quote.unitPrice" ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete}"
+                               maxlength="20">
+                    </td>
+                </tr>
+                <tr class="ng-scope" ng-repeat="item in vm.dynamicField track by $index" ng-if="item.Type=='Material' || item.costingType=='Material'"
+                    ng-class="[(!item.fieldName||item.isLast)?'bgcolor-summary':'',(item.isLast)?'margin-top-5':'']">
+                    <td class="ng-scope inline-block" width="300px">
+                        <span class="ng-binding ng-scope word-break" ng-class="[item.isLast?'color-white text-bold':'']">
+                            <md-icon ng-if="item.fieldName && !item.isLast" ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete || vm.summaryQuote.length==1}"
+                                     ng-click="vm.applyGeneralSelect(item)" role="img" md-font-icon="iconsm-copy-to-all"
+                                     class="material-icons mat-icon iconsm-copy-to-all cursor-pointer margin-right-5 margin-left-5">
+                                <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete && vm.summaryQuote.length>1">Copy First to All</md-tooltip>
+                            </md-icon>
+                            <a class="cm-text-decoration" ng-if="(!vm.assymblyData.isSummaryComplete && !item.isLast)" ng-click="vm.addUpdateQuoteAttributes(true,item);" tabindex="-1">{{item.fieldName}}</a>
+                            <span ng-if="(!vm.assymblyData.isSummaryComplete && item.isLast) || (vm.assymblyData.isSummaryComplete)">{{item.fieldName}}</span>
+                        </span>
+                        <md-icon ng-if="(item.fieldName && !item.isLast) && !item.applyToAll && !item.displayPercentage && !item.displayMargin" ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete || item.applyToAll}"
+                                 ng-click="vm.removeQuoteAttribute(item)" role="img" md-font-icon="icon-close" ng-hide="vm.assymblyData.isSummaryComplete"
+                                 class="material-icons mat-icon cursor-pointer margin-right-5 margin-left-5 cm-small-btn">
+                            <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete">Remove Quote Attribute</md-tooltip>
+                        </md-icon>
+                    </td>
+                    <td ng-repeat="quote in vm.summaryQuote" class="inline-block cm-summary-input-boxs" width="240px">
+                        <div ng-repeat="data in vm.listField" ng-if="quote.id==data.rfqAssyQuoteID && item.id==data.quoteChargeDynamicFieldID">
+                            <input ng-show="item.displayDays" ng-readonly="vm.assymblyData.isSummaryComplete" onkeypress="return OnlyNumeric(event, this)" ng-change="vm.changeDays(data)"
+                                   class="text-right text-price width-60px" type="text" name="days" ng-model="data.days"
+                                   ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete}"
+                                   maxlength="4">
+                            <input ng-readonly="vm.assymblyData.isSummaryComplete" ng-show="item.displayPercentage && item.fieldName && !item.isLast" onkeypress="return OnlyNumbersWithFirstDot(event, this)"
+                                   custom-blur="vm.changePercentage(data,quote.unitPrice)" ng-change="vm.changevalue()" class="text-right text-price width-100px"
+                                   ng-class="{'margin-left-64px':!item.displayDays,'item-disabled':vm.assymblyData.isSummaryComplete}" type="text" name="percentage"
+                                   ng-model="data.percentage" maxlength="20">
+                            <input ng-readonly="vm.assymblyData.isSummaryComplete" ng-show="item.displayMargin && item.fieldName && !item.isLast" onkeypress="return OnlyNumbersWithFirstDot(event, this)"
+                                   custom-blur="vm.changeMargin(data,quote.unitPrice)" ng-change="vm.changevalue()" class="text-right text-price width-100px"
+                                   ng-class="{'margin-left-64px':!item.displayDays,'item-disabled':vm.assymblyData.isSummaryComplete}" type="text" name="margin"
+                                   ng-model="data.margin" maxlength="20">
+                            <div class="cm-summry-input-icon" ng-show="!item.displayMargin && !item.displayPercentage && item.fieldName && !item.isLast">
+                                <!--<i ng-show="data.amount" class="icon-currency-usd"></i>-->
+                                <input ng-readonly="vm.assymblyData.isSummaryComplete" ng-show="!item.displayMargin && !item.displayPercentage && item.fieldName && !item.isLast"
+                                       ng-class="{'margin-left-64px':!item.displayDays,'item-disabled':vm.assymblyData.isSummaryComplete}"
+                                       ng-change="vm.changevalue()" custom-blur="vm.changeDollar(data,quote.unitPrice)" onkeypress="return OnlyNumbersWithFirstDot(event, this)"
+                                       class="text-right text-price width-100px" type="text" name="amount" ng-model="data.amount" maxlength="20">
+                            </div>
+                            <!--<span ng-if="item.costingType==vm.CostingType.Adhoc&& item.isLast" class="color-white width-60px inline-block text-right"><b>{{vm.getTotalAdhocDays(data,quote.days)}}</b></span>-->
+                            <span ng-if="!item.fieldName &&item.costingType!=vm.CostingType.Adhoc&&!item.isLast" class="color-white width-60px inline-block text-right"><b>{{vm.getTotalDays(data,quote.days) | numberWithoutDecimal}}</b></span>
+                            <span ng-if="!item.fieldName &&item.costingType!=vm.CostingType.Adhoc&&!item.isLast" class="color-white width-100px inline-block text-right"><b>{{vm.getTotal(data,quote.unitPrice,item) | amount}}</b></span>
+                            <!--<span ng-if="item.costingType==vm.CostingType.Adhoc&&item.isLast" class="color-white width-100px inline-block text-right"><b>${{vm.getFinalTotal(data,quote.unitPrice)}}</b></span>-->
+                        </div>
+                  </td>
+                </tr>
+                <!-- [E] Material Costing Section -->
+                <!-- [S] Labor Costing Section -->
+                <tr class="ng-scope">
+                    <td class="margin-left-5">
+                        <b style="color:#039be5 !important;" class="inline-block" width="300px">Labor Costing</b>
+                        <md-icon ng-if="!vm.assymblyData.isSummaryComplete"
+                                 ng-click="vm.AddOptionalQuoteAttribute(vm.CostingType.Labor)" role="img" md-font-icon="icons-add-edit-black"
+                                 class="material-icons mat-icon cursor-pointer margin-right-5 margin-left-5 cm-small-btn cm-add-edit-btn">
+                            <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete">Add Optional Labor Quote Attribute</md-tooltip>
+                        </md-icon>
+                    </td>
+                    <td ng-repeat="item in vm.summaryQuote" width="240px" class="color-white inline-block text-right">
+                        <div width="120px" style="color:#039be5 !important;"></div>
+                        <div width="120px"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="inline-block" width="300px">
+                        <md-icon role="img" class="material-icons mat-icon  cursor-pointer margin-right-5"></md-icon>
+                        <a class="cm-text-decoration" ng-click="vm.goToLabor();"
+                           tabindex="-1">Labor Cost</a>($)
+                    </td>
+                    <td ng-repeat="quote in vm.summaryQuote" width="240px" class="inline-block cm-summary-input-boxs">
+                        <input ng-change="vm.changelaborDays(quote)" ng-readonly="vm.assymblyData.isSummaryComplete" onkeypress="return OnlyNumeric(event, this)"
+                               class="text-right text-price width-60px cursor-not-allow" type="text" name="days" ng-model="quote.laborday" ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete}"
+                               maxlength="4">
+                        <input ng-readonly="true"
+                               class="text-right text-price width-100px cursor-not-allow" type="text" name="laborunitPrice" ng-change="vm.changevalue()" custom-blur="vm.chageLaborprice(quote,quote.laborunitPrice,quote.unitPrice)" ng-model="quote.laborunitPrice" ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete}"
+                               maxlength="20">
+                    </td>
+                </tr>
+                <tr class="ng-scope" ng-repeat="item in vm.dynamicField track by $index" ng-if="item.Type=='Labor' || item.costingType=='Labor'" ng-class="[(!item.fieldName||item.isLast)?'bgcolor-summary':'',(item.isLast)?'margin-top-5':'']">
+                    <td class="ng-scope inline-block" width="300px">
+                        <span class="ng-binding ng-scope word-break" ng-class="[item.isLast?'color-white text-bold':'']">
+                            <md-icon ng-if="item.fieldName && !item.isLast" ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete || vm.summaryQuote.length==1}"
+                                     ng-click="vm.applyGeneralSelect(item)" role="img" md-font-icon="iconsm-copy-to-all"
+                                     class="material-icons mat-icon iconsm-copy-to-all cursor-pointer margin-right-5 margin-left-5">
+                                <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete && vm.summaryQuote.length>1">Copy First to All</md-tooltip>
+                            </md-icon>
+                            <a class="cm-text-decoration" ng-if="(!vm.assymblyData.isSummaryComplete && !item.isLast)" ng-click="vm.addUpdateQuoteAttributes(true,item);" tabindex="-1">{{item.fieldName}}</a>
+                            <span ng-if="(!vm.assymblyData.isSummaryComplete && item.isLast) || (vm.assymblyData.isSummaryComplete)">{{item.fieldName}}</span>
+                        </span>
+                        <md-icon ng-if="(item.fieldName && !item.isLast) && !item.applyToAll && !item.displayPercentage && !item.displayMargin" ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete || item.applyToAll}"
+                                 ng-click="vm.removeQuoteAttribute(item,vm.dynamicField)" role="img" md-font-icon="icon-close" ng-hide="vm.assymblyData.isSummaryComplete"
+                                 class="material-icons mat-icon cursor-pointer margin-right-5 margin-left-5 cm-small-btn">
+                            <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete">Remove Quote Attribute</md-tooltip>
+                        </md-icon>
+
+                    </td>
+                    <td ng-repeat="quote in vm.summaryQuote" class="inline-block cm-summary-input-boxs" width="240px">
+                        <div ng-repeat="data in vm.listField" ng-if="quote.id==data.rfqAssyQuoteID && item.id==data.quoteChargeDynamicFieldID">
+                            <input ng-show="item.displayDays" ng-readonly="vm.assymblyData.isSummaryComplete" onkeypress="return OnlyNumeric(event, this)" ng-change="vm.changeDays(data)"
+                                   class="text-right text-price width-60px" type="text" name="days" ng-model="data.days"
+                                   ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete}"
+                                   maxlength="4">
+                            <input ng-readonly="vm.assymblyData.isSummaryComplete" ng-show="item.displayPercentage && item.fieldName && !item.isLast" onkeypress="return OnlyNumbersWithFirstDot(event, this)"
+                                   custom-blur="vm.changePercentage(data,quote.laborunitPrice,quote.unitPrice)" ng-change="vm.changevalue()" class="text-right text-price width-100px" ng-class="{'margin-left-64px':!item.displayDays,'item-disabled':vm.assymblyData.isSummaryComplete}" type="text" name="percentage" ng-model="data.percentage"
+                                   maxlength="20">
+                            <input ng-readonly="vm.assymblyData.isSummaryComplete" ng-show="item.displayMargin && item.fieldName && !item.isLast" onkeypress="return OnlyNumbersWithFirstDot(event, this)"
+                                   custom-blur="vm.changeMargin(data,quote.laborunitPrice,quote.unitPrice)" ng-change="vm.changevalue()" class="text-right text-price width-100px" ng-class="{'margin-left-64px':!item.displayDays,'item-disabled':vm.assymblyData.isSummaryComplete}" type="text" name="margin" ng-model="data.margin"
+                                   maxlength="20">
+                            <div class="cm-summry-input-icon" ng-show="!item.displayMargin && !item.displayPercentage && item.fieldName && !item.isLast">
+                                <!--<i ng-show="data.amount" class="icon-currency-usd"></i>-->
+                                <input ng-readonly="vm.assymblyData.isSummaryComplete" ng-show="!item.displayMargin && !item.displayPercentage && item.fieldName && !item.isLast" ng-class="{'margin-left-64px':!item.displayDays,'item-disabled':vm.assymblyData.isSummaryComplete}"
+                                       custom-blur="vm.changeDollar(data,quote.laborunitPrice,quote.unitPrice)" ng-change="vm.changevalue()" onkeypress="return OnlyNumbersWithFirstDot(event, this)"
+                                       class="text-right text-price width-100px" type="text" name="amount" ng-model="data.amount"
+                                       maxlength="20">
+                            </div>
+                            <!--<span ng-if="item.costingType==vm.CostingType.Adhoc&& item.isLast" class="color-white width-60px inline-block text-right"><b>{{vm.getTotalAdhocDays(data,quote.days)}}</b></span>-->
+                            <span ng-if="!item.fieldName &&item.costingType!=vm.CostingType.Adhoc&&!item.isLast" class="color-white width-60px inline-block text-right"><b>{{vm.getTotalDays(data,quote.days,quote.laborday) | numberWithoutDecimal}}</b></span>
+                            <span ng-if="!item.fieldName &&item.costingType!=vm.CostingType.Adhoc&&!item.isLast" class="color-white width-100px inline-block text-right"><b>{{vm.getTotal(data,quote.unitPrice,item,quote.laborunitPrice) | amount}}</b></span>
+                            <!--<span ng-if="item.costingType==vm.CostingType.Adhoc&&item.isLast" class="color-white width-100px inline-block text-right"><b>${{vm.getFinalTotal(data,quote.unitPrice)}}</b></span>-->
+                        </div>
+                  </td>
+                    </td>
+                </tr>
+                <!-- [E] Labor Costing Section -->
+                <!-- [S] Overhead Costing Section -->
+                <tr class="ng-scope">
+                    <td class="margin-left-5">
+                        <b style="color:#039be5 !important;" class="inline-block" width="300px">Overhead Costing</b>
+                        <md-icon ng-if="!vm.assymblyData.isSummaryComplete"
+                                 ng-click="vm.AddOptionalQuoteAttribute(vm.CostingType.Adhoc)" role="img" md-font-icon="icons-add-edit-black"
+                                 class="material-icons mat-icon cursor-pointer margin-right-5 margin-left-5 cm-small-btn cm-add-edit-btn">
+                            <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete">Add Optional Overhead Quote Attribute</md-tooltip>
+                        </md-icon>
+                    </td>
+                    <td ng-repeat="item in vm.summaryQuote" width="240px" class="color-white inline-block text-right">
+                        <div width="120px" style="color:#039be5 !important;"></div>
+                        <div width="120px"></div>
+                    </td>
+                </tr>
+                <tr class="ng-scope" ng-repeat="item in vm.dynamicField track by $index" ng-if="(item.Type==vm.CostingType.Adhoc || item.costingType==vm.CostingType.Adhoc)" ng-class="[(!item.fieldName||item.isLast)?'bgcolor-summary':'',(item.isLast)?'margin-top-5':'']">
+                    <td class="ng-scope inline-block" width="300px">
+                        <span class="ng-binding ng-scope word-break" ng-class="[item.isLast?'color-white text-bold':'']">
+                            <md-icon ng-if="item.fieldName && !item.isLast" ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete || vm.summaryQuote.length==1}" ng-click="vm.applyGeneralSelect(item)"
+                                     role="img" md-font-icon="iconsm-copy-to-all" class="material-icons mat-icon iconsm-copy-to-all cursor-pointer margin-right-5 margin-left-5">
+                                <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete && vm.summaryQuote.length>1">Copy First to All</md-tooltip>
+                            </md-icon>
+                            <a class="cm-text-decoration" ng-if="(!vm.assymblyData.isSummaryComplete && !item.isLast)" ng-click="vm.addUpdateQuoteAttributes(true,item);" tabindex="-1">{{item.fieldName}}</a>
+                            <span ng-if="(!vm.assymblyData.isSummaryComplete && item.isLast) || (vm.assymblyData.isSummaryComplete)">{{item.fieldName}}</span>
+                        </span>
+                        <md-icon ng-if="(item.fieldName && !item.isLast) && !item.applyToAll" ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete || item.applyToAll}"
+                                 ng-click="vm.removeQuoteAttribute(item,vm.dynamicField)" role="img" md-font-icon="icon-close" ng-hide="vm.assymblyData.isSummaryComplete"
+                                 class="material-icons mat-icon cursor-pointer margin-right-5 margin-left-5 cm-small-btn">
+                            <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete">Remove Quote Attribute</md-tooltip>
+                        </md-icon>
+
+                    </td>
+                    <td ng-repeat="quote in vm.summaryQuote" class="inline-block  cm-summary-input-boxs" width="240px">
+                        <div ng-repeat="data in vm.listField" ng-if="quote.id==data.rfqAssyQuoteID && item.id==data.quoteChargeDynamicFieldID">
+                            <input ng-show="item.displayDays" ng-readonly="vm.assymblyData.isSummaryComplete" onkeypress="return OnlyNumeric(event, this)"
+                                   ng-change="vm.changeDays(data)"
+                                   class="text-right text-price width-60px" type="text" name="days" ng-model="data.days"
+                                   ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete}"
+                                   maxlength="4">
+                            <input ng-readonly="vm.assymblyData.isSummaryComplete" ng-show="item.displayPercentage && item.fieldName && !item.isLast"
+                                   onkeypress="return OnlyNumbersWithFirstDot(event, this)"
+                                   custom-blur="vm.changePercentage(data,quote.unitPrice)" ng-change="vm.changevalue()"
+                                   class="text-right text-price width-100px" ng-class="{'margin-left-64px':!item.displayDays,'item-disabled':vm.assymblyData.isSummaryComplete}"
+                                   type="text" name="percentage" ng-model="data.percentage"
+                                   maxlength="20">
+                            <input ng-readonly="vm.assymblyData.isSummaryComplete" ng-show="item.displayMargin && item.fieldName && !item.isLast" onkeypress="return OnlyNumbersWithFirstDot(event, this)"
+                                   custom-blur="vm.changeMargin(data,quote.unitPrice)" ng-change="vm.changevalue()" class="text-right text-price width-100px" ng-class="{'margin-left-64px':!item.displayDays,'item-disabled':vm.assymblyData.isSummaryComplete}" type="text" name="margin" ng-model="data.margin"
+                                   maxlength="20">
+                            <div class="cm-summry-input-icon" ng-show="!item.displayMargin && !item.displayPercentage && item.fieldName && !item.isLast">
+                                <!--<i ng-show="data.amount" class="icon-currency-usd"></i>-->
+                                <input ng-readonly="vm.assymblyData.isSummaryComplete" ng-show="!item.displayMargin && !item.displayPercentage && item.fieldName && !item.isLast" ng-class="{'margin-left-64px':!item.displayDays,'item-disabled':vm.assymblyData.isSummaryComplete}"
+                                       custom-blur="vm.changeDollar(data,quote.unitPrice)" ng-change="vm.changevalue()" onkeypress="return OnlyNumbersWithFirstDot(event, this)"
+                                       class="text-right text-price width-100px" type="text" name="amount" ng-model="data.amount"
+                                       maxlength="20">
+                            </div>
+                            <!--<span ng-if="item.costingType==vm.CostingType.Adhoc&& item.isLast" class="color-white width-60px inline-block text-right"><b>{{vm.getTotalAdhocDays(data,quote.days)}}</b></span>
+                            <span ng-if="item.costingType==vm.CostingType.Adhoc&&item.isLast" class="color-white width-100px inline-block text-right"><b>${{vm.getFinalTotal(data,quote.unitPrice)}}</b></span>-->
+                        </div>
+                  </td>                    
+                </tr>
+                <tr class="bgcolor-summary margin-top-5 " ng-repeat="item in vm.dynamicField track by $index" ng-if="item.costingType==vm.CostingType.FinalEA">
+                    <td class="ng-scope inline-block" width="300px">
+                        <span class="ng-binding ng-scope color-white text-bold margin-left-5">
+                            {{item.fieldName}}
+                        </span>
+                    </td>
+                    <td ng-repeat="quote in vm.summaryQuote" class="inline-block cm-summary-input-boxs" width="240px">
+                        <div ng-repeat="data in vm.listField" ng-if="quote.id==data.rfqAssyQuoteID && item.id==data.quoteChargeDynamicFieldID && item.costingType==vm.CostingType.FinalEA && item.isLast">
+                            <span class="color-white width-60px inline-block text-right"><b>{{vm.getTotalAdhocDays(data,quote.days,quote.laborday) | numberWithoutDecimal}}</b></span>
+                            <span class="color-white width-100px inline-block text-right"><b>{{vm.getFinalTotal(data,quote.unitPrice,quote.laborunitPrice) | amount}}</b></span>
+                        </div>
+                    </td>
+                </tr>
+                <!-- [E] Overhead Costing Section -->
+                <!-- [S] NRE Costing Section -->
+                <tr class="ng-scope">
+                    <td class="margin-left-5">
+                        <b style="color:#039be5 !important;" class="inline-block" width="300px">NRE Costing</b>
+                        <md-icon ng-if="!vm.assymblyData.isSummaryComplete"
+                                 ng-click="vm.AddOptionalQuoteAttribute(vm.CostingType.NRE)" role="img" md-font-icon="icons-add-edit-black"
+                                 class="material-icons mat-icon cursor-pointer margin-right-5 margin-left-5 cm-small-btn cm-add-edit-btn">
+                            <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete">Add Optional NRE Quote Attribute</md-tooltip>
+                        </md-icon>
+                    </td>
+                    <td ng-repeat="item in vm.summaryQuote" width="240px" class="color-white inline-block text-right">
+                        <div width="120px" style="color:#039be5 !important;"></div>
+                        <div width="120px"></div>
+                    </td>
+                </tr>
+                <tr class="ng-scope" ng-repeat="item in vm.dynamicField track by $index" ng-if="item.Type==vm.CostingType.NRE || item.costingType==vm.CostingType.NRE" ng-class="[(!item.fieldName||item.isLast)?'bgcolor-summary':'',(item.isLast)?'margin-top-5':'']">
+                    <td class="ng-scope inline-block" width="300px" ng-class="{'margin-left-5':item.isLast}">
+                        <span class="ng-binding ng-scope word-break" ng-class="[item.isLast?'color-white text-bold':'']">
+                            <md-icon ng-if="item.fieldName && !item.isLast" ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete || vm.summaryQuote.length==1}" ng-click="vm.applyGeneralSelect(item)"
+                                     role="img" md-font-icon="iconsm-copy-to-all" class="material-icons mat-icon iconsm-copy-to-all cursor-pointer margin-right-5 margin-left-5">
+                                <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete && vm.summaryQuote.length>1">Copy First to All</md-tooltip>
+                            </md-icon>
+                            <a class="cm-text-decoration" ng-if="(!vm.assymblyData.isSummaryComplete && !item.isLast)" ng-click="vm.addUpdateQuoteAttributes(true,item);" tabindex="-1">{{item.fieldName}}</a>
+                            <span ng-if="(!vm.assymblyData.isSummaryComplete && item.isLast) || (vm.assymblyData.isSummaryComplete)">{{item.fieldName}}</span>
+                            <md-tooltip md-direction="top" ng-if="item.tooltip">{{item.tooltip}}</md-tooltip>
+                        </span>
+                        <md-icon ng-if="(item.fieldName && !item.isLast) && !item.applyToAll" ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete || item.applyToAll}"
+                                 ng-click="vm.removeQuoteAttribute(item,vm.dynamicField)" role="img" md-font-icon="icon-close" ng-hide="vm.assymblyData.isSummaryComplete"
+                                 class="material-icons mat-icon cursor-pointer margin-right-5 margin-left-5 cm-small-btn">
+                            <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete">Remove Quote Attribute</md-tooltip>
+                        </md-icon>
+                    </td>
+                    <td ng-repeat="quote in vm.summaryQuote" class="inline-block cm-summary-input-boxs" width="240px">
+                        <div ng-repeat="data in vm.listField" ng-if="quote.id==data.rfqAssyQuoteID && item.id==data.quoteChargeDynamicFieldID">
+                            <input ng-show="item.displayDays" ng-readonly="vm.assymblyData.isSummaryComplete" onkeypress="return OnlyNumeric(event, this)"
+                                   class="text-right text-price width-60px" type="text" name="days" ng-model="data.days"
+                                   ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete}"
+                                   maxlength="4">
+                            <div class="cm-summry-input-icon" ng-show="!item.displayMargin && !item.displayPercentage && item.fieldName && !item.isLast">
+                                <input ng-readonly="vm.assymblyData.isSummaryComplete" ng-show="!item.displayMargin && !item.displayPercentage && item.fieldName && !item.isLast" ng-class="{'margin-left-64px':!item.displayDays,'item-disabled':vm.assymblyData.isSummaryComplete}" onkeypress="return OnlyNumbersWithFirstDot(event, this)"
+                                       onblur="ToDecimalFourDigit(this)" custom-blur="vm.changeDetails(data,data.amount)" ng-change="vm.changevalue()" class="text-right text-price width-100px" type="text" name="amount" ng-model="data.amount"
+                                       maxlength="20">
+                            </div>
+                            <input ng-show="!item.displayMargin && !item.displayPercentage && item.fieldName && !item.isLast" onkeypress="return OnlyNumeric(event, this)" ng-class="{'margin-left-1px':!item.displayDays,'item-disabled':vm.assymblyData.isSummaryComplete}"
+                                   class="text-right text-price width-60px" type="text" name="toolingQty" ng-model="data.toolingQty" ng-readonly="vm.assymblyData.isSummaryComplete"
+                                   maxlength="5" />
+                            <span ng-if="item.costingType==vm.CostingType.NRE && item.isLast" style="padding-right:7px !important" class="color-white width-60px inline-block text-right"><b>{{vm.getTotalNreDays(data,quote.days) | numberWithoutDecimal}}</b></span>
+                            <span ng-if="item.costingType==vm.CostingType.NRE && item.isLast" class="color-white width-100px inline-block text-right padding-right-3"><b>{{vm.getTotalNRE(data,quote.unitPrice) | amount}}</b></span>
+                            <span ng-if="item.costingType==vm.CostingType.NRE && item.isLast" class="color-white width-60px inline-block text-right"><b>{{vm.getTotalNREQty(data,quote.toolingQty) | numberWithoutDecimal}}</b></span>
+                        </div>
+                    </td>
+                </tr>
+                <!-- [E] NRE Costing Section -->
+                <!-- [S] Tooling Costing Section -->
+                <tr class="ng-scope">
+                    <td class="margin-left-5">
+                        <b style="color:#039be5 !important;" class="inline-block" width="300px">Tooling Costing</b>
+                        <md-icon ng-if="!vm.assymblyData.isSummaryComplete"
+                                 ng-click="vm.AddOptionalQuoteAttribute(vm.CostingType.TOOL)" role="img" md-font-icon="icons-add-edit-black"
+                                 class="material-icons mat-icon cursor-pointer margin-right-5 margin-left-5 cm-small-btn cm-add-edit-btn">
+                            <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete">Add Optional Tooling Quote Attribute</md-tooltip>
+                        </md-icon>
+                    </td>
+                    <td ng-repeat="item in vm.summaryQuote" width="240px" class="color-white inline-block text-right">
+                        <div width="120px" style="color:#039be5 !important;"></div>
+                        <div width="120px"></div>
+                    </td>
+                </tr>
+                <tr class="ng-scope" ng-repeat="item in vm.dynamicField track by $index" ng-if="item.Type==vm.CostingType.TOOL || item.costingType==vm.CostingType.TOOL" ng-class="[(!item.fieldName||item.isLast)?'bgcolor-summary':'',(item.isLast)?'margin-top-5':'']">
+                    <td class="ng-scope inline-block" width="300px" ng-class="{'margin-left-5':item.isLast}">
+                        <span class="ng-binding ng-scope word-break" ng-class="[item.isLast?'color-white text-bold':'']">
+                            <md-icon ng-if="item.fieldName && !item.isLast" ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete || vm.summaryQuote.length==1}" ng-click="vm.applyGeneralSelect(item)"
+                                     role="img" md-font-icon="iconsm-copy-to-all" class="material-icons mat-icon iconsm-copy-to-all cursor-pointer margin-right-5 margin-left-5">
+                                <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete && vm.summaryQuote.length>1">Copy First to All</md-tooltip>
+                            </md-icon>
+                            <a class="cm-text-decoration" ng-if="(!vm.assymblyData.isSummaryComplete && !item.isLast)" ng-click="vm.addUpdateQuoteAttributes(true,item);" tabindex="-1">{{item.fieldName}}</a>
+                            <span ng-if="(!vm.assymblyData.isSummaryComplete && item.isLast) || (vm.assymblyData.isSummaryComplete)">{{item.fieldName}}</span>
+                            <md-tooltip md-direction="top" ng-if="item.tooltip">{{item.tooltip}}</md-tooltip>
+                        </span>
+                        <md-icon ng-if="(item.fieldName && !item.isLast) && !item.applyToAll" ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete || item.applyToAll}"
+                                 ng-click="vm.removeQuoteAttribute(item,vm.dynamicField)" role="img" md-font-icon="icon-close" ng-hide="vm.assymblyData.isSummaryComplete"
+                                 class="material-icons mat-icon cursor-pointer margin-right-5 margin-left-5 cm-small-btn">
+                            <md-tooltip md-direction="top" ng-if="!vm.assymblyData.isSummaryComplete">Remove Quote Attribute</md-tooltip>
+                        </md-icon>
+
+                    </td>
+                    <td ng-repeat="quote in vm.summaryQuote" class="inline-block cm-summary-input-boxs" width="240px">
+                        <div ng-repeat="data in vm.listField" ng-if="quote.id==data.rfqAssyQuoteID && item.id==data.quoteChargeDynamicFieldID">
+                            <input ng-show="item.displayDays" ng-readonly="vm.assymblyData.isSummaryComplete" onkeypress="return OnlyNumeric(event, this)"
+                                   class="text-right text-price width-60px" type="text" name="days" ng-model="data.days"
+                                   ng-class="{'item-disabled':vm.assymblyData.isSummaryComplete}"
+                                   maxlength="4" />
+
+                            <div class="cm-summry-input-icon" ng-show="!item.displayMargin && !item.displayPercentage && item.fieldName && !item.isLast">
+                                <input ng-readonly="vm.assymblyData.isSummaryComplete" ng-show="!item.displayMargin && !item.displayPercentage && item.fieldName && !item.isLast"
+                                       ng-class="{'margin-left-64px':!item.displayDays,'item-disabled':vm.assymblyData.isSummaryComplete}" onkeypress="return OnlyNumbersWithFirstDot(event, this)"
+                                       onblur="ToDecimalFourDigit(this)" custom-blur="vm.changeDetails(data,data.amount)" ng-change="vm.changevalue()" class="text-right text-price width-100px" type="text" name="amount" ng-model="data.amount"
+                                       maxlength="20" />
+                            </div>
+                            <input ng-show="!item.displayMargin && !item.displayPercentage && item.fieldName && !item.isLast" onkeypress="return OnlyNumeric(event, this)"
+                                   ng-class="{'margin-left-1px':!item.displayDays,'item-disabled':vm.assymblyData.isSummaryComplete}"
+                                   class="text-right text-price width-60px" type="text" name="toolingQty" ng-model="data.toolingQty" ng-readonly="vm.assymblyData.isSummaryComplete"
+                                   maxlength="5" />
+                            <span ng-if="item.costingType==vm.CostingType.TOOL && item.isLast" style="padding-right:7px !important" class="color-white width-60px inline-block text-right"><b>{{vm.getTotalToolDays(data,quote.days) | numberWithoutDecimal}}</b></span>
+                            <span ng-if="item.costingType==vm.CostingType.TOOL && item.isLast" class="color-white width-100px inline-block text-right padding-right-3"><b>{{vm.getTotalTool(data,quote.unitPrice) | amount}}</b></span>
+                            <span ng-if="item.costingType==vm.CostingType.TOOL && item.isLast" class="color-white width-60px inline-block text-right"><b>{{vm.getTotalToolQty(data,quote.toolingQty) | numberWithoutDecimal}}</b></span>
+                        </div>
+                    </td>
+                </tr>
+                <!-- [E] Tooling Costing Section -->
+            </tbody>
+        </table>
+
+    </div>
+    <div layout="row" flex="100" class="empty-state text-center full-height" layout-align="center center" layout-wrap ng-show="vm.isNoDataFound">
+        <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+        </div>
+        <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+    </div>
+</md-content>
+

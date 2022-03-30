@@ -1,0 +1,555 @@
+<md-dialog aria-label="KitAllocate" class="cm-custom-label-common receiving-pop-main cm-stock-allocate"
+  cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.formKitAllocate">
+
+    <md-toolbar>
+      <div class="md-toolbar-tools mt-5 mb-5">
+        <div layout="row" layout-wrap flex class="pt-5">
+          <h2 layout-align="start start" layout="row" class="pt-5">
+            <span ng-if="vm.rowField === 'AllocatedStock'">Allocated Units</span>
+            <span ng-if="vm.rowField === 'AvailableStock' && vm.stockType === 'IS'">Internal Stock</span>
+            <span ng-if="vm.rowField === 'AvailableStock' && vm.stockType === 'CS'">Customer Stock</span>
+            <span ng-if="vm.rowField === 'ConsumedStock'">Consumed Stock</span>
+          </h2>
+          <smart-cart-user ng-if="vm.rowField === 'AllocatedStock'"></smart-cart-user>
+          <div>
+            <span flex></span>
+          </div>
+          <div layout="row" layout-align="end center" layout-wrap flex>
+            <popup-header-label label-data="vm.headerdata"></popup-header-label>
+          </div>
+        </div>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content class="no-padding custom-scroll">
+      <md-content class="padding-10">
+        <div layout="column" flex>
+          <div layout="row" class="cm-section-main border-1 mb-5" id="stockHeader">
+            <div flex="100" class="cm-section-inner">
+
+              <div layout="row" flex="100">
+
+                <div layout="column" class="cm-available-stock-legend" layout-wrap layout-align="center start"
+                  ng-if="vm.rowField === 'AvailableStock'">
+                  <div layout="row" layout-align="start center" class="margin-bottom-3">
+                    <div class="legend-section restrict-umid"></div>
+                    <label>Restricted UMID</label>
+                  </div>
+
+                  <div layout="row" layout-align="start center" ng-if="vm.stockType === 'IS'">
+                    <div class="legend-section reserve-umid"></div>
+                    <label>Reserved Stock</label>
+                  </div>
+                </div>
+                <div layout="row" layout-wrap layout-align="start-center"
+                  ng-class="{'flex-gt-lg-45 flex-lg-45 flex-md-45 flex-sm-45':vm.rowField === 'AllocatedStock'}">
+                  <md-checkbox ng-model="vm.isComapnyLevel" name="isComapnyLevel" class="margin-right-10 margin-0"
+                               ng-disabled="vm.rowField !== 'AllocatedStock'" ng-if="vm.rowField === 'AllocatedStock'">
+                    Search Company Level
+                    <md-icon class="icon-question-mark-circle help-icon h-16">
+                      <md-tooltip md-direction="top">
+                        {{vm.CORE_MESSAGE_CONSTANT.SEARCH_COMPANY_LEVEL}}
+                      </md-tooltip>
+                    </md-icon>
+                  </md-checkbox>
+                  <div class="cm-switch-light cm-switch-new" ng-if="vm.rowField === 'AllocatedStock'">
+                    <md-input-container flex="100" class="md-input-has-value mid">
+                      <md-radio-group class="rocker"
+                        ng-class="{'cm-show-btn':vm.clickButton,'cm-cancel-btn':(!vm.clickButton && !(vm.checkPartForSearch())),'cm-button-disable':vm.checkPartForSearch() }"
+                        ng-change="vm.changeEvent(vm.clickButton,$event)" ng-model="vm.clickButton">
+                        <md-radio-button ng-value="true" class="cm-show md-button switch-left"
+                          ng-disabled="vm.checkPartForSearch() ||  vm.showStatus">Show Light</md-radio-button>
+                        <md-radio-button ng-value="false" class="cm-cancel md-button switch-right"
+                          ng-disabled="vm.checkPartForSearch() || !vm.showStatus">Cancel</md-radio-button>
+                      </md-radio-group>
+                    </md-input-container>
+                  </div>
+                  <md-button class="md-primary md-raised" ng-click="vm.manualTransferMaterial()">
+                    {{vm.LabelConstant.UMIDManagement.TransferMaterial}}</md-button>
+                  <md-button class="md-primary md-raised" ng-click="vm.refreshStockGrid()" ng-disabled="vm.showStatus">
+                    Refresh</md-button>
+                  <md-button class="md-primary md-raised" ng-click="vm.deallocateFromKit(null)"
+                    ng-disabled="!vm.anyItemSelect || (vm.stockList && vm.stockList.length === 0)"
+                    ng-if="vm.rowField == 'AllocatedStock'">Deallocate</md-button>
+                </div>
+
+                <div layout="row" flex layout-wrap layout-align="end-center" ng-if="vm.rowField === 'AvailableStock'">
+                  <div layout="row" layout-wrap layout-align="end-center">
+                    <table border="1" width="100%" class="padding-5 opration-table text-center">
+                      <tr>
+                        <td class="padding-5"
+                          ng-if="vm.lineDetail.connecterTypeID !== vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">Required
+                          Units</td>
+                        <td class="padding-5"
+                          ng-if="vm.lineDetail.connecterTypeID === vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">Required
+                          Pins</td>
+                        <td class="padding-5"
+                          ng-if="vm.lineDetail.connecterTypeID !== vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">Total
+                          Allocated Units</td>
+                        <td class="padding-5"
+                          ng-if="vm.lineDetail.connecterTypeID === vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">Total
+                          Allocated Pins</td>
+                        <td class="padding-5"
+                          ng-if="vm.lineDetail.connecterTypeID !== vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">Consumed
+                          Units</td>
+                        <td class="padding-5"
+                          ng-if="vm.lineDetail.connecterTypeID === vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">Consumed
+                          Pins</td>
+                        <td class="padding-5"
+                          ng-if="vm.lineDetail.connecterTypeID !== vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">Current
+                          Allocated Units(Excluding Consumed)</td>
+                        <td class="padding-5"
+                          ng-if="vm.lineDetail.connecterTypeID === vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">Current
+                          Allocated Pins(Excluding Consumed)</td>
+                        <td class="padding-5"
+                          ng-if="vm.lineDetail.connecterTypeID !== vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">Shortage
+                          Units</td>
+                        <td class="padding-5"
+                          ng-if="vm.lineDetail.connecterTypeID === vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">Shortage
+                          Pins</td>
+                        <td class="padding-5"
+                          ng-if="vm.lineDetail.connecterTypeID !== vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">Allocating
+                          Units</td>
+                        <td class="padding-5"
+                          ng-if="vm.lineDetail.connecterTypeID === vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">Allocating
+                          Pins</td>
+                        <td class="padding-5">Required To Allocate</td>
+                      </tr>
+                      <tr>
+                        <td class="text-center padding-5">
+                          <span class="value"
+                            ng-if="vm.lineDetail.connecterTypeID !== vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">
+                            {{(vm.headerDetail.requiredQtyBuild || 0)}}
+                          </span>
+                          <span class="value"
+                            ng-if="vm.lineDetail.connecterTypeID === vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">
+                            {{(vm.headerDetail.requirePinsBuild || 0)}}
+                          </span>
+                        </td>
+                        <td class="text-center padding-5">
+                          <span class="value">
+                            {{(vm.totalAllocatedStock || 0)}}
+                          </span>
+                        </td>
+                        <td class="text-center padding-5">
+                          <span class="value">
+                            {{(vm.consumedStock || 0)}}
+                          </span>
+                        </td>
+                        <td class="text-center padding-5">
+                          <span class="value"
+                            ng-if="vm.lineDetail.connecterTypeID !== vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">
+                            {{(vm.headerDetail.allocatedUnit || 0)}}
+                          </span>
+                          <span class="value"
+                            ng-if="vm.lineDetail.connecterTypeID === vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">
+                            {{(vm.headerDetail.allocatedPins || 0)}}
+                          </span>
+                        </td>
+                        <td class="text-center padding-5">
+                          <span class="value"
+                            ng-if="vm.lineDetail.connecterTypeID !== vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">
+                            {{(vm.headerDetail.shortagePerBuildQty || 0)}}
+                          </span>
+                          <span class="value"
+                            ng-if="vm.lineDetail.connecterTypeID === vm.CORE.ConnectorType.HEADERBREAKAWAY.ID">
+                            {{(vm.headerDetail.shortagePerQtyBuildPins || 0)}}
+                          </span>
+                        </td>
+                        <td class="text-center padding-5">
+                          <span class="value">
+                            {{(vm.allocatingStock || 0)}}
+                          </span>
+                        </td>
+                        <td class="text-center padding-5">
+                          <span class="value">
+                            {{vm.remainingAllocation || 0}}
+                          </span>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+              </div>
+              <div flex flex-xs="100" layout-align="space-between start" class="content dodontmain mv-5" layout="row">
+                <div flex layout="row" ng-if="vm.isPOHalt || vm.isKAHalt">
+                  <div layout="row" class="mr-10">
+                    <img class="stop-icon-image md-raised md-warn md-icon-button"
+                      src="../../../../../assets/images/logos/stop.png" />
+                  </div>
+                  <div layout="row" flex="80" layout-wrap>
+                    <div flex="100" ng-if="vm.isPOHalt">
+                      <div class="color-red">
+                        {{vm.haltResumePopUp.POHaltLabel}}:{{vm.poHalt.reason}}
+                      </div>
+                      <small flex ng-if="vm.poHalt.empInitialName">
+                        by {{vm.poHalt.empInitialName}}
+                      </small>
+                      <small flex ng-if="vm.poHalt.startDate">
+                        on {{vm.poHalt.startDate}}
+                      </small>
+                    </div>
+                    <div flex="100" ng-if="vm.isKAHalt">
+                      <div class="color-red">
+                        {{vm.haltResumePopUp.KitAllocationHaltLabel}}:{{vm.kaHalt.reason}}
+                      </div>
+                      <small flex ng-if="vm.kaHalt.empInitialName">
+                        by {{vm.kaHalt.empInitialName}}
+                      </small>
+                      <small flex ng-if="vm.kaHalt.startDate">
+                        on {{vm.kaHalt.startDate}}
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div flex="50" ng-if="vm.showStatus" layout-align="center"
+                class="layout-align-center-stretch layout-column">
+                <span class="margin-left-10"><b>{{vm.CORE_MESSAGE_CONSTANT.INOAUTO_SEARCH_COMMENT}}</b></span>
+              </div>
+              <div layout="row" flex="100"
+                ng-if="vm.rowField === 'AvailableStock' && (vm.isMountingTypeMismatch || vm.isFunctionalTypeMismatch)">
+                <ul class="pl-20 cm-bom-error-message font-size-16">
+                  <li ng-if="vm.isMountingTypeMismatch">
+                    <ng-bind-html ng-bind-html="vm.mountingTypeMismatchMesaage"></ng-bind-html>
+                  </li>
+                  <li ng-if="vm.isFunctionalTypeMismatch">
+                    <ng-bind-html ng-bind-html="vm.functionalTypeMismatchMesaage"></ng-bind-html>
+                  </li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="content fullpage-datatable cm-available-stock-table cm-table-available" layout="column" flex ng-if="!vm.isNoDataFound">
+            <md-table-container>
+              <table md-table class="cm-scroll-table">
+                <thead md-head md-order="vm.query.order">
+                  <tr md-row>
+                    <th ng-hide="vm.rowField === 'ConsumedStock'" md-column class="text-center w-50">
+                      <md-checkbox ng-model="vm.isAllSelect" ng-change="vm.selectAllUMID()" ng-disabled="vm.showStatus">
+                      </md-checkbox>
+                    </th>
+                    <th md-column
+                      ng-class="{'w-100':vm.rowField === 'AvailableStock', 'w-170': vm.rowField === 'AllocatedStock'}"
+                      ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock'">
+                      Action
+                    </th>
+                    <th md-column class="serial-number">#</th>
+                    <th md-column md-order-by="uid" class="w-150">
+                      UMID
+                    </th>
+                    <th md-column md-order-by="dateCode" class="w-70">
+                      Internal Date Code
+                    </th>
+                    <th md-column md-order-by="UMIDRohsStatus" class="w-120">
+                      UMID RoHS Status
+                    </th>
+                    <th md-column md-order-by="noOfPosition" class="w-80">
+                      Pin Count
+                    </th>
+                    <th md-column md-order-by="isTransit" class="w-80" ng-if="vm.rowField === 'AllocatedStock'">
+                      In Transit
+                    </th>
+                    <th md-column md-order-by="inovexStatus" class="w-170"
+                      ng-if="vm.showStatus && vm.rowField === 'AllocatedStock'">
+                      Smart Cart Status
+                    </th>
+                    <th md-column md-order-by="PIDCode" class="w-350">
+                      {{vm.CORE.LabelConstant.MFG.PID}}
+                    </th>
+                    <th md-column md-order-by="FreeToShare" class="units-detail"
+                      ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock'">
+                      {{vm.rowField === 'AllocatedStock' ? 'Free To Allocate' : vm.rowField === 'AvailableStock' &&
+                      vm.stockType === 'IS' ? 'Internal Stock' : 'Customer Stock'}}
+                    </th>
+                    <th md-column ng-if="vm.rowField === 'AvailableStock'" class="w-110">
+                      Allocate Units
+                    </th>
+                    <th md-column ng-if="vm.rowField === 'AvailableStock'" class="w-110">
+                      Allocate Pins
+                    </th>
+                    <th md-column ng-if="vm.rowField === 'AvailableStock'" class="w-110">
+                      Scrap Pins
+                    </th>
+                    <th md-column md-order-by="allocatedQty" class="w-110"
+                      ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock'">
+                      {{vm.LabelConstant.KitAllocation.AllocatedCount}}
+                    </th>
+                    <th md-column md-order-by="allocatedUnit" class="w-110"
+                      ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock'">
+                      {{vm.LabelConstant.KitAllocation.AllocatedUnits}}
+                    </th>
+                    <th md-column md-order-by="remaingUnit" class="w-110" ng-if="vm.rowField === 'AvailableStock'">
+                      {{vm.LabelConstant.KitAllocation.RemaingUnallocatedStock}}
+                    </th>
+                    <th md-column md-order-by="consumeQty" class="w-110" ng-if="vm.rowField === 'ConsumedStock'">
+                      {{vm.LabelConstant.KitAllocation.ConsumedCount}}
+                    </th>
+                    <th md-column md-order-by="consumeUnit" class="w-110" ng-if="vm.rowField === 'ConsumedStock'">
+                      {{vm.LabelConstant.KitAllocation.ConsumedUnits}}
+                    </th>
+                    <th md-column md-order-by="pkgUnit" class="w-110">
+                      Current Count
+                    </th>
+                    <th md-column md-order-by="convertedUnit" class="w-110">
+                      Current Units
+                    </th>
+                    <th md-column md-order-by="convertedUnitName" class="w-80">
+                      UOM
+                    </th>
+                    <th md-column md-order-by="binName" class="w-180">
+                      Location/Bin
+                    </th>
+                    <th md-column md-order-by="warehouseName" class="w-180">
+                      Warehouse
+                    </th>
+                    <th md-column md-order-by="departmentName" class="w-180">
+                      Parent Warehouse
+                    </th>
+                    <th md-column md-order-by="allocatedToKit" class="w-300"
+                      ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock'">
+                      Allocated To Kit
+                    </th>
+                    <th md-column md-order-by="customer" ng-if="vm.rowField === 'AvailableStock'" class="w-200">
+                      Reserved For Customer
+                    </th>
+                    <th md-column md-order-by="assembly" ng-if="vm.rowField === 'AvailableStock'" class="w-200">
+                      Reserved For Assembly
+                    </th>
+                    <th md-column md-order-by="nickName" ng-if="vm.rowField === 'AvailableStock'" class="w-120">
+                      Reserved For Nickname
+                    </th>
+                    <th md-column md-order-by="allocatedUnit" class="w-110"
+                      ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock'">
+                      {{vm.LabelConstant.KitAllocation.AllocatedPins}}
+                    </th>
+                    <th md-column md-order-by="consumeUnit" class="w-110" ng-if="vm.rowField === 'ConsumedStock'">
+                      {{vm.LabelConstant.KitAllocation.ConsumedPins}}
+                    </th>
+                    <th md-column md-order-by="consumeUnit" class="w-110">
+                      {{vm.LabelConstant.KitAllocation.ScrapedPins}}
+                    </th>
+                    <th md-column md-order-by="currentPin" class="w-110">
+                      Current Pins
+                    </th>
+                    <th md-column md-order-by="roHSApprovalReason" class="w-350"
+                      ng-if="vm.rowField !== 'AvailableStock'">
+                      {{vm.CORE.LabelConstant.KitAllocation.RoHSApprovalReason}}
+                    </th>
+                    <th md-column md-order-by="RoHSApprovedBy" class="w-120" ng-if="vm.rowField !== 'AvailableStock'">
+                      {{vm.CORE.LabelConstant.KitAllocation.RoHSApprovedBy}}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody md-body>
+                  <tr md-row md-auto-select ng-repeat="item in vm.stockList | orderBy: vm.query.order"
+                    ng-class="{ 'cm-reservestock-bg-color' : item.isReservedStock == true && item.id && vm.rowField === 'AvailableStock', 'cm-restrict-umid-bgcolor': item.isUMIDRestrict, 'cm-kit-allocation-select-row-bgcolor': item.isSelect }">
+                    <td md-cell class="text-center w-50" ng-hide="vm.rowField === 'ConsumedStock'">
+                      <md-checkbox ng-model="item.isSelect" ng-change="vm.selectUMID(item)"
+                        class="margin-top-10 margin-bottom-10"
+                        ng-disabled="!item.id || item.isUMIDRestrict || vm.showStatus "></md-checkbox>
+                    </td>
+                    <td md-cell
+                      ng-class="{'w-100':vm.rowField === 'AvailableStock', 'w-170': vm.rowField === 'AllocatedStock'}"
+                      ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock'">
+                      <md-button
+                        class="md-primary grid-button md-icon-button bdrbtn bdrrcvbtn cm-grid-action-view-icon {{item.ledColorCssClass}}"
+                        ng-class=" {'item-disabled': item.disableShowLight}" ng-if="vm.rowField === 'AllocatedStock'"
+                        ng-disabled="item.disableShowLight" ng-click="vm.showLightForUMID(item, $event)">
+                        <md-icon role="img" md-font-icon="icon-lightbulb-outline"></md-icon>
+                        <md-tooltip md-direction="top" ng-if="item.ledColorName">{{item.ledColorName}}</md-tooltip>
+                      </md-button>
+                      <md-button class="md-primary grid-button md-icon-button bdrbtn cm-sq-btn"
+                        ng-click="vm.transferMaterial(item)"
+                        ng-if="item.id && (vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock')">
+                        <md-icon role="img" md-font-icon="icons-transfer-material-2"></md-icon>
+                        <md-tooltip md-direction="top">{{vm.LabelConstant.UMIDManagement.TransferMaterial}}</md-tooltip>
+                      </md-button>
+
+                      <md-button class="md-primary grid-button md-icon-button bdrbtn cm-sq-btn"
+                        ng-if="vm.rowField == 'AllocatedStock'" ng-click="vm.returnUMID(item)">
+                        <md-icon role="img" md-font-icon="icons-count111"></md-icon>
+                        <md-tooltip md-direction="top">Count Material</md-tooltip>
+                      </md-button>
+
+                      <md-button class="md-primary grid-button md-icon-button bdrbtn"
+                        ng-disabled="item.allocatedQty <= 0"
+                        ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock'"
+                        ng-click="vm.deallocateFromKit(item)">
+                        <md-icon role="img" md-font-icon="icon-close"></md-icon>
+                        <md-tooltip md-direction="top">Deallocate UMID From Kit</md-tooltip>
+                      </md-button>
+                      <md-button class="md-primary grid-button md-icon-button bdrbtn cm-sq-btn"
+                        ng-click="vm.redirectOnUMIDManagement(item)"
+                        ng-if="!item.id && (vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock')">
+                        <md-icon role="img" md-font-icon="icons-umid" class="pt-1"></md-icon>
+                        <md-tooltip md-direction="top">Go To UMID Management</md-tooltip>
+                      </md-button>
+                      <md-button class="md-primary grid-button md-icon-button bdrbtn" ng-click="vm.restrictUMID(item)"
+                        ng-if="item.id && (vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock')">
+                        <md-icon role="img" md-font-icon="icon-no"></md-icon>
+                        <md-tooltip md-direction="top" ng-if="item.isUMIDRestrict">Unrestrict UMID</md-tooltip>
+                        <md-tooltip md-direction="top" ng-if="!item.isUMIDRestrict">Restrict UMID</md-tooltip>
+                      </md-button>
+                    </td>
+                    <td md-cell class="serial-number">{{$index+1}}</td>
+                    <td md-cell class="w-150">
+                      <a ng-click="vm.goToUMIDManagement(item)" ng-if="item.uid && item.uid !== '-'"
+                        class="cm-text-decoration underline cursor-pointer">{{item.uid || "-"}}</a>
+                      <copy-text ng-if="item.uid && item.uid !== '-'" label="vm.CORE.LabelConstant.UMIDManagement.UMID"
+                        text="item.uid"></copy-text>
+                      <span ng-if="!item.uid || item.uid === '-'">-</span>
+                    </td>
+                    <td md-cell class="w-70">{{item.dateCode || '-'}}</td>
+                    <td md-cell class="w-120">{{item.UMIDRohsStatus}}</td>
+                    <td md-cell class="w-80">{{item.noOfPosition || 0}}</td>
+                    <td md-cell ng-if="vm.rowField === 'AllocatedStock'" class="w-80"><span
+                        layout="row"><b>{{item.isTransit}}</b></span></td>
+                    <td md-cell ng-if="vm.showStatus && vm.rowField === 'AllocatedStock'"><span
+                        layout="row">{{item.inovexStatus}}</span></td>
+                    <td md-cell class="w-350">
+                      <common-pid-code-label-link component-id="item.refcompid" label="vm.CORE.LabelConstant.MFG.PID"
+                        value="item.PIDCode" is-copy="true" is-mfg="true" is-custom-part="item.isCustom"
+                        mfg-label="vm.CORE.LabelConstant.MFG.MFGPN" mfg-value="item.mfgPN"
+                        rohs-icon="vm.rohsImagePath + item.rohsIcon" rohs-status="item.rohsName"
+                        is-copy-ahead-label="true">
+                      </common-pid-code-label-link>
+                    </td>
+
+                    <td md-cell class="rec-qty text-right units-detail"
+                      ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock'">{{(item.FreeToShare
+                      || item.pendingUMIDUnits)}}</td>
+                    <td md-cell ng-if="vm.rowField === 'AvailableStock'" class="w-110 text-center">
+                      <input class="width-100p" type="number" id="allocationUnits" name="allocationUnits"
+                        ng-model="item.allocationUnits" placeholder="Allocate Units" min="{{$root.unitInputStep}}"
+                        maxlength="18" onkeypress="return OnlyNumbersWithDot(event);" ng-disabled="!item.isSelect"
+                        ng-keyup="vm.getFooterAllocationTotal(item);"
+                        ng-class="{'text-angular-custom-border': item.inValidAllocationUnit && item.isSelect}">
+                    </td>
+                    <td md-cell class="text-right w-110" ng-if="vm.rowField === 'AvailableStock'">
+                      {{item.allocationPins}}</td>
+                    <td md-cell class="text-right w-110" ng-if="vm.rowField === 'AvailableStock'">{{item.scrapPins}}
+                    </td>
+                    <td md-cell class="text-right w-110"
+                      ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock'">{{(item.allocatedQty
+                      || '0')}}</td>
+                    <td md-cell class="text-right w-110"
+                      ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock'">{{(item.allocatedUnit
+                      || '0')}}</td>
+                    <td md-cell class="text-right w-110" ng-if="vm.rowField === 'AvailableStock'">{{(item.remaingUnit ||
+                      '0')}}</td>
+                    <td md-cell class="text-right w-110" ng-if="vm.rowField === 'ConsumedStock'">{{(item.consumeQty ||
+                      '0')}}</td>
+                    <td md-cell class="text-right w-110" ng-if="vm.rowField === 'ConsumedStock'">{{(item.consumeUnit ||
+                      '0')}}</td>
+                    <td md-cell class="text-right w-110">{{item.pkgQty || item.pendingUMIDQty}}</td>
+                    <td md-cell class="text-right w-110">{{item.convertedUnit || item.pendingUMIDUnits }}</td>
+                    <td md-cell class="w-80">{{item.convertedUnitName}}</td>
+                    <td md-cell class="w-180">{{item.id ? item.binName : item.fromBinName}}</td>
+                    <td md-cell class="w-180">{{item.id ? item.warehouseName : item.fromWarehouseName}}</td>
+                    <td md-cell class="w-180">{{item.id ? item.departmentName : item.fromDepartmentName}}</td>
+                    <td md-cell class="w-300"
+                      ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock'">
+                      <a tabindex="-1" ng-click="vm.allocatedKit(item)"
+                        ng-if="item.allocatedToKit && item.allocatedToKit !== '-'"
+                        class="cursor-pointer">{{item.allocatedToKit}}</a>
+                      <span ng-if="!item.allocatedToKit || item.allocatedToKit === '-'">-</span>
+                    </td>
+                    <td md-cell ng-if="vm.rowField === 'AvailableStock'" class="w-200">{{item.customer || '-'}}</td>
+                    <td md-cell ng-if="vm.rowField === 'AvailableStock'" class="w-200">
+                      <common-pid-code-label-link ng-if="item.assyID" component-id="item.assyID"
+                        label="grid.appScope.$parent.vm.CORE.LabelConstant.MFG.MFGPN" value="item.assembly"
+                        is-assembly="true" is-copy="true" is-custom-part="item.isCustomAssy"
+                        rohs-icon="vm.rohsImagePath + item.assyRohsIcon" rohs-status="item.assyRohsName">
+                      </common-pid-code-label-link>
+                      <span ng-if="!item.assyID">-</span>
+                    </td>
+                    <td md-cell ng-if="vm.rowField === 'AvailableStock'" class="w-120">{{item.nickName || '-'}}</td>
+                    <td md-cell class="text-right w-110"
+                      ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock'">{{(item.allocatedPins
+                      || '0')}}</td>
+                    <td md-cell class="text-right w-110" ng-if="vm.rowField === 'ConsumedStock'">{{(item.consumePins ||
+                      '0')}}</td>
+                    <td md-cell class="text-right w-110">{{(item.scrapedPins || '0')}}</td>
+                    <td md-cell class="text-right w-110">{{item.currentPin || 0 }}</td>
+                    <td md-cell ng-if="vm.rowField !== 'AvailableStock'" class="w-350">{{item.roHSApprovalReason ||
+                      '-'}}</td>
+                    <td md-cell ng-if="vm.rowField !== 'AvailableStock'" class="w-120">{{item.roHSApprovedBy || '-'}}
+                    </td>
+                  </tr>
+
+                </tbody>
+                <tfoot>
+                  <tr md-row class="cm-stock-al-total font-weight-900">
+                    <td md-cell
+                      ng-class="{'cm-available-foot-first': vm.rowField === 'AvailableStock', 'cm-allocate-foot-first': vm.rowField === 'AllocatedStock', 'cm-consume-foot-first': vm.rowField === 'ConsumedStock' }"
+                      class="text-right">Total:</td>
+                    <td md-cell class="rec-qty text-right cm-white-space-nowrap w-180"
+                      ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'AvailableStock'">{{vm.sumOfFreeUnit}}
+                    </td>
+                    <td md-cell class="rec-qty cm-white-space-nowrap text-right width-110"
+                      ng-if="vm.rowField === 'AvailableStock'">{{vm.sumOfAllocationUnit}}</td>
+                    <td md-cell class="rec-qty cm-white-space-nowrap text-right w-110"
+                      ng-if="vm.rowField === 'AvailableStock'">{{vm.sumOfAllocationPins || 0}}</td>
+                    <td md-cell class="rec-qty cm-white-space-nowrap text-right w-110"
+                      ng-if="vm.rowField === 'AvailableStock'">{{vm.sumOfScapPins || 0}}</td>
+                    <td md-cell class="rec-qty cm-white-space-nowrap text-right w-110">{{vm.sumOfAllocatedQty}}</td>
+                    <td md-cell class="rec-qty cm-white-space-nowrap text-right w-110">{{vm.sumOfAllocatedUnit}}</td>
+                    <td md-cell class="rec-qty cm-white-space-nowrap text-right w-110">{{vm.sumOfPins}}</td>
+                    <td md-cell class="rec-qty cm-white-space-nowrap text-right w-110">{{vm.sumOfScrapedPins}}</td>
+                    <td md-cell
+                      ng-class="{'cm-available-foot-last': vm.rowField === 'AvailableStock', 'cm-allocate-foot-last': vm.rowField === 'AllocatedStock', 'cm-consume-foot-last': vm.rowField === 'ConsumedStock' }">
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </md-table-container>
+          </div>
+          <div class="content fullpage-datatable cm-available-stock-table cm-table-available empty-state"
+            layout="column" ng-if="vm.isNoDataFound">
+            <div class="emty-icon" flex="100">
+              <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+            </div>
+            <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+          </div>
+        </div>
+
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <div ng-if="vm.isShowNextPrevious" class="mr-auto">
+        <md-button class="md-primary md-raised" ng-click="vm.confirmationBeforeChangeLineDatil(true)"
+          ng-disabled="vm.lineDetail.isPreviousBtnDisable">Previous</md-button>
+        <md-button class="md-primary md-raised" ng-click="vm.confirmationBeforeChangeLineDatil(false)"
+          ng-disabled="vm.lineDetail.isNextBtnDisable">Next</md-button>
+      </div>
+      <md-button class="md-default md-raised" ng-click="vm.cancel()"
+        ng-if="vm.rowField === 'AllocatedStock' || vm.rowField === 'ConsumedStock'">Close</md-button>
+      <md-button class="md-default md-raised" ng-click="vm.cancel()" ng-if="vm.rowField === 'AvailableStock'">Cancel
+      </md-button>
+
+
+      <md-button class="md-primary md-raised" ng-click="vm.checkReserveStock(false)" aria-label="Submit"
+        ng-class="{'md-formdirty': !(!vm.anyItemSelect || vm.inValidAllocationUnit || vm.isFunctionalTypeMismatch)}"
+        ng-disabled="!vm.anyItemSelect || vm.inValidAllocationUnit"
+        ng-if="vm.rowField === 'AvailableStock'">
+        Allocate
+      </md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.checkReserveStock(true)" aria-label="Submit"
+        ng-class="{'md-formdirty': !(!vm.anyItemSelect || vm.inValidAllocationUnit)}"
+        ng-disabled="!vm.anyItemSelect || vm.inValidAllocationUnit"
+        ng-if="vm.rowField === 'AvailableStock'">
+        Allocate & Exit
+      </md-button>
+    </md-dialog-actions>
+
+  </form>
+</md-dialog>

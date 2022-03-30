@@ -1,0 +1,969 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}" flex>
+  <div class="content-card" layout="column" flex="100">
+    <div layout="row" flex="100">
+      <div flex="100">
+        <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+        <fieldset flex="100" class="container-box margin-bottom-5">
+          <div class="cm-section-main border-0" flex="100">
+            <div class="cm-section-inner p-0-imp" layout="row" flex="100" layout-wrap>
+              <div flex="35" layout="column" class="flex-rs-md-50">
+                <div layout="row" flex="100" class="material-section-devider">
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-cust-payment-info">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="label-container pt-2">
+                            <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToTransactionModeList();">{{vm.autoCompleteTransMode.placeholderName}}</a>
+                            <span ng-if="!vm.custRefundMstID">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td colspan="2">
+                          <md-input-container flex="100" ng-if="vm.autoCompleteTransMode" class="autocompletecustom cm-custom-autocomplete margin-0">
+                            <custom-auto-complete datalist="vm.transModeList"
+                                                  column-name="vm.autoCompleteTransMode.columnName"
+                                                  key-column-name="vm.autoCompleteTransMode.keyColumnName"
+                                                  input-name="vm.autoCompleteTransMode.inputName"
+                                                  placeholder-name="vm.autoCompleteTransMode.placeholderName"
+                                                  key-column-id="vm.autoCompleteTransMode.keyColumnId"
+                                                  is-required="vm.autoCompleteTransMode.isRequired"
+                                                  is-disabled="vm.custRefundMstID || vm.isNotAllowedToChgMajorInfo"
+                                                  callback-fn="vm.autoCompleteTransMode.callbackFn"
+                                                  is-addnew="vm.autoCompleteTransMode.isAddnew"
+                                                  is-add-from-route="vm.autoCompleteTransMode.isAddFromRoute"
+                                                  route-name="vm.autoCompleteTransMode.routeName"
+                                                  add-data="vm.autoCompleteTransMode.addData"
+                                                  on-select-callback-fn="vm.autoCompleteTransMode.onSelectCallbackFn"
+                                                  custom-auto-focus="{{vm.custRefundMstID ? false : true}}">
+                            </custom-auto-complete>
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container pt-2">SystemID</p>
+                        </th>
+                        <td class="w-150 padding-bottom-0">
+                          <md-input-container flex="100" class="margin-bottom-0 max-width-150">
+                            <input type="text" name="systemId" id="systemId" ng-model="vm.custRefundModel.systemId" placeholder="systemId" ng-disabled="true">
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container pt-2">
+                            <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToCustomerList();">{{vm.autoCompleteCustomer.placeholderName}}</a>
+                            <span ng-if="!vm.custRefundMstID">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td colspan="4">
+                          <md-input-container flex="100" ng-if="vm.autoCompleteCustomer" class="autocompletecustom cm-custom-autocomplete margin-0">
+                            <custom-auto-complete datalist="vm.customerList"
+                                                  column-name="vm.autoCompleteCustomer.columnName"
+                                                  controller-name="vm.autoCompleteCustomer.controllerName"
+                                                  view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                                  key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                                  input-name="vm.autoCompleteCustomer.inputName"
+                                                  placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                                  key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                                  is-required="vm.autoCompleteCustomer.isRequired"
+                                                  is-disabled="vm.custRefundMstID || vm.isNotAllowedToChgMajorInfo"
+                                                  is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                                  callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                                  add-data="vm.autoCompleteCustomer.addData"
+                                                  on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn">
+                            </custom-auto-complete>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container pt-2">
+                            Refund Amount ($)
+                            <md-icon class="icon-question-mark-circle help-icon margin-right-5"
+                                     ng-if="!vm.custRefundMstID">
+                              <md-tooltip md-direction="top" class="tooltip-height-auto">
+                                <span>{{vm.custRefundNotesConst.RefundAmountHelpNote}}</span>
+                              </md-tooltip>
+                            </md-icon>
+                            <span ng-if="!vm.custRefundMstID">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td colspan="2">
+                          <md-input-container flex="100" class="input-with-usd-symbol padding-left-0-imp margin-top-4 cm-invoice-amt-diff-font width-auto">
+                            <md-icon md-font-icon="icon-currency-usd" class="usdicon"></md-icon>
+                            <input type="number" id="totalRefundAmount" class="font-weight-700" name="totalRefundAmount"
+                                   ng-model="vm.custRefundModel.totalRefundAmount" placeholder="Refund Amount"
+                                   ng-maxlength="13"
+                                   min="0.01" max="9999999999.99"
+                                   input-number-decimal-place
+                                   ng-change="vm.refundAmountChange()"
+                                   onkeypress="return OnlyNumbersWithDot(event)"
+                                   oninput="validateTwoDecimalOnly(this.value)"
+                                   step="{{$root.amountInputStep}}" required
+                                   ng-model-options="{ debounce: vm.debounceTimeIntervalConst }"
+                                   ng-disabled="vm.isDisableTotalRefundAmount || vm.isNotAllowedToChgMajorInfo"
+                                   custom-auto-focus="{{vm.custRefundMstID ? true : false}}">
+                            <div ng-messages="currActiveForm.totalRefundAmount.$error" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="min">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                              <div ng-message="max">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                              <div ng-message="step">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+
+                        <th><p class="label-container pt-2">Date<span ng-if="!vm.isNotAllowedToChgMajorInfo">&nbsp;*</span></p></th>
+                        <td>
+                          <md-input-container class="datepicker padding-right-0-imp margin-bottom-0 max-width-150">
+                            <input name="paymentDate" type="text" class="float-left"
+                                   id="paymentDate"
+                                   max-value="vm.chequeDateOptions.maxDate"
+                                   allow-past-date="true"
+                                   allow-future-date="true"
+                                   datetime-picker="{{$root.dateDisplayFormat}}"
+                                   ng-model="vm.custRefundModel.paymentDate"
+                                   enable-time="false"
+                                   ui-options="{clearOnBlur: true}"
+                                   ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                   ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                   model-view-value="true"
+                                   datepicker-options="vm.chequeDateOptions"
+                                   is-open="vm.IsPickerOpen[vm.DATE_PICKER.paymentDate]"
+                                   ng-disabled="vm.isNotAllowedToChgMajorInfo"
+                                   ng-required="true" />
+
+                            <md-icon md-font-icon="icon-calendar calender-icon"
+                                     ng-click="vm.IsPickerOpen[vm.DATE_PICKER.paymentDate] = (vm.custRefundModel.isPaymentVoided || vm.isNotAllowedToChgMajorInfo) ? false : true">
+                            </md-icon>
+                            <div ng-messages="currActiveForm.paymentDate.$error" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="datetime">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                              <div ng-message="maxvalue">
+                                <span>{{vm.maxAllowedPaymentDateMsg}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container pt-2">
+                            <a class="cm-text-decoration underline" ng-click="vm.goToCustomerRefundList();" tabindex="-1">Payment# or Check#</a>
+                            <span ng-if="(!vm.isCheckTypePaymentMtdSelected || vm.isPrintCheckAction) && !(vm.custRefundModel.isPaymentVoided || vm.isNotAllowedChgPMTNumWithSubStatus)">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td colspan="4">
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="text" id="paymentNumber" name="paymentNumber"
+                                   ng-model="vm.custRefundModel.paymentNumber" placeholder="Payment# or Check#"
+                                   ng-required="!vm.isCheckTypePaymentMtdSelected || vm.isPrintCheckAction"
+                                   ng-maxlength="50" autocomplete="off" md-maxlength="50"
+                                   ng-disabled="vm.isCustRefundLocked || vm.custRefundModel.isPaymentVoided || vm.isNotAllowedChgPMTNumWithSubStatus"
+                                   folder-no-special-character />
+                            <span class="font-size-10" ng-if="(vm.GenericTransModeName.RefundPayablePayRefund.id === vm.autoCompleteTransMode.keyColumnId) || (vm.GenericTransModeName.RefundPayableCMRefund.id === vm.autoCompleteTransMode.keyColumnId)">
+                              <b>Hint:{{vm.custRefundNotesConst.PaymentCMNumberHelpNote}}</b>
+                            </span>
+                            <div ng-messages="currActiveForm.paymentNumber.$error" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(50,currActiveForm.paymentNumber.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            {{vm.LabelConstant.COMMON.GRIDHEADER_MODYFYBY}}
+                          </p>
+                        </th>
+                        <td>
+                          <div class="data-align-to-label">
+                            <a tabindex="-1" class="cm-text-decoration underline h4 text-bold" ng-click="vm.goToManagePersonal(vm.custRefundModel.updatedByEmp);" ng-if="vm.custRefundModel && vm.custRefundModel.updatedbyInitial">
+                              {{vm.custRefundModel.updatedbyInitial || '-'}}
+                            </a>
+                            <md-icon class="icon-question-mark-circle help-icon margin-right-5 h-20" ng-if="vm.custRefundMstID">
+                              <md-tooltip class="cm-tooltip-table-data tooltip-height-auto pv-3" md-direction="top">
+                                <div>
+                                  <table cellspacing="0" cellpadding="0" border="1">
+                                    <tr>
+                                      <th>
+                                        {{vm.LabelConstant.COMMON.GRIDHEADER_MODIFY_DATE}}
+                                      </th>
+                                      <td>
+                                        {{vm.custRefundModel.updatedAt || '-'}}
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </div>
+                              </md-tooltip>
+                            </md-icon>
+                          </div>
+                        </td>
+                        <th>
+                          <p class="label-container">
+                            {{vm.LabelConstant.COMMON.GRIDHEADER_CREATEDBY}}
+                          </p>
+                        </th>
+                        <td>
+                          <div class="data-align-to-label">
+                            <a tabindex="-1" class="cm-text-decoration underline h4 text-bold" ng-click="vm.goToManagePersonal(vm.custRefundModel.createdByEmp);" ng-if="vm.custRefundModel && vm.custRefundModel.createdbyInitial">
+                              {{vm.custRefundModel.createdbyInitial || '-'}}
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div flex="35" layout="column" class="flex-rs-md-50">
+                <div layout="row" flex="100" class="material-section-devider">
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-cust-payment-info">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="label-container pt-2">
+                            <a class="cm-text-decoration underline" ng-click="vm.goToCustomerBillToPage();"
+                               tabindex="-1" ng-if="vm.autoCompleteCustomer.keyColumnId">Account Reference</a>
+                            <span class="color-black" ng-if="!vm.autoCompleteCustomer.keyColumnId">Account Reference</span>
+                            <md-icon class="icon-question-mark-circle help-icon margin-right-5">
+                              <md-tooltip md-direction="top" class="tooltip-height-auto">
+                                <span>{{vm.custPayDiffNotesConst.AccountReferenceTooltip}}</span>
+                              </md-tooltip>
+                            </md-icon><span ng-if="!vm.custRefundModel.accountReference">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td colspan="3">
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="text" id="accountReference" name="accountReference" ng-model="vm.custRefundModel.accountReference"
+                                   placeholder="Account Reference" ng-maxlength="50" required
+                                   disabled>
+                            <div layout="row" class="autocomplete-refresh-icons" layout-align="center center"
+                                 ng-if="!vm.custRefundMstID">
+                              <md-button class="margin-0 md-icon-button md-ink-ripple" tabindex="-1"
+                                         ng-click="vm.refreshCustAccountReference()"><md-icon class="mdi mdi-refresh"></md-icon></md-button>
+                            </div>
+                            <span class="font-size-10"><b>{{vm.custPayDiffNotesConst.AccountReferenceNote}}</b></span>
+                            <div ng-messages="currActiveForm.accountReference.$error" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(50,currActiveForm.accountReference.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container pt-2">
+                            <a class="cm-text-decoration underline" ng-click="vm.goToBankList();"
+                               tabindex="-1">Refund From ({{vm.LabelConstant.Bank.BankAccountCode}})</a>
+                            <span ng-if="!vm.isNotAllowedToChgMajorInfo">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td colspan="3" ng-if="vm.autoCompleteBankAccountNumber">
+                          <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100">
+                            <custom-auto-complete datalist="vm.bankList"
+                                                  column-name="vm.autoCompleteBankAccountNumber.columnName"
+                                                  controller-name="vm.autoCompleteBankAccountNumber.controllerName"
+                                                  view-template-url="vm.autoCompleteBankAccountNumber.viewTemplateURL"
+                                                  key-column-name="vm.autoCompleteBankAccountNumber.keyColumnName"
+                                                  input-name="vm.autoCompleteBankAccountNumber.inputName"
+                                                  placeholder-name="vm.autoCompleteBankAccountNumber.placeholderName"
+                                                  is-required="true"
+                                                  key-column-id="vm.autoCompleteBankAccountNumber.keyColumnId"
+                                                  callback-fn="vm.autoCompleteBankAccountNumber.callbackFn"
+                                                  on-select-callback-fn="vm.autoCompleteBankAccountNumber.onSelectCallbackFn"
+                                                  is-disabled="vm.isNotAllowedToChgMajorInfo"
+                                                  add-data="vm.autoCompleteBankAccountNumber.addData"
+                                                  is-addnew="vm.autoCompleteBankAccountNumber.isAddnew">
+                            </custom-auto-complete>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            <a class="cm-text-decoration underline" ng-click="vm.goToBankList();"
+                               tabindex="-1">Bank Name</a>
+                            <span ng-if="!vm.custRefundModel.bankName">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td class="padding-bottom-0" colspan="3">
+                          <md-input-container flex="100" class="margin-bottom-0 pt-5">
+                            {{vm.custRefundModel.bankName || '-'}}
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container pt-2">
+                            <a class="cm-text-decoration underline" ng-click="vm.goToPaymentMethodList();"
+                               tabindex="-1">{{vm.autoCompletePaymentMethodType.placeholderName}}</a>
+                            <span ng-if="!vm.isNotAllowedToChgMajorInfo">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td ng-if="vm.autoCompletePaymentMethodType" colspan="2">
+                          <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100">
+                            <custom-auto-complete datalist="vm.paymentMethodTypeList"
+                                                  column-name="vm.autoCompletePaymentMethodType.columnName"
+                                                  controller-name="vm.autoCompletePaymentMethodType.controllerName"
+                                                  view-template-url="vm.autoCompletePaymentMethodType.viewTemplateURL"
+                                                  key-column-name="vm.autoCompletePaymentMethodType.keyColumnName"
+                                                  input-name="vm.autoCompletePaymentMethodType.inputName"
+                                                  placeholder-name="vm.autoCompletePaymentMethodType.placeholderName"
+                                                  key-column-id="vm.autoCompletePaymentMethodType.keyColumnId"
+                                                  is-required="true"
+                                                  is-addnew="vm.autoCompletePaymentMethodType.isAddnew"
+                                                  add-data="vm.autoCompletePaymentMethodType.addData"
+                                                  is-disabled="vm.isNotAllowedToChgMajorInfo"
+                                                  callback-fn="vm.autoCompletePaymentMethodType.callbackFn"
+                                                  on-select-callback-fn="vm.autoCompletePaymentMethodType.onSelectCallbackFn">
+                            </custom-auto-complete>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container pt-2">
+                            Offset Amount ($)
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" class="input-with-usd-symbol padding-left-0-imp margin-top-4 cm-invoice-amt-diff-font width-auto">
+                            <md-icon md-font-icon="icon-currency-usd" class="usdicon"></md-icon>
+                            <input type="number" id="offsetAmount" class="font-weight-700" name="offsetAmount" ng-model="vm.custRefundModel.offsetAmount" placeholder="Offset Amount"
+                                   ng-maxlength="13"
+                                   min="-9999999999.99" max="9999999999.99"
+                                   input-number-decimal-place
+                                   step="{{$root.amountInputStep}}"
+                                   ng-change="vm.mainRefundAmountChange()"
+                                   ng-model-options="{ debounce: vm.debounceTimeIntervalConst }"
+                                   ng-disabled="vm.isNotAllowedToChgMajorInfo"
+                                   custom-auto-focus="{{vm.custRefundMstID ? true : false}}">
+                            <span class="font-size-10">
+                              <b>Hint:{{vm.custRefundNotesConst.OffsetAmountHelpNote}}</b>
+                            </span>
+                            <div ng-messages="currActiveForm.offsetAmount.$error" role="alert">
+                              <div ng-message="min">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                              <div ng-message="max">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                              <div ng-message="step">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                        <td colspan="2">
+                          <md-input-container flex="100">
+                            <md-checkbox ng-model="vm.custRefundModel.isMarkAsPaid"
+                                         name="isMarkAsPaid" class="margin-0"
+                                         ng-disabled="vm.isCustRefundLocked || vm.isCheckTypePaymentMtdSelected || vm.custRefundModel.isPaymentVoided || vm.isPrintCheckAction || !vm.isSubStatusPublished">
+                              <span class="nowrap">
+                                Mark As Paid
+                              </span>
+                            </md-checkbox>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div flex="30" layout="row" layout-wrap class="flex-rs-md-100">
+                <div layout="row" flex="100">
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-cust-payment-info">
+                    <tbody>
+
+                      <tr>
+                        <th>
+                          <p class="label-container pt-2">Comments<span ng-if="vm.custRefundModel.isMarkAsPaid">&nbsp;*</span></p>
+                        </th>
+                        <td colspan="3" class="padding-bottom-0">
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <div layout-align="start center">
+                              <textarea name="remark"
+                                        ng-model="vm.custRefundModel.remark"
+                                        ng-maxlength="1000"
+                                        rows="2" md-maxlength="1000"
+                                        max-rows="2"
+                                        placeholder="Remark"
+                                        ng-required="vm.custRefundModel.isMarkAsPaid ? true : false"
+                                        ng-disabled="vm.isCustRefundLocked || vm.custRefundModel.isPaymentVoided || vm.isPrintCheckAction || !(vm.isSubStatusDraft || vm.isSubStatusPublished)"
+                                        last-element elementcondition="{{((vm.customerPaymentList && vm.customerPaymentList.length > 0) || (vm.custCreditMemoPaymentList && vm.custCreditMemoPaymentList.length > 0)) ? false : true}}"></textarea>
+                              <span class="font-size-10">
+                                <b>Hint: {{vm.custRefundNotesConst.CommentRefundPrintNote}}</b>
+                              </span>
+                            </div>
+                            <div ng-messages="currActiveForm.remark.$error" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(1000, currActiveForm.remark.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="4">
+                          <div layout="row" class="mt-5">
+                            <div flex="100">
+                              <div layout="column">
+                                <view-cust-address-contact-det param-address-det="vm.billingAddress"
+                                                               param-contact-person-det="vm.selectedContactPerson"
+                                                               param-addr-action-btn-det="vm.custAddrViewActionBtnDet"
+                                                               param-cont-person-action-btn-det="vm.contPersonViewActionBtnDet"
+                                                               param-add-update-addr-callback-fn="vm.addEditAddress"
+                                                               param-select-addr-callback-fn="vm.selectAddress"
+                                                               param-other-det="vm.viewCustAddrOtherDet"
+                                                               param-add-update-contact-callback-fn="vm.selectContactPerson"
+                                                               param-select-contact-callback-fn="vm.selectContactPerson"
+                                                               param-delete-addr-callback-fn="vm.deleteCustAddress"
+                                                               param-delete-cont-person-callback-fn="vm.deleteContPerson"></view-cust-address-contact-det>
+                              </div>
+                              <!--<div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="!vm.billingAddressList || vm.billingAddressList.length === 0">
+                                <p class="margin-0" flex="100">{{vm.custBillAddrEmptyState.MESSAGE}}</p>
+                              </div>-->
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div layout layout-align="start end" class="feeder-scan-message margin-0" ng-if="vm.addUpdateRefundSuccessMsg && !currActiveForm.$dirty">
+                  <div class="success-text inline-block">
+                    {{vm.addUpdateRefundSuccessMsg}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        <div flex="100" layout="row" ng-if="((vm.GenericTransModeName.RefundPayablePayRefund.id === vm.autoCompleteTransMode.keyColumnId) || (vm.GenericTransModeName.RefundPayableCMRefund.id === vm.autoCompleteTransMode.keyColumnId))">
+          <fieldset layout="row" flex="100" layout-wrap class="container-box">
+            <md-table-container layout="row" flex="100" layout-wrap
+                                ng-if="(vm.autoCompleteCustomer.keyColumnId && (vm.customerPaymentList.length > 0 || vm.custCreditMemoPaymentList.length > 0)) ">
+              <div layout="row" flex="100">
+                <div class="cm-section-main border-0" flex="100">
+                  <div class="cm-section-inner p-0-imp mb-5" layout="row" layout-align="start center">
+                    <div layout="row" flex-xl="80" flex-lg="85" layout-align="start start" class="flex-rs-md-100">
+                      <table cellspacing="0" cellpadding="0" class="cm-table-input-main border"
+                             ng-if="vm.customerPaymentList && vm.customerPaymentList.length > 0 && (vm.GenericTransModeName.RefundPayablePayRefund.id === vm.autoCompleteTransMode.keyColumnId)">
+                        <tbody>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                Payment#
+                              </p>
+                            </th>
+                            <td>
+                              <md-input-container flex="100" class="margin-bottom-0">
+                                <input type="text" id="serachPaymentCMNumber" name="serachPaymentCMNumber"
+                                       ng-model="vm.payRefSearch.paymentNumber" placeholder=""
+                                       ng-maxlength="25" autocomplete="off"
+                                       my-enter="vm.searchAndApplyPayFromPayNo(vm.payRefSearch.paymentNumber)"
+                                       ng-disabled="vm.isNotAllowedToChgMajorInfo">
+                                <span class="font-size-10">
+                                  <b>Type payment# and press enter to select</b>
+                                </span>
+                              </md-input-container>
+                            </td>
+                            <th class="text-center ph-20">OR</th>
+                            <th>
+                              <p class="label-container">
+                                Amount ($)
+                              </p>
+                            </th>
+                            <td>
+                              <md-input-container flex="100" class="margin-bottom-0">
+                                <input type="number" id="openAmountForSelectedPayment" name="openAmountForSelectedPayment"
+                                       ng-model="vm.payRefSearch.openAmountForSelectedPayment" placeholder=""
+                                       ng-maxlength="10" min="0" autocomplete="off"
+                                       my-enter="vm.searchAndApplyPayFromPayAmount(vm.payRefSearch.openAmountForSelectedPayment)"
+                                       input-number-decimal-place
+                                       onkeypress="return OnlyNumbersWithDot(event)"
+                                       step="{{$root.amountInputStep}}"
+                                       ng-disabled="vm.isNotAllowedToChgMajorInfo" />
+                                <span class="font-size-10">
+                                  <b>Type Pending to Pay and press enter to select</b>
+                                </span>
+                                <div ng-messages="currActiveForm.openAmountForSelectedPayment.$error" role="alert">
+                                  <div ng-message="min">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                  <div ng-message="max">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(10,currActiveForm.openAmountForSelectedPayment.$viewValue.length)}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <table cellspacing="0" cellpadding="0" class="cm-table-input-main border"
+                             ng-if="vm.custCreditMemoPaymentList && vm.custCreditMemoPaymentList.length > 0 && (vm.GenericTransModeName.RefundPayableCMRefund.id === vm.autoCompleteTransMode.keyColumnId)">
+                        <tbody>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                Credit Memo#
+                              </p>
+                            </th>
+                            <td>
+                              <md-input-container flex="100" class="margin-bottom-0">
+                                <input type="text" id="serachPaymentCMNumber" name="creditMemoNumber"
+                                       ng-model="vm.payRefSearch.creditMemoNumber" placeholder=""
+                                       ng-maxlength="25" autocomplete="off"
+                                       ng-disabled="vm.isNotAllowedToChgMajorInfo"
+                                       my-enter="vm.searchAndApplyPayFromPayNo(vm.payRefSearch.creditMemoNumber)">
+                                <span class="font-size-10">
+                                  <b>Type Credit Memo# and press enter to select</b>
+                                </span>
+                              </md-input-container>
+                            </td>
+                            <th class="text-center ph-20">OR</th>
+                            <th>
+                              <p class="label-container">
+                                Amount ($)
+                              </p>
+                            </th>
+                            <td>
+                              <md-input-container flex="100" class="margin-bottom-0">
+                                <input type="number" id="openCreditMemoAmount" name="openCreditMemoAmount"
+                                       ng-model="vm.payRefSearch.openCreditMemoAmount" placeholder=""
+                                       ng-maxlength="10" min="0" autocomplete="off"
+                                       my-enter="vm.searchAndApplyPayFromPayAmount(vm.payRefSearch.openCreditMemoAmount)"
+                                       input-number-decimal-place
+                                       onkeypress="return OnlyNumbersWithDot(event)"
+                                       step="{{$root.amountInputStep}}"
+                                       ng-disabled="vm.isNotAllowedToChgMajorInfo">
+                                <span class="font-size-10">
+                                  <b>Type Pending to Pay and press enter to select</b>
+                                </span>
+                                <div ng-messages="currActiveForm.openCreditMemoAmount.$error" role="alert">
+                                  <div ng-message="min">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                  <div ng-message="max">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(10,currActiveForm.openCreditMemoAmount.$viewValue.length)}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div layout="row" ng-if="(vm.autoCompleteCustomer.keyColumnId && ((vm.customerPaymentList && vm.customerPaymentList.length > 0) || (vm.custCreditMemoPaymentList && vm.custCreditMemoPaymentList.length > 0)))">
+                        <md-button class="md-primary md-raised cm-height-auto line-height-normal mh-10 mr-0" aria-label="Refresh Payment" ng-click="vm.refreshPaymentDet()">
+                          Reset <br /> Refund Details
+                        </md-button>
+                        <fieldset class="container-box" flex>
+                          <legend class="margin-0">Prior to Refund Payment</legend>
+                          <div class="pr-25">
+                            <table cellspacing="0" cellpadding="0">
+                              <tbody>
+                                <tr>
+                                  <th class="pr-5">
+                                    <p class="label-container mv-10">
+                                      Past Refund Issued:
+                                    </p>
+                                  </th>
+                                  <td class="pr-15">
+                                    <span class="text-bold font-size-20">
+                                      <label>{{vm.sumOfTotalRefundIssuedAmount | amount}}</label>
+                                    </span>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </fieldset>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div flex="100" layout-wrap id="cm-table-payment-details" class="display-flex cm-overflow-hidden" layout="row">
+                <div flex layout="column" class="cm-scroll-table flex-rs-md-100">
+                  <fieldset flex class="container-box margin-bottom-10 cm-overflow-auto"
+                            ng-if="vm.customerPaymentList && vm.customerPaymentList.length > 0 && (vm.GenericTransModeName.RefundPayablePayRefund.id === vm.autoCompleteTransMode.keyColumnId)">
+                    <table md-table class="width-auto md-data-table table-row-select cm-data-table-word-break" flex>
+                      <thead md-head md-order="vm.query.order">
+                        <tr md-row class="cm-height-auto">
+                          <th md-column class="width-40 text-center">
+                            <md-checkbox ng-model="vm.isAllSelectFromCustPaymentList"
+                                         ng-change="vm.selectCustAllPayment()"
+                                         ng-disabled="vm.isNotAllowedToChgMajorInfo">
+                            </md-checkbox>
+                          </th>
+                          <th md-column class="width-40">
+                            #
+                          </th>
+                          <th md-column md-order-by="" class="width-150 cm-white-space-normal">
+                            System ID
+                          </th>
+                          <th md-column md-order-by="" class="width-170 cm-white-space-normal">
+                            Payment# or check#
+                          </th>
+                          <th md-column md-order-by="paymentDate" class="width-90 cm-white-space-normal">
+                            Payment<br /> Date
+                          </th>
+                          <th md-column md-order-by="paymentAmountForSelectedPayment" class="width-155 cm-white-space-normal">
+                            Payment AMT. ($)
+                          </th>
+                          <th md-column md-order-by="paidPaymentAmount" class="width-155 cm-white-space-normal">
+                            Past Paid PMT AMT. ($)
+                          </th>
+                          <th md-column md-order-by="refundAmount" class="width-155 cm-white-space-normal">
+                            Total Refund Issued ($)
+                          </th>
+                          <th md-column md-order-by="totalAgreedRefundAmt" class="width-155 cm-white-space-normal">
+                            Agreed Refund AMT. ($)
+                          </th>
+                          <th md-column md-order-by="openAmountForSelectedPayment" class="width-155 cm-white-space-normal">
+                            Total Open Credit ($)
+                          </th>
+                          <th md-column md-order-by="liveDueAmountForSelectedPayment" class="width-155 cm-white-space-normal">
+                            Open Refund Amount ($)
+                          </th>
+                          <th md-column md-order-by="" class="text-right width-170">
+                            Refund AMT. ($)
+                          </th>
+                          <th md-column md-order-by="" class="text-center width-155 padding-left-0-imp">
+                            Reason
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody md-body class="max-height-300">
+                        <tr md-row ng-repeat="payItem in vm.customerPaymentList | orderBy: vm.query.order"
+                            ng-form="payRefDetForm_{{payItem.paymentMstID}}">
+                          <td md-cell class="width-40 text-center">
+                            <md-checkbox ng-model="payItem.isSelected"
+                                         name="isSelected_{{payItem.paymentMstID}}"
+                                         id="isSelected_{{payItem.paymentMstID}}"
+                                         ng-change="vm.selectCustSinglePayment(payItem)" class="margin-top-10 margin-bottom-10"
+                                         ng-disabled="vm.isNotAllowedToChgMajorInfo || payItem.isLockedTrans"
+                                         last-element elementcondition="{{(vm.customerPaymentList.length - 1) === $index && (!payItem.isSelected)}}">
+                            </md-checkbox>
+                          </td>
+                          <td md-cell class="width-40">{{$index+1}}</td>
+                          <td md-cell class="width-150 ">{{payItem.systemId}}</td>
+                          <td md-cell class="width-190">
+                            <a class="cm-text-decoration underline" ng-click="vm.goToCustomerPaymentDetail(payItem.paymentMstID);">{{payItem.paymentNumber}}</a>
+                            <copy-text label="'Payment# or Check#'" text="payItem.paymentNumber"></copy-text>
+                            <md-icon md-font-icon="" class="material-icons mat-icon icon-lock" ng-if="payItem.isLockedTrans"></md-icon>
+                          </td>
+                          <td md-cell class="width-90 ">{{payItem.paymentDateWithConverted | date:vm.DefaultDateFormat}}</td>
+                          <td md-cell class="width-155 text-right cm-amount">
+                            {{payItem.totalPaymentAmount | amount}}
+                          </td>
+                          <td md-cell class="text-right width-155 cm-amount">
+                            <a class="cm-text-decoration underline" ng-click="vm.goToCustomerPaymentDetail(payItem.paymentMstID)">
+                              {{payItem.paidPaymentAmount | amount}}
+                            </a>
+                          </td>
+                          <td md-cell class="text-right width-155 cm-amount">
+                            <a class="cm-text-decoration underline" ng-click="vm.showAppliedPayCMRefundIssueAmount(payItem)">
+                              {{payItem.totalRefundIssuedAmount | amount}}
+                            </a>
+                          </td>
+                          <td md-cell class="text-right width-155 cm-amount">
+                            <a class="cm-text-decoration underline" ng-click="vm.goToCustomerPaymentDetail(payItem.paymentMstID)">
+                              {{payItem.agreedRefundAmount | amount}}
+                            </a>
+                          </td>
+                          <td md-cell class="text-right width-155 cm-amount">
+                            {{payItem.openAmountForSelectedPayment | amount}}
+                          </td>
+                          <td md-cell class="text-right width-155 cm-amount">
+                            {{payItem.liveDueAmountForSelectedPayment | amount}}
+                          </td>
+                          <td md-cell class="text-right width-190">
+                            <md-input-container flex="100" class="input-with-usd-symbol padding-left-0-imp margin-bottom-0 width-100p">
+                              <md-icon md-font-icon="icon-currency-usd" class="usdicon"></md-icon>
+                              <input type="number" id="paymentAmountForSelectedPayment_{{payItem.paymentMstID}}" class="font-weight-600"
+                                     name="paymentAmountForSelectedPayment_{{payItem.paymentMstID}}"
+                                     ng-model="payItem.paymentAmountForSelectedPayment"
+                                     ng-maxlength="13"
+                                     min="{{payItem.isSelected ? 0.01 : 0.00}}"
+                                     max="{{payItem.totalMaxLimitOfRefundAmt}}"
+                                     onkeypress="return OnlyNumbersWithDot(event)"
+                                     oninput="validateTwoDecimalOnly(this.value)"
+                                     step="{{$root.amountInputStep}}"
+                                     placeholder="" ng-change="vm.paymentAmountChangeForSelectedPayment(payItem)"
+                                     ng-model-options="{ debounce: vm.debounceTimeIntervalConst }"
+                                     ng-disabled="!payItem.isSelected || vm.isNotAllowedToChgMajorInfo || payItem.isLockedTrans"
+                                     ng-class="{'text-angular-custom-border': (payItem.paymentAmountForSelectedPayment > payItem.totalMaxLimitOfRefundAmt)}">
+                              <div ng-messages="currActiveForm['payRefDetForm_'+payItem.paymentMstID]['paymentAmountForSelectedPayment_'+payItem.paymentMstID].$error" role="alert">
+                                <div ng-message="min">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="max">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="step">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(13,currActiveForm['payRefDetForm_'+payItem.paymentMstID]['paymentAmountForSelectedPayment_'+payItem.paymentMstID].$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <td md-cell class="text-center width-155 padding-left-0-imp">
+                            <button class="{{payItem.comment ? 'cm-theme-color icons-edit-comment' : 'icons-edit-comment' }} font-size-22" type="button" ng-click="vm.manageComment(payItem)"
+                                    ng-disabled="!payItem.isSelected"
+                                    last-element elementcondition="{{(vm.customerPaymentList.length - 1) === $index && payItem.isSelected}}"></button>
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot md-foot>
+                        <tr md-row>
+                          <td md-cell class="width-10">
+                          </td>
+                          <td md-cell class="width-220" colspan="2">
+                            <span class="ml-10">
+                              Selected Payment(s): {{vm.totalPaySelectedCount}}
+                            </span>
+                          </td>
+                          <td md-cell class="text-right width-190 cm-amount"></td>
+                          <td md-cell class="text-right width-90 cm-amount"><strong>Total:</strong></td>
+                          <td md-cell class="text-right width-155 cm-amount"><strong>{{vm.sumOfOriginalPayAmountForSelectedPayment | amount}}</strong></td>
+                          <td md-cell class="text-right width-155 cm-amount"><strong></strong></td>
+                          <td md-cell class="text-right width-155 cm-amount"><strong></strong></td>
+                          <td md-cell class="text-right width-155 cm-amount"><strong></strong></td>
+                          <td md-cell class="text-right width-155 cm-amount"><strong>{{vm.sumOfOpenCreditAmountForSelectedPayment | amount}}</strong></td>
+                          <td md-cell class="text-right width-155 cm-amount"><strong>{{vm.sumOfLiveDueAmountForSelectedPayment | amount}}</strong></td>
+                          <td md-cell class="text-right width-170"><strong class="padding-2 mr-15">{{vm.sumOfPaymentAmountForSelectedPayment | amount}}</strong></td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </fieldset>
+                  <fieldset flex class="container-box display-flex cm-overflow-auto"
+                            ng-if="vm.custCreditMemoPaymentList && vm.custCreditMemoPaymentList.length > 0 && (vm.GenericTransModeName.RefundPayableCMRefund.id === vm.autoCompleteTransMode.keyColumnId)">
+                    <div flex="100" id="cm-table-payment-details" class="cm-scroll-table cm-overflow-auto" layout="row">
+                      <table md-table class="md-data-table table-row-select" flex="100">
+                        <thead md-head md-order="vm.query.order">
+                          <tr md-row class="height-35">
+                            <th md-column class="width-40 text-center">
+                              <md-checkbox ng-model="vm.isAllSelectFromCustCMList"
+                                           ng-change="vm.selectCustAllCM()"
+                                           ng-disabled="vm.isNotAllowedToChgMajorInfo">
+                              </md-checkbox>
+                            <th md-column class="width-40 text-center">
+                              #
+                            </th>
+                            <th md-column md-order-by="systemId" class="width-140">
+                              System ID
+                            </th>
+                            <th md-column md-order-by="creditMemoNumber" class="width-150">
+                              Credit Memo#
+                            </th>
+                            <th md-column md-order-by="creditMemoDate" class="width-150">
+                              Credit Memo Date
+                            </th>
+                            <th md-column md-order-by="originalCreditMemoAmount" class="text-right width-180">
+                              Org. Credit Memo AMT. ($)
+                            </th>
+                            <th md-column md-order-by="totalRefundIssued" class="text-right width-180">
+                              Total Refund Issued ($)
+                            </th>
+                            <th md-column md-order-by="pastPaidAmountFromCreditMemo" class="text-right width-170">
+                              Applied CM AMT. ($)
+                            </th>
+                            <th md-column md-order-by="agreedRefundAmt" class="text-right width-170">
+                              Agreed Refund AMT. ($)
+                            </th>
+                            <th md-column md-order-by="openCreditMemoAmount" class="text-right width-170">
+                              Total Open Credit ($)
+                            </th>
+                            <th md-column md-order-by="liveDueAmountForSelectedCM" class="text-right width-170">
+                              Open Refund Credit ($)
+                            </th>
+                            <th md-column md-order-by="" class="text-right width-170">
+                              Refund AMT.($)
+                            </th>
+                            <th md-column md-order-by="" class="text-center width-70 padding-left-0-imp">
+                              Reason
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody md-body class="max-height-290">
+                          <tr md-row ng-repeat="creditMemoItem in vm.custCreditMemoPaymentList | orderBy: vm.query.order"
+                              ng-form="cmRefDetForm_{{creditMemoItem.custCreditMemoMstID}}">
+                            <td md-cell class="width-40 text-center">
+                              <md-checkbox ng-model="creditMemoItem.isSelected"
+                                           name="isSelected_{{creditMemoItem.custCreditMemoMstID}}"
+                                           id="isSelected_{{creditMemoItem.custCreditMemoMstID}}"
+                                           ng-change="vm.selectCustSingleCM(creditMemoItem)" class="margin-top-10 margin-bottom-10"
+                                           ng-disabled="vm.isNotAllowedToChgMajorInfo || creditMemoItem.isLocked"
+                                           last-element elementcondition="{{(vm.custCreditMemoPaymentList.length - 1) === $index && (!creditMemoItem.isSelected)}}">
+                              </md-checkbox>
+                            </td>
+                            <td md-cell class="width-40 text-center">{{$index+1}}</td>
+                            <td md-cell class="width-140">{{creditMemoItem.systemID}}</td>
+                            <td md-cell class="width-150">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToCustCreditMemoDetail(creditMemoItem.custCreditMemoMstID);">{{creditMemoItem.creditMemoNumber}}</a>
+                              <copy-text label="'Credit Memo#'" text="creditMemoItem.creditMemoNumber"></copy-text>
+                              <md-icon md-font-icon="" class="material-icons mat-icon icon-lock" ng-if="creditMemoItem.isLocked"></md-icon>
+                            </td>
+                            <td md-cell class="width-150">{{creditMemoItem.creditMemoDate | date:vm.DefaultDateFormat}}</td>
+                            <td md-cell class="text-right width-180 cm-amount">{{creditMemoItem.originalCreditMemoAmount | amount}}</td>
+                            <td md-cell class="text-right width-180 cm-amount">
+                              <a class="cm-text-decoration underline" ng-click="vm.showAppliedPayCMRefundIssueAmount(creditMemoItem)">
+                                {{creditMemoItem.totalRefundIssuedAmount | amount}}
+                              </a>
+                            </td>
+                            <td md-cell class="text-right width-170 cm-amount">
+                              <a class="cm-text-decoration underline" ng-click="vm.applyCreditMemoToInvoice(creditMemoItem.custCreditMemoMstID);">
+                                {{creditMemoItem.pastPaidAmountFromCreditMemo | amount}}
+                              </a>
+                            </td>
+                            <td md-cell class="text-right width-170 cm-amount">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToCustCreditMemoDetail(creditMemoItem.custCreditMemoMstID);">
+                                {{creditMemoItem.agreedRefundAmount | amount}}
+                              </a>
+                            </td>
+                            <td md-cell class="text-right width-170 cm-amount">{{creditMemoItem.openCreditMemoAmount | amount}}</td>
+                            <td md-cell class="text-right width-170 cm-amount">{{creditMemoItem.liveDueAmountForSelectedCM | amount}}</td>
+                            <td md-cell class="text-right width-170">
+                              <md-input-container flex="100" class="input-with-usd-symbol padding-left-0-imp margin-bottom-0 width-100p">
+                                <md-icon md-font-icon="icon-currency-usd" class="usdicon"></md-icon>
+                                <input type="number" id="paymentAmountForSelectedCM_{{creditMemoItem.custCreditMemoMstID}}" class="font-weight-600"
+                                       name="paymentAmountForSelectedCM_{{creditMemoItem.custCreditMemoMstID}}"
+                                       ng-model="creditMemoItem.paymentAmountForSelectedCM"
+                                       ng-maxlength="13"
+                                       min="{{creditMemoItem.isSelected ? 0.01 : 0.00}}"
+                                       max="{{creditMemoItem.maxLimitOfDueAmountToPay}}"
+                                       onkeypress="return OnlyNumbersWithDot(event)"
+                                       oninput="validateTwoDecimalOnly(this.value)"
+                                       step="{{$root.amountInputStep}}"
+                                       placeholder="" ng-change="vm.paymentAmountChangeForSelectedCM(creditMemoItem)"
+                                       ng-model-options="{ debounce: vm.debounceTimeIntervalConst }"
+                                       ng-disabled="!creditMemoItem.isSelected || vm.isNotAllowedToChgMajorInfo || creditMemoItem.isLocked"
+                                       ng-class="{'text-angular-custom-border': (creditMemoItem.paymentAmountForSelectedCM > creditMemoItem.maxLimitOfDueAmountToPay)}">
+                                <div ng-messages="currActiveForm['cmRefDetForm_'+creditMemoItem.custCreditMemoMstID]['paymentAmountForSelectedCM_'+creditMemoItem.custCreditMemoMstID].$error" role="alert">
+                                  <div ng-message="min">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                  <div ng-message="max">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(13,currActiveForm['cmRefDetForm_'+creditMemoItem.custCreditMemoMstID]['paymentAmountForSelectedCM_'+creditMemoItem.custCreditMemoMstID].$viewValue.length)}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </td>
+                            <td md-cell class="text-center width-70 padding-left-0-imp">
+                              <button class="{{creditMemoItem.comment ? 'cm-theme-color icons-edit-comment' : 'icons-edit-comment' }} font-size-22" type="button" ng-click="vm.manageComment(creditMemoItem)"
+                                      ng-disabled="!creditMemoItem.isSelected || vm.isPrintCheckAction"
+                                      last-element elementcondition="{{(vm.custCreditMemoPaymentList.length - 1) === $index && creditMemoItem.isSelected}}"></button>
+                            </td>
+                          </tr>
+                        </tbody>
+                        <tfoot md-foot>
+                          <tr md-row>
+
+                            <td md-cell class="width-220">
+                              <span class="ml-10">
+                                Selected Credit Memo(s): {{vm.totalCMSelectedCount}}
+                              </span>
+                            </td>
+                            <td md-cell class="text-right width-150"></td>
+                            <td md-cell class="text-right width-150"><strong>Total:</strong></td>
+                            <td md-cell class="text-right width-180 cm-amount"><strong>{{vm.sumOfOriginalCreditMemoAmount | amount}}</strong></td>
+                            <td md-cell class="text-right width-180"></td>
+                            <td md-cell class="text-right width-170"></td>
+                            <td md-cell class="text-right width-170"></td>
+                            <td md-cell class="text-right width-170 cm-amount"><strong>{{vm.sumOfOpenCreditMemoAmount | amount}}</strong></td>
+                            <td md-cell class="text-right width-170 cm-amount"></td>
+                            <td md-cell class="text-right width-170"><strong class="padding-2 mr-15">{{vm.sumOfPaymentAmountForSelectedCM | amount}}</strong></td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </fieldset>
+                </div>
+              </div>
+            </md-table-container>
+            <div layout="row" ng-if="!vm.autoCompleteCustomer || !vm.autoCompleteCustomer.keyColumnId" flex="100">
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap>
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.emptyCustomerConst.IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title">{{vm.emptyCustomerConst.NOT_SELECTED_MASSAGE}}</p>
+              </div>
+            </div>
+            <div layout="row" flex="100" ng-if="vm.autoCompleteCustomer && vm.autoCompleteCustomer.keyColumnId && ((!vm.customerPaymentList || vm.customerPaymentList.length == 0) && (!vm.custCreditMemoPaymentList || vm.custCreditMemoPaymentList.length === 0))">
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap>
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.emptyStateCustRefConst.IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title" ng-if="(vm.GenericTransModeName.RefundPayablePayRefund.id === vm.autoCompleteTransMode.keyColumnId)">{{vm.emptyStateCustRefConst.MESSAGE_PAYMENT}}</p>
+                <p flex="100" class="empty-state-title" ng-if="(vm.GenericTransModeName.RefundPayableCMRefund.id === vm.autoCompleteTransMode.keyColumnId)">{{vm.emptyStateCustRefConst.MESSAGE_CM}}</p>
+                <p flex="100">
+                  {{vm.emptyStateCustRefConst.ADDNEWMESSAGE}}
+                </p>
+                <p flex="100">
+                  <md-button class="md-fab md-mini" aria-label="Go to Customer Payment"
+                             ng-click="vm.goToCustPaymentList()"
+                             ng-if="(vm.GenericTransModeName.RefundPayablePayRefund.id === vm.autoCompleteTransMode.keyColumnId)">
+                    <md-icon role="img" md-font-icon="icons-customer-pmt" class="material-icons mat-icon">
+                      <md-tooltip>Customer Payment</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                  <md-button class="md-fab md-mini" aria-label="Go to Customer Credit Memo"
+                             ng-click="vm.goToCustCreditMemoList()"
+                             ng-if="(vm.GenericTransModeName.RefundPayableCMRefund.id === vm.autoCompleteTransMode.keyColumnId)">
+                    <md-icon role="img" md-font-icon="icons-customer-credit-memo" class="material-icons mat-icon">
+                      <md-tooltip>Customer Credit Memo</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                  <md-button class="md-fab md-mini" aria-label="Refresh Payment Details"
+                             ng-click="vm.refreshCustomerPaymentDet()"
+                             last-element elementcondition="true">
+                    <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus">
+                      <md-tooltip>Refresh</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                </p>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,88 @@
+<md-dialog aria-label="Agreement" class="popup-width-70 cm-agreement-view" draggable>
+  <form name="vm.agreementForm">
+    <md-toolbar>
+      <div class="md-toolbar-tools layout-wrap-mob" layout="row" layout-align="space-between center" layout-align-xs="start-start" layout-xs="column">
+        <h2 class="cm-padding-top-5-mob">{{vm.Title}}</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button cm-close-btn" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content layout class="customer-modal no-padding custom-scroll margin-4 cm-display-contents-rs">
+      <md-content class="md-padding" layout="column" id="agreementDialog">
+        <div flex="nogrow" class="margin-2" ng-if="vm.isTemplateView && vm.data.isPublished">
+          <div layout="row" class="font-size-15-imp" layout-align="start center" flex="100">
+            <span flex="100"><label>{{vm.Label.PUBLISHED_VERSION}}: &nbsp;</label>{{vm.data.latestVersion}}</span>
+          </div>
+          <div layout="row" class="font-size-15-imp" layout-align="start center" flex="100">
+            <span flex="100"><label>{{vm.Label.PUBLISHED_DATE}}: &nbsp; </label>{{vm.data.lastPublishedDate}}</span>
+          </div>
+        </div>
+        <div flex="nogrow">
+          <div layout="column" flex="100" ng-bind-html="vm.data.agreementContent">
+          </div>
+        </div>
+        <div id="signaturePadDiv" flex="nogrow" layout-wrap ng-if="!vm.isTemplateView">
+          <div class="title label-container" flex="100">
+            Signature<span>&nbsp;*</span>
+          </div>
+          <md-input-container class="margin-0" flex="100" ng-hide="vm.isSignatureAdded">
+            <signature-pad accept="accept" clear="clear" height="100" width="300" disabled="false"
+                           ng-required="true" ng-model="vm.agreementApproval.signaturevalue"
+                           id="signaturePad" name="signaturePad" class="border signature-pad-height"
+                           ng-mouseup="vm.checkSignatureChanges()">
+            </signature-pad>
+            <md-button class="md-primary md-raised signature-element-button"
+                       ng-click="clear(); vm.clearSignatureValue();">
+              Clear
+            </md-button>
+            <md-button class="md-primary md-raised signature-element-button"
+                       ng-click="signature = accept();vm.setSignatureValue(signature);">
+              Generate Signature
+            </md-button>
+            <md-button ng-if="vm.agreementApproval.signaturevalue" class="md-primary md-raised signature-element-button"
+                       ng-click="vm.cancelSignatureValue();">
+              Cancel
+            </md-button>
+          </md-input-container>
+          <div class="imageiconlist" style="height:80px !important;width:200px !important" ng-if="vm.agreementApproval.signaturevalue && !vm.isSignatureAdded">
+            <img class="image" ng-src="{{vm.agreementApproval.signaturevalue}}" alt="signature image">
+          </div>
+          <md-input-container flex="100" ng-if="vm.agreementApproval.signaturevalue && vm.isSignatureAdded">
+            <div class="imageiconlist" style="height:80px !important;width:200px !important">
+              <div class="actionicon" layout="row" flex="100" layout-align="center center" layout-wrap>
+                <md-button class="md-default md-icon-button btn-preview">
+                  <md-icon class="icon-pencil" ng-click="clear();signature = accept();vm.clearSignatureValue();"></md-icon>
+                  <md-tooltip>Change Signature</md-tooltip>
+                </md-button>
+                <md-button class="md-default md-icon-button btn-preview">
+                  <md-icon class="icon-delete" ng-click="vm.deleteSignatureValue(clear,accept,signature);"></md-icon>
+                  <md-tooltip>Delete Signature</md-tooltip>
+                </md-button>
+              </div>
+              <img class="image" ng-if="vm.agreementApproval.signaturevalue" ng-src="{{vm.agreementApproval.signaturevalue}}" alt="signature image">
+            </div>
+          </md-input-container>
+        </div>
+        <div flex="100" layout-wrap ng-if="vm.isShowSignature && vm.isTemplateView && vm.data.isPublished">
+          <div class="title label-container" flex="100">
+            <img class="margin-5 width-200" ng-src="{{vm.data.signature}}" />
+          </div>
+          <div layout="row" class="font-size-15-imp" layout-align="start center" flex="100">
+            <span flex="100"><label>{{vm.Label.AGREED_ON}}: &nbsp; </label>{{vm.data.agreedDate}}</span>
+          </div>
+          <div layout="row" class="font-size-15-imp" layout-align="start center" flex="100">
+            <span flex="100"><label>{{vm.Label.AGREED_BY}}: &nbsp; </label>{{vm.data.agreedBy}}</span>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row" class="cm-pv-15-rs cm-pv-20-mob min-height-50">
+      <md-button class="md-primary md-raised" ng-hide="vm.isTemplateView" ng-click="vm.agree()" ng-class="{'md-formdirty': vm.agreementForm.$dirty }">Agree</md-button>
+      <md-button class="md-default md-raised" ng-hide="!vm.isTemplateView" ng-click="vm.cancel()">Close</md-button>
+    </md-dialog-actions>
+
+  </form>
+</md-dialog>

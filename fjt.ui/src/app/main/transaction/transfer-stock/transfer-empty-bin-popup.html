@@ -1,0 +1,91 @@
+<md-dialog aria-label="Transfer Stock" class="transfer-wh-bin-popup cm-custom-label-common" draggable flex-gt-lg="35" flex-lg="40" cg-busy="{promise:vm.cgBusyLoading}">
+  <form name="vm.transferEmptyBinForm" id="transferEmptyBinForm" autocomplete="off" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{vm.isConfirmation ? 'Confirmation':'Transfer Empty Bin'}}</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerData"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="no-padding custom-scroll" layout="column">
+      <md-content class="padding-10">
+        <div flex="100" layout="row" class="cm-section-main border-0">
+          <div flex="100" class="cm-section-inner">
+            <div flex="100" layout="row" class="margin-5" layout-wrap layout-align="start start" ng-if="vm.isConfirmation">
+              <div layout="row" flex="100" ng-if="vm.transferItemDet.sourceModelName"><p ng-bind-html="vm.confirmationMessage"></p></div>
+              <div layout="row" flex="100" ng-if="!vm.transferItemDet.sourceModelName"><p ng-bind-html="vm.confirmationMessageForTransferWH"></p></div>
+            </div>
+            <div flex="100" layout="row" class="margin-5" layout-wrap layout-align="start start" ng-if="!vm.isConfirmation">
+              <div layout="row" flex="100"><p>Please select warehouse where you want to transfer empty bin(s).</p></div>
+              <div layout="column" flex="100">
+                <!--<p>Warehouse detail with empty bin(s).</p>-->
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Warehouse</th>
+                      <th>{{vm.LabelConstant.TransferStock.ParentWH}}</th>
+                      <th>Empty Bin(s)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="item in vm.emptyBinWHList">
+                      <td>{{($index+1)}}</td>
+                      <td>{{item.warehouseName}}</td>
+                      <td>{{item.parentWHName}}</td>
+                      <td>{{item.emptyBinName}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="input-wrapper" layout="row" flex="100">
+                <p class="label-container" flex="25">
+                  <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.WH}}</a><span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                </p>
+                <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                  <input type="text" name="scanWarehouse" id="scanWarehouse" ng-model="vm.scanAndSearch.scanWarehouse" capitalize required ng-keypress="vm.scanWarehouse($event,true)" custom-blur="vm.scanWarehouse($event,false)">
+
+                  <div ng-messages="vm.transferEmptyBinForm.scanWarehouse.$error" role="alert">
+                    <div ng-message="required">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </div>
+              <div class="input-wrapper" layout="row" flex="100">
+                <p class="label-container" flex="25">
+                  <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWHList();">{{vm.LabelConstant.TransferStock.ParentWH}}</a>
+                </p>
+                <md-input-container ng-if="vm.autoCompleteToDept" class="autocompletecustom margin-bottom-0" flex="75">
+                  <custom-auto-complete datalist="vm.deptList"
+                                        column-name="vm.autoCompleteToDept.columnName"
+                                        key-column-name="vm.autoCompleteToDept.keyColumnName"
+                                        input-name="vm.autoCompleteToDept.inputName"
+                                        placeholder-name="vm.autoCompleteToDept.placeholderName"
+                                        key-column-id="vm.autoCompleteToDept.keyColumnId"
+                                        is-required="vm.autoCompleteToDept.isRequired"
+                                        is-disabled="vm.autoCompleteToDept.isDisabled"
+                                        is-addnew="vm.autoCompleteToDept.isAddnew"
+                                        callback-fn="vm.autoCompleteToDept.callbackFn"
+                                        on-select-callback-fn="vm.autoCompleteToDept.onSelectCallbackFn">
+                  </custom-auto-complete>
+                </md-input-container>
+              </div>
+            </div>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-if="vm.isConfirmation" ng-click="vm.transferBinConfirmation($event)">Transfer Empty Bin</md-button>
+      <md-button class="md-primary md-raised" ng-if="vm.isConfirmation" ng-click="vm.transferStock($event)" id="btnTransferBin">Continue</md-button>
+
+      <md-button class="md-primary md-raised" ng-if="!vm.isConfirmation" ng-click="vm.transferBin($event)" id="btnTransferBin">Transfer Empty Bin</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

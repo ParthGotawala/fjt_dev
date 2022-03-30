@@ -1,0 +1,439 @@
+<div flex="100" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}">
+  <form name="vm.warehouseForm" class="md-inline-form" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2 ng-if="!vm.data.generateWarehouse">{{ !vm.data.ID ? 'Add':'Update'}} Warehouse</h2>
+        <h2 ng-if="vm.data.generateWarehouse">Generate Warehouse</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content class="customer-modal no-padding custom-scroll cm-warehouse-model">
+      <md-content class="ph-10 mh-5 mb-5">
+
+        <div class="cm-section-main margin-bottom-5 margin-top-10">
+          <div class="cm-section-inner">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <td class="cm-warehouse-type-td">
+                    <md-input-container layout-wrap layout="row" class="md-input-has-value">
+                      <md-radio-group name="warehouseTypeGroup" layout="column" layout-gt-xs="row" flex layout-align="start start" class="margin-0" ng-model="vm.data.warehouseType" ng-change="vm.changeWarehouseType()" md-autofocus ng-disabled="vm.data.ID">
+                        <md-radio-button name="warehouseType" value="{{vm.cartType.Equipment.key}}" ng-if="!vm.data.generateWarehouse">{{vm.cartType.Equipment.value}}</md-radio-button>
+                        <md-radio-button ng-disabled="vm.isFromEquipmentMasterPage" name="warehouseType" value="{{vm.cartType.ShelvingCart.key}}">{{vm.cartType.ShelvingCart.value}}</md-radio-button>
+                        <md-radio-button ng-disabled="vm.isFromEquipmentMasterPage" name="warehouseType" value="{{vm.cartType.SmartCart.key}}">{{vm.cartType.SmartCart.value}}</md-radio-button>
+                      </md-radio-group>
+                    </md-input-container>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="cm-section-main margin-bottom-5 margin-top-10">
+          <div class="cm-section-inner">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+
+                <tr>
+                  <th></th>
+                  <td>
+                    <md-checkbox ng-model="vm.selectPermanentWH" name="isPermanentWH" class="cm-warehouse-checkbox" ng-disabled="vm.data.warehouseType !== vm.cartType.ShelvingCart.key">
+                      Permanent Warehouse
+                    </md-checkbox>
+                  </td>
+
+                  <th><p class="label-container">Movable Bin/Slot</p></th>
+                  <td>
+                    <md-radio-group layout="row" layout-align="start start" layout-wrap class="margin-0" name="AllBinMovable" ng-model="vm.data.allMovableBin">
+                      <md-radio-button ng-repeat="item in vm.RadioGroup.allMovableBin.array" class="margin-top-0" name="{{item.Value}}" ng-value="{{item.Value}}" ng-disabled="vm.data.warehouseType != vm.cartType.ShelvingCart.key">
+                        {{item.Key}}
+                      </md-radio-button>
+                    </md-radio-group>
+                  </td>
+                </tr>
+
+                <tr>
+                  <th>
+                    <p class="label-container">
+                      <a class="cm-text-decoration underline" ng-click="vm.goToNicknameList();" tabindex="-1">Nickname</a>
+                    </p>
+                  </th>
+                  <td colspan="3">
+                    <div layout="row">
+                      <div flex>
+                        <md-input-container ng-if="vm.autoCompleteNickName" class="autocompletecustom margin-bottom-0 cm-warehouse-nickname-auto cm-nickname-popup" flex="95">
+                          <custom-auto-complete datalist="vm.NickNameList"
+                                                column-name="vm.autoCompleteNickName.columnName"
+                                                key-column-name="vm.autoCompleteNickName.keyColumnName"
+                                                input-name="vm.autoCompleteNickName.inputName"
+                                                placeholder-name="vm.autoCompleteNickName.placeholderName"
+                                                key-column-id="vm.autoCompleteNickName.keyColumnId"
+                                                is-required="false"
+                                                is-disabled="vm.data.warehouseType !== vm.cartType.ShelvingCart.key || vm.data.ID ? true : false"
+                                                is-addnew="vm.autoCompleteNickName.isAddnew"
+                                                callback-fn="vm.autoCompleteNickName.callbackFn"
+                                                on-select-callback-fn="vm.autoCompleteNickName.onSelectCallbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </div>
+                      <div flex="10">
+                        <p class="label-container mb-0 mt-5" layout-align="center center">OR</p>
+                      </div>
+                      <div flex>
+                        <md-input-container flex class="md-block">
+                          <input type="text" name="txtnickname" ng-model="vm.data.txtnickname" id="txtnickname"
+                                 placeholder="Nickname" ng-maxlength="50" ng-disabled="vm.data.warehouseType !== vm.cartType.ShelvingCart.key || vm.data.ID" class="text-uppercase" custom-blur="vm.checkTextNickname()">
+                          <div ng-messages="vm.warehouseForm.txtnickname.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(50,vm.warehouseForm.txtnickname.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </div>
+                    </div>
+
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="cm-section-main margin-bottom-5 margin-top-10">
+          <div class="cm-section-inner">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+
+                <tr ng-if="!vm.data.generateWarehouse">
+                  <th><p class="label-container">Unique Cart Id<span ng-if="vm.data.warehouseType === vm.cartType.SmartCart.key">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                  <td>
+                    <md-input-container class="md-block">
+                      <input type="text" name="uniqueCartID" id="uniqueCartID" ng-model="vm.data.uniqueCartID" placeholder="uniqueCartID" ng-maxlength="50" custom-blur="vm.checkCartIdUnique();" ng-required="vm.data.warehouseType == vm.cartType.SmartCart.key" ng-disabled="vm.data.warehouseType != vm.cartType.SmartCart.key">
+                      <div ng-messages="vm.warehouseForm.uniqueCartID.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50,vm.warehouseForm.uniqueCartID.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">Domain<span ng-if="vm.data.uniqueCartID">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                  <td colspan="3">
+                    <md-input-container class="md-block">
+                      <input type="text" name="domain" id="domain" ng-model="vm.data.domain" ng-required="vm.data.uniqueCartID"
+                             ng-disabled="!vm.data.uniqueCartID || vm.data.warehouseType != vm.cartType.SmartCart.key" placeholder="Domain" ng-maxlength="100">
+                      <div ng-messages="vm.warehouseForm.domain.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(100,vm.warehouseForm.domain.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+
+                <tr ng-if="!vm.data.generateWarehouse">
+                  <th><p class="label-container">Cart Manufacturer<span ng-if="vm.data.uniqueCartID">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                  <td>
+                    <md-input-container>
+                      <md-select name="cartMfr" id="cartMfr" ng-model="vm.data.cartMfr" ng-required="vm.data.uniqueCartID" md-container-class="containerClass cm-md-select" ng-disabled="!vm.data.uniqueCartID || vm.data.warehouseType !== vm.cartType.SmartCart.key" ng-change="vm.checkCartWiseUniqueDomain();">
+                        <md-option ng-repeat="option in vm.WarehouseCartManufacturer" ng-value="option.id">{{option.name}}</md-option>
+                      </md-select>
+                      <div ng-messages="vm.warehouseForm.cartMfr.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">Cart Machine Name</p></th>
+                  <td colspan="3">
+                    <md-input-container flex class="md-block">
+                      <input type="text" name="txtcartmachinename" ng-model="vm.data.cartMachineName" id="txtcartmachinename"
+                             placeholder="Cart Machine Name" ng-maxlength="255" ng-disabled="vm.data.warehouseType !== vm.cartType.SmartCart.key">
+                      <div ng-messages="vm.warehouseForm.txtcartmachinename.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255,vm.warehouseForm.txtcartmachinename.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <!--end-->
+                <!--<tr  ng-if="vm.data.warehouseType != vm.cartType.SmartCart" >
+                  <th><p class="label-container">User Access Mode</p></th>
+                  <td colspan="3">
+                    <md-input-container layout-wrap layout="row" class="md-input-has-value">
+                      <md-radio-group layout="row" layout-align="start start" layout-wrap class="margin-0" name="UserAccessMode" ng-model="vm.data.userAccessMode" ng-disabled="vm.data.warehouseType != vm.cartType.SmartCart">
+                        <md-radio-button ng-repeat="item in vm.RadioGroup.userAccessMode.array" class="margin-top-0" name="{{item.Key}}" value="{{item.Value}}" ng-disabled="{{item.isDisable}}">
+                          {{item.Key}}
+                        </md-radio-button>
+                      </md-radio-group>
+                    </md-input-container>
+                  </td>
+                </tr>-->
+
+                <tr ng-if="!vm.data.generateWarehouse">
+                  <th>
+                    <p class="label-container">
+                      <a class="cm-text-decoration underline" ng-click="vm.goToEquipmentList();" tabindex="-1">Equipment</a><span ng-if="!((vm.data.warehouseType !== vm.cartType.Equipment.key || vm.data.ID) ? true : false || vm.isFromEquipmentMasterPage)">&nbsp;*</span>
+                    </p>
+                  </th>
+                  <td colspan="3">
+                    <md-input-container class="autocompletecustom margin-bottom-0" ng-if="vm.autoCompleteEquipment">
+
+                      <!--custom-auto-focus="{{vm.data.isEquipment == true?true:false}}"-->
+                      <custom-auto-complete datalist="vm.EquipmentList"
+                                            column-name="vm.autoCompleteEquipment.columnName"
+                                            controller-name="vm.autoCompleteEquipment.controllerName"
+                                            view-template-url="vm.autoCompleteEquipment.viewTemplateURL"
+                                            key-column-name="vm.autoCompleteEquipment.keyColumnName"
+                                            key-column-id="vm.autoCompleteEquipment.keyColumnId"
+                                            input-name="vm.autoCompleteEquipment.inputName"
+                                            placeholder-name="vm.autoCompleteEquipment.placeholderName"
+                                            is-required="vm.data.warehouseType === vm.cartType.Equipment.key ? true : false"
+                                            is-addnew="vm.autoCompleteEquipment.isAddnew"
+                                            is-disabled="(vm.data.warehouseType !== vm.cartType.Equipment.key || vm.data.ID) ? true : false || vm.isFromEquipmentMasterPage"
+                                            callback-fn="vm.autoCompleteEquipment.callbackFn"
+                                            add-data="vm.autoCompleteEquipment.addData"
+                                            on-select-callback-fn="vm.autoCompleteEquipment.onSelectCallbackFn">
+                      </custom-auto-complete>
+                    </md-input-container>
+                  </td>
+                </tr>
+
+                <tr>
+                  <th ng-if="!vm.data.generateWarehouse"><p class="label-container">Cart Name<span ng-if="!(vm.data.warehouseType === vm.cartType.Equipment.key || vm.data.ID)">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                  <td ng-if="!vm.data.generateWarehouse" colspan="3">
+                    <md-input-container flex class="md-block">
+                      <input type="text" name="cartname" ng-model="vm.data.cartName" id="cartname" custom-blur="vm.checkNameUnique();"
+                             placeholder="Cart Name" ng-required="vm.data.warehouseType != vm.cartType.Equipment.key" ng-maxlength="50" class="text-uppercase" ng-disabled="vm.data.warehouseType == vm.cartType.Equipment.key || vm.data.ID">
+                      <div ng-messages="vm.warehouseForm.cartname.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50,vm.warehouseForm.cartname.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="cm-section-main margin-bottom-5 margin-top-10">
+          <div class="cm-section-inner">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+
+                <tr>
+                  <th ng-if="!vm.data.generateWarehouse"><p class="label-container">Warehouse Name</p></th>
+                  <td ng-if="!vm.data.generateWarehouse">
+                    <div layout="row" flex>
+                      <md-input-container flex class="md-block">
+                        <input type="text" name="Name" ng-model="vm.data.Name" id="warehousename" placeholder="Warehouse Name" ng-maxlength="50" class="text-uppercase" ng-disabled="true">
+                        <div ng-messages="vm.warehouseForm.Name.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(50,vm.warehouseForm.Name.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                      <!--<div class="margin-left-5">
+                        <md-input-container>
+                          <md-radio-group layout="row" layout-align="start start" layout-wrap ng-change="vm.changeStatus()"
+                                          name="Active" ng-model="vm.data.isActive" class="margin-0">
+                            <md-radio-button ng-repeat="item in vm.RadioGroup.isActive.array"
+                                             name="{{item.Value}}" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                          </md-radio-group>
+                        </md-input-container>
+                      </div>-->
+                    </div>
+                  </td>
+                  <td colspan="3">
+                    <div class="margin-left-5">
+                      <md-input-container>
+                        <md-radio-group layout="row" layout-align="start start" layout-wrap ng-change="vm.changeStatus()"
+                                        name="Active" ng-model="vm.data.isActive" class="margin-0">
+                          <md-radio-button ng-repeat="item in vm.RadioGroup.isActive.array"
+                                           name="{{item.Value}}" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                        </md-radio-group>
+                      </md-input-container>
+                    </div>
+                  </td>
+
+                  <th ng-if="vm.data.generateWarehouse"><p class="label-container">Prefix<span>&nbsp;*</span></p></th>
+                  <td colspan="3" ng-if="vm.data.generateWarehouse">
+                    <div layout="row" flex>
+                      <md-input-container flex class="md-block">
+                        <input type="text" name="whPrifix" ng-model="vm.data.whPrifix"
+                               placeholder="Prifix" required ng-maxlength="50" class="text-uppercase">
+                        <span flex="100" class="font-size-10">
+                          <b>i.e. Prefix + Auto Number</b>
+                        </span>
+                        <div ng-messages="vm.warehouseForm.whPrifix.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(50,vm.warehouseForm.whPrifix.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                      <div class="margin-left-5">
+                        <md-input-container>
+                          <md-radio-group layout="row" layout-align="start start" layout-wrap
+                                          name="Active" ng-model="vm.data.isActive" class="margin-0">
+                            <md-radio-button ng-repeat="item in vm.RadioGroup.isActive.array"
+                                             name="{{item.Value}}" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                          </md-radio-group>
+                        </md-input-container>
+                      </div>
+                    </div>
+                  </td>
+
+                </tr>
+
+                <tr ng-if="vm.data.generateWarehouse">
+                  <td colspan="4">
+                    <div layout="row" layout-align="end start" class="mt-10 mb-10">
+
+                      <fieldset flex="95" class="container-box">
+                        <legend class="ml-15 mb-5">Warehouse Numbers</legend>
+
+                        <div layout="row" flex="100">
+
+                          <div layout="row" flex="100">
+
+                            <div class="input-wrapper" layout="row" flex="50">
+                              <p class="label-container" layout-align="end start">From<span>&nbsp;*</span></p>
+                              <md-input-container class="md-block">
+                                <input type="text" name="whFrom" ng-model="vm.data.whFrom" placeholder="from" ng-maxlength="8" onkeypress="return OnlyNumeric(event)" required>
+                                <div ng-messages="vm.warehouseForm.whFrom.$error" role="alert">
+                                  <div ng-message="required">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                  </div>
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.transaction.CHECK_TO_FROM_VALUE}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </div>
+
+                            <div class="input-wrapper" layout="row" flex="50">
+                              <p class="label-container" layout-align="end start">To<span>&nbsp;*</span></p>
+                              <md-input-container class="md-block">
+                                <input type="text" name="whTo" ng-model="vm.data.whTo" placeholder="to" ng-maxlength="8" onkeypress="return OnlyNumeric(event)" required>
+                                <div ng-messages="vm.warehouseForm.whTo.$error" role="alert">
+                                  <div ng-message="required">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                  </div>
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.transaction.CHECK_TO_FROM_VALUE}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </div>
+
+                          </div>
+                        </div>
+
+                      </fieldset>
+
+                    </div>
+                  </td>
+                </tr>
+                <tr ng-if="vm.data.warehouseType === vm.cartType.SmartCart.key">
+                  <th><p class="label-container">Side 1</p></th>
+                  <td>
+                    <md-input-container class="md-block">
+                      <input type="text" ng-model="vm.data.leftSideWHLabel" class="text-uppercase" disabled>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">Side 2</p></th>
+                  <td colspan="3">
+                    <md-input-container class="md-block">
+                      <input type="text" name="Description" ng-model="vm.data.rightSideWHLabel" class="text-uppercase" disabled />
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">Description</p></th>
+                  <td colspan="3">
+                    <md-input-container class="md-block">
+                      <input type="text" name="Description" ng-model="vm.data.Description"
+                             placeholder="Description" ng-maxlength="255">
+                      <div ng-messages="vm.warehouseForm.Description.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255,vm.warehouseForm.Description.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+
+                <tr>
+                  <th>
+                    <p class="label-container">
+                      <a class="cm-text-decoration underline" ng-click="vm.goToDepartmentList();" tabindex="-1">Parent Warehouse</a><span ng-if="!vm.data.ID">&nbsp;*</span>
+                    </p>
+                  </th>
+                  <td colspan="3">
+                    <md-input-container ng-if="vm.autoCompleteWarehouse" class="autocompletecustom margin-bottom-0">
+                      <custom-auto-complete datalist="vm.WarehouseList"
+                                            column-name="vm.autoCompleteWarehouse.columnName"
+                                            controller-name="vm.autoCompleteWarehouse.controllerName"
+                                            view-template-url="vm.autoCompleteWarehouse.viewTemplateURL"
+                                            key-column-name="vm.autoCompleteWarehouse.keyColumnName"
+                                            input-name="vm.autoCompleteWarehouse.inputName"
+                                            placeholder-name="vm.autoCompleteWarehouse.placeholderName"
+                                            key-column-id="vm.autoCompleteWarehouse.keyColumnId"
+                                            is-required="vm.autoCompleteWarehouse.isRequired"
+                                            is-disabled="vm.data.ID"
+                                            is-addnew="vm.autoCompleteWarehouse.isAddnew"
+                                            callback-fn="vm.autoCompleteWarehouse.callbackFn">
+                      </custom-auto-complete>
+                    </md-input-container>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised"
+                 ng-class="{'md-formdirty': vm.warehouseForm.$dirty}"
+                 ng-disabled="vm.saveBtnDisableFlag"
+                 ng-click="vm.saveWarehouse(true)" aria-label="Submit" ng-if="!vm.data.generateWarehouse">Save</md-button>
+      <md-button class="md-primary md-raised"
+                 ng-class="{'md-formdirty': vm.warehouseForm.$dirty}"
+                 ng-disabled="vm.saveBtnDisableFlag"
+                 ng-click="vm.saveWarehouse(false)" aria-label="Submit" ng-if="!vm.data.generateWarehouse && !vm.data.ID">Save and Generate Bin</md-button>
+    </md-dialog-actions>
+  </form>
+</div>
+
+

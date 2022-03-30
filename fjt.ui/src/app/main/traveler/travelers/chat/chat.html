@@ -1,0 +1,280 @@
+<md-dialog id="chat-app" class="cm-hangout-popup" flex="95" aria-label="Add Department" draggable>
+  <div class="page-layout carded fullwidth" layout="row">
+    <div class="content-card" layout="row" flex cg-busy="{promise:vm.cgBusyLoading}">
+
+      <!-- LEFT SIDENAV -->
+      <md-sidenav class="sidenav left-sidenav md-sidenav-left" md-is-locked-open="$mdMedia('gt-md')"
+                  md-component-id="left-sidenav"
+                  ms-sidenav-helper ng-include="'app/main/traveler/travelers/chat/sidenavs/left/left-sidenav.html'"
+                  layout="column">
+      </md-sidenav>
+      <!-- /LEFT SIDENAV -->
+      <!-- RIGHT SIDE (EMPTY STATE) -->
+      <div class="start-point" ng-if="!vm.receiver" flex layout="column">
+        <div layout="row" layout-align="end end">
+          <md-button class="md-fab md-mini" title="Exit" aria-label="Exit" ng-click="vm.closeChat();">
+            <md-icon md-font-icon="icon-close"></md-icon>
+          </md-button>
+        </div>
+        <div layout-align="center center" layout="row">
+          <div layout="column">
+            <span class="app-title text-center">Welcome, {{vm.sender.firstname}}</span>
+            <div class="big-circle md-whiteframe-4dp" layout-align="center center" layout="row">
+              <img ng-src="{{vm.sender.profilePic}}" class="s128 md-accent chat-empty-prifile" ng-if="vm.sender.profilePic" />
+              <!-- <md-icon class="s128 md-accent" md-font-icon="icon-hangouts"></md-icon>-->
+            </div>
+            <span class="app-title text-center">Chat App</span>
+            <span class="hide show-gt-md secondary-text text-center">
+              Select contact to start the chat!
+            </span>
+            <md-button class="md-raised hide-gt-md text-center" ng-click="vm.toggleSidenav('left-sidenav')">
+              Select contact to start the chat!
+            </md-button>
+          </div>
+        </div>
+      </div>
+      <!-- /RIGHT SIDE (EMPTY STATE) -->
+      <!-- RIGHT SIDE (CHAT) -->
+      <div ng-if="vm.receiver" class="chat" layout="column" flex>
+        <!-- CHAT TOOLBAR -->
+        <md-toolbar class="chat-toolbar">
+          <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+            <!-- RESPONSIVE CHATS BUTTON-->
+            <div flex>
+              <md-button class="hide-gt-md responsive-chats-button md-icon-button"
+                         ng-click="vm.toggleLeftSidenavView(false);vm.toggleSidenav('left-sidenav')"
+                         aria-label="chats button">
+                <md-icon md-font-icon="icon-hangouts s36"></md-icon>
+
+              </md-button>
+              <!-- / RESPONSIVE CHATS BUTTON-->
+              <!-- CHAT CONTACT-->
+              <div class="chat-contact" layout="row" flex="100" layout-align="start center">
+                <div class="avatar-wrapper" ng-if="!vm.receiver.groupID">
+                  <!--<div class="chricon"> {{vm.receiver.namechar}} </div>-->
+                  <div ng-if="vm.receiver.profilePic"> <img ng-src="{{vm.receiver.profilePic}}" class="md-avatar avatar" ng-if="vm.receiver.profilePic" /> </div>
+                  <i class="icon s16 status mr-8" ng-if="!contact.groupID"
+                     ng-class="{'icon-checkbox-marked-circle green-fg': vm.receiver.onlineStatus ==  vm.userStatus.ONLINE,'icon-clock orange-500-fg': vm.receiver.onlineStatus ==  vm.userStatus.AWAY,'icon-minus-circle red-fg': vm.receiver.onlineStatus ==  vm.userStatus.DONOTDISTURB,'icon-checkbox-blank-circle-outline green-fg': (vm.receiver.onlineStatus ==  vm.userStatus.OFFLINE || vm.receiver.onlineStatus == null) }">
+                  </i>
+                </div>
+                <div class="avatar-wrapper" ng-if="vm.receiver.groupID">
+                  <img src="../../../../assets/images/avatars/groupicon.png" class="md-avatar" width="40" height="40" />
+                </div>
+                <div class="chat-contact-name" flex="100" layout="column">
+                  <div layout="row" flex="100">
+                    <label class="groupname" ng-show="!vm.isEditGroupName">
+                      {{vm.receiver.name}}
+                    </label>
+                    <div ng-show="vm.isEditGroupName" layout="raw" class="textboxaction">
+                      <input type="text" id="txtGroupName" class="edittext" maxlength="255" ng-maxlength="255" ng-model="vm.newGroupName" />
+                      <div class="chatedit">
+                        <md-icon class="" md-font-icon="icon-check" ng-disabled="!vm.newGroupName" ng-click="vm.changeGroupName();"></md-icon>
+                        <md-icon class="" md-font-icon="icon-close" ng-click="vm.cancelEditGroupNameClicked();"></md-icon>
+                      </div>
+                    </div>
+                    <div class="chatedit" ng-show="!vm.isEditGroupName && vm.receiver.groupID && vm.isUserInGroup">
+                      <md-icon class="" md-font-icon="icon-pencil" ng-click="vm.editGroupNameClicked();"></md-icon>
+                    </div>
+                  </div>
+                  <div layout="row" flex="100">
+                    <div class="groupteam" ng-if="vm.receiver.groupID" layout="row">
+                      <div ng-click="vm.isGroupMemberOpen = !vm.isGroupMemberOpen;vm.isFindMessage = false;" ng-show="vm.receiver.groupParticipantDetails">
+                        {{vm.receiver.groupParticipantDetails | participantdisplay: vm.sender.userid }}
+                        <md-icon class="arrowdropdown" md-font-icon="icon-menu-down"></md-icon>
+                      </div>
+                      <div class="memberlistgp" layout="row" layout-wrap ng-show="vm.isGroupMemberOpen">
+                        <div class="tag" ng-repeat="item in vm.receiver.groupParticipantDetails" ng-if="item.participantID != vm.sender.userid">
+                          <div class="tag-label">
+                            <span ng-click="vm.getParticipantChatDetail(item)">{{item.user.firstName}} {{item.user.lastName}}</span>
+                            <md-icon md-font-icon="icon-close-circle" ng-if="vm.isAdmin && vm.isUserInGroup" ng-click="vm.removeMemberFromGroup(item);"></md-icon>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                    <div layout="row" class="groupteam" flex="100" layout-wrap>
+                      <div ng-if="!vm.isFindMessage && ((vm.receiver.groupID && vm.isUserInGroup)||!vm.receiver.groupID)" ng-click="vm.isFindMessage = true;vm.isGroupMemberOpen = false;vm.isEditGroupName=false;">
+                        <md-icon class="arrowdropdown margin-0" md-font-icon="icon-magnify"></md-icon>
+                        <span class="font-size-15 color-black font-weight-700">Find</span>
+                      </div>
+                      <div ng-if="vm.isFindMessage" class="textboxaction" layout="raw" flex="100">
+                        <div class="white-bg search-wrapper md-whiteframe-1dp" layout="row" layout-align="start center" flex="100">
+                          <div class="search" layout="row" flex layout-align="start center">
+                            <md-icon md-font-icon="icon-magnify" class="icon s18">
+                            </md-icon>
+                            <input flex ng-model="vm.searchMessage" id="chatsearch" custom-auto-focus="true" ng-model-options="{debounce: vm.debounceTime }" type="text" ng-change="vm.searchChatMessage(vm.receiver)" placeholder="Search message">
+                          </div>
+                          <div>
+                            {{vm.selectedCount}}/{{vm.totalResult}}
+                            <md-icon class="" md-font-icon="icon-menu-up" ng-disabled="vm.selectedCount <= 1" ng-click="vm.goUpNext();"></md-icon>
+                            <md-icon class="" md-font-icon="icon-menu-down" ng-disabled="vm.totalResult == vm.selectedCount" ng-click="vm.goDownNext();"></md-icon>
+                            <md-icon class="" md-font-icon="icon-close" ng-click="vm.clearSearch()"></md-icon>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- / CHAT CONTACT-->
+            <md-button class="md-icon-button margin-right-0" ng-click="vm.showGroup();"
+                       aria-label="Members" title="Add members to group" md-position-mode="target-right target" ng-if="!vm.receiver.groupID || vm.isUserInGroup">
+              <md-icon md-font-icon="icon-plus"></md-icon>
+            </md-button>
+            <md-button class="md-icon-button ml-0 margin-right-0" ng-if="vm.receiver.groupID && vm.isUserInGroup" title="Leave Group" aria-label="Leave Group" md-position-mode="target-right target" ng-click="vm.leaveGroup();">
+              <md-icon md-font-icon="icon-logout"></md-icon>
+            </md-button>
+            &nbsp;&nbsp;
+            <md-button class="md-icon-button ml-0 margin-right-0" title="Exit" aria-label="Exit" md-position-mode="target-right target" ng-click="vm.closeChat();">
+              <md-icon md-font-icon="icon-close-circle"></md-icon>
+            </md-button>
+            <md-icon md-font-icon="icon-close-circle" ng-if="vm.sender.userid == item.participantID && vm.isUserInGroup" ng-click="vm.removeMemberFromGroup(item);"></md-icon>
+            <div class="grouplistbox" layout="column" ng-cloak ng-if="vm.showContact">
+              <md-content class="autocomplete popshadow" layout="column">
+                <md-contact-chips ng-model="vm.selectedContactForGroup" class="chipscontactgroup"
+                                  md-contacts="vm.searchGroupContacts($query)"
+                                  md-contact-name="name"
+                                  md-contact-image="image"
+                                  md-contact-email="email"
+                                  md-require-match="true"
+                                  md-highlight-flags="i"
+                                  filter-selected="true"
+                                  placeholder="To">
+                </md-contact-chips>
+                <md-list class="fixedRows">
+                  <md-subheader class="md-no-sticky">Contacts</md-subheader>
+                  <md-list-item class="md-2-line contact-item" ng-repeat="(index, contact) in vm.contactListForGroup"
+                                ng-if="vm.selectedContactForGroup.indexOf(contact) < 0" ng-click="vm.groupContactSelected(contact);" style="margin:2px 0">
+                    <!--<div class="chricon"> {{contact.namechar}} </div>-->
+                    <div ng-if="contact.profilePic"> <img ng-src="{{contact.profilePic}}" class="md-avatar avatar" ng-if="contact.profilePic" /> </div>
+                    <div class="md-list-item-text compact">
+                      <h3>{{contact.name}}</h3>
+                    </div>
+                  </md-list-item>
+                  <md-list-item class="md-2-line contact-item selected" ng-repeat="(index, contact) in vm.selectedContactForGroup" style="margin:2px 0px">
+                    <!--<div class="chricon"> {{contact.namechar}} </div>-->
+                    <div ng-if="contact.profilePic"> <img ng-src="{{contact.profilePic}}" class="md-avatar avatar" ng-if="contact.profilePic" /> </div>
+                    <div class="md-list-item-text compact">                      
+                      <h3>{{contact.name}}</h3>
+                    </div>
+                    <md-icon md-font-icon="icon-check"></md-icon>
+                  </md-list-item>
+                </md-list>
+                <div layout="row" layout-align="end center" class="groupbutton p-5">
+                  <md-button class="md-raised" ng-click="vm.resetChat();">Cancel</md-button>
+                  <md-button class="md-primary md-raised" ng-disabled="vm.saveBtnDisableFlag || vm.selectedContactForGroup.length == 0"
+                             ng-click="vm.createGroup();">{{vm.btnGroupText}}</md-button>
+                </div>
+              </md-content>
+            </div>
+          </div>
+
+        </md-toolbar>
+
+        <!-- / CHAT TOOLBAR -->
+        <!-- CHAT CONTENT -->
+        <md-content id="chat-content" flex scroll-end scroll-end-fn="vm.getChatDetail">
+          <!-- CHAT MESSAGES -->
+          <div class="chat-messages">
+            <!-- MESSAGE -->
+            <div ng-repeat="message in vm.chat" id="chat_{{message.chatID || message.groupChatID}}">
+              <div layout="row" class="padding-5 message-row" ng-if="!message.remarkFlag || message.remarkFlag == vm.remarkFlag.NEW_MESSAGE"
+                   ng-class="{'user': message.senderID == vm.sender.userid}">
+                <!--<div class="chricon min-width-40"> {{message.namechar}} </div>-->
+                <div ng-if="message.profilePic" class="min-width-40 chricon profile-img"> <img ng-src="{{message.profilePic}}" class="md-avatar avatar" ng-if="message.profilePic" /> </div>
+                <div class="bubble">
+                  <p class="chatname">{{message.firstName}} {{message.lastName}}</p>
+                  <highlightsfont>
+                    <div class="message" ng-bind-html="message.message"></div>
+                  </highlightsfont>
+                  <div class="time secondary-text">{{message.chatDate | date: vm.dateTimeDisplayFormat}}</div>
+                </div>
+                <md-menu ng-if="message.senderID == vm.sender.userid">
+                  <md-button class="md-primary md-icon-button padding-0" ng-click="$mdMenu.open()">
+                    <md-icon role="img" md-font-icon="icon-dots-vertical"></md-icon>
+                  </md-button>
+                  <md-menu-content width="4">
+                    <md-menu-item>
+                      <md-button class="md-primary" ng-click="vm.editchat(message)">
+                        <md-icon role="img" md-font-icon="icon-pencil"></md-icon>
+                        Edit
+                      </md-button>
+                    </md-menu-item>
+                  </md-menu-content>
+                </md-menu>
+              </div>
+              <div layout="row" class="md-padding message-row groupjoin" ng-if="message.remarkFlag == vm.remarkFlag.SPECIAL_MESSAGE"
+                   ng-class="dialog.who">
+                <p class="text-center margin-0" flex="100">
+                  <span ng-bind-html="message.message"></span>
+                  <br />
+                  <small>{{message.chatDate | date: vm.dateTimeDisplayFormat}}</small>
+                </p>
+              </div>
+            </div>
+            <!-- / MESSAGE -->
+          </div>
+          <!-- CHAT MESSAGES -->
+        </md-content>
+        <!-- / CHAT CONTENT -->
+        <!-- CHAT FOOTER -->
+        <div class="chat-footer flex-noshrink" layout="row" layout-align="center center" ng-if="!vm.receiver.groupID || vm.isUserInGroup">
+          <!-- REPLY FORM -->
+
+          <div id="chat-list-box" class="grouplistbox grouplistbox-btm popshadow" layout="column" ng-cloak ng-if="vm.isOpenTemplate">
+            <md-content class="autocomplete" layout="column">
+              <div layout="row" class="padding-5 message-row">
+                <div layout="row" layout-wrap class="padding-10 message-row selecttemplate" ng-if="!vm.isNoDataFound"
+                     ng-class="dialog.who">
+                  <div class="margin-bottom-5" flex="100" layout="row" ng-repeat="item in vm.standardMessageList">
+                    <md-checkbox ng-model="item.isChecked" class="mb-0 mr-5"></md-checkbox>
+                    <span flex="90">{{item.standardMessageTxt}}</span>
+                  </div>
+                </div>
+
+                <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound == true">
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+                </div>
+
+              </div>
+              <div layout="row" layout-align="end center" class="groupbutton" ng-if="!vm.isNoDataFound">
+                <md-button class="md-primary md-raised" ng-disabled="vm.getSelectedTemplateCount() == 0" ng-click="vm.addTemplates();">Select</md-button>
+                <md-button class="md-raised" ng-click="vm.isOpenTemplate = !vm.isOpenTemplate">Cancel</md-button>
+              </div>
+            </md-content>
+          </div>
+
+          <form flex class="reply-form" layout="row" layout-align="start center">
+            <div class="search" flex="100" layout="row" layout-align="start center">
+              <md-icon md-font-icon="icon-pencil" ng-if="vm.EditMessaage" class="icon s18">
+              </md-icon>
+              <md-input-container flex md-no-float>
+                <textarea md-no-autogrow ng-model="vm.replyMessage"
+                          ng-class="{'grow': vm.textareaGrow}"
+                          placeholder="Type and press enter to send message" custom-auto-focus="true" ng-keypress="vm.messageKeyPress($event);"></textarea>
+              </md-input-container>
+            </div>
+            <span>
+              <md-checkbox ng-model="vm.isHighPriorityMsg" class="mb-0 mr-5"></md-checkbox>
+              <md-tooltip class="tt-multiline" md-direction="top"> High Priority Message <br /> Message will be displayed on screen of receiver(s). </md-tooltip>
+            </span>
+            <md-button class="md-primary md-icon-button md-mini" type="button" aria-label="Show Templates" ng-click="vm.OpenTemplateList();">
+              <md-icon md-font-icon="icon-clipboard-text"></md-icon>
+              <md-tooltip md-direction="top">Select Predefined Chat Messages</md-tooltip>
+            </md-button>
+            <md-button class="md-primary md-raised md-icon-button md-mini" type="button" aria-label="Send Message" ng-click="vm.sendMessage();">
+              <md-icon md-font-icon="icon-send"></md-icon>
+            </md-button>
+          </form>
+          <!-- / REPLY FORM -->
+        </div>
+        <!-- / CHAT FOOTER-->
+      </div>
+      <!-- /RIGHT SIDE (CHAT) -->
+    </div>
+  </div>
+</md-dialog>

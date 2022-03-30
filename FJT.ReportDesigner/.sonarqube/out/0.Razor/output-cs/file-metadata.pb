@@ -1,0 +1,10 @@
+w
+lD:\Development\FJT\FJT-DEV\FJT.ReportDesigner\obj\Debug\netcoreapp3.1\Razor\Views\Designer\Index.cshtml.g.csutf-8Œ
+€D:\Development\FJT\FJT-DEV\FJT.ReportDesigner\obj\Debug\netcoreapp3.1\Razor\Views\DesignReport\SystemGeneratedReport.cshtml.g.csutf-8u
+jD:\Development\FJT\FJT-DEV\FJT.ReportDesigner\obj\Debug\netcoreapp3.1\Razor\Views\Shared\Error.cshtml.g.csutf-8w
+lD:\Development\FJT\FJT-DEV\FJT.ReportDesigner\obj\Debug\netcoreapp3.1\Razor\Views\Shared\Welcome.cshtml.g.csutf-8w
+lD:\Development\FJT\FJT-DEV\FJT.ReportDesigner\obj\Debug\netcoreapp3.1\Razor\Views\Shared\_Layout.cshtml.g.csutf-8‰
+~D:\Development\FJT\FJT-DEV\FJT.ReportDesigner\obj\Debug\netcoreapp3.1\Razor\Views\Shared\_ValidationScriptsPartial.cshtml.g.csutf-8u
+jD:\Development\FJT\FJT-DEV\FJT.ReportDesigner\obj\Debug\netcoreapp3.1\Razor\Views\_ViewImports.cshtml.g.csutf-8s
+hD:\Development\FJT\FJT-DEV\FJT.ReportDesigner\obj\Debug\netcoreapp3.1\Razor\Views\_ViewStart.cshtml.g.csutf-8~
+sD:\Development\FJT\FJT-DEV\FJT.ReportDesigner\obj\Debug\netcoreapp3.1\FJT.ReportDesigner.RazorTargetAssemblyInfo.csutf-8

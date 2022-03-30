@@ -1,0 +1,294 @@
+<div flex="100" layout="column" class="height-100p" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="margin-5 margin-bottom-0" flex="nogrow" layout="row" layout-align="end center"
+       ng-if="vm.HomeMenuCategory.length > 0">
+    <md-button class="md-icon-button toolbar-button margin-0" ng-click="vm.ShowListView()">
+      <md-icon md-font-icon="icon-format-list-numbers" ng-class="{'active-view': vm.IsListView}"></md-icon>
+      <md-tooltip md-direction="top">List View</md-tooltip>
+    </md-button>
+    <md-button class="md-icon-button toolbar-button margin-0" ng-click="vm.ShowGridView()">
+      <md-icon md-font-icon="icon-grid" ng-class="{'active-view': !vm.IsListView}"></md-icon>
+      <md-tooltip md-direction="top">Grid View</md-tooltip>
+    </md-button>
+    <md-button class="md-primary md-raised"
+               ng-show="vm.roleAdmin == vm.defaultRole || vm.roleExecutive == vm.defaultRole"
+               ng-click="vm.GoToHomeMenuCategories($event)" aria-label="Submit">
+      Add home menu category
+    </md-button>
+    <md-button class="md-primary md-raised" aria-label="Refresh" ng-click="vm.refreshData()">
+      Refresh
+    </md-button>
+  </div>
+  <div layout="row" flex>
+    <div flex="20" flex-md="30" layout="column" flex-xs="50" flex-sm="50"
+         class="cm-home-menu-sidebar"
+         layout-wrap>
+      <div class="cm-drag-drop-title cm-drag-drop-title-menu text-left">
+        Menu
+        <span ng-if="vm.HomeMenuCategory.length > 0">
+          {{vm.HomeMenuMessages.SIDEBAR_HEADER}}
+        </span>
+        <div flex="100" flex-xs="100" layout="row"
+             layout-align="space-between end"
+             class="mobilesearch employee-workstaion-search-box userpermissionhead ph-0-imp">
+          <md-input-container class="md-block error-none no-label margin-bottom-0"
+                              md-no-float flex flex-xs="75">
+            <input id="SearchMenus" type="text"
+                   placeholder="Type here to search menu"
+                   ng-model="vm.SearchMenus"
+                   ng-disabled="vm.noMenuFound"
+                   ng-class="{'item-disabled' : vm.noMenuFound}"
+                   ng-keyup="vm.SearchMenu(vm.SearchMenus)">
+          </md-input-container>
+          <md-button class="md-raised md-primary md-ink-ripple margin-0 height-24"
+                     ng-disabled="!vm.SearchMenus"
+                     ng-click="vm.SearchMenus='';vm.SearchMenu(vm.SearchMenus)">
+            Clear
+          </md-button>
+        </div>
+        <div flex="100" flex-xs="100" layout="row" layout-align="start-center" class="cm-menu-checkbox" ng-hide="vm.IsAddedMenuCount.length == 0">
+          <md-checkbox ng-model="vm.isShowAllAddedMenuForFilter"
+                       name="menuFilterCheckBox" class="margin-0"
+                       ng-change="vm.ShowHideMenu()">
+            Show All
+          </md-checkbox>
+          <!--<p class="label-container mb-0 mr-10 width-auto">
+              Show All
+          </p>-->
+        </div>
+      </div>
+      <!-- Home Menu List -->
+      <div flex class="cm-home-menu-sidebar-list" id="menuList" ng-model="vm.HomePageMenuList"
+           ui-sortable="vm.sortableOptions"
+           ng-class="{'cm-home-menu-sidebar-list-without-showall':vm.IsAddedMenuCount.length == 0 ,
+                                'cm-home-left-side-no-view-btns':vm.HomeMenuCategory.length == 0 }">
+        <div class="drag-drop-box-container sortable-item"
+             ui-sortable-selectable
+             ng-repeat="item in vm.HomePageMenuList"
+             my-data="{{item.menuName}}">
+          <!-- for page -->
+          <div class="drop-static-content text-left" ng-if="item.pageRoute != null">
+            <!--p-5 m-5 -->
+            <a target="_blank"
+               ng-class="{'cm-already-added-menu' : item.isAdded == 1}"
+               class="ms-navigation-horizontal-button ng-scope md-default-theme"
+               ui-sref="{{item.pageRoute}}{{item.paramDet || item.paramDet}}">
+              <md-icon md-font-icon="{{item.iconClass}}" class="icon mr-5" ng-class="{'cm-already-added-menu' : item.isAdded == 1}">
+                <md-tooltip md-direction="bottom">{{item.menuName}}</md-tooltip>
+              </md-icon>
+              {{ item.menuName }}
+            </a>
+          </div>
+          <!-- for popup -->
+          <div class="drop-static-content text-left " ng-if="item.popupFunName != null">
+            <!--p-5 m-5 -->
+            <a target="_blank"
+               ng-class="{'cm-already-added-menu' : item.isAdded == 1}"
+               class="ms-navigation-horizontal-button cursor-pointer ng-scope md-default-theme"
+               ng-click="vm.openPopup(item.popupFunName)">
+              <md-icon md-font-icon="{{item.iconClass}}" class="icon mr-5" ng-class="{'cm-already-added-menu' : item.isAdded == 1}">
+                <md-tooltip md-direction="bottom">{{item.menuName}}</md-tooltip>
+              </md-icon>
+              {{ item.menuName }}
+            </a>
+          </div>
+        </div>
+        <div class="full-height" layout-align="center-center" layout="row"
+             ng-if="((vm.HomePageMenuList | filter:vm.Search).length==0 && !vm.noMenuFound) || vm.noMenuFound
+                     || vm.noMenuFound && (vm.roleAdmin == vm.defaultRole || vm.roleExecutive == vm.defaultRole)">
+          <div class="empty-state text-center">
+            <div class="emty-icon ng-binding  cm-empty-state-icon" ng-if="(vm.HomePageMenuList | filter:vm.Search).length==0 && !vm.noMenuFound">
+              <img ng-src="{{vm.HomeMenuMessages.SEARCH_IMAGE}}" />
+            </div>
+            <div class="emty-icon ng-binding  cm-empty-state-icon" ng-if="vm.noMenuFound">
+              <img ng-src="{{vm.imageUrl}}" />
+            </div>
+            <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.noMenuFound">
+              {{vm.HomeMenuMessages.EMPTY_MENU}}
+            </p>
+            <p class="useadded-emptytxt" ng-if="vm.noMenuFound && (vm.roleAdmin == vm.defaultRole || vm.roleExecutive == vm.defaultRole)">
+              {{vm.HomeMenuMessages.EMPTY_ADD_HOME_MENU}}
+            </p>
+            <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="(vm.HomePageMenuList | filter:vm.Search).length==0 && !vm.noMenuFound">
+              {{vm.HomeMenuMessages.EMPTY_FILTER_MESSAGE}}
+            </p>
+            <p flex="100" ng-show="vm.roleAdmin == vm.defaultRole || vm.roleExecutive == vm.defaultRole">
+              <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.GoToPageRights()" ng-if="vm.noMenuFound">
+                <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus">
+                </md-icon>
+                <md-tooltip>Add New</md-tooltip>
+              </md-button>
+              <md-button class="md-fab md-mini" aria-label="Refresh Data Fields" ng-click="vm.refreshData()" ng-if="vm.noMenuFound">
+                <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon"></md-icon>
+                <md-tooltip>Refresh</md-tooltip>
+              </md-button>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Home Menu Category List -->
+    <div flex="80" flex-md="70" flex-xs="50" flex-sm="50" layout-wrap layout="column">
+      <div flex class="cm-home-right-side" ng-class="{'cm-home-right-side-no-view-btns':vm.HomeMenuCategory.length == 0}">
+        <form name="vm.editCategoryForm" flex="100" class="md-inline-form" novalidate ng-if="vm.HomeMenuCategory.length > 0">
+          <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+          <div flex="100" layout-wrap
+               class="apps-container-category cm-category"
+               ui-sortable="vm.sortableOptionsCategory"
+               ng-model="vm.HomeMenuCategory">
+            <!--layout="row"-->
+            <div ng-if="vm.HomeMenuCategory.length > 0" class="apps-container cm-category-block"
+                 ng-class="{'sortable-item-category': vm.defaultRole == vm.roleAdmin || vm.defaultRole == vm.roleExecutive}"
+                 ui-sortable-selectable
+                 ng-repeat="category in vm.HomeMenuCategory" id="HomeMenuCategoryId">
+              <!-- flex="25"-->
+              <div class="apps-container cm-drag-drop-list"
+                   ng-model="category.dropItem" id="categoryList">
+                <div class="drag-drop-box-container drop-category-section"
+                     ng-repeat="item in category.dropItem" id="HomeMenuCategoryItems" my-data="{{item.gencCategoryName}}">
+                  <div class="cm-drag-drop-title align-vertical text-left" id="holder" layout="row">
+                    <div flex="70" layout-align="start-center" layout="row">
+                      <label class="no-margin" md-truncate ng-if="!item.isShowEdit">
+                        {{ item.gencCategoryName }}
+                        <md-tooltip>{{item.gencCategoryName}}</md-tooltip>
+                      </label>
+                      <md-input-container class="margin-0 md-block" flex md-no-float ng-if="item.isShowEdit">
+                        <input type="text" name="GencCategory_{{item.gencCategoryID}}"
+                               id="GencCategory_{{item.gencCategoryID}}"
+                               ng-model="item.gencCategoryName"
+                               custom-blur="vm.checkGenericCategoryAlreadyExists(item)"
+                               placeholder="Enter category name"
+                               maxlength="100" ng-required="true">
+                      </md-input-container>
+                      <div ng-messages="vm.editCategoryForm['GencCategory_'+item.gencCategoryID].$error"
+                           role="alert">
+                        <div class="red-fg font-weight-400" ng-message="required">
+                          <span class="font-size-12 line-height-12">{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength" class="red-fg font-weight-400">
+                          <span>{{vm.getMaxLengthValidation(100,vm.editCategoryForm['GencCategory_'+item.gencCategoryID].$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div flex="30" layout-align="end-center" layout="row">
+                      <button class="md-mini md-icon-button margin-0"
+                              ng-if="item.isShowEdit"
+                              ng-click="vm.cacnelEditMode(item)">
+                        <md-icon md-font-icon="icon-close" class="color-black"></md-icon><md-tooltip>Cancel</md-tooltip>
+                      </button>
+                      <button class="md-mini md-icon-button margin-0"
+                              ng-if="item.isShowEdit"
+                              ng-click="vm.EditMode(item)">
+                        <md-icon md-font-icon="icon-checkbox-marked-circle" class="color-black"></md-icon><md-tooltip>Update</md-tooltip>
+                      </button>
+                      <button class="md-mini md-icon-button margin-0"
+                              ng-if="vm.roleAdmin == vm.defaultRole || vm.roleExecutive == vm.defaultRole"
+                              name="btnEdit"
+                              id="btnEdit"
+                              ng-hide="item.isShowEdit"
+                              ng-class="{'cursor-not-allow': item.isDisableEdit}"
+                              ng-disabled="item.isDisableEdit"
+                              ng-click="vm.EditMode(item)">
+                        <md-icon md-font-icon="icon-pencil" class="color-black"></md-icon><md-tooltip>Edit</md-tooltip>
+                      </button>
+                      <button class="md-mini md-icon-button margin-0"
+                              ng-show="vm.roleAdmin == vm.defaultRole || vm.roleExecutive == vm.defaultRole"
+                              ng-click="vm.deleteRecord(item)">
+                        <md-icon md-font-icon="icon-trash" class="color-black"></md-icon><md-tooltip>Delete</md-tooltip>
+                      </button>
+                    </div>
+                  </div>
+                  <!-- Home Menu Category List Items -->
+                  <div class="cm-home-list-menu-items" ng-class="{'cm-list-home-menu-items-content cm-home-menu-list-view':vm.IsListView, 'cm-home-menu-grid-view': !vm.IsListView}">
+                    <div class="drop-content" flex="100" layout-wrap layout="row">
+                      <div class="apps-container min-height-190" data-gencCategoryID="{{item.gencCategoryID}}"
+                           ui-sortable="vm.sortableOptions" flex="100"
+                           layout-wrap layout="row" ng-model="item.menuList" id="categoryWiseMenuList" layout-align="start-start">
+                        <div class="cm-drag-icon apps-container sortable-item"
+                             ng-class="{'flex-33': !vm.IsListView, 'flex-100 drop-static-content text-left': vm.IsListView}"
+                             ui-sortable-selectable
+                             ng-repeat="menu in item.menuList" my-data="{{menu.menuName}}">
+                          <!--flex=25-->
+                          <div ng-class="{'pos-rel': !vm.IsListView, 'md-truncate layout-row': vm.IsListView}">
+                            <div ng-class="{'drop-static-content cm-home-block layout-align-center-start': !vm.IsListView, 'flex-100': vm.IsListView}" layout="row">
+                              <!--p-5 m-5-->
+                              <div class="flex-90 cm-list-detail">
+                                <!-- for page -->
+                                <a class="ms-navigation-horizontal-button ng-scope md-default-theme" ng-class="{'md-truncate': vm.IsListView, 'layout-column': !vm.IsListView}"
+                                   ng-if="menu.pageRoute" target="_blank"
+                                   ui-sref="{{menu.pageRoute}}{{menu.paramDet || menu.paramDet}}">
+                                  <md-icon md-font-icon="{{menu.iconClass}}" class="icon" target="_blank" ng-class="{'mr-5': vm.IsListView}">
+                                  </md-icon>
+                                  <span class="font-size-12 line-height-14">
+                                    {{menu.menuName}}
+                                  </span>
+                                  <md-tooltip md-direction="bottom">{{menu.menuName}} </md-tooltip>
+                                </a>
+                                <!-- for popup -->
+                                <a class="ms-navigation-horizontal-button cursor-pointer  ng-scope md-default-theme" ng-class="{'md-truncate': vm.IsListView, 'layout-column': !vm.IsListView}"
+                                   ng-if="menu.popupFunName" target="_blank"
+                                   ng-click="vm.openPopup(menu.popupFunName)">
+                                  <md-icon md-font-icon="{{menu.iconClass}}" class="icon" target="_blank" ng-class="{'mr-5': vm.IsListView}">
+                                  </md-icon>
+                                  <span class="font-size-12 line-height-14">
+                                    {{menu.menuName}}
+                                  </span>
+                                  <md-tooltip md-direction="bottom">{{menu.menuName}} </md-tooltip>
+                                </a>
+                              </div>
+                              <md-menu ng-class="{'cm-vertical-btn': !vm.IsListView, 'float-right flex-10': vm.IsListView}">
+                                <md-button class="md-icon-button padding-0 height-20" ng-click="$mdOpenMenu();" md-menu-origin
+                                           md-menu-align-target aria-label="Options" ng-class="{'margin-0 width-15': !vm.IsListView, 'width-20 ml-0': vm.IsListView}">
+                                  <md-icon md-font-icon="icon-dots-vertical" class="icon cm-widget-header-icon" ng-class="{'width-15': !vm.IsListView}"></md-icon>
+                                </md-button>
+                                <md-menu-content width="3">
+                                  <md-menu-item>
+                                    <md-button ng-click="vm.DeleteHomeMenuItems(menu)">
+                                      <md-icon md-font-icon="icon-trash" class="icon"></md-icon>
+                                      Delete
+                                    </md-button>
+                                  </md-menu-item>
+                                </md-menu-content>
+                              </md-menu>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="empty-state text-center apps-container cm-empty-home-list full-height" layout="row" layout-align="center center"
+                             ng-if="item.menuList.length == 0">
+                          <p class="empty-state-title font-size-2 useadded-emptytxt">
+                            {{vm.HomeMenuMessages.DRAG_DROP_MESSAGE}}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div class="empty-state text-center center-block full-height" layout="row" layout-align="center center"
+             layout-wrap ng-if="vm.HomeMenuCategory.length == 0">
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.imageUrl}}" />
+          </div>
+          <p flex="100" class="empty-state-title">{{vm.Message}}</p>
+          <p flex="100" ng-show="vm.roleAdmin == vm.defaultRole || vm.roleExecutive == vm.defaultRole">
+            {{vm.AddnewMessage}}
+          </p>
+          <p flex="100">
+            <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.GoToHomeMenuCategories($event)"
+                       ng-show="vm.roleAdmin == vm.defaultRole || vm.roleExecutive == vm.defaultRole">
+              <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus">
+              </md-icon>
+              <md-tooltip>Add New</md-tooltip>
+            </md-button>
+            <md-button class="md-fab md-mini" aria-label="Refresh Data Fields" ng-click="vm.refreshData()">
+              <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon"></md-icon>
+              <md-tooltip>Refresh</md-tooltip>
+            </md-button>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

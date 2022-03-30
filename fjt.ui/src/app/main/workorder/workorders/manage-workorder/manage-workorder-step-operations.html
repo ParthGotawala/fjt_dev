@@ -1,0 +1,285 @@
+
+<form name="vm.operationDetails" class="padding-bottom-0 cm-custom-label-common cm-wo-op cm-wo-op-tem" novalidate ng-class="{'padding-0': vm.previewDocument}">
+  <div class="margin-0" ng-if="!vm.previewDocument">
+    <div layout="row" class="pb-10" layout-align="space-between center">
+      <p class="margin-0">
+        <md-button class="md-raised md-primary mv-0 margin-right-0 ml-5"
+                   ng-click="vm.isWOPublished ? '' : vm.SelectAllOperation($event)"
+                   ng-disabled="vm.SelectedOperationList.length == 0 || vm.isWOUnderTermination || vm.isWOPublished
+                    || vm.isWoInSpecificStatusNotAllowedToChange">
+          {{vm.SelectAllOp ? 'Deselect All' : 'Select All'}}
+        </md-button>
+        <md-button class="md-raised md-primary mv-0 mr-5 ml-5" ng-if="vm.SelectedOperationList.length == 0 && !vm.SearchSelectedOperationTxt"
+                   ng-click="vm.AddOperationFromList(false, $event)">
+          Select From Template
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple mv-0 margin-right-0 ml-5"
+                   ng-class="{'item-disabled': (selectedOperationListNoAdded.length == 0 || vm.isWOPublished)}"
+                   ng-disabled="selectedOperationListNoAdded.length == 0 || vm.isWOUnderTermination || vm.isWOPublished
+                      || vm.isWoInSpecificStatusNotAllowedToChange"
+                   ng-click="vm.DeleteOperationFromWorkorder(vm.selectedOpList, 'Multiple',null,selectedOperationListNoAdded,$event)">
+          Remove Selected
+        </md-button>
+      </p>
+      <div>
+        <md-button class="md-raised md-primary mv-0 margin-right-0 ml-5" aria-label="Add to Cluster"
+                   ng-click="vm.isWOPublished ? '' : vm.AddClusterToWorkorder(null)"
+                   ng-disabled="(vm.IsProductionStart && !vm.oldIsClusterAppliedValue) || vm.isWOUnderTermination || vm.isWOPublished
+                   || vm.isWoInSpecificStatusNotAllowedToChange">
+          Add Cluster
+        </md-button>
+        <md-button class="md-raised md-primary mv-0 mr-5 ml-5" aria-label="Add Operation"
+                   ng-click="vm.isWOPublished ? '' : vm.AddOperationFromList(true, $event)"
+                   ng-if="vm.AlloperationList.length > 0 || vm.workorderClusterList.length > 0"
+                   ng-disabled="vm.isWOUnderTermination || vm.isWOPublished || vm.isWoInSpecificStatusNotAllowedToChange">
+          Add Operation
+        </md-button>
+        <md-button class="md-raised md-primary mv-0 margin-right-0 ml-5"
+                   ng-click="vm.GetOperationListByWoID();">
+          Refresh Operations
+        </md-button>
+        <md-button class="md-raised md-primary mv-0 mr-0 ml-5" ng-disabled="vm.AlloperationList.length==0"
+                   ng-click="vm.GetOperationConfigurationList($event);">
+          Operation Configurations
+        </md-button>
+      </div>
+    </div>
+    <div class="cm-manage-wo-op">
+      <div class="price-tables manage-standard" flex="100" layout="row" layout-wrap ng-hide="vm.AlloperationList.length == 0">
+        <div class="templatelist cm-section-main custom-scroll style-1 md-whiteframe-1dp margin-bottom-10-imp" layout="row" layout-align="start start" flex="100" layout-wrap>
+          <div flex="100" flex-xs="100" layout="row" class="userpermissionhead mobilesearch cm-section-header title">
+            <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75">
+              <input id="SearchSelectedOperationTxt" class="search-input" type="text"
+                     placeholder="Type here to search operations" ignore-dirty
+                     ng-model="vm.SearchSelectedOperationTxt"
+                     ng-keyup="vm.SearchSelectedOperation(vm.SelectedOperationList, vm.SearchSelectedOperationTxt)"
+                     custom-blur="vm.SearchSelectedOperation(vm.SelectedOperationList, vm.SearchSelectedOperationTxt)">
+            </md-input-container>
+            <md-button class="md-raised md-primary md-ink-ripple mv-0 margin-right-0 ml-5"
+                       ng-disabled="!vm.SearchSelectedOperationTxt"
+                       ng-click="vm.SearchSelectedOperationTxt='';vm.SearchSelectedOperation(vm.SelectedOperationList, vm.SearchSelectedOperationTxt);">
+              Clear
+            </md-button>
+
+            <!--<md-button class="md-raised md-primary md-ink-ripple mv-0 margin-right-0 ml-5"
+                       ng-class="{'item-disabled': (selectedOperationListNoAdded.length == 0 || vm.isWOPublished)}"
+                       ng-disabled="selectedOperationListNoAdded.length == 0 || vm.isWOUnderTermination || vm.isWOPublished
+                        || vm.isWoInSpecificStatusNotAllowedToChange"
+                       ng-click="vm.DeleteOperationFromWorkorder(vm.selectedOpList, 'Multiple',null,selectedOperationListNoAdded,$event)">
+              Remove Selected
+            </md-button> -->
+          </div>
+          <div class="cm-section-inner padding-0" flex="100">
+            <md-list layout="row" layout-wrap layout-align="start start" flex="100"
+                     class="permissiontab custom-scroll dragbox">
+              <md-list-item layout="row"
+                            id="operationNoAddedList"
+                            class="padding-0 items-container nonclusterd full-height"
+                            layout-align="start start" flex="100"
+                            flex-sm="100" flex-xs="100"
+                            ui-sortable="sortableOptionOperations"
+                            ng-model="vm.SelectedOperationList" layout-wrap>
+                <div flex="100" layout="row" class="pv-3 md-1-line margin-0 dragsortable"
+                     ng-repeat="operation in vm.SelectedOperationList track by $index"
+                     ui-sortable-selectable
+                     ng-model="operation" ng-if="vm.SelectedOperationList"
+                     context-menu="(vm.checkOperationCompleted(operation) || vm.isWOPublished || vm.isWoInSpecificStatusNotAllowedToChange || operation.workorderOperationCluster.length > 0) ? [] : menuOptionsForOperation"
+                     ng-class="{'cursor-not-allow': (vm.checkOperationCompleted(operation) || vm.isWOPublished || vm.isWoInSpecificStatusNotAllowedToChange || operation.workorderOperationCluster.length > 0)}">
+                  <div flex layout="row">
+                    <div flex class="text-main" layout="row" layout-wrap layout-align="start center">
+                      <a class="cm-text-decoration" ng-click="vm.goToWorkorderOperationDetails(operation.woOPID)">
+                        {{ operation.opFullName }}
+                      </a>&nbsp;({{vm.LabelConstant.Operation.Version}}: {{operation.opVersion}})
+                      <div flex="100" layout>
+                        <span class="cm-text-ellipsis">
+                          {{operation.shortDescription}}
+                          <md-tooltip>Short Description</md-tooltip>
+                        </span>
+                        <button class="md-primary grid-button md-icon-button" ng-if="operation.shortDescription && operation.shortDescription !== '-'" ng-click="vm.showDescription(operation, $event)">
+                          <md-icon md-font-icon="icon icon-eye" class="s16"></md-icon>
+                          <md-tooltip>View</md-tooltip>
+                        </button>
+                      </div>
+                    </div>
+                    <div flex-sm="70" layout-sm layout-align-sm="end-center" class="layout-wrap-rs">
+                      <img class="wo-stop-image" ng-if="operation.isStopOperation" src="assets/images/logos/stop.png" />
+                      <span ng-if="operation.isTeamOperation">
+                        <md-icon md-font-icon="icon icon-account-switch"></md-icon>
+                        <md-tooltip>Team Operation</md-tooltip>
+                      </span>
+                      <label ng-if="operation.workorderOperationCluster.length > 0 && operation.parallelClusterOperation" class="label-box label-warning m-0 cm-manage-workorder">
+                        Parallel Operation
+                      </label>
+                      <label ng-if="operation.workorderOperationCluster.length > 0 && !operation.parallelClusterOperation" class="label-box label-primary m-0 cm-manage-workorder">
+                        Sequential Operation
+                      </label>
+                      <label ng-if="operation.opStatusDisplayText" class="cursor-pointer label-box no-bg" ng-class="operation.opStatusCssClass">
+                        {{ operation.opStatusDisplayText }}
+                      </label>
+                      <span>
+                        <operation-flux-type-icon flux-type="operation.fluxTypeList"></operation-flux-type-icon>
+                      </span>
+                      <md-button ng-disabled="(!vm.enableToggleOperation || vm.workorder.woStatus != vm.DisplayStatus.Published.ID)
+                              || vm.isWoInSpecificStatusNotAllowedToChange"
+                                 class="md-primary md-raised cm-feture-btn-color"
+                                 ng-click="(!vm.enableToggleOperation || vm.workorder.woStatus != vm.DisplayStatus.Published.ID) || vm.toggleWorkorderOperation(operation, $event);">
+                        {{operation.isStopOperation ? "Resume" : "Halt"}}
+                      </md-button>
+                      <md-button class="md-primary margin-0 md-raised" aria-label="Operation" ng-click="vm.editOperation(operation)">
+                        Update
+                      </md-button>
+                      <md-button class="md-primary margin-0 md-raised" aria-label="Documents" ng-mousedown="vm.uploadWorkOrderOperationDocument(operation,null)">
+                        Document
+                      </md-button>
+                      <md-button class="md-warn margin-0 md-raised" aria-label="Add Operation"
+                                 ng-click="vm.isWOPublished ? '' : vm.DeleteOperationFromWorkorder(operation.opID, 'Single',null,operation,$event)"
+                                 ng-disabled="vm.checkOperationCompleted(operation, $index) || vm.isWOUnderTermination || vm.isWOPublished || vm.isWoInSpecificStatusNotAllowedToChange">
+                        Remove
+                      </md-button>
+                    </div>
+                  </div>
+                </div>
+                <div flex="100" class="md-1-line margin-0 full-height cursor-not-allow"
+                     ng-if="vm.SelectedOperationList.length == 0" layout="row" layout-align="center center"
+                     ui-sortable-selectable>
+                  <div class="empty-state text-center">
+                    <div class="emty-icon">
+                      <img ng-src="{{vm.EmptyMesssageOperation.IMAGEURL}}" />
+                    </div>
+                    <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SelectedOperationList.length == 0 && !vm.SearchSelectedOperationTxt">
+                      {{vm.EmptyMesssageOperation.NO_SELECTED}}
+                    </p>
+                    <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SelectedOperationList.length == 0 && vm.SearchSelectedOperationTxt">
+                      {{vm.EmptyMesssageOperation.EMPTY_SEARCH_MESSAGE}}
+                    </p>
+                  </div>
+                </div>
+              </md-list-item>
+            </md-list>
+          </div>
+        </div>
+      </div>
+      <div class="price-tables manage-standard" flex="100" layout="row" layout-wrap ng-if="vm.workorderClusterList.length > 0">
+        <div flex="100" class="margin-bottom-10">
+          <div class="templatelist cm-section-main custom-scroll style-1 md-whiteframe-1dp margin-bottom-10-imp" ng-repeat="cluster in vm.workorderClusterList | orderBy:'displayOrder'" layout="row" layout-align="start start" flex="100" layout-wrap>
+            <div class="title cm-section-header" layout="row" layout-align="space-between center" flex="100">
+              <h2>{{cluster.clusterName}}</h2>
+              <div layout="row" layout-align="start center">
+                <label ng-if="cluster.isParellelOperation" class="label-box label-warning m-0 padding-2">
+                  Parallel Operation
+                </label>
+                <label ng-if="!cluster.isParellelOperation" class="label-box label-primary m-0 padding-2">
+                  Sequential Operation
+                </label>
+                <md-button class="mv-0 margin-right-0 ml-5 md-raised md-primary toolbar-button" ng-if="vm.workorder.isClusterApplied"
+                           ng-click="vm.AddClusterToWorkorder(cluster)"
+                           ng-disabled="vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange">
+                  Update Cluster
+                </md-button>
+                <md-button class="mv-0 margin-right-0 ml-5 md-warn md-raised toolbar-button"
+                           ng-disabled="cluster.isdisabled || vm.isWOUnderTermination || vm.isWOPublished
+                          || vm.isWoInSpecificStatusNotAllowedToChange"
+                           ng-class="{'item-disabled':cluster.isdisabled == true}"
+                           ng-click="(vm.isWOPublished) ? '' : (!vm.isdisabled?vm.DeleteClusterFromWorkorder(cluster):null)">
+                  Remove Cluster
+                </md-button>
+              </div>
+            </div>
+            <div class="cm-section-inner padding-0" flex="100">
+              <md-list layout="row" layout-wrap layout-align="start start" flex="100"
+                       class="custom-scroll dragbox">
+                <md-list-item layout="row"
+                              id="operationAddedList_{{cluster.clusterID}}"
+                              class="padding-0 items-container nonclusterd full-height"
+                              layout-align="start start"
+                              flex="100" flex-sm="100" flex-xs="100"
+                              ui-sortable="sortableOptionOperations"
+                              ng-model="cluster.workorderOperationCluster" layout-wrap>
+                  <!--ui-sortable-selectable-->
+                  <!--ng-class="{'cursor-not-allow': (vm.checkOperationCompleted(clusterItem) || vm.isWOPublished)}"-->
+                  <div flex="100" layout="row" layout-align="space-between center"
+                       class="pv-3 md-1-line margin-0 dragsortable padding-left-15 padding-right-15"
+                       ng-repeat="clusterItem in cluster.workorderOperationCluster track by $index"
+                       ng-model="clusterItem"
+                       context-menu="vm.isWoInSpecificStatusNotAllowedToChange ? [] : cluster.menuOptionsForCluster"
+                       ng-class="{'cursor-not-allow': (vm.isWoInSpecificStatusNotAllowedToChange)}">
+                    <div>
+                      <a class="cm-text-decoration" ng-click="vm.goToWorkorderOperationDetails(clusterItem.woOPID)">
+                        {{ clusterItem.opFullName }}
+                      </a>
+                    </div>
+                    <div>
+                      <span ng-if="clusterItem.isTeamOperation" class="margin-right-10">
+                        <md-icon md-font-icon="icon icon-account-switch"></md-icon>
+                        <md-tooltip>Team Operation</md-tooltip>
+                      </span>
+                      <label ng-if="clusterItem.opStatusDisplayText" class="cursor-pointer label-box no-bg" ng-class="clusterItem.opStatusCssClass">
+                        {{ clusterItem.opStatusDisplayText }}
+                      </label>
+                      <md-button ng-disabled="(!vm.enableToggleOperation || vm.workorder.woStatus != vm.DisplayStatus.Published.ID)
+                                || vm.isWoInSpecificStatusNotAllowedToChange"
+                                 class="md-primary md-raised cm-feture-btn-color"
+                                 ng-click="(!vm.enableToggleOperation || vm.workorder.woStatus != vm.DisplayStatus.Published.ID) || vm.toggleWorkorderOperation(clusterItem, $event);">
+                        {{clusterItem.isStopOperation ?  "Resume" : "Halt"}}
+                      </md-button>
+                      <md-button class="md-primary mv-0 margin-right-0 ml-5 md-raised" aria-label="Operation" ng-click="vm.editOperation(clusterItem)">
+                        Update
+                      </md-button>
+                      <md-button class="md-primary mv-0 margin-right-0 ml-5 md-raised" aria-label="Documents" ng-click="vm.uploadWorkOrderOperationDocument(clusterItem, cluster.clusterName)">
+                        Document
+                      </md-button>
+                      <md-button class="md-warn mv-0 margin-right-0 ml-5 md-raised" aria-label="Add Operation"
+                                 ng-click="vm.isWOPublished ? '' : vm.DeleteOperationFromWorkorder(clusterItem.opID, 'Single',cluster.clusterID,clusterItem,$event)"
+                                 ng-disabled="vm.checkOperationCompleted(clusterItem) || vm.isWOUnderTermination || vm.isWOPublished || vm.isWoInSpecificStatusNotAllowedToChange">
+                        Remove from cluster
+                      </md-button>
+                    </div>
+                  </div>
+                  <div flex="100" class="md-1-line margin-0 full-height cursor-not-allow"
+                       ng-if="cluster.workorderOperationCluster.length == 0" layout="row" layout-align="center center"
+                       ui-sortable-selectable>
+                    <div class="empty-state text-center">
+                      <div class="emty-icon">
+                        <img ng-src="{{vm.EmptyMesssageOperation.IMAGEURL}}" />
+                      </div>
+                      <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="cluster.workorderOperationCluster.length == 0">
+                        {{vm.EmptyMesssageOperation.NO_SELECTED}}
+                      </p>
+                    </div>
+                  </div>
+                </md-list-item>
+              </md-list>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.AlloperationList.length == 0 && vm.workorderClusterList.length == 0">
+        <div class="emty-icon" flex="100">
+          <img ng-src="{{vm.EmptyMesssageOperation.IMAGEURL}}" />
+        </div>
+        <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchSelectedOperationTxt == null && vm.SelectedOperationList.length == 0">
+          {{vm.EmptyMesssageOperation.NO_SELECTED}}
+        </p>
+        <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchSelectedOperationTxt != null && vm.FilterSelectedOperation != true">
+          {{vm.EmptyMesssageOperation.EMPTY_SEARCH_MESSAGE}}
+        </p>
+        <p flex="100">
+          <md-button class="md-fab md-mini" aria-label="Add Operation" ng-click="vm.isWOPublished ? '' : vm.AddOperationFromList(true, $event)" ng-hide="vm.isWOUnderTermination || vm.isWOPublished">
+            <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus">
+              <md-tooltip>Add Operation</md-tooltip>
+            </md-icon>
+          </md-button>
+          <md-button class="md-fab md-mini" aria-label="Refresh Operations" ng-click="vm.GetOperationListByWoID()">
+            <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon">
+              <md-tooltip>Refresh Operations</md-tooltip>
+            </md-icon>
+          </md-button>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div ng-if="vm.previewDocument">
+    <documents entity="vm.entity" ref-trans-id="vm.id" is-title="vm.title" is-preview="vm.previewDocument" is-default="true" is-merge="true"
+               doc-inside-folder-name="vm.workorder.woNumber"></documents>
+  </div>
+</form>

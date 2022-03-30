@@ -1,0 +1,231 @@
+<md-dialog aria-label="Widget Employee" cg-busy="{promise:vm.cgBusyLoading}" class="operation-pop-main cm-popup-height" draggable>
+  <!-- CONTENT -->
+  <form name="vm.SelectEntityEmployee">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Assign Form Rights To Personnel</h2>
+        <span flex></span>
+        <div layout="row" layout-align="center center">
+          <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        </div>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll">
+      <md-content class="md-padding" layout="column" layout-gt-xs="row">
+        <div flex="100" layout="row" layout-wrap ng-if="vm.isContainMasterEmployee"
+             class="padding-10" layout-md="column" layout-sm="column">
+          <div flex flex-xs="100" layout="row" layout-wrap>
+            <div flex="100" flex-xs="100" layout="row" class="mobilesearch employee-workstaion-search-box userpermissionhead" layout-align="space-between center">
+              <md-input-container class="md-block error-none no-label margin-0" md-no-float flex flex-xs="75" ng-class="{'clickedsearch':isButtonEmployeeClicked}">
+                <input id="SearchNoAddedListEmployee" type="text" placeholder="Type here to search personnel" ng-model="vm.SearchNoAddedListEmployee"
+                       ng-change="vm.SearchEmployee(vm.employeeNoAddedList, vm.SearchNoAddedListEmployee,vm.RoleVal, false)" ng-model-options="{ debounce: vm.debounceConstant.uiSideFilter }">
+              </md-input-container>
+              <md-input-container class="cm-entity-invite margin-0" flex="20" flex-xs="100" ng-if="vm.roles.length > 0">
+                <md-select ng-model="vm.RoleVal" class="searchText">
+                  <md-option ng-repeat="item in vm.roles" value="{{item.id}}" ng-selected="{{item.id == 0}}"
+                             ng-click="vm.SearchEmployee(vm.employeeNoAddedList,vm.SearchNoAddedListEmployee,item.id,false)">
+                    {{item.name}}
+                  </md-option>
+                </md-select>
+              </md-input-container>
+              <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                         ng-disabled="!vm.SearchNoAddedListEmployee" ng-click="vm.SearchNoAddedListEmployee='';vm.SearchEmployee(vm.employeeNoAddedList,vm.SearchNoAddedListEmployee,item.id,false)">
+                Clear
+              </md-button>
+              <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.refreshDataEmployee()">
+                Refresh
+              </md-button>
+              <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.addDataEmployee(null,$event)">
+                Add New
+              </md-button>
+            </div>
+            <md-list flex="100" class="permissiontab custom-scroll dragbox" ng-class="{'layout-column': vm.employeeNoAddedList.length == 0}">
+              <md-list-item id="employeeNoAddedList" class="padding-0 items-container" layout="row" flex="100" layout-wrap
+                            ui-sortable="sortableOptionsEmployee"
+                            ng-model="vm.employeeNoAddedList"
+                            haveadded="false">
+                <div flex="100" class="md-1-line margin-0 dragsortable"
+                     ng-repeat="employee in vm.employeeNoAddedList"
+                     ui-sortable-selectable
+                     ng-model="employee"
+                     layout="row" layout-align="start center">
+                  <div class="avatar-wrapper">
+                    <img class="md-avatar avatar margin-top-0 margin-bottom-0" ng-src="{{employee.ProfilePic}}" />
+                  </div>
+                  <div class="md-list-item-text" layout="row" layout-wrap>
+                    <h3 class="name margin-0 md-primary-fg" flex="100">
+                      <b>
+                        <a class="cm-text-decoration" ng-click="vm.goToUpdatePersonnel(employee.id);">
+                          {{'('+employee.initialName+') '}}{{(employee.firstName ? employee.firstName : "") + " " + (employee.lastName ? employee.lastName : "")}}
+                        </a>
+                      </b>{{employee.employeeDepartment.department ?' (' + employee.employeeDepartment.department.deptName + ')' : ''}}
+                    </h3>
+                    <p class="last-message text-truncate margin-0">
+                      {{employee.employeeDepartment.genericCategory?employee.employeeDepartment.genericCategory.gencCategoryName : ''}}
+                    </p>
+                  
+                  </div>
+                </div>
+                <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                     ng-if="vm.employeeNoAddedList.length == 0"
+                     ui-sortable-selectable>
+                  <div class="empty-state text-center">
+                    <div class="emty-icon">
+                      <img ng-src="{{vm.EmptyMesssageEmployees.IMAGEURL}}" />
+                    </div>
+                    <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchNoAddedListEmployee == null && vm.RoleVal == 0 && vm.employeeNoAddedList.length == 0">
+                      {{vm.EmptyMesssageEmployees.ALL_ASSIGNED}}
+                    </p>
+                    <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="(vm.SearchNoAddedListEmployee != null || vm.RoleVal > 0) && vm.FilterEmployeeNotAdded != true">
+                      {{vm.EmptyMesssageEmployees.EMPTY_SEARCH_MESSAGE}}
+                    </p>
+                  </div>
+                </div>
+              </md-list-item>
+            </md-list>
+          </div>
+          <div flex-xs="100" layout="row" layout-align="space-between center" class="cm-data-fields-buttons">
+            <div flex="100" flex-xs="100" layout-xs="row" layout-md="row" layout-sm="row" layout="column" layout-align="space-between center" layout-align-md="center center" layout-align-sm="center center">
+              <md-button class="md-fab md-raised md-mini margin-20"
+                         ng-disabled="!selectAnyAddedEmployee"
+                         ng-mousedown="vm.ModifyPageAddedEmployee('Remove',$event)">
+                <i class="icon-chevron-left icondrag"></i>
+                <md-tooltip>Remove</md-tooltip>
+              </md-button>
+              <md-button class="md-fab md-raised md-mini margin-20"
+                         ng-disabled="vm.employeeAddedList.length == 0"
+                         ng-mousedown="vm.ModifyPageAddedEmployee('RemoveAll',$event)">
+                <i class="icon-chevron-double-left icondrag"></i>
+                <md-tooltip>Remove All</md-tooltip>
+              </md-button>
+              <md-button class="md-fab md-raised md-mini margin-20"
+                         ng-disabled="vm.employeeNoAddedList.length == 0"
+                         ng-mousedown="vm.ModifyPageAddedEmployee('AddAll',$event)">
+                <i class="icon-chevron-double-right icondrag"></i>
+                <md-tooltip>Add All</md-tooltip>
+              </md-button>
+              <md-button class="md-fab md-raised md-mini margin-20"
+                         ng-disabled="!selectAnyNoAddedEmployee"
+                         ng-mousedown="vm.ModifyPageAddedEmployee('Add',$event)">
+                <i class="icon-chevron-right icondrag"></i>
+                <md-tooltip>Add</md-tooltip>
+              </md-button>
+            </div>
+          </div>
+          <div flex flex-xs="100">
+            <div flex flex-xs="100" layout="row" layout-wrap class="mobilesearch userpermissionhead" layout-align="space-between end">
+              <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75" ng-class="{'clickedsearch':isButtonEmployeeAddedClicked}">
+                <input id="SearchAddedListEmployee" type="text" placeholder="Type here to search added personnel" ng-model="vm.SearchAddedListEmployee"
+                       ng-change="vm.SearchEmployee(vm.employeeAddedList, vm.SearchAddedListEmployee,null, true)" ng-model-options="{ debounce: vm.debounceConstant.uiSideFilter }">
+              </md-input-container>
+              <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                         ng-disabled="!vm.SearchAddedListEmployee"
+                         ng-click="vm.SearchAddedListEmployee='';vm.SearchEmployee(vm.employeeAddedList,vm.SearchAddedListEmployee,item.id,true)">
+                Clear
+              </md-button>
+
+            </div>
+            <md-list class="permissiontab custom-scroll dragbox cm-wo-list-input flex-100" ng-class="{'layout-column': vm.employeeAddedList.length == 0}">
+              <md-list-item id="employeeAddedList"
+                            class="padding-0 items-container drag-container-item layout-row flex-100 layout-wrap"
+                            ui-sortable="sortableOptionsEmployee" ng-model="vm.employeeAddedList"
+                            haveadded="true">
+                <div flex="100" class="md-1-line margin-0 dragsortable"
+                     ng-repeat="employee in vm.employeeAddedList"
+                     ui-sortable-selectable ng-model="employee"
+                     layout="row" layout-align="start center"
+                     ng-class="{'cursor-not-allow': employee.id == vm.entityCreatedByEmployeeID}">
+                  <div class="avatar-wrapper">
+                    <img class="md-avatar avatar margin-top-0 margin-bottom-0" ng-src="{{employee.ProfilePic}}" />
+                  </div>
+                  <div class="md-list-item-text flex layout-align-space-between-center">
+                    <div class="layout-row layout-align-space-between">
+                      <div class="layout-row layout-wrap flex-lg-75 flex-70">
+                        <div class="inline-block layout-row">
+                          <h3 class="name margin-0 md-primary-fg" flex="100">
+                            <b>
+                              <a class="cm-text-decoration" ng-click="vm.goToUpdatePersonnel(employee.id);">
+                                {{'('+employee.initialName+') '}}{{(employee.firstName ? employee.firstName : "") + " " + (employee.lastName ? employee.lastName : "")}}
+                              </a>
+                            </b>{{employee.employeeDepartment.department ?' (' + employee.employeeDepartment.department.deptName + ')' : ''}}
+                          </h3>
+                          <p class="last-message text-truncate margin-0" flex="70">
+                            {{employee.employeeDepartment.genericCategory ? employee.employeeDepartment.genericCategory.gencCategoryName : ''}}
+                          </p>
+                        </div>
+                      </div>
+                      <!--<ng-form name="vm.qpaForm" flex-lg="25" flex="35" layout="row">-->
+                      <div class="cm-md-list-input layout-column flex-lg-25 flex-30">
+                        <md-input-container ng-if="employee.entityPermissionList" md-no-float class="autocompletecustom  cm-entity-emp-custom cm-md-list-input layout-column min-width-initial">
+                          <custom-auto-complete datalist="employee.entityPermissionList"
+                                                column-name="employee.autoCompletePermission.columnName"
+                                                key-column-name="employee.autoCompletePermission.keyColumnName"
+                                                input-name="employee.autoCompletePermission.inputName"
+                                                placeholder-name="employee.autoCompletePermission.placeholderName"
+                                                key-column-id="employee.autoCompletePermission.keyColumnId"
+                                                is-addnew="employee.autoCompletePermission.isAddnew"
+                                                is-required="employee.autoCompletePermission.isRequired"
+                                                callback-fn="employee.autoCompletePermission.callbackFn"
+                                                on-select-callback-fn="employee.autoCompletePermission.onSelectCallbackFn"
+                                                callback-fn-param="employee.autoCompletePermission.callbackFnParam">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </div>
+                      <!--</ng-form>-->
+                    </div>
+                  </div>
+                </div>
+                <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                     ng-if="vm.employeeAddedList.length == 0"
+                     ui-sortable-selectable>
+                  <div class="empty-state text-center">
+                    <div class="emty-icon">
+                      <img ng-src="{{vm.EmptyMesssageEmployees.IMAGEURL}}" />
+                    </div>
+                    <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchAddedListEmployee == null && vm.employeeAddedList.length == 0">
+                      {{vm.EmptyMesssageEmployees.MESSAGE}}
+                    </p>
+                    <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchAddedListEmployee != null && vm.FilterEmployeeAdded != true">
+                      {{vm.EmptyMesssageEmployees.EMPTY_SEARCH_MESSAGE}}
+                    </p>
+                  </div>
+                </div>
+              </md-list-item>
+            </md-list>
+          </div>
+        </div>
+        <div flex="100" class="md-1-line margin-0 cursor-not-allow" ng-if="!vm.isContainMasterEmployee">
+          <div class="empty-state text-center full-height">
+            <div class="emty-icon">
+              <img ng-src="{{vm.EmptyMesssageEmployees.IMAGEURL}}" />
+            </div>
+            <p class="empty-state-title font-size-2 useadded-emptytxt">
+              {{vm.EmptyMesssageEmployees.MESSAGE}}
+            </p>
+            <p flex="100">
+              {{vm.EmptyMesssageEmployees.ADDNEWMESSAGE}}
+            </p>
+            <p flex="100">
+              <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.addDataEmployee(null,$event)">
+                <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+              </md-button>
+              <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.refreshDataEmployee()">
+                <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-refresh"></md-icon>
+              </md-button>
+            </p>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.saveEntityPermission($event)" ng-disabled="vm.saveDisable"  ng-class="{'md-formdirty': vm.SelectEntityEmployee.$dirty}">
+        Save Permission
+      </md-button>
+    </md-dialog-actions>
+  </form>
+  <!-- / CONTENT -->
+</md-dialog>

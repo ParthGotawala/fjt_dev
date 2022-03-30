@@ -1,0 +1,422 @@
+<md-dialog class="cm-custom-label-common cm-bin-add-update" aria-label="Add Bin" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="35">
+  <form name="vm.binForm" class="md-inline-form" novalidate autocomplete="off">
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2 ng-if="!vm.bin.generateBin">{{ !vm.bin.id ? 'Add':'Update'}} Bin</h2>
+        <h2 ng-if="vm.bin.generateBin">Generate Bin</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custome-scroll">
+      <md-content layout="column" class="padding-10 mh-5">
+
+        <div class="cm-section-main margin-bottom-5">
+          <div class="cm-section-inner">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+
+                <tr>
+                  <th>
+                    <p class="label-container">
+                      <a class="cm-text-decoration underline" ng-click="vm.goToWarehouseList();" tabindex="-1">Warehouse</a>
+                      <span ng-if="!(vm.bin.id || (vm.objWHAdd && vm.objWHAdd.warehouseId))">&nbsp;*</span>
+                    </p>
+                  </th>
+                  <td>
+                    <div layout="row" flex>
+                      <md-input-container ng-if="vm.autoCompleteWarehouse" class="autocompletecustom margin-bottom-0" custom-auto-focus="{{vm.isFocusOnWH ? true : false}}" flex>
+                        <custom-auto-complete datalist="vm.WarehouseList"
+                                              column-name="vm.autoCompleteWarehouse.columnName"
+                                              controller-name="vm.autoCompleteWarehouse.controllerName"
+                                              view-template-url="vm.autoCompleteWarehouse.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteWarehouse.keyColumnName"
+                                              input-name="vm.autoCompleteWarehouse.inputName"
+                                              placeholder-name="vm.autoCompleteWarehouse.placeholderName"
+                                              key-column-id="vm.autoCompleteWarehouse.keyColumnId"
+                                              is-required="vm.autoCompleteWarehouse.isRequired"
+                                              is-disabled="vm.bin.id || (vm.objWHAdd && vm.objWHAdd.warehouseId)"
+                                              is-addnew="vm.autoCompleteWarehouse.isAddnew"
+                                              add-data="vm.autoCompleteWarehouse.addData"
+                                              callback-fn="vm.autoCompleteWarehouse.callbackFn"
+                                              is-search-text-uppercase="vm.autoCompleteWarehouse.isSearchTextUppercase"
+                                              on-select-callback-fn="vm.autoCompleteWarehouse.onSelectCallbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                      <div class="margin-left-5">
+                        <md-input-container>
+                          <md-radio-group layout="row" layout-align="start start" layout-wrap ng-change="vm.changeStatus()"
+                                          name="Active" id="Active" ng-model="vm.bin.isActive" class="margin-0" custom-auto-focus="{{vm.bin.id || vm.objWHAdd && vm.objWHAdd.warehouseId ? true:false}}">
+                            <md-radio-button flex ng-repeat="item in vm.RadioGroup.isActive.array"
+                                             name="{{item.Value}}" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                          </md-radio-group>
+                        </md-input-container>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <th>
+                    <p class="label-container">Bin Type</p>
+                  </th>
+                  <td>
+                    <md-input-container layout-wrap layout="row" class="md-input-has-value">
+                      <md-radio-group name="binTypeGroup" layout="column" layout-gt-xs="row" flex layout-align="start start" class="margin-0" ng-model="vm.bin.isPermanentBin" ng-disabled="true">
+                        <md-radio-button name="binType" ng-value="{{vm.binType[0].value}}">{{vm.binType[0].key}}</md-radio-button>
+                        <md-radio-button name="binType" ng-value="{{vm.binType[1].value}}">{{vm.binType[1].key}}</md-radio-button>
+                      </md-radio-group>
+                    </md-input-container>
+                  </td>
+                </tr>
+
+                <tr ng-if="!vm.bin.id">
+                  <th>
+                    <p class="label-container">Bin Generate</p>
+                  </th>
+                  <td>
+                    <md-input-container layout-wrap layout="row" class="md-input-has-value">
+                      <!--ng-disabled="(vm.selectedWarehouse.warehouseType == vm.warehouseType.Equipment) || (vm.selectedWarehouse.warehouseType == vm.warehouseType.SmartCart && vm.selectedWarehouse.cartMfr == vm.WarehouseCartManufacturer[1].name)"-->
+                      <md-radio-group name="binGenerateGroup" layout="column" layout-gt-xs="row" flex layout-align="start start" class="margin-0" ng-model="vm.bin.isSingleBin" ng-change="vm.changeBinGenerate()" ng-disabled="!vm.autoCompleteWarehouse.keyColumnId">
+                        <md-radio-button name="binGenerate" ng-value="{{vm.binGenerate[0].value}}">{{vm.binGenerate[0].key}}</md-radio-button>
+                        <md-radio-button name="binGenerate" ng-value="{{vm.binGenerate[1].value}}">{{vm.binGenerate[1].key}}</md-radio-button>
+                      </md-radio-group>
+                    </md-input-container>
+                  </td>
+                </tr>
+
+                <tr>
+                  <th>
+                    <p class="label-container">Bin Generate Type</p>
+                  </th>
+                  <td>
+                    <md-input-container layout-wrap layout="row" class="md-input-has-value">
+                      <md-radio-group name="binGenerateTypeGroup" layout="column" layout-gt-xs="row" flex layout-align="start start" class="margin-0" ng-model="vm.bin.isRandom" ng-change="vm.changeBinGenerateType()" ng-disabled="!vm.autoCompleteWarehouse.keyColumnId || vm.bin.id || vm.selectedWarehouse.warehouseType == vm.warehouseType.Equipment.key">
+                        <md-radio-button name="binGenerateType" ng-value="{{vm.binGenerateType[0].value}}">{{vm.binGenerateType[0].key}}</md-radio-button>
+                        <md-radio-button name="binGenerateType" ng-value="{{vm.binGenerateType[1].value}}">{{vm.binGenerateType[1].key}}</md-radio-button>
+                      </md-radio-group>
+                    </md-input-container>
+                  </td>
+                </tr>
+
+                <tr ng-if="!vm.bin.id">
+                  <th>
+                    <p class="label-container">Bin Generate Method</p>
+                  </th>
+                  <td>
+                    <md-input-container layout-wrap layout="row" class="md-input-has-value">
+                      <md-radio-group name="binGenerateMethodGroup" layout="column" layout-gt-xs="row" flex layout-align="start start" class="margin-0" ng-model="vm.bin.isRange" ng-disabled="!vm.autoCompleteWarehouse.keyColumnId" ng-change="vm.changeBinGenerateMethod()">
+                        <md-radio-button name="binGenerateMethod" ng-value="{{vm.binGenerateMethod[0].value}}"
+                                         ng-disabled="vm.bin.isSingleBin">{{vm.binGenerateMethod[0].key}}</md-radio-button><!--|| (!vm.bin.isSingleBin && vm.bin.isRandom)-->
+                        <md-radio-button name="binGenerateMethod" ng-value="{{vm.binGenerateMethod[1].value}}">{{vm.binGenerateMethod[1].key}}</md-radio-button>
+                      </md-radio-group>
+                    </md-input-container>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <fieldset class="container-box margin-bottom-10" ng-if="!vm.bin.id">
+          <legend class="ml-15 mb-5">Slot/Bin</legend>
+
+          <div class="cm-section-main margin-bottom-5">
+            <div class="cm-section-inner">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                <tbody>
+
+
+                  <tr>
+                    <th colspan="1">
+                      <p class="label-container">
+                        <a class="cm-text-decoration underline" ng-click="vm.goToNicknameList();" tabindex="-1">Nickname</a>
+                      </p>
+                    </th>
+                    <td colspan="2">
+                      <md-input-container ng-if="vm.autoCompleteNickName" class="autocompletecustom margin-bottom-0 cm-warehouse-nickname-auto" flex="100">
+                        <custom-auto-complete datalist="vm.NickNameList"
+                                              column-name="vm.autoCompleteNickName.columnName"
+                                              key-column-name="vm.autoCompleteNickName.keyColumnName"
+                                              input-name="vm.autoCompleteNickName.inputName"
+                                              placeholder-name="vm.autoCompleteNickName.placeholderName"
+                                              key-column-id="vm.autoCompleteNickName.keyColumnId"
+                                              is-required="false"
+                                              is-disabled="vm.selectedWarehouse.warehouseType != vm.warehouseType.ShelvingCart.key || vm.bin.id ? true : false"
+                                              is-addnew="vm.autoCompleteNickName.isAddnew"
+                                              callback-fn="vm.autoCompleteNickName.callbackFn"
+                                              on-select-callback-fn="vm.autoCompleteNickName.onSelectCallbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="3" class="height-20 p-0 padding-bottom-0 padding-left-5 text-align-center">OR</td>
+                  </tr>
+                  <tr>
+                    <th colspan="1">
+                      <md-input-container layout-wrap layout="row" class="md-input-has-value float-right">
+                        <md-radio-group name="binPrefixMethodGroup" layout="column" layout-gt-xs="row" flex layout-align="start start" class="margin-0" ng-model="vm.bin.isBinPrifix"
+                                        ng-disabled="!vm.autoCompleteWarehouse.keyColumnId || vm.selectedWarehouse.warehouseType === vm.warehouseType.SmartCart.key || !vm.bin.isRange || vm.bin.isSingleBin"
+                                        ng-change="vm.genString(null,null)">
+
+                          <md-radio-button name="binPrefixMethod" ng-value="{{vm.binPrefixMethod[0].value}}">{{vm.binPrefixMethod[0].key}}</md-radio-button>
+                          <md-radio-button name="binPrefixMethod" ng-value="{{vm.binPrefixMethod[1].value}}">{{vm.binPrefixMethod[1].key}}</md-radio-button>
+                        </md-radio-group>
+                      </md-input-container>
+                    </th>
+                    <th class="padding-top-12">
+                      <p class="label-container" ng-if="vm.bin.isBinPrifix">Prefix</p>
+                      <p class="label-container" ng-if="!vm.bin.isBinPrifix">Suffix</p> <!--<b>OR</b>&nbsp;-->
+                    </th>
+                    <td>
+                      <md-input-container flex class="md-block">
+                        <input type="text" name="prefix" ng-model="vm.bin.prefix" id="txtnickname"
+                               placeholder="Nickname" ng-maxlength="50" class="text-uppercase" custom-blur="vm.changeTextNickname()"
+                               ng-disabled="!vm.autoCompleteWarehouse.keyColumnId || vm.selectedWarehouse.warehouseType === vm.warehouseType.SmartCart.key || !vm.bin.isRange || vm.bin.isSingleBin || vm.bin.id">
+                        <div ng-messages="vm.binForm.prefix.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(50,vm.binForm.prefix.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <span ng-if="!vm.bin.isSingleBin && vm.bin.isRange" flex="100" class="font-size-10 padding-2">
+            <b>i.e. <span ng-if="!vm.bin.isRandom">Warehouse Name +</span> Nickname/Prefix/Suffix + Auto Generate Number.</b>
+          </span>
+          <div class="cm-section-main margin-bottom-5">
+            <div class="cm-section-inner">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th>
+                      <p class="label-container">From<span ng-if="!vm.bin.isSingleBin && vm.bin.isRange">&nbsp;*</span></p>
+                    </th>
+                    <td class="width-45p">
+                      <md-input-container class="md-block">
+                        <input type="text" name="binFrom" id="binFrom" ng-model="vm.bin.binFrom" placeholder="from" ng-maxlength="8" onkeypress="return OnlyNumeric(event)" ng-required="!vm.bin.isSingleBin && vm.bin.isRange"
+                               ng-disabled="!vm.autoCompleteWarehouse.keyColumnId || vm.bin.isSingleBin || !vm.bin.isRange" custom-blur="vm.checkToFromValue()">
+                        <div ng-messages="vm.binForm.binFrom.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="minvalue || maxlength">
+                            <span>{{vm.transaction.CHECK_TO_FROM_VALUE}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+
+                    <th>
+                      <p class="label-container">To<span ng-if="!vm.bin.isSingleBin && vm.bin.isRange">&nbsp;*</span></p>
+                    </th>
+                    <td class="width-45p">
+                      <md-input-container class="md-block">
+                        <input type="text" name="binTo" ng-model="vm.bin.binTo" placeholder="to" ng-maxlength="8" onkeypress="return OnlyNumeric(event)" ng-required="!vm.bin.isSingleBin && vm.bin.isRange"
+                               ng-disabled="!vm.autoCompleteWarehouse.keyColumnId || vm.bin.isSingleBin || !vm.bin.isRange" custom-blur="vm.checkToFromValue()">
+                        <div ng-messages="vm.binForm.binTo.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="minvalue || maxlength">
+                            <span>{{vm.transaction.CHECK_TO_FROM_VALUE}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <span ng-if="!vm.bin.isSingleBin && vm.bin.isRange && vm.bin.binFrom && vm.bin.binTo" flex="100" class="font-size-10 padding-2">
+            <b>e.g, {{vm.binFromString}} To {{vm.binToString}} </b>
+          </span>
+
+        </fieldset>
+
+        <div class="cm-section-main margin-bottom-5" ng-if="vm.bin.id">
+          <div class="cm-section-inner">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+
+                <tr>
+                  <th>
+                    <p class="label-container">
+                      <a class="cm-text-decoration underline" ng-click="vm.goToNicknameList();" tabindex="-1">Nickname</a>
+                    </p>
+                  </th>
+                  <td>
+                    <md-input-container ng-if="vm.autoCompleteNickName" class="autocompletecustom margin-bottom-0 cm-warehouse-nickname-auto" flex="100">
+                      <custom-auto-complete datalist="vm.NickNameList"
+                                            column-name="vm.autoCompleteNickName.columnName"
+                                            key-column-name="vm.autoCompleteNickName.keyColumnName"
+                                            input-name="vm.autoCompleteNickName.inputName"
+                                            placeholder-name="vm.autoCompleteNickName.placeholderName"
+                                            key-column-id="vm.autoCompleteNickName.keyColumnId"
+                                            is-required="false"
+                                            is-disabled="vm.selectedWarehouse.warehouseType !== vm.warehouseType.ShelvingCart.key || vm.bin.id ? true : false"
+                                            is-addnew="vm.autoCompleteNickName.isAddnew"
+                                            callback-fn="vm.autoCompleteNickName.callbackFn"
+                                            on-select-callback-fn="vm.autoCompleteNickName.onSelectCallbackFn">
+                      </custom-auto-complete>
+                    </md-input-container>
+                  </td>
+
+                  <th>
+                    <p class="label-container" ng-if="vm.bin.prefix">Prefix</p> <!--<b>OR</b>&nbsp;-->
+                    <p class="label-container" ng-if="vm.bin.suffix">Suffix</p>
+                  </th>
+                  <td>
+                    <md-input-container flex class="md-block" ng-if="vm.bin.prefix">
+                      <input type="text" name="prefix" ng-model="vm.bin.prefix" id="txtpref"
+                             placeholder="Prefix" ng-maxlength="50" ng-disabled="vm.selectedWarehouse.warehouseType !== vm.warehouseType.ShelvingCart.key || (!vm.bin.isSingleBin && vm.bin.isRandom) || vm.bin.id" class="text-uppercase">
+                      <div ng-messages="vm.binForm.prefix.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50,vm.binForm.prefix.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                    <md-input-container flex class="md-block" ng-if="vm.bin.suffix">
+                      <input type="text" name="suffix" ng-model="vm.bin.suffix" id="txtsuffix"
+                             placeholder="Suffix" ng-maxlength="50" ng-disabled="vm.selectedWarehouse.warehouseType !== vm.warehouseType.ShelvingCart.key || (!vm.bin.isSingleBin && vm.bin.isRandom) || vm.bin.id" class="text-uppercase">
+                      <div ng-messages="vm.binForm.prefix.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50,vm.binForm.prefix.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="cm-section-main margin-bottom-5">
+          <div class="cm-section-inner">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+
+                <tr ng-if="vm.bin.isSingleBin">
+                  <th><p class="label-container">Bin Name<span ng-if="vm.bin.isSingleBin && !vm.bin.id">&nbsp;*</span></p></th>
+                  <td>
+                    <div layout="row">
+                      <div layout="row" class="cm-pid-code-input" ng-if="!vm.bin.isRandom">
+                        <md-input-container md-no-float>
+                          <input type="text" name="binPrefix" ng-model="vm.binPrefix"
+                                 placeholder="Bin Prefix" ng-disabled="true"
+                                 ng-hide="true">
+                          <span>{{vm.binPrefix}}</span>
+                        </md-input-container>
+                      </div>
+                      <div layout="row" flex>
+                        <md-input-container class="md-block" flex="100">
+                          <!--custom-blur="vm.checkNameUnique();"-->
+                          <input type="text" name="Name" ng-model="vm.bin.Name" id="binname"
+                                 placeholder="Name" ng-required="vm.bin.isSingleBin" ng-maxlength="50" style="text-transform:uppercase" ng-disabled="vm.bin.isRange || vm.bin.id" custom-blur="vm.checkPrefix()">
+                          <div ng-messages="vm.binForm.Name.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(50,vm.binForm.Name.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr ng-if="!vm.bin.isSingleBin" ng-repeat="item in vm.multipleBinList">
+                  <th>
+                    <p class="label-container">Bin Name<span ng-if="!vm.bin.isSingleBin && !vm.bin.isRange">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p>
+                  </th>
+                  <td>
+                    <div layout="row">
+                      <div layout="row" class="cm-pid-code-input" ng-if="!vm.bin.isRandom">
+                        <md-input-container md-no-float>
+                          <input type="text" name="binPrefix_{{$index}}" ng-model="item.binPrefix"
+                                 placeholder="Bin Prefix" ng-disabled="true"
+                                 ng-hide="true">
+                          <span>{{item.binPrefix}}</span>
+                        </md-input-container>
+                      </div>
+                      <div layout="row" flex>
+                        <md-input-container class="md-block" flex="100">
+                          <!--custom-blur="vm.checkNameUnique();"-->
+                          <input type="text" name="binName_{{$index}}" ng-model="item.Name" id="binName_{{$index}}" ng-keypress="vm.addBin($event, $index)" custom-blur="item.callEnter ? $event.preventDefault() : vm.checkDuplicatRandomBin($index, null, $event)"
+                                 placeholder="Name" ng-required="!vm.bin.isSingleBin && !vm.bin.isRange" ng-maxlength="50" capitalize ng-disabled="vm.bin.isRange">
+                          <span flex="100" class="font-size-10">
+                            <b>i.e. Press enter for add new bin name.</b>
+                          </span>
+                          <div ng-messages="vm.binForm['binName_' + $index].$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(50,vm.binForm['binName_' + $index].$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                        <md-button class="md-icon-button" ng-click="vm.removeBin($index)" tabindex="-1" ng-disabled="vm.bin.isRange">
+                          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                        </md-button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="cm-section-main">
+          <div class="cm-section-inner">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <th><p class="label-container">Description</p></th>
+                  <td>
+                    <md-input-container class="md-block" flex="100">
+                      <input type="text" name="Description" ng-model="vm.bin.Description"
+                             placeholder="Description" ng-maxlength="255">
+                      <div ng-messages="vm.binForm.Description.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255,vm.binForm.Description.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised"
+                 ng-class="{'md-formdirty': vm.binForm.$dirty}"
+                 ng-disabled="vm.saveBtnDisableFlag"
+                 ng-click="vm.saveBinRefactored()" aria-label="Submit">Save</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>
+
+

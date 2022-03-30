@@ -1,0 +1,72 @@
+﻿doctype html
+html(lang="en")
+    head
+        title FJT - Logs
+
+        //- link(rel="stylesheet", href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css")
+        //- script(type="text/javascript", src="//code.jquery.com/jquery-2.1.3.min.js")
+        //- script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+        //- link(rel='stylesheet', href='http://cdn.datatables.net/1.10.2/css/jquery.dataTables.min.css')
+        //- script(type='text/javascript', src='http://cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js')
+        //- script(type='text/javascript', src='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js')
+
+    link(href='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css', rel='stylesheet')
+    script(type="text/javascript", src="//code.jquery.com/jquery-2.1.3.min.js")
+    script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+    link(rel='stylesheet', href='http://cdn.datatables.net/1.10.2/css/jquery.dataTables.min.css')
+    script(type='text/javascript', src='http://cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js')
+    script(type='text/javascript', src='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js')
+    script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.30.7/js/jquery.tablesorter.min.js')
+    
+
+
+        script(type="text/javascript").
+                $(document).ready(function(){
+                    $('#myTable').dataTable();         
+                });
+       
+        script(type="text/javascript").
+            var toggleDetails = function (i) {
+                var currentElement = $('#details-' + i);
+                if (currentElement.hasClass('hide')) {
+                    $('.details').addClass('hide');
+                    $('#details-' + i).removeClass('hide');
+                } else {
+                    $('#details-' + i).addClass('hide');
+                }
+            };
+
+    body(style='padding:10px 20px 10px 20px')
+        container
+            h1 FJT - Logs
+            table#myTable.table.table-striped
+                thead
+                    tr
+                        th Level
+                        th Message
+                        th Timestamp
+                        th
+                tbody
+                each log, i in logs
+                    tr
+                        td= log.level
+                        td= log.message
+                        td= log.timestamp
+                        td
+                            a(onclick="toggleDetails("+i+")")= "details"
+                    tr.hide.details(id="details-" + i)
+                        td(colspan=4)
+                            each value, key in log
+                                if key != 'level' && key != 'message' && key != 'timestamp'
+                                    div
+                                        strong= key
+                                        div(style="word-wrap: break-word; width :90%")= JSON.stringify(value)
+
+            nav
+                ul.pagination
+                    if prevPage
+                        li
+                            a(href='/logs/' + prevPage)= 'prev'
+                         li
+                            if logs && logs.length > 30
+                                    a(href='/logs/' + nextPage)= 'next'

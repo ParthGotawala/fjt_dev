@@ -1,0 +1,211 @@
+<form name="operationEmployee" novalidate class="cm-custom-label-common" autocomplete="off">
+  <div flex="100" layout="row" layout-sm="column" layout-wrap ng-if="vm.isContainOpMasterEmployee" layout-md="column">
+    <div flex flex-xs="100" flex-sm="100" layout="row" layout-wrap>
+      <div flex="100" flex-xs="100" layout="row"
+           class="mobilesearch employee-workstaion-search-box userpermissionhead"
+           layout-align="space-between center">
+        <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75"
+                            ng-class="{'clickedsearch':isButtonEmployeeClicked}">
+          <input id="SearchNoAddedListEmployee" type="text" placeholder="Type here to search personnel"
+                 ng-model="vm.SearchNoAddedListEmployee"
+                 ng-change="vm.searchEmployeeFromNoAddedList()"
+                 ng-model-options="{debounce: vm.debounceTime }" max="255">
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-disabled="!vm.SearchNoAddedListEmployee"
+                   ng-click="vm.SearchNoAddedListEmployee='';vm.searchEmployeeFromNoAddedList()">
+          Clear
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.refreshDataEmployee()">
+          Refresh
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-click="vm.addDataEmployee(null,$event)"
+                   ng-disabled="vm.isWoInSpecificStatusNotAllowedToChange">
+          Add New
+        </md-button>
+
+      </div>
+      <md-list flex="100" class="permissiontab custom-scroll dragbox"
+               ng-class="{'layout-column': vm.employeeNoAddedList.length == 0}">
+        <md-list-item id="employeeNoAddedList" class="padding-0 items-container" layout="row" flex="100"
+                      layout-wrap ui-sortable="sortableOptionsEmployee" ng-model="vm.employeeNoAddedList"
+                      haveadded="false">
+          <div flex="100" class="md-1-line margin-0 dragsortable padding-top-0 padding-bottom-0"
+               ng-repeat="employee in vm.employeeNoAddedList"
+               ui-sortable-selectable ng-model="employee"
+               layout="row" layout-align="start center"
+               ng-class="{'cursor-not-allow': vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange}">
+            <div class="avatar-wrapper">
+              <img class="md-avatar avatar" ng-src="{{employee.ProfilePic}}" />
+            </div>
+            <div class="md-list-item-text" layout="row" layout-wrap>
+              <h3 class="name margin-0 md-primary-fg" flex="100">
+                <b>
+                  <a class="cm-text-decoration" ng-click="vm.goToUpdatePersonnel(employee.id);">
+                    {{'('+employee.initialName+') '}}{{(employee.firstName ? employee.firstName : "") + " " + (employee.lastName ? employee.lastName : "")}}
+                  </a>
+                </b>
+                <span ng-if="employee.gencCategoryName">
+                  {{'(' + employee.gencCategoryName + ')'}}
+                  <md-tooltip>Title</md-tooltip>
+                </span>
+                <span ng-if="employee.deptName">
+                  {{'(' + employee.deptName + ')'}}
+                  <md-tooltip>Default Department</md-tooltip>
+                </span>
+              </h3>
+              <p class="last-message margin-0" ng-if="employee.empCertificationDetList.length > 0">
+                <!--text-truncate-->
+                <label class="label-box margin-top-5 margin-left-2" ng-style="{'background-color': standardItem.colorCode}"
+                       ng-repeat="standardItem in employee.empCertificationDetList track by $index">
+                  {{standardItem.stdClassName}}
+                  <md-tooltip>Certified Standard</md-tooltip>
+                </label>
+              </p>
+            </div>
+          </div>
+          <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+               ng-if="vm.employeeNoAddedList.length == 0" ui-sortable-selectable>
+            <div class="empty-state text-center">
+              <div class="emty-icon">
+                <img ng-src="{{vm.EmptyMesssageEmployees.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="vm.SearchNoAddedListEmployee == null">
+                {{vm.EmptyMesssageEmployees.ALL_ASSIGNED}}
+              </p>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="vm.SearchNoAddedListEmployee != null">
+                {{vm.EmptyMesssageEmployees.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+    <div class="cm-data-fields-buttons" flex-xs="100" layout="row" layout-align="space-between center">
+      <div flex="100" layout-sm="row" layout-xs="row" layout="column" layout-align="space-between center" layout-md="row">
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="!selectAnyAddedEmployee || vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange"
+                   ng-click="vm.ModifyPageAddedEmployee('Remove',$event)">
+          <i class="icon-chevron-left icondrag"></i>
+          <md-tooltip>Remove</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="vm.employeeAddedList.length == 0 || vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange"
+                   ng-click="vm.ModifyPageAddedEmployee('RemoveAll',$event)">
+          <i class="icon-chevron-double-left icondrag"></i>
+          <md-tooltip>Remove All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="vm.employeeNoAddedList.length == 0 || vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange"
+                   ng-click="vm.ModifyPageAddedEmployee('AddAll',$event)">
+          <i class="icon-chevron-double-right icondrag"></i>
+          <md-tooltip>Add All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="!selectAnyNoAddedEmployee || vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange"
+                   ng-click="vm.ModifyPageAddedEmployee('Add',$event)">
+          <i class="icon-chevron-right icondrag"></i>
+          <md-tooltip>Add</md-tooltip>
+        </md-button>
+      </div>
+    </div>
+    <div flex flex-xs="100" flex-sm="100">
+      <div flex="100" flex-xs="100" layout="row" class="mobilesearch userpermissionhead"
+           layout-align="space-between end">
+        <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75"
+                            ng-class="{'clickedsearch':isButtonEmployeeAddedClicked}">
+          <input id="SearchAddedListEmployee" type="text" placeholder="Type here to search added personnel"
+                 ng-model="vm.SearchAddedListEmployee"
+                 ng-change="vm.searchEmployeeFromAddedList()"
+                 ng-model-options="{debounce: vm.debounceTime }" max="255">
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-disabled="!vm.SearchAddedListEmployee"
+                   ng-click="vm.SearchAddedListEmployee='';vm.searchEmployeeFromAddedList()">
+          Clear
+        </md-button>
+      </div>
+      <md-list flex="100" class="permissiontab custom-scroll dragbox"
+               ng-class="{'layout-column': vm.employeeAddedList.length == 0}">
+        <md-list-item id="employeeAddedList" class="padding-0 items-container" layout="row" flex="100"
+                      layout-wrap ui-sortable="sortableOptionsEmployee" ng-model="vm.employeeAddedList" haveadded="true">
+          <div flex="100" class="md-1-line margin-0 dragsortable padding-top-0 padding-bottom-0"
+               ng-repeat="employee in vm.employeeAddedList"
+               ui-sortable-selectable ng-model="employee"
+               layout="row" layout-align="start center"
+               ng-class="{'cursor-not-allow': vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange}">
+            <div class="avatar-wrapper">
+              <img class="md-avatar avatar" ng-src="{{employee.ProfilePic}}" />
+            </div>
+            <div class="md-list-item-text" layout="row" layout-wrap>
+              <h3 class="name margin-0 md-primary-fg" flex="100">
+                <b>
+                  <a class="cm-text-decoration" ng-click="vm.goToUpdatePersonnel(employee.id);">
+                    {{'('+employee.initialName+') '}}{{(employee.firstName ? employee.firstName : "") + " " + (employee.lastName ? employee.lastName : "")}}
+                  </a>
+                </b>
+                <span ng-if="employee.gencCategoryName">
+                  {{'(' + employee.gencCategoryName + ')'}}
+                  <md-tooltip>Title</md-tooltip>
+                </span>
+                <span ng-if="employee.deptName">
+                  {{'(' + employee.deptName + ')'}}
+                  <md-tooltip>Default Department</md-tooltip>
+                </span>
+              </h3>
+              <p class="last-message margin-0" ng-if="employee.empCertificationDetList.length > 0">
+                <!--text-truncate-->
+                <label class="label-box margin-top-5 margin-left-2" ng-style="{'background-color': standardItem.colorCode}"
+                       ng-repeat="standardItem in employee.empCertificationDetList track by $index">
+                  {{standardItem.stdClassName}}
+                  <md-tooltip>Certified Standard</md-tooltip>
+                </label>
+              </p>
+            </div>
+          </div>
+          <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+               ng-if="vm.employeeAddedList.length == 0" ui-sortable-selectable>
+            <div class="empty-state text-center">
+              <div class="emty-icon">
+                <img ng-src="{{vm.EmptyMesssageEmployees.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="vm.SearchAddedListEmployee == null">
+                {{vm.EmptyMesssageEmployees.MESSAGE}}
+              </p>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="vm.SearchAddedListEmployee != null">
+                {{vm.EmptyMesssageEmployees.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+  </div>
+  <div flex="100" class="md-1-line margin-0 cursor-not-allow" ng-if="!vm.isContainOpMasterEmployee">
+    <div class="empty-state text-center full-height">
+      <div class="emty-icon">
+        <img ng-src="{{vm.EmptyMesssageForOpDataFields.IMAGEURL}}" />
+      </div>
+      <p class="empty-state-title font-size-2 useadded-emptytxt">
+        {{vm.EmptyMesssageForOpDataFields.MESSAGE}}
+      </p>
+      <p flex="100">
+        {{vm.EmptyMesssageForOpDataFields.ADDNEWMESSAGE}}
+      </p>
+      <p flex="100">
+        <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.addDataEmployee(null,$event)"
+                   ng-disabled="vm.isWoInSpecificStatusNotAllowedToChange">
+          <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+        </md-button>
+        <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.refreshDataEmployee()">
+          <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-refresh">
+          </md-icon>
+        </md-button>
+      </p>
+    </div>
+  </div>
+</form>

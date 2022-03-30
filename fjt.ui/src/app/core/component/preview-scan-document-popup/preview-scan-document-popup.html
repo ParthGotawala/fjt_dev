@@ -1,0 +1,231 @@
+<md-dialog aria-label="Preview Scan Document" class="cm-custom-label-common preview-scan-document-popup receiving-pop-main" draggable cg-busy="{promise:vm.cgBusyLoading}">
+  <form name="vm.scanDocumentForm" class="md-inline-form" autocomplete="off" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Scan Document</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="no-padding custom-scroll mh-5" layout="column">
+      <md-content layout="row" class="padding-10">
+        <div class="content-card scan-document-sideNav" layout="row" flex="100">
+          <div class="ms-theme-options-button md-primary-bg sidebar-icon-fixed " role="button" ng-show="!vm.isShowSideNav">
+            <div class="sidebar-icon-class">
+              <md-icon class="md-default-theme md-font material-icons cursor-pointer icon-backburger sidebar-icon-left" md-font-icon="icon-backburger" ng-click="vm.HideShowSideNav()" role="button" aria-label="icon-backburger"></md-icon>
+            </div>
+          </div>
+          <div flex="{{vm.isShowSideNav == false ? 0 : 25}}">
+            <md-sidenav class="md-sidenav-left" md-component-id="scanDocumentSetting" md-disable-backdrop
+                        md-whiteframe="4" md-disable-close-events>
+
+              <md-content class="custom-scroll">
+                <div class="cm-section-main border-0" flex="100">
+                  <div class="cm-section-inner margin-right-5-imp" flex="100">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main mt-10">
+                      <tbody>
+                        <tr>
+                          <td colspan="2">
+                            <label class="pv-10 pl-10 font-size-15">Specify the scanning mode and options you would like to use.</label>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th><p class="label-container">Connection Type</p></th>
+                          <td>
+                            <md-radio-group layout="row" class="mv-0 margin-right-0" name="scanSide" ng-model="vm.scanDetails.connectionType" required ng-change="vm.changeConnectionType()">
+                              <md-radio-button value="{{vm.ScanConnectionType.Usb}}">USB</md-radio-button>
+                              <md-radio-button value="{{vm.ScanConnectionType.Network}}">Network</md-radio-button>
+                            </md-radio-group>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToScannerList();" tabindex="-1">{{vm.autoCompleteScanner.placeholderName}}</a>
+                              <span>&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container ng-if="vm.autoCompleteScanner" class="autocompletecustom width-100p" flex="100">
+                              <custom-auto-complete custom-auto-focus=true
+                                                    datalist="vm.connectionWiseScannerList"
+                                                    column-name="vm.autoCompleteScanner.columnName"
+                                                    controller-name="vm.autoCompleteScanner.controllerName"
+                                                    view-template-url="vm.autoCompleteScanner.viewTemplateURL"
+                                                    key-column-name="vm.autoCompleteScanner.keyColumnName"
+                                                    input-name="vm.autoCompleteScanner.inputName"
+                                                    placeholder-name="vm.autoCompleteScanner.placeholderName"
+                                                    key-column-id="vm.autoCompleteScanner.keyColumnId"
+                                                    is-required="vm.autoCompleteScanner.isRequired"
+                                                    is-addnew="vm.autoCompleteScanner.isAddnew"
+                                                    callback-fn="vm.autoCompleteScanner.callbackFn"
+                                                    add-data="vm.autoCompleteScanner.addData"
+                                                    on-select-callback-fn="vm.autoCompleteScanner.onSelectCallbackFn">
+                              </custom-auto-complete>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+
+                          </th>
+                          <td class="skip-page-row">
+                            <div layout="row" layout-align="start center">
+                              <md-checkbox ng-model="vm.scanDetails.skipBlankPage" class="cm-margin-5"></md-checkbox>
+                              <p class="label-container margin-0">Skip Blank Page</p>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-10">Darkness Level</p>
+                          </th>
+                          <td>
+                            <div layout="column">
+                              <div>
+                                <md-slider flex class="md-primary height-30" md-discrete ng-model="vm.scanDetails.skipBlankPageLevel" step="1" min="0" max="5" aria-label="skipBlankPageLevel">
+                                </md-slider>
+                              </div>
+                              <div layout="row" layout-align="space-between">
+                                <div>0</div>
+                                <div>5</div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container">Paper Size<span>&nbsp;*</span></p>
+                          </th>
+                          <td>
+                            <md-input-container>
+                              <md-select name="size" ng-model="vm.scanDetails.size" ng-required="true" md-container-class="containerClass cm-md-select">
+                                <md-option ng-repeat="option in vm.ScanDocumentSize" ng-value="option.type">{{option.name}}</md-option>
+                              </md-select>
+                              <div ng-messages="vm.scanDocumentForm.size.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container">Color Mode<span>&nbsp;*</span></p>
+                          </th>
+                          <td>
+                            <md-input-container>
+                              <md-select name="size" ng-model="vm.scanDetails.color" ng-required="true" md-container-class="containerClass cm-md-select">
+                                <md-option ng-repeat="option in vm.ScanDocumentColor" ng-value="option.type">{{option.name}}</md-option>
+                              </md-select>
+                              <div ng-messages="vm.scanDocumentForm.size.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container">Resolution<span>&nbsp;*</span></p>
+                          </th>
+                          <td>
+                            <md-input-container>
+                              <md-select name="size" ng-model="vm.scanDetails.resolution" ng-required="true" md-container-class="containerClass cm-md-select">
+                                <md-option ng-repeat="option in vm.ScanDocumentResolution" ng-value="option.type">{{option.name}}</md-option>
+                              </md-select>
+                              <div ng-messages="vm.scanDocumentForm.size.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              Scanning Side
+                              <md-icon class="icon-question-mark-circle help-icon mr-0">
+                                <md-tooltip md-direction="top" class="tooltip-height-auto" ng-bind-html="vm.ScanSideTooltipMessage"></md-tooltip>
+                              </md-icon>
+                            </p>
+                          </th>
+                          <td>
+                            <md-radio-group layout="column" class="mv-0 margin-right-0" name="scanSide" ng-model="vm.scanDetails.scanSide" required>
+                              <md-radio-button value="{{vm.ScanDocumentSide.S.name}}">{{vm.ScanDocumentSide.S.displayName}}</md-radio-button>
+                              <md-radio-button value="{{vm.ScanDocumentSide.D.name}}">{{vm.ScanDocumentSide.D.displayName}}</md-radio-button>
+                            </md-radio-group>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToDocumentTypeList();" tabindex="-1">{{vm.autoCompleteDocumentType.placeholderName}}</a>
+                              <span>&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container ng-if="vm.autoCompleteDocumentType" class="autocompletecustom width-100p" flex="100">
+                              <custom-auto-complete datalist="vm.documentTypeList"
+                                                    column-name="vm.autoCompleteDocumentType.columnName"
+                                                    controller-name="vm.autoCompleteDocumentType.controllerName"
+                                                    view-template-url="vm.autoCompleteDocumentType.viewTemplateURL"
+                                                    key-column-name="vm.autoCompleteDocumentType.keyColumnName"
+                                                    input-name="vm.autoCompleteDocumentType.inputName"
+                                                    placeholder-name="vm.autoCompleteDocumentType.placeholderName"
+                                                    key-column-id="vm.autoCompleteDocumentType.keyColumnId"
+                                                    is-required="vm.autoCompleteDocumentType.isRequired"
+                                                    is-addnew="vm.autoCompleteDocumentType.isAddnew"
+                                                    callback-fn="vm.autoCompleteDocumentType.callbackFn"
+                                                    add-data="vm.autoCompleteDocumentType.addData"
+                                                    on-select-callback-fn="vm.autoCompleteDocumentType.onSelectCallbackFn">
+                              </custom-auto-complete>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th colspan="2" class="text-right">
+                            <md-button class="md-primary md-raised" ng-click="vm.scanDocument()" ng-disabled="vm.scanDocumentForm.$invalid || vm.scanning.processing || vm.isRetry">Scan</md-button>
+                          </th>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </md-content>
+              <md-icon class="md-default-theme md-font material-icons icon-backburger sidebar-arrow" md-font-icon="icon-backburger" ng-click="vm.HideShowSideNav()" role="button" aria-label="icon-backburger" ng-show="vm.isShowSideNav"></md-icon>
+            </md-sidenav>
+          </div>
+          <div flex="{{vm.isShowSideNav == false ? 100 : 75}}" layout="column" class=" margin-0" layout-align="space-between stretch">
+            <!--<div layout="row" flex="100" ng-if="!vm.scanning.processing && vm.scanning.scanDocPath">
+              <embed src="{{vm.scanning.scanDocPath}}" type="application/pdf" width="100%" height="750" />
+            </div>-->
+            <div layout="column" flex="100" layout-align="center center" class="scan-status p-20" ng-if="vm.scanning.status && !vm.scanning.scanDocPath && !vm.scanning.viewer">
+              <span class="ph-10" ng-bind-html="vm.scanning.status"></span>
+              <md-progress-linear md-mode="indeterminate" class="mv-30 w-200" ng-if="vm.scanning.processing"></md-progress-linear>
+              <md-button class="md-primary md-raised btn-scanner" ng-click="vm.retryCheckConnection()" ng-if="vm.btn.isRetry" ng-disabled="vm.scanning.processing">Retry</md-button>
+              <md-button class="md-primary md-raised btn-scanner" ng-click="vm.retryCheckConnection()" ng-if="vm.btn.tryAgain" ng-disabled="vm.scanning.processing">Try Again</md-button>
+              <md-button class="md-primary md-raised btn-scanner" ng-click="vm.scanDocument()" ng-if="vm.btn.scan" ng-disabled="vm.scanning.processing">Scan</md-button>
+              <md-button class="md-primary md-raised btn-scanner" ng-click="vm.scanDocument()" ng-if="vm.btn.scanAgain" ng-disabled="vm.scanning.processing">Scan Again</md-button>
+            </div>
+            <div layout="row" flex="100" class="some-pdf-container" ng-if="vm.scanning.viewer">
+              <pdfjs-viewer data="vm.scanning.fileData" scale="vm.scanning.scale"></pdfjs-viewer>
+            </div>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()" ng-if="!vm.scanning.viewer">Close</md-button>
+      <md-button class="md-default md-raised" ng-click="vm.discardDocument()" ng-if="vm.scanning.viewer">Discard & Exit</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.rescan()" ng-if="vm.scanning.viewer">Discard & Rescan</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.saveDocument()" ng-if="vm.scanning.viewer">Save</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

@@ -1,0 +1,399 @@
+﻿@using Stimulsoft.Report.Mvc;
+@using Stimulsoft.Report.Web;
+@using FJT.ReportDesigner.Helper;
+@model FJT.ReportDesigner.Models.SaveReportModel
+
+@{
+    ViewBag.Title = "Index";
+    var uiPageUrl = ViewBag.UiPageURL;
+}
+
+<div id="designer-div" style="position:relative;height:120vh;">
+    @Html.StiNetCoreDesigner(new StiNetCoreDesignerOptions()
+    {
+        Actions = {
+            GetReport = "GetReport",
+            DesignerEvent = "DesignerEvent",
+            SaveReport = "SaveReport",
+            PreviewReport = "PreviewReport",
+            Exit = "ExitDesigner"
+        },
+        Dictionary =
+        {
+            PermissionDataConnections = Stimulsoft.Report.Web.StiDesignerPermissions.View
+       },
+        Server =
+        {
+            RequestTimeout = 90
+        },
+        Behavior =
+        {
+            SaveReportMode = StiSaveMode.Hidden,
+            ShowSaveDialog = true
+        },
+        FileMenu =
+            {
+                ShowExit = true
+            }
+    });
+</div>
+
+@using (Html.BeginForm("SaveReportFromDialog", "Designer", FormMethod.Post, new { @id = "submit-form" }))
+{
+    <!-- Save Modal -->
+    <div class="modal fade" id="saveModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" style="z-index:10001;">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLongTitle">Select Option</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-body">
+
+                    @Html.HiddenFor(x => x.ReportGUID)
+                    @Html.HiddenFor(x => x.PublishVersion)
+                    <div class="form-group">
+                        <p>
+                            @Html.RadioButtonFor(m => m.SaveReportMode, @ConstantHelper.DRAFT_MODE, new { @class = "mr-1", @checked = "" }) @ConstantHelper.SAVE_AS_DRAFT
+                            @Html.RadioButtonFor(m => m.SaveReportMode, @ConstantHelper.PUBLISH_MODE, new { @class = "mr-1 ml-4", @checked = "" }) @ConstantHelper.SAVE_AND_PUBLISH
+                        </p>
+                        @Html.ValidationMessageFor(m => m.SaveReportMode, "", new { @id = "validationSaveReportMode", @class = "text-danger" })
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger px-3 mr-3" id="submit-btn" onclick="submitForm()">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    /* Comment for do not show report version dialog - on 27-01-2021(Bhavik thummar) */
+    <!-- Version Confirmation Modal -->
+    @*<div class="modal fade" id="versionConfirmModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" style="z-index:10001;">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="exampleModalLongTitle">Report Version</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="modal-body">
+                        <div class="form-group">
+                            @Html.Label("Version")
+                            @Html.TextBoxFor(x => x.PublishVersion, new { @class = "form-control", onfocusout ="validateReportVersion()"})
+                            @Html.ValidationMessageFor(m => m.PublishVersion, "", new { @id = "validationPublishVersion", @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-info px-3 mr-3" onclick="submitFormByID()">Save</button>
+                        <button type="button" class="btn btn-info px-3 mr-3" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+}
+
+<!-- Discard Changes Modal -->
+<div class="modal fade" id="discardChangesModal" tabindex="-1" role="dialog" aria-hidden="true" style="z-index:10001;">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Confirm</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <p><strong>@ViewBag.discardDraftMSG</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger px-3 mr-3" id="" onclick="discardChanges()">Yes</button>
+                <button class="btn btn-secondary" data-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stop Activity Modal -->
+<div class="modal fade" id="stopActivityModal" tabindex="-1" role="dialog" aria-hidden="true" style="z-index:10001;">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Confirm</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <p><strong>@ViewBag.stopActivityMSG</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger px-3 mr-3" id="" onclick="stopActivity()">Yes</button>
+                <button class="btn btn-secondary" data-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="ErrorModal" tabindex="-1" role="dialog" aria-hidden="true" style="z-index:10001;">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-danger">Error</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <p id="errorModalBody"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $(function () {
+        $("#reportName").html('@Model.ReportName');
+        $("#reportStatus").html('@Model.ReportStatus');
+        var reportVersion = '@Model.PublishVersion';
+        if (!(reportVersion == null || reportVersion == "")) {
+            $("#reportVersion").html('V_'+reportVersion);
+        }
+        if ('@Model.ReportName' != null) {
+            $("#discardChangesBtn").show();
+            $("#stopActivityBtn").show();
+        }
+        window.sessionStorage.setItem("urlParameter", '@ViewBag.urlParameter');
+
+        $("#alertToast").toast({
+             delay: 3000
+        });
+        $("#successToast").toast({
+             delay: 2000
+        });
+
+        $('#saveModal').on('show.bs.modal', function () {
+            /* Check bydefault Save As Draft at save report. */
+            $("input[name='SaveReportMode']:first").prop('checked', true);
+        });
+
+
+        /* comment for do not show report version related */
+        //autoGenerateReportVersion();
+    });
+
+    jsNetCoreDesigner.onready = function () {
+
+        /* where jsNetCoreDesigner - "js" + designer ID */
+        jsNetCoreDesigner.ActionSaveReport = function (e) {
+            if (jsNetCoreDesigner.options.report) {
+                jsNetCoreDesigner.options.report.properties.reportFile = '@Model.ReportName';
+                jsNetCoreDesigner.SendCommandSaveReport();
+            }
+            $('#saveModal').modal('show');
+        }
+
+    }
+
+    /* comment for do not show report version related */
+    //function autoGenerateReportVersion() {
+    //    var reportVersion = $("#PublishVersion").val().trim();
+    //    if (reportVersion == null || reportVersion == "") {
+    //        $("#PublishVersion").val("1.0.0");
+    //    }
+    //}
+
+    function submitFormByID() {
+        /* comment for do not show report version related */
+        //if (!validateReportVersion()) {
+        //    return false;
+        //}
+        //$('#versionConfirmModal').modal('hide');
+
+        $("#ReportGUID").val('@Model.ReportGUID');
+
+        var reportName = '@Model.ReportName';
+        var reportGuid = '@Model.ReportGUID';
+        var saveReportMode = $("input[name='SaveReportMode']:checked").val();
+        var publishVersion = $("#PublishVersion").val();
+
+        var model = {
+            ReportName: reportName,
+            ReportGUID: reportGuid,
+            SaveReportMode: saveReportMode,
+            PublishVersion: publishVersion
+        }
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveReportBySaveMode", "Designer")',  //"/Designer/SaveReportBySaveMode",
+            data: JSON.stringify(model),
+            contentType: "application/json; charset=utf-8",
+            success: function (response) {
+                /* Open toast for response message. */
+                showToast(response.isSuccess, response.message);
+
+                if (response.isSuccess == true) {
+                    $('#successToast').on('hidden.bs.toast', function () {
+                        refreshDesigner();
+                    })
+                }
+            },
+            failure: function () {
+                showToast(false, '@ViewBag.somethingWrongMSG');
+            },
+            error: function () {
+                showToast(false, '@ViewBag.somethingWrongMSG');
+                $('#alertToast').on('hidden.bs.toast', function () {
+                    refreshDesigner();
+                })
+            }
+        });
+    }
+
+    function refreshDesigner() {
+        var url = '@Url.Action("Index", "Designer", new {@id= "reportGuid" })';
+        url = url.replace("reportGuid", '@Model.ReportGUID');
+        window.location.href = url;
+    }
+
+    function submitForm() {
+        /* comment for do not show report version related */
+        //var radioValue = $("input[name='SaveReportMode']:checked").val();
+        //if (radioValue == null) {
+        //    $("#validationSaveReportMode").html("Please Select Atleast one radio button.");
+        //    return false;
+        //}
+        //$("#validationSaveReportMode").html(" ");
+        //if (radioValue == "publish") {
+        //    $('#saveModal').modal('hide');
+        //    $('#versionConfirmModal').modal('show');
+        //}
+        //else {
+        //    submitFormByID();
+        //     $('#saveModal').modal('hide');
+        //}
+
+        submitFormByID();
+        $('#saveModal').modal('hide');
+    }
+
+    /* comment for do not show report version related */
+    //function validateReportVersion() {
+    //    var versionRegex = /^\d\.\d\.\d$/;
+    //    var reportVersion = $("#PublishVersion").val().trim();
+    //    if (reportVersion == null || reportVersion == "") {
+    //        $("#validationPublishVersion").html("Report Version is Required.");
+    //        $("#PublishVersion").focus();
+    //        return false;
+    //    }
+    //    else if (versionRegex.test(reportVersion) == false) {
+    //        $("#validationPublishVersion").html("Publish Version should be in format x.x.x where x = numeric value.");
+    //        $("#PublishVersion").focus();
+    //        return false;
+    //    }
+    //    else {
+    //        $("#validationPublishVersion").html("");
+    //        return true;
+    //    }
+    //}
+
+    function discardChangesConfirm() {
+        $('#discardChangesModal').modal('show');
+    }
+
+    function discardChanges() {
+        $('#discardChangesModal').modal('hide');
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DiscardChanges", "Designer", new { id = Model.ReportGUID })',
+            data: '{}',
+            contentType: "application/json; charset=utf-8",
+            success: function (response) {
+                /* Open toast for response message. */
+                showToast(response.isSuccess, response.message);
+
+                if (response.isSuccess == true) {
+                    /* Don't show leave dilog (if we leave site without save then stimulsoft shows leave dialog.) */
+                    jsNetCoreDesigner.options.scrollbiMode = true;
+
+                    $('#successToast').on('hidden.bs.toast', function () {
+                        refreshDesigner();
+                    })
+                }
+            },
+            failure: function () {
+                showToast(false, '@ViewBag.somethingWrongMSG');
+            },
+            error: function () {
+                showToast(false, '@ViewBag.somethingWrongMSG');
+                $('#alertToast').on('hidden.bs.toast', function () {
+                    refreshDesigner();
+                })
+            }
+        });
+    }
+
+    function stopActivityConfirm() {
+        $('#stopActivityModal').modal('show');
+    }
+
+    function stopActivity() {
+        $('#stopActivityModal').modal('hide');
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("StopActivity", "Designer", new { id = Model.ReportGUID })',
+            data: '{}',
+            contentType: "application/json; charset=utf-8",
+            success: function (response) {
+                /* Open toast for response message. */
+                showToast(response.isSuccess, response.message);
+
+                if (response.isSuccess == true)
+                {
+                    /* Don't show leave dilog (if we leave site without save then stimulsoft shows leave dialog.) */
+                    jsNetCoreDesigner.options.scrollbiMode = true;
+
+                    $('#successToast').on('hidden.bs.toast', function () {
+                        redirectToUiPage();
+                    })
+                }
+            },
+            failure: function () {
+                showToast(false, '@ViewBag.somethingWrongMSG');
+            },
+            error: function () {
+                showToast(false, '@ViewBag.somethingWrongMSG');
+                $('#alertToast').on('hidden.bs.toast', function () {
+                    refreshDesigner();
+                })
+            }
+        });
+    }
+
+    function redirectToUiPage() {
+        window.location = '@uiPageUrl';
+    }
+
+    function showToast(isSuccess, message) {
+        if (isSuccess == true) {
+            $("#successToastBody").html(message);
+            $('#successToast').toast('show');
+        }
+        else {
+            $("#alertToastBody").html(message);
+            $('#alertToast').toast('show');
+        }
+    }
+
+</script>

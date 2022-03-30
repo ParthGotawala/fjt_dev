@@ -1,0 +1,1 @@
+"C:\Program Files\MongoDB\Server\4.4\bin\mongodump" --host localhost --port 27017 --db fjtpricing_dev --out "C:\FJTBackup\09272019"

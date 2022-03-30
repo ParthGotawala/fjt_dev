@@ -1,0 +1,151 @@
+<form name="vm.employeeDepartmentForm" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common" ms-form-wizard-form novalidate>
+    <table class="simple no-padding cm-eco-request-department" ms-responsive-table="" width="100%" ng-if="vm.ecoDeptApprovedList.length > 0">
+        <thead>
+            <tr>
+                <th width="120"><a class="cm-text-decoration" tabindex="-1" ng-click="vm.gotoDepartment();">Department</a></th>
+                <th><a class="cm-text-decoration" tabindex="-1" ng-click="vm.gotoPersonal();">Personnel</a></th>
+                <th class="text-center">Acknowledge</th>
+                <th>Initiate By</th>
+                <th>Date Initiated</th>
+                <th>Comment</th>
+                <th ng-show="vm.ecoRequestModel.finalStatus == 'P'">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="deptItem in vm.ecoDeptApprovedList">
+                <td>
+                    <md-input-container class="autocompletecustom margin-0" flex="100" md-no-float>
+                        <custom-auto-complete datalist="vm.departmentList"
+                                              column-name="deptItem.autoCompleteDepartment.columnName"
+                                              controller-name="deptItem.autoCompleteDepartment.controllerName"
+                                              view-template-url="deptItem.autoCompleteDepartment.viewTemplateURL"
+                                              key-column-name="deptItem.autoCompleteDepartment.keyColumnName"
+                                              input-name="deptItem.autoCompleteDepartment.inputName"
+                                              placeholder-name="deptItem.autoCompleteDepartment.placeholderName"
+                                              key-column-id="deptItem.autoCompleteDepartment.keyColumnId"
+                                              is-required="deptItem.autoCompleteDepartment.isRequired"
+                                              is-disabled="(vm.ecoRequestModel.finalStatus != 'P') || (vm.employeeDetails.id != vm.ecoRequestModel.initiateBy || !deptItem.isEditClicked) || vm.isWoInSpecificStatusNotAllowedToChange"
+                                              add-data="deptItem.autoCompleteDepartment.addData"
+                                              is-addnew="deptItem.autoCompleteDepartment.isAddnew"
+                                              callback-fn="deptItem.autoCompleteDepartment.callbackFn"
+                                              on-select-callback-fn="deptItem.autoCompleteDepartment.onSelectCallbackFn"
+                                              callback-fn-param="deptItem">
+                        </custom-auto-complete>
+                    </md-input-container>
+                </td>
+                <td width="100">
+                    <md-input-container class="md-block" flex="100" md-no-float ng-class="">
+                        <md-contact-chips flex="100" flex-xs="100" layout="row" ng-model="deptItem.employeeList"
+                                          md-contacts="vm.querySearch($query,deptItem)"
+                                          md-contact-name="fullName"
+                                          md-contact-email=""
+                                          name="employeeList{{$index}}"
+                                          md-require-match="true"
+                                          md-highlight-flags="i"
+                                          readonly="readonly"
+                                          ng-class="((!deptItem.employeeList.length && deptItem.deptID && deptItem.isEditClicked) ? 'error border-bottom-1' : '') || ((vm.ecoRequestModel.finalStatus != 'P'|| (vm.employeeDetails.id != vm.ecoRequestModel.initiateBy || (vm.employeeDetails.id == vm.ecoRequestModel.initiateBy && deptItem.ecoDeptApprovalID) && !deptItem.isEditClicked)) ? 'disable' : '')"
+                                          filter-selected="vm.filterSelected"
+                                          md-contact-chips-readonly="{{!deptItem.isEditClicked || !vm.isUserInDepartment(deptItem) || vm.isWoInSpecificStatusNotAllowedToChange}}"
+                                          placeholder="Search and Select Personnel"
+                                          secondary-placeholder="Search and Select Personnel">
+                        </md-contact-chips>
+                        <div ng-if="!deptItem.employeeList.length && deptItem.deptID && deptItem.isEditClicked"
+                             role="alert">
+                            <div>
+                                <span class="error">{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                        </div>
+                    </md-input-container>
+                </td>
+                <td class="text-center">
+                    <md-checkbox ng-model="deptItem.isAck" aria-label="Is Acknowledge?" class="margin-bottom-0"
+                                 ng-disabled="!deptItem.isEditClicked || !vm.isUserInDepartment(deptItem)
+                                  || vm.isWoInSpecificStatusNotAllowedToChange"
+                                 ng-change="vm.deptIsAckClicked(deptItem);"></md-checkbox>
+                </td>
+                <td>
+                    <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                        <input type="text" name="Initiate By" ng-model="deptItem.employeeFullName"
+                               placeholder="Initiate By" disabled />
+                    </md-input-container>
+                </td>
+                <td>
+                    <md-input-container flex="100" class="datepicker margin-bottom-0" md-no-float>
+                        <input type="text" class="float-left"
+                               name="initiateDate{{$index}}"
+                               max-value="vm.todayDate"
+                               max-value-is-today-date="true"
+                               allow-past-date="true"
+                               allow-future-date="false"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               ng-model="deptItem.initiateDate"
+                               enable-time="false"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="vm.initiateDateOptions"
+                               is-open="vm.IsPickerOpen[vm.DATE_PICKER.finalStatusDate]"
+                               ng-required="deptItem.isAck"
+                               ng-disabled="!deptItem.isEditClicked || !vm.isUserInDepartment(deptItem) || vm.isWoInSpecificStatusNotAllowedToChange" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.finalStatusDate] = (!deptItem.isEditClicked || !vm.isUserInDepartment(deptItem) ? false : true)">
+                        </md-icon>
+                        <div ng-messages="vm.employeeDepartmentForm['initiateDate'+$index].$error" role="alert">
+                            <div ng-message="maxvalue">
+                                <span>{{vm.getMaxDateValidation('Date Initiated', 'Today Date')}}</span>
+                            </div>
+                            <div ng-message="valid">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="datetime">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                        </div>
+                    </md-input-container>
+                </td>
+                <td>
+                    <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                        <textarea placeholder="Comment" name="comment{{$index}}" cols="30" class="txt-res-ver" ng-model="deptItem.comment"
+                                  ng-maxlength="1000"
+                                  ng-disabled="!deptItem.isEditClicked || !vm.isUserInDepartment(deptItem)
+                                   || vm.isWoInSpecificStatusNotAllowedToChange"></textarea>
+                        <div ng-messages="vm.employeeDepartmentForm['comment'+$index].$error"
+                             role="alert">
+                            <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(1000,vm.employeeDepartmentForm['comment'+$index].$viewValue.length)}}</span>
+                            </div>
+                        </div>
+                    </md-input-container>
+                </td>
+                <td ng-show="vm.ecoRequestModel.finalStatus == 'P'">
+                    <div layout="row">
+                        <md-button class="md-primary md-raised md-ink-ripple mv-0 margin-right-0" ng-click="vm.saveECORequestDeptApproval(deptItem)"
+                                   ng-if="deptItem.isEditClicked"
+                                   ng-disabled="((!deptItem.autoCompleteDepartment.keyColumnId) || deptItem.employeeList.length == 0)|| (deptItem.isAck && !deptItem.initiateDate) || vm.isWoInSpecificStatusNotAllowedToChange">
+                            Save
+                        </md-button>
+                        <md-button class="md-primary md-raised md-ink-ripple mv-0 margin-right-0" ng-if="deptItem.ecoDeptApprovalID && !deptItem.isEditClicked"
+                                   ng-disabled="(vm.employeeDetails.id != vm.ecoRequestModel.initiateBy && !vm.isUserInDepartment(deptItem)) || (vm.employeeDetails.id == vm.ecoRequestModel.initiateBy && deptItem.ecoDeptApprovalID && deptItem.isAck) || (vm.isWoInSpecificStatusNotAllowedToChange)"
+                                   ng-click="vm.depApprovalEditClicked(deptItem);">
+                            Update
+                        </md-button>
+                        <md-button class="md-primary md-raised md-ink-ripple mv-0 margin-right-0" ng-click="vm.deleteECORequestDeptApproval(deptItem)"
+                                   ng-disabled="vm.employeeDetails.id != vm.ecoRequestModel.initiateBy || !deptItem.ecoDeptApprovalID || deptItem.isEditClicked || vm.isWoInSpecificStatusNotAllowedToChange">
+                            Delete
+                        </md-button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center"
+         layout-wrap ng-if="vm.ecoDeptApprovedList.length == 0">
+        <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.ecoReqDeptApprovalEmptyState.IMAGEURL}}" />
+        </div>
+        <p flex="100" class="empty-state-title">{{vm.ecoReqDeptApprovalEmptyState.MESSAGE}}</p>
+    </div>
+</form>

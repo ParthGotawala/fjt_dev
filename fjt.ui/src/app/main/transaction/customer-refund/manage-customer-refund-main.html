@@ -1,0 +1,220 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-warehouse-bin-navbar cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="header md-accent-bg" layout="row" layout-align="space-between center">
+    <div class="white-fg" flex="50" flex-lg="45" flex-xl="40" layout="row" layout-align="start start">
+      <div>
+        <md-button class="goto-rfq-button md-icon-button cm-back-btn-p-m" type="button" aria-label="Go to Customer Refund List" ng-click="vm.goBack()">
+          <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+          </md-icon>
+          <md-tooltip>Back to Customer Refund List</md-tooltip>
+        </md-button>
+      </div>
+      <div layout="row" flex>
+        <div layout="column">
+          <div>
+            <pagetitle is-list="false"
+                       is-display-menu-name="true"
+                       prefix-content="vm.custRefundMstID ? 'Update' : 'Add'"
+                       suffix-content="vm.custRefundMstID && vm.paymentNumber ? (': ' + vm.paymentNumber) : ''"
+                       prefix-page-title=""></pagetitle>
+            <md-tooltip md-direction="right" ng-if="vm.paymentNumber">{{vm.paymentNumber}}</md-tooltip>
+          </div>
+          <div layout="row">
+            <breadcrumbs></breadcrumbs>
+          </div>
+        </div>
+        <div layout="column" flex class="margin-left-20 cm-header-search-add-container">
+          <div>
+            <md-input-container ng-if="vm.autoCompleteCustPaymentCheckNumber" class="width-100p autocompletecustom margin-0 widget-dashboard-search-area" flex="100" flex-gt-xs="100">
+              <custom-auto-complete-search on-search-fn="vm.autoCompleteCustPaymentCheckNumber.onSearchFn"
+                                           column-name="vm.autoCompleteCustPaymentCheckNumber.columnName"
+                                           key-column-name="vm.autoCompleteCustPaymentCheckNumber.keyColumnName"
+                                           input-name="vm.autoCompleteCustPaymentCheckNumber.inputName"
+                                           placeholder-name="vm.autoCompleteCustPaymentCheckNumber.placeholderName"
+                                           key-column-id="vm.autoCompleteCustPaymentCheckNumber.keyColumnId"
+                                           is-required="vm.autoCompleteCustPaymentCheckNumber.isRequired"
+                                           is-addnew="vm.autoCompleteCustPaymentCheckNumber.isAddnew"
+                                           callback-fn="vm.autoCompleteCustPaymentCheckNumber.callbackFn"
+                                           on-select-callback-fn="vm.autoCompleteCustPaymentCheckNumber.onSelectCallbackFn">
+            </md-input-container>
+          </div>
+          <div class="cm-square-icon-btn pt-2">
+            <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised"
+                       ng-if="vm.custRefundMstID"
+                       ng-click="vm.addCustomerRefund(true)">
+              <md-icon md-font-icon="t-icons-customer-refund add-icon" class="material-icons"></md-icon>
+              <md-tooltip>Refund to Customer In New Tab</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised"
+                       ng-if="vm.custRefundMstID"
+                       ng-click="vm.addCustomerRefund(false)">
+              <md-icon md-font-icon="t-icons-customer-refund add-icon same-tab-icon" class="material-icons"></md-icon>
+              <md-tooltip>Refund to Customer</md-tooltip>
+            </md-button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div layout="row" flex layout-align="start end" class="pl-10">
+      <table cellspacing="0" cellpadding="0" class="cm-header-data-table">
+        <tbody>
+          <tr>
+            <th ng-if="vm.selectedCustomerDet">
+              <a class="cursor-pointer text-underline" ng-click="vm.goToCustomerList();">Customer</a>:
+            </th>
+            <td class="color-black" ng-if="vm.selectedCustomerDet">
+              <span class="cm-name text-underline cursor-pointer"
+                    ng-click="vm.selectedCustomerDet.id ? vm.goToCustomerDetail() : ''">
+                <md-tooltip ng-if="vm.selectedCustomerDet.mfgFullName">{{vm.selectedCustomerDet.mfgFullName || '-'}}</md-tooltip>
+                <b>{{vm.selectedCustomerDet.mfgFullName || '-'}}</b>
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <th ng-if="vm.custRefundMstDetParent.id && vm.paymentNumber">
+              <span>
+                <a class="cursor-pointer text-underline" ng-click="vm.goToCustomerRefundList();">Payment# or Check#</a>:
+              </span>
+            </th>
+            <td ng-if="vm.custRefundMstDetParent.id && vm.paymentNumber">
+              <span class="cm-data">
+                <md-tooltip ng-if="vm.paymentNumber">{{vm.paymentNumber}}</md-tooltip>
+                <b>{{vm.paymentNumber || '-'}}</b>
+              </span>
+              <copy-text label="'Payment# or Check#'" text="vm.paymentNumber"></copy-text>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ml-25 mr-5">
+      <span class="label-box padding-5-imp" ng-if="vm.custRefundMstID && vm.custRefundMstDetParent && vm.custRefundMstDetParent.isRefundVoidedConvertedValue"
+            ng-class="vm.getCustRefundStatusClassName(vm.custRefundMstDetParent.isRefundVoidedConvertedValue)">
+        {{vm.custRefundMstDetParent.isRefundVoidedConvertedValue}}
+      </span>
+      <span class="label-box padding-5-imp" ng-if="vm.custRefundMstID && vm.custRefundMstDetParent"
+            ng-class="vm.getCustRefundSubStatusClassName(vm.custRefundMstDetParent.subStatus)">
+        {{vm.custRefundMstDetParent.refundSubStatusText}}
+      </span>
+    </div>
+    <div class="mr-10" layout>
+      <span class="label-box padding-5-imp width-75 label-danger ml-5"
+            ng-if="vm.custRefundMstDetParent.isCustRefundLocked">
+        Locked
+        <md-tooltip md-direction="bottom" class="tt-multiline"
+                    ng-if="vm.custRefundMstDetParent.isCustRefundLocked">
+          Locked By: {{vm.custRefundMstDetParent.lockedByUserFullName}} <br />
+          Locked Date: {{vm.custRefundMstDetParent.lockedAt}}
+        </md-tooltip>
+      </span>
+    </div>
+    <div layout="column" class="cm-header-draft-btn" layout-wrap layout-align="center center"
+         ng-if="vm.custRefundMstDetParent && vm.custRefundMstDetParent.subStatus">
+      <md-menu-bar id="user-menu" class="ph-5">
+        <md-menu md-position-mode="left bottom">
+          <md-button class=" user-button md-button md-ink-ripple white-text mv-0 ml-0" ng-click="$mdOpenMenu()"
+                     aria-label="User settings"
+                     ng-disabled="!vm.custRefundMstID || vm.custRefundMstDetParent.isPaymentVoided || vm.custRefundMstDetParent.isCustRefundLocked">
+            <div layout="row" layout-align="center center">
+              <span class="username">{{vm.getCustomerRefundSubStatus(vm.custRefundMstDetParent.subStatus)}}</span>
+              <md-icon md-font-icon="icon-chevron-down"
+                       class="icon s16" ng-disabled="!vm.custRefundMstID || vm.custRefundMstDetParent.isPaymentVoided || vm.custRefundMstDetParent.isCustRefundLocked"></md-icon>
+            </div>
+          </md-button>
+          <md-menu-content width="3">
+            <md-menu-item ng-repeat="status in vm.custRefundSubStatusList" ng-disabled="!vm.custRefundMstID || vm.custRefundMstDetParent.isPaymentVoided || vm.custRefundMstDetParent.isCustRefundLocked">
+              <md-button ng-click="vm.changeCustRefundSubStatus(status)">{{status.name}}</md-button>
+            </md-menu-item>
+          </md-menu-content>
+        </md-menu>
+      </md-menu-bar>
+    </div>
+    <div layout="row" layout-wrap layout-align="start center">
+      <div layout="row" layout-align="center center" class="cm-square-icon-btn cm-btn-group">
+        <md-button ng-if="vm.custRefundMstID" class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10"
+                   ng-class=""
+                   ng-click="vm.printCheck()" ng-disabled="vm.custRefundMstDetParent.isDisablePrintCheck || vm.isPrintLoader">
+          <md-icon md-font-icon="{{vm.isPrintLoader ? 'mdi mdi-spin mdi-loading' : 'icons-print-check'}}" class="material-icons"></md-icon>
+          <md-tooltip>Print Check</md-tooltip>
+        </md-button>
+        <md-button ng-if="vm.custRefundMstID" class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10"
+                   ng-class=""
+                   ng-click="vm.printRemittance()" ng-disabled="vm.isPrintRemittDisabled">
+          <md-icon md-font-icon="{{vm.isPrintRemittDisabled ? 'mdi mdi-spin mdi-loading' : 'icons-print-remittance'}}" class="material-icons"></md-icon>
+          <md-tooltip>Print Remittance</md-tooltip>
+        </md-button>
+        <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10"
+                   ng-click="vm.viewRefundHistory()"
+                   ng-if="vm.custRefundMstID && vm.custRefundMstDetParent">
+          <md-icon md-font-icon="t-icons-history-text" class="material-icons"></md-icon>
+          <md-tooltip>Refund History</md-tooltip>
+        </md-button>
+        <md-button class="md-primary md-raised"
+                   ng-disabled="vm.saveBtnDisableFlag || vm.custRefundMstDetParent.isPaymentVoided"
+                   ng-class="{'md-formdirty': vm.customerRefundForm.$dirty}"
+                   id="saveBtn" ng-click="vm.saveCustomerRefund();"
+                   ng-if="vm.activeTab==vm.customerRefundTabIDs.CustomerRefund">
+          Save
+        </md-button>
+        <md-menu-bar id="user-menu" class="" layout-align="start-center" layout="row"
+                     ng-if="vm.activeTab==vm.customerRefundTabIDs.CustomerRefund">
+          <md-menu md-position-mode="left bottom">
+            <md-button class="" ng-click="$mdOpenMenu()"
+                       aria-label="User settings">
+              <div layout="row" layout-align="space-between center">
+                <span class="color-white font-size-13 font-weight-normal">Menu Items</span>
+                <md-icon md-font-icon="icon-chevron-down"
+                         class="icon s16 color-white" hide-sm></md-icon>
+              </div>
+            </md-button>
+            <md-menu-content width="3">
+              <md-menu-item>
+                <md-button class=""
+                           ng-click="vm.goToCustomerInvoiceList();">
+                  Customer Credit Memo
+                </md-button>
+              </md-menu-item>
+              <md-menu-item>
+                <md-button class=""
+                           ng-click="vm.goToCustomerPaymentList();">
+                  Customer Payment
+                </md-button>
+              </md-menu-item>
+              <md-menu-item ng-if="vm.custRefundMstID && !vm.custRefundMstDetParent.isPaymentVoided">
+                <md-button class="cm-feture-btn-color"
+                           ng-click="vm.voidPaymentAndReleaseInvoiceGroup($event);"
+                           ng-disabled="!vm.allowToVoidCustRefundFeature || vm.custRefundMstDetParent.isPaymentVoided"
+                           ng-class="{'item-disabled': !vm.allowToVoidCustRefundFeature || vm.custRefundMstDetParent.isPaymentVoided}">
+                  Void Customer Refund
+                </md-button>
+              </md-menu-item>
+            </md-menu-content>
+          </md-menu>
+        </md-menu-bar>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-card padding-top-side" layout="row" flex="100">
+    <md-content flex="100" layout="column">
+      <ms-form-wizard flex layout>
+        <md-tabs validate-step="true" is-valid="vm.isStepValid" md-dynamic-height md-border-bottom md-selected="vm.activeTab" class="cm-fullheight manage-customer-tabing padding-0" flex>
+          <md-tab ng-repeat="item in vm.tabList" ng-disabled="item.isDisabled"
+                  md-on-select="vm.onTabChanges(item)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-text">
+                  {{item.title}}<span ng-if="item.id==vm.customerRefundTabIDs.Document">&nbsp;({{vm.documentCountOfCustRefund}})</span>
+                </span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div class="" ui-view="{{item.viewsrc}}"></div>
+            </md-tab-body>
+          </md-tab>
+        </md-tabs>
+      </ms-form-wizard>
+    </md-content>
+  </div>
+</div>
+
+

@@ -1,0 +1,1052 @@
+<div id="forms" flex="100" class="page-layout simple fullwidth doc-page" layout="column"
+     cg-busy="{promise:vm.cgBusyLoading}">
+  <!--cm-dataelement-label-->
+  <div class="content-card cm-custom-label-common" layout="column" flex>
+    <form name="vm.dataElementValueForm" novalidate class="cm-view-data-ele">
+      <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+      <div class="" layout="row" layout-align="end-end" ng-if="vm.dataelementList.length > 0 && !applyTravelerFilter && !vm.refTransHistoryId">
+        <md-button ng-disabled="vm.isProtected && (!vm.isReadOnly)" class="md-primary md-raised"
+                   aria-label="Add New Fields" ng-click="vm.moveToDataFields()">
+          Add Data Fields
+        </md-button>
+        <md-button ng-disabled="vm.isProtected && !vm.refTransHistoryId && (!vm.isReadOnly)" class="md-primary md-raised"
+                   aria-label="Refresh Data Fields" ng-click="vm.getAndDisplayUpdatedDataFields()">
+          Refresh Data Fields
+        </md-button>
+      </div>
+      <md-content layout="row" layout-wrap ng-if="vm.dataelementList.length > 0" class="cm-view-data-ele-detail" ng-class="{'view-only-content' : vm.isDisableEntityAccess}">
+        <div class="cm-section-main border-0" flex="100">
+          <div class="cm-section-inner" layout="row" layout-wrap>
+            <table flex="{{(itemElementData.controlTypeID ==vm.InputeFieldKeys.SubForm  || itemElementData.controlTypeID == vm.InputeFieldKeys.Editor) ? '100' : ((itemElementData.controlTypeID == vm.InputeFieldKeys.FileUpload || itemElementData.controlTypeID == vm.InputeFieldKeys.DateRange || itemElementData.controlTypeID == vm.InputeFieldKeys.Signature) ? '50' : size)}}"
+                   ng-style="{'width':itemElementData.fieldWidth + 'px', 'max-width':itemElementData.fieldWidth + 'px'}"
+                   ng-repeat="itemElementData in vm.dataelementList | unique: 'dataElementID'"
+                   class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <!-- [S] Textbox Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Textbox">
+                    <p class="label-container">
+                      {{itemElementData.dataElementName}}
+                      <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Textbox" class="flex">
+                    <md-input-container flex="100">
+                      <input type="text" ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                             custom-auto-focus="{{ $index == 0 ? true : false}}"
+                             name="{{itemElementData.dataElementID}}"
+                             last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}"
+                             expression-validator="{{itemElementData.validationExpr}}"
+                             ng-model="itemElementData.defaultValue"
+                             placeholder="{{itemElementData.dataElementName}}"
+                             ng-maxlength="itemElementData.maxLength"
+                             ng-required="itemElementData.isRequired">
+                      <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(itemElementData.maxLength, vm.dataElementValueForm[itemElementData.dataElementID].$viewValue.length)}}</span>
+                        </div>
+                        <div ng-message="expressionvalidator">
+                          <span>{{itemElementData.validationExprErrorMsg || vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <!-- [E] Textbox Control -->
+                  <!-- [S] Number Box Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Numberbox">
+                    <p class="label-container">
+                      {{itemElementData.dataElementName}}
+                      <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Numberbox" class="flex">
+                    <md-input-container flex="100">
+                      <input type="number" name="{{itemElementData.dataElementID}}"
+                             expression-validator="{{itemElementData.validationExpr}}"
+                             ng-model="itemElementData.defaultValue"
+                             last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}"
+                             placeholder="{{itemElementData.dataElementName}}" max="{{itemElementData.rangeTo}}"
+                             min="{{itemElementData.rangeFrom}}" step="{{itemElementData.step}}"
+                             ng-required="{{itemElementData.isRequired}}"
+                             ng-disabled="{{itemElementData.isAutoIncrement}} || vm.isProtected  || vm.isDisableEntityAccess">
+                      <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="min">
+                          <span>Min length {{itemElementData.rangeFrom}}!</span>
+                        </div>
+                        <div ng-message="max">
+                          <span>Max length {{itemElementData.rangeTo}}!</span>
+                        </div>
+                        <div ng-message="expressionvalidator">
+                          <span>{{itemElementData.validationExprErrorMsg || vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="number">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <!-- [E] Number Box Control -->
+                  <!-- [S] Multiline TextBox Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Multilinetextbox">
+                    <p class="label-container">
+                      {{itemElementData.dataElementName}}
+                      <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Multilinetextbox" class="flex">
+                    <md-input-container flex="100">
+                      <textarea name="{{itemElementData.dataElementID}}"
+                                last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}"
+                                ng-model="itemElementData.defaultValue" ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                                ng-maxlength="{{itemElementData.maxLength}}" rows="1"
+                                placeholder="{{itemElementData.dataElementName}}"
+                                ng-required="itemElementData.isRequired"></textarea>
+                      <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(itemElementData.maxLength, vm.dataElementValueForm[itemElementData.dataElementID].$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <!-- [E] Multiline TextBox Control -->
+                  <!-- [S] Editor TextBox Control -->
+                  <td colspan="8" ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Editor">
+                    <p class="margin-top-0 margin-bottom-5 label-container">
+                      {{itemElementData.dataElementName}}<span style="font-size:12px;"
+                                                               ng-if="itemElementData.isRequired">&nbsp;{{vm.minLengthMessage}}&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                    <md-input-container flex="100">
+                      <span class="margin-bottom-10"
+                            ng-if="vm.dataElementValueForm[itemElementData.dataElementID].$error.taMaxText"
+                            style="color:red; font-size:12px">{{vm.getMaxLengthValidation(vm.taToolbar.MAX_LENGTH, vm.dataElementValueForm[itemElementData.dataElementID].$viewValue.length)}}</span>
+                      <text-angular ta-disabled="vm.isProtected" ta-toolbar="vm.taToolbar.INLINE" cg-busy-loading="vm.cgBusyLoading"
+                                    ng-class="{'text-angular-custom-border':vm.dataElementValueForm[itemElementData.dataElementID].$error.taMaxText}"
+                                    name="{{itemElementData.dataElementID}}"
+                                    ng-model="itemElementData.defaultValue"
+                                    last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}"
+                                    ta-min-text="{{itemElementData.minlength ? itemElementData.minlength : 0}}"
+                                    ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"
+                                    ng-required="{{itemElementData.isRequired}}"></text-angular>
+                      <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <!-- [E] Editor TextBox Control -->
+                  <!-- [S] Datetime Picker Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.DateTime">
+                    <p class="label-container" for="{{itemElementData.dataElementName}}">
+                      {{itemElementData.dataElementName}}
+                      <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.DateTime" class="flex">
+                    <div layout="row" class="margin-bottom-15" flex="100">
+                      <md-input-container class="md-block datepicker padding-right-0-imp" flex="100"
+                                          ng-if="itemElementData.dateTimeType == '0'">
+                        <!--<input mdc-datetime-picker="" date="true" ng-disabled="vm.isProtected"
+                        time="true" type="text"
+                        id="{{itemElementData.dataElementName}}_{{itemElementData.dataElementID}}"
+                        expression-validator="{{itemElementData.validationExpr}}"
+                        placeholder="{{itemElementData.DateformatMask}}" show-todays-date=""
+                        edit-input="true" show-icon="vm.isProtected?false:true"
+                        ng-model="itemElementData.defaultValue"
+                        name="{{itemElementData.dataElementID}}"
+                        format="{{itemElementData.DateformatMask}}"
+                        class="dtp-no-msclear dtp-input md-input"
+                        ng-required="itemElementData.isRequired"
+                        ng-change="vm.elementChange(itemElementData)">-->
+                        <input type="text" class="float-left"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{itemElementData.DateformatMask}}"
+                               ng-model="itemElementData.defaultValue"
+                               datepicker-options="vm.dateTimeOptions"
+                               ui-mask="{{itemElementData.uimaskformatForDateTime}}"
+                               ui-mask-placeholder="{{itemElementData.placeholderForDateTime}}"
+                               model-view-value="true"
+                               id="{{itemElementData.dataElementName}}_{{itemElementData.dataElementID}}"
+                               name="{{itemElementData.dataElementID}}"
+                               is-open="itemElementData.dateTimeOpenFlag"
+                               ng-required="itemElementData.isRequired"
+                               ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                               expression-validator="{{itemElementData.validationExpr}}"
+                               enable-time="true"
+                               enable-date="true"
+                               last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}"
+                               ng-change="vm.elementChange(itemElementData)" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="itemElementData.dateTimeOpenFlag = (vm.isProtected || vm.isDisableEntityAccess ? false:true)">
+                        </md-icon>
+                        <!--<md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                                 ng-if="itemElementData.tooltip">
+                            <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                        </md-icon>-->
+                        <div class="error-msg"
+                             ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                             role="alert">
+                          <div ng-message="datetime">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="format">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="expressionvalidator">
+                            <span>{{itemElementData.validationExprErrorMsg || vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                      <md-input-container class="md-block datepicker padding-right-0-imp" flex="100"
+                                          ng-if="itemElementData.dateTimeType == '1'">
+                        <!--<input mdc-datetime-picker="" date="true" time="false" type="text"
+                        id="{{itemElementData.dataElementName}}_{{itemElementData.dataElementID}}"
+                        expression-validator="{{itemElementData.validationExpr}}"
+                        placeholder="{{itemElementData.DateformatMask}}" show-todays-date=""
+                        edit-input="true" show-icon="vm.isProtected?false:true"
+                        ng-model="itemElementData.defaultValue" ng-disabled="vm.isProtected"
+                        name="{{itemElementData.dataElementID}}"
+                        format="{{itemElementData.DateformatMask}}"
+                        class="dtp-no-msclear dtp-input md-input"
+                        ng-required="itemElementData.isRequired"
+                        ng-change="vm.elementChange(itemElementData)">-->
+                        <input type="text" class="float-left"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{itemElementData.DateformatMask}}"
+                               ng-model="itemElementData.defaultValue"
+                               datepicker-options="vm.dateOptions"
+                               ui-mask="{{itemElementData.uimaskformatForDateTime}}"
+                               ui-mask-placeholder="{{itemElementData.placeholderForDateTime}}"
+                               model-view-value="true"
+                               id="{{itemElementData.dataElementName}}_{{itemElementData.dataElementID}}"
+                               name="{{itemElementData.dataElementID}}"
+                               is-open="itemElementData.dateOpenFlag"
+                               ng-required="itemElementData.isRequired"
+                               ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                               expression-validator="{{itemElementData.validationExpr}}"
+                               enable-time="false"
+                               enable-date="true"
+                               last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}"
+                               ng-change="vm.elementChange(itemElementData)" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="itemElementData.dateOpenFlag = (vm.isProtected || vm.isDisableEntityAccess ? false:true)">
+                        </md-icon>
+                        <!--<md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                                 ng-if="itemElementData.tooltip">
+                            <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                        </md-icon>-->
+                        <div class="error-msg"
+                             ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                             role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="format">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="datetime">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="expressionvalidator">
+                            <span>{{itemElementData.validationExprErrorMsg || vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                      <md-input-container class="md-block datepicker padding-right-0-imp" flex="100"
+                                          ng-if="itemElementData.dateTimeType == '2'">
+                        <!--<input mdc-datetime-picker="" date="false" time="true" type="text"
+                        id="{{itemElementData.dataElementName}}_{{itemElementData.dataElementID}}"
+                        expression-validator="{{itemElementData.validationExpr}}"
+                        placeholder="{{itemElementData.DateformatMask}}" show-todays-date=""
+                        edit-input="true" show-icon="vm.isProtected?false:true"
+                        ng-disabled="vm.isProtected" ng-model="itemElementData.defaultValue"
+                        name="{{itemElementData.dataElementID}}"
+                        format="{{itemElementData.DateformatMask}}"
+                        class="dtp-no-msclear dtp-input md-input"
+                        ng-required="itemElementData.isRequired"
+                        ng-change="vm.elementChange(itemElementData)">-->
+                        <input type="text" class="float-left"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{itemElementData.DateformatMask}}"
+                               ng-model="itemElementData.defaultValue"
+                               datepicker-options="vm.timeOptions"
+                               ui-mask="{{itemElementData.uimaskformatForDateTime}}"
+                               ui-mask-placeholder="{{itemElementData.placeholderForDateTime}}"
+                               model-view-value="true"
+                               id="{{itemElementData.dataElementName}}_{{itemElementData.dataElementID}}"
+                               name="{{itemElementData.dataElementID}}"
+                               is-open="itemElementData.timeOpenFlag"
+                               ng-required="itemElementData.isRequired"
+                               ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                               expression-validator="{{itemElementData.validationExpr}}"
+                               enable-time="true"
+                               enable-date="false"
+                               ng-change="vm.elementChange(itemElementData)"
+                               last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="itemElementData.timeOpenFlag = (vm.isProtected || vm.isDisableEntityAccess ? false:true)">
+                        </md-icon>
+                        <!--<md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                                 ng-if="itemElementData.tooltip">
+                            <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                        </md-icon>-->
+                        <div class="error-msg"
+                             ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                             role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="format">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="expressionvalidator">
+                            <span>{{itemElementData.validationExprErrorMsg || vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </div>
+                  </td>
+                  <!-- [E] Datetime Picker Control -->
+                  <!-- [S] Date Range Control -->
+                  <td colspan="2"
+                      ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.DateRange">
+                    <div layout="row" class="input-wrapper" flex="100">
+                      <div flex="50" layout="row">
+                        <p class="label-container">
+                          From {{itemElementData.dataElementName}}
+                          <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                          <md-icon class="tooltip-icon help-icon date-range-element-icon"
+                                   md-font-icon="icon-help-circle" ng-if="itemElementData.tooltip">
+                            <md-tooltip>
+                              <span>{{itemElementData.tooltip}}</span>
+                            </md-tooltip>
+                          </md-icon>
+                        </p>
+                        <!--<md-datepicker flex="100" name="{{itemElementData.dataElementID}}_FromDate"
+                        md-placeholder="{{itemElementData.formatMask}}" ng-model="itemElementData.fromDate"
+                        ng-disabled="vm.isProtected" md-max-date="itemElementData.toDate"
+                        ng-required="itemElementData.isRequired" md-hide-icons="calendar"
+                        ng-init="vm.bindDatePicker(itemElementData.formatMask,itemElementData.fromDate,null)"
+                        md-date-locale="vm.locale" date-picker-no-translate-class></md-datepicker>-->
+                        <md-input-container class="md-block datepicker padding-right-0-imp" flex="100">
+                          <input type="text" class="float-left"
+                                 name="{{itemElementData.dataElementID}}_FromDate"
+                                 allow-past-date="true"
+                                 allow-future-date="true"
+                                 datetime-picker="{{itemElementData.DateformatMask}}"
+                                 ui-mask="{{itemElementData.uimaskformatForDateTime}}"
+                                 ui-mask-placeholder="{{itemElementData.placeholderForDateTime}}"
+                                 ng-model="itemElementData.fromDate" enable-time="false"
+                                 ui-options="{clearOnBlur  : true}"
+                                 model-view-value="true"
+                                 datepicker-options="itemElementData.fromDateOptions"
+                                 is-open="itemElementData.fromDateOptions.fromDateOpenFlag"
+                                 ng-required="itemElementData.isRequired"
+                                 ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                                 ng-change="vm.onChangeFromDate(itemElementData, itemElementData.toDate, itemElementData.fromDate)" />
+                          <md-icon md-font-icon="icon-calendar calender-icon"
+                                   ng-click="itemElementData.fromDateOptions.fromDateOpenFlag = (vm.isProtected || vm.isDisableEntityAccess ? false : true)">
+                          </md-icon>
+                          <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID + '_FromDate'].$error"
+                               role="alert" class="red"
+                               style="opacity: 1; margin-top: 0px;font-size:12px">
+                            <!--<div ng-message="maxvalue">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.DATE_RANG_INVALID}}</span>
+                            </div>-->
+                            <div ng-message="valid">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="datetime">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </div>
+                      <div flex="50" layout="row">
+                        <p class="label-container">
+                          To {{itemElementData.dataElementName}}
+                          <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                          <!--<md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle" ng-if="itemElementData.tooltip"><md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip></md-icon>-->
+                        </p>
+                        <!--<md-datepicker flex="100" name="{{itemElementData.dataElementID}}_ToDate"
+                        md-placeholder="{{itemElementData.formatMask}}" ng-model="itemElementData.toDate"
+                        ng-disabled="vm.isProtected" ng-required="itemElementData.isRequired"
+                        md-hide-icons="calendar"
+                        ng-init="vm.bindDatePicker(itemElementData.formatMask,null,itemElementData.toDate)"
+                        md-min-date="itemElementData.fromDate" md-date-locale="vm.locale"
+                        date-picker-no-translate-class></md-datepicker>-->
+                        <md-input-container class="md-block datepicker padding-right-0-imp" flex="100">
+                          <input type="text" class="float-left"
+                                 name="{{itemElementData.dataElementID}}_ToDate"
+                                 allow-past-date="true"
+                                 allow-future-date="true"
+                                 datetime-picker="{{itemElementData.DateformatMask}}"
+                                 ui-mask="{{itemElementData.uimaskformatForDateTime}}"
+                                 ui-mask-placeholder="{{itemElementData.placeholderForDateTime}}"
+                                 ng-model="itemElementData.toDate" enable-time="false"
+                                 ui-options="{clearOnBlur  : true}"
+                                 model-view-value="true"
+                                 datepicker-options="itemElementData.toDateOptions"
+                                 is-open="itemElementData.toDateOptions.toDateOpenFlag"
+                                 ng-required="itemElementData.isRequired"
+                                 ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                                 last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}"
+                                 ng-change="vm.onChangeFromDate(itemElementData, itemElementData.toDate, itemElementData.fromDate)" />
+                          <md-icon md-font-icon="icon-calendar calender-icon"
+                                   ng-click="itemElementData.toDateOptions.toDateOpenFlag = (vm.isProtected || vm.isDisableEntityAccess ? false : true)">
+                          </md-icon>
+                          <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID + '_ToDate'].$error"
+                               role="alert" class="red"
+                               style="opacity: 1; margin-top: 0px;font-size:12px">
+                            <!--<div ng-message="minvalue">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.DATE_RANG_INVALID}}</span>
+                            </div>-->
+                            <div ng-message="valid">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="datetime">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </div>
+                    </div>
+                  </td>
+                  <!-- [E] Date Range Control -->
+                  <!-- [S] Single Choice Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.SingleChoice">
+                    <p class="label-container margin-left-0 margin-bottom-10" flex="100">
+                      {{itemElementData.dataElementName}}
+                      <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.SingleChoice" class="flex">
+                    <div layout="row" layout-wrap flex="100">
+                      <md-radio-group layout="row" layout-align="start center"
+                                      name="{{itemElementData.dataElementID}}" ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                                      ng-model="itemElementData.defaultValue"
+                                      ng-required="itemElementData.isRequired"
+                                      last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}">
+                        <md-radio-button ng-repeat="item in vm.radioButtonGroup.defaultValue.array"
+                                         name="{{item.Key}}" ng-value="{{item.Value}}">
+                          {{item.Key}}
+                        </md-radio-button>
+                      </md-radio-group>
+                      <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <!-- [E] Single Choice Control -->
+                  <!-- [S] Multiple Choice Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.MultipleChoice">
+                    <p class="label-container">
+                      {{itemElementData.dataElementName}}
+                      <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.MultipleChoice">
+                    <md-input-container flex="100">
+                      <md-checkbox ng-disabled="vm.isProtected || vm.isDisableEntityAccess" class="cm-view-multiple-checkbox"
+                                   ng-repeat="option in itemElementData.fieldValue | orderBy: 'displayOrder'"
+                                   name="{{itemElementData.dataElementID}}" ng-model="option.defaultValue"
+                                   aria-label="{{itemElementData.dataElementName}}"
+                                   ng-required="itemElementData.isRequired && itemElementData.anySelected == false"
+                                   ng-change="itemElementData.isRequired ? vm.CheckAnyOneSelected(itemElementData) : ''"
+                                   last-element elementcondition="{{(((vm.dataelementList.length - 1) == $parent.$parent.$index) && ((itemElementData.fieldValue.length - 1) == $index) ? true : false)}}">
+                        {{option.name}}
+                      </md-checkbox>
+                      <!--<div class="text-right relative h-16">
+                          <a tabindex="-1" class="md-default-theme cm-view-multiple" ng-click="vm.viewAllInfoOfElement(itemElementData)"
+                             ng-if="itemElementData.fieldValue && itemElementData.fieldValue.length > 6">
+                              {{itemElementData.isViewMore ? 'View Less':'View All'}}
+                              <md-icon md-font-icon="icon-chevron-right" class="s16 separator md-default-theme md-font material-icons icon-chevron-right" role="img" aria-label="icon-chevron-right"></md-icon>
+                          </a>
+                      </div>-->
+                      <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.SELECT_ONE_OPTION}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <!-- [E] Multiple Choice Control -->
+                  <!-- [S] Option Choice Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Option">
+                    <p class="label-container">
+                      {{itemElementData.dataElementName}}
+                      <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Option" class="flex">
+                    <md-input-container flex="100" layout="column">
+                      <md-radio-group ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                                      name="{{itemElementData.dataElementID}}"
+                                      ng-model="itemElementData.defaultValue"
+                                      ng-required="itemElementData.isRequired"
+                                      last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}">
+                        <md-radio-button ng-repeat="option in itemElementData.fieldValue  | orderBy: 'displayOrder'"
+                                         value="{{option.value}}">
+                          {{option.name}}
+                        </md-radio-button>
+                      </md-radio-group>
+                      <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.SELECT_ANYONE_OPTION}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <!-- [E] Option Choice Control -->
+                  <!-- [S] CustomAutoCompleteSearch Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.CustomAutoCompleteSearch">
+                    <p class="label-container">
+                      {{itemElementData.dataElementName}}
+                      <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.CustomAutoCompleteSearch" class="flex">
+                    <md-input-container class="autocompletecustom md-input-has-value" layout="column" flex="100">
+                      <custom-auto-complete-search on-search-fn="itemElementData.autoCompleteEntity.onSearchFn"
+                                                   column-name="itemElementData.autoCompleteEntity.columnName"
+                                                   key-column-name="itemElementData.autoCompleteEntity.keyColumnName"
+                                                   input-name="itemElementData.autoCompleteEntity.inputName"
+                                                   placeholder-name="itemElementData.autoCompleteEntity.placeholderName"
+                                                   key-column-id="itemElementData.autoCompleteEntity.keyColumnId"
+                                                   is-required="itemElementData.autoCompleteEntity.isRequired"
+                                                   search-text="itemElementData.autoCompleteEntity.searchText"
+                                                   on-select-callback-fn="itemElementData.autoCompleteEntity.onSelectCallbackFn"
+                                                   is-disabled="vm.isProtected || vm.isDisableEntityAccess">
+                      </custom-auto-complete-search>
+                    </md-input-container>
+                  </td>
+                  <!-- [E] CustomAutoCompleteSearch Control -->
+                  <!-- [S] Combox Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Combobox">
+                    <p class="label-container">
+                      {{itemElementData.dataElementName}}
+                      <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Combobox" class="flex">
+                    <md-input-container flex="100">
+                      <md-select ng-disabled="vm.isProtected || vm.isDisableEntityAccess" class="margin-top-0"
+                                 name="{{itemElementData.dataElementID}}"
+                                 ng-model="itemElementData.defaultValue"
+                                 ng-required="itemElementData.isRequired"
+                                 last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}">
+                        <!--placeholder="{{itemElementData.dataElementName}}"-->
+                        <md-option ng-if="!itemElementData.isRequired" value="">
+                          <em>None</em>
+                        </md-option>
+                        <md-option ng-repeat="option in itemElementData.fieldValue | orderBy: 'displayOrder'"
+                                   value="{{option.value}}">
+                          {{ option.name }}
+                        </md-option>
+                      </md-select>
+                      <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.SELECT_ANYONE_OPTION}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <!-- [E] Combox Control -->
+                  <!-- [S] Multiple Choice Drop-Down Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.MultipleChoiceDropdown">
+                    <p class="label-container">
+                      {{itemElementData.dataElementName}}
+                      <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.MultipleChoiceDropdown" class="cm-multiple-choice-drop flex">
+                    <md-input-container flex="100" layout="column">
+                      <!--<label class="margin-top-0 margin-bottom-5 label-container">{{itemElementData.dataElementName}}<md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle" ng-if="itemElementData.tooltip"><md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip></md-icon></label>-->
+                      <md-select name="{{itemElementData.dataElementID}}"
+                                 ng-model="itemElementData.defaultValue" ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                                 ng-required="itemElementData.isRequired" multiple
+                                 md-container-class="containerClass"
+                                 last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}">
+                        <!--placeholder="{{itemElementData.dataElementName}}"-->
+                        <md-option ng-repeat="option in itemElementData.fieldValue | orderBy: 'displayOrder'"
+                                   value="{{option.value}}">
+                          {{ option.name }}
+                        </md-option>
+                      </md-select>
+                      <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.SELECT_ONE_OPTION}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <!-- [E] Multiple Choice Drop-Down Control -->
+                  <!-- [S] File Upload Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.FileUpload">
+                    <p class="label-container cm-doc-upload">
+                      {{itemElementData.dataElementName}}
+                      <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.FileUpload">
+                    <md-input-container flex="100"
+                                        ng-if="!(itemElementData.fileDetail && itemElementData.fileDetail.originalname)">
+                      <input type="button" class="md-button md-primary md-raised md-default-theme md-ink-ripple margin-left-0 width-auto border-0 padding-top-0 cm-upload-btn"
+                             ng-class="{'cm-primary-bg' : !vm.isProtected}"
+                             name="{{itemElementData.dataElementID}}"
+                             ngf-select="vm.documentFiles($files, $invalidFiles, itemElementData)"
+                             ng-model="itemElementData.defaultValue" ngf-multiple="false"
+                             ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                             accept="{{vm.FileTypeExtension}}"
+                             ngf-pattern="{{vm.FileTypeExtension}}"
+                             ngf-max-size="{{itemElementData.fileSize}}MB"
+                             ngf-validate="{{itemElementData.fileSize}}"
+                             ng-required="{{itemElementData.isRequired}}"
+                             last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}"
+                             value="Upload Document">
+                      <div class="margin-top-6">{{itemElementData.defaultValue.name}}</div>
+                      <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                           role="alert">
+                        <div ng-message="pattern">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_FILE_TYPE}}</span>
+                        </div>
+                        <div ng-message="maxSize">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_FILE_SIZE}}</span>
+                        </div>
+                      </div>
+                      <div class="padding-bottom-20 padding-top-5">
+                        <span ng-if="vm.FileTypeList.length > 0">{{vm.CORE_MESSAGE_CONSTANT.CONFIGURE_RESTRICT_FILE_EXTENSTION}} <a class="cursor-pointer" ng-click="vm.restrictFileExtensionPopup();">Configure Restrict File Types.</a></span>
+                        <br />{{itemElementData.fileSize ? "Size: " + itemElementData.fileSize + mb : ""}}
+                      </div>
+                    </md-input-container>
+                    <div ng-if="itemElementData.fileDetail && itemElementData.fileDetail.originalname"
+                         class="margin-top-3">
+                      <span class="text-bold">{{itemElementData.fileDetail.originalname}}</span>
+                      <md-button class="md-primary grid-button md-icon-button bdrbtn"
+                                 ng-click="vm.previewDocument($event,itemElementData)"
+                                 ng-if="itemElementData.fileDetail.isImageTypeFile || itemElementData.fileDetail.isPDFTypeFile
+                                 || itemElementData.fileDetail.isVideoTypeFile || itemElementData.fileDetail.isAudioTypeFile">
+                        <md-icon md-font-icon="icon icon-eye" class="s16"></md-icon>
+                        <md-tooltip>Preview</md-tooltip>
+                      </md-button>
+                      <md-button class="md-primary grid-button md-icon-button bdrbtn"
+                                 ng-click="vm.downloadDocument(itemElementData)">
+                        <md-icon md-font-icon="icon-download" class="material-icons mat-icon s16"></md-icon>
+                        <md-tooltip>Download</md-tooltip>
+                      </md-button>
+                      <md-button class="md-primary grid-button md-icon-button bdrbtn"
+                                 ng-click="vm.removeDocument(itemElementData)"
+                                 last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}">
+                        <md-icon md-font-icon="icon-trash" class="s16"></md-icon>
+                        <md-tooltip>Remove</md-tooltip>
+                      </md-button>
+                    </div>
+                  </td>
+                  <!-- [E] File Upload Control -->
+                  <!-- [S] Email Address Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Email">
+                    <p class="label-container">
+                      {{itemElementData.dataElementName}}
+                      <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Email" class="flex">
+                    <md-input-container flex="100">
+                      <input type="email" name="{{itemElementData.dataElementID}}"
+                             ng-model="itemElementData.defaultValue"
+                             placeholder="{{itemElementData.dataElementName}}"
+                             ng-disabled="vm.isProtected || vm.isDisableEntityAccess" ng-maxlength="itemElementData.maxLength"
+                             ng-required="itemElementData.isRequired"
+                             last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}">
+                      <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(itemElementData.maxLength, vm.dataElementValueForm[itemElementData.dataElementID].$viewValue.length)}}</span>
+                        </div>
+                        <div ng-message="email">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <!-- [E] Email Address Control -->
+                  <!-- [S] Currency Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Currency">
+                    <p class="label-container">
+                      {{itemElementData.dataElementName}}
+                      <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Currency" class="flex">
+                    <md-input-container class="md-icon-float input-with-usd-symbol padding-left-0-imp md-block margin-bottom-0"
+                                        flex="100">
+                      <md-icon md-font-icon="icon-currency-usd" class="usdicon"></md-icon>
+                      <input type="number" name="{{itemElementData.dataElementID}}"
+                             ng-model="itemElementData.defaultValue"
+                             placeholder="{{itemElementData.dataElementName}}"
+                             max="{{itemElementData.rangeTo ? itemElementData.rangeTo : vm.dataElement_Default_Values.Currency.Max}}"
+                             min="{{itemElementData.rangeFrom ? itemElementData.rangeFrom : vm.dataElement_Default_Values.Currency.Min}}"
+                             ng-disabled="vm.isProtected || vm.isDisableEntityAccess" step="{{itemElementData.step}}"
+                             ng-required="itemElementData.isRequired"
+                             last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}">
+                      <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="min">
+                          <span>
+                            Min
+                            ${{itemElementData.rangeFrom ? itemElementData.rangeFrom : vm.dataElement_Default_Values.Currency.Min}}!
+                          </span>
+                        </div>
+                        <div ng-message="max">
+                          <span>
+                            Max
+                            ${{itemElementData.rangeTo ? itemElementData.rangeTo : vm.dataElement_Default_Values.Currency.Max}}!
+                          </span>
+                        </div>
+                        <div ng-message="number">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <!-- [E] Currency Control -->
+                  <!-- [S] URL Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.URL">
+                    <p class="label-container">
+                      {{itemElementData.dataElementName}}
+                      <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.URL" class="flex">
+                    <div layout="column" flex="100">
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="text" name="{{itemElementData.dataElementID}}"
+                               ng-model="itemElementData.defaultValue"
+                               placeholder="{{itemElementData.dataElementName}}"
+                               ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                               ng-required="itemElementData.isRequired"
+                               ng-maxlength="itemElementData.maxLength"
+                               last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}"
+                               ng-pattern="vm.WebSitePattern">
+                        <div ng-messages="vm.dataElementValueForm[itemElementData.dataElementID].$error"
+                             role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(itemElementData.maxLength, vm.dataElementValueForm[itemElementData.dataElementID].$viewValue.length)}}</span>
+                          </div>
+                          <div ng-message="pattern">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </div>
+                  </td>
+                  <!-- [E] URL Control -->
+                  <!-- [S] Signature Control -->
+                  <td colspan="2"
+                      ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Signature">
+                    <div layout="column" flex="100">
+                      <div flex="100" layout-align="space-between center"
+                           style="max-width: 500px;" layout="row">
+                        <div class="margin-bottom-0 label-container">
+                          {{itemElementData.dataElementName}}
+                          <span ng-if="itemElementData.isRequired">&nbsp;*</span>
+                          <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                                   ng-if="itemElementData.tooltip">
+                            <md-tooltip>
+                              <span>{{itemElementData.tooltip}}</span>
+                            </md-tooltip>
+                          </md-icon>
+                        </div>
+                      </div>
+                      <md-input-container class="margin-top-5 margin-bottom-0" flex="100"
+                                          ng-hide="itemElementData.isSignatureAdded">
+                        <div id="coverSignatureDiv" ng-if="vm.isProtected"></div>
+                        <signature-pad ng-disabled="vm.isProtected || vm.isDisableEntityAccess" accept="accept"
+                                       clear="clear" height="150" width="500" disabled="false"
+                                       ng-required="itemElementData.isRequired"
+                                       ng-model="itemElementData.defaultValue"
+                                       id="signature-pad_{{itemElementData.dataElementID}}"
+                                       name="{{itemElementData.dataElementID}}"
+                                       class="border signature-pad-height">
+                        </signature-pad>
+                        <md-button ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                                   class="md-primary md-raised signature-element-button"
+                                   ng-click="clear(); vm.clearSignatureValue(itemElementData,vm.dataElementValueForm);">
+                          <md-tooltip>Clear</md-tooltip>
+                          Clear
+                        </md-button>
+                        <md-button ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                                   class="md-primary md-raised signature-element-button"
+                                   last-element elementcondition="{{(!itemElementData.defaultValue) && (((vm.dataelementList.length - 1) == $index) ? true : false)}}"
+                                   ng-click="signature = accept();vm.setSignatureValue(itemElementData,signature);">
+                          <md-tooltip>Click to Generate Signature</md-tooltip>
+                          Generate Signature
+                        </md-button>
+                        <md-button ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                                   ng-if="itemElementData.defaultValue"
+                                   class="md-primary md-raised signature-element-button"
+                                   last-element elementcondition="{{(itemElementData.defaultValue) && (((vm.dataelementList.length - 1) == $index) ? true : false)}}"
+                                   ng-click="itemElementData.isSignatureAdded = true;">
+                          <md-tooltip>Cancel</md-tooltip>
+                          Cancel
+                        </md-button>
+
+                      </md-input-container>
+                      <md-input-container flex="100"
+                                          ng-if="itemElementData.defaultValue && itemElementData.isSignatureAdded">
+                        <div id="coverSignatureDiv" ng-if="vm.isProtected"></div>
+                        <div class="imageiconlist"
+                             style="height:80px !important;width:200px !important">
+                          <div class="actionicon" layout="row" flex="100"
+                               layout-align="center center" layout-wrap>
+                            <md-button ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                                       class="md-default md-icon-button btn-preview">
+                              <md-icon class="icon-pencil"
+                                       ng-click="clear();signature = accept();vm.clearSignatureValue(itemElementData);">
+                              </md-icon>
+                              <md-tooltip>Change Signature</md-tooltip>
+                            </md-button>
+                            <md-button ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                                       class="md-default md-icon-button btn-preview"
+                                       last-element elementcondition="{{((vm.dataelementList.length - 1) == $index ? true : false)}}">
+                              <md-icon class="icon-delete"
+                                       ng-click="vm.deleteSignatureValue(itemElementData,clear,accept,signature);">
+                              </md-icon>
+                              <md-tooltip>Delete Signature</md-tooltip>
+                            </md-button>
+                          </div>
+                          <img class="image" name="{{itemElementData.dataElementID}}"
+                               ng-if="itemElementData.defaultValue"
+                               ng-src="{{itemElementData.defaultValue}}" alt="signature image">
+                        </div>
+                      </md-input-container>
+                    </div>
+                  </td>
+                  <!-- [E] Signature Control -->
+                  <!-- [S] Sub Form Control -->
+                  <td colspan="8" ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.SubForm">
+                    <div flex="100" ng-class="{'multiple-field-form cm-multiple-field-data' : itemElementData.isMultiple}">
+                      <p class="margin-bottom-0" ng-class="{'cm-sub-form-header': itemElementData.dataelementDefault.length > 0}">
+                        <b>{{itemElementData.dataelementDefault.length > 0 ? itemElementData.dataElementName : ''}}</b>
+                        <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                                 ng-if="itemElementData.tooltip">
+                          <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                        </md-icon>
+                      </p>
+                      <div class="subformtable cm-sub-form-data z-index-1 horizontal-section" ms-scroll>
+                        <div ng-if="itemElementData.isMultiple" class="title hor-fields"
+                             ng-class="{'subformmain cm-multiple-field-data' : itemElementData.isMultiple}">
+                          <div class="horizontal-section" layout="row"
+                               layout-align="start start">
+                            <div layout="row"
+                                 class="relative md-padding padding-bottom-0 padding-top-5"
+                                 ng-class="{'subformfield cm-multiple-field-data' : itemElementData.isMultiple, 'cm-date-range':headerElement.controlTypeID == vm.InputeFieldKeys.DateRange,
+                                 'subform-signature':headerElement.controlTypeID == vm.InputeFieldKeys.Signature,
+                                 'cm-document-field':headerElement.controlTypeID == vm.InputeFieldKeys.FileUpload}"
+                                 data-ng-attr-style="{{ 'min-width: ' + headerElement.fieldWidth + 'px !important' }}"
+                                 ng-style="{'width':headerElement.fieldWidth + 'px', 'max-width':headerElement.fieldWidth + 'px'}"
+                                 ng-repeat="headerElement in itemElementData.dataelementDefault | orderBy : 'displayOrder'">
+                              <span>
+                                {{headerElement.dataElementName}}
+                                <span ng-if="headerElement.isRequired">&nbsp;*</span>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="subformmain hor-fields"
+                             ng-class="{'subformmain cm-multiple-field-data' : itemElementData.isMultiple}"
+                             ng-repeat="subElement in itemElementData.subFormControls | orderBy : 'rowNumber'">
+                          <md-button ng-disabled="vm.isProtected || vm.isDisableEntityAccess"
+                                     ng-if="itemElementData.isMultiple"
+                                     class="md-warn grid-button deletebutton md-icon-button md-raised"
+                                     ng-click="vm.DeleteSubFormRecord(itemElementData, subElement)">
+                            <md-icon role="img" md-font-icon="icon-trash"></md-icon>
+                          </md-button>
+                          <div class="horizontal-section" layout="row"
+                               layout-align="start start">
+                            <div layout="row"
+                                 class="subformfield relative md-padding padding-bottom-0 padding-top-5"
+                                 ng-class="{'subformfield cm-multiple-field-data' : itemElementData.isMultiple,
+                                 'cm-date-range layout-align-center-center':itemElement.controlTypeID == vm.InputeFieldKeys.DateRange,
+                                 'cm-signature-table':itemElement.controlTypeID == vm.InputeFieldKeys.Signature && itemElementData.isMultiple,
+                                 'cm-display-table':itemElement.controlTypeID == vm.InputeFieldKeys.Signature && !itemElementData.isMultiple,
+                                 'currency-pt':itemElement.controlTypeID == vm.InputeFieldKeys.Currency,
+                                 'subform-signature':itemElement.controlTypeID == vm.InputeFieldKeys.Signature && itemElementData.isMultiple,
+                                 'cm-document-field':itemElement.controlTypeID == vm.InputeFieldKeys.FileUpload}"
+                                 data-ng-attr-style="{{ 'min-width: ' + itemElement.fieldWidth + 'px !important' }}"
+                                 ng-style="{'width':itemElement.fieldWidth + 'px', 'max-width':itemElement.fieldWidth + 'px'}"
+                                 ng-repeat="itemElement in subElement | orderBy : 'displayOrder'"
+                                 ng-include="'app/directives/custom/form-input-fields/form-input-fields.html'">
+                            </div>
+                          </div>
+                        </div>
+                        <md-button ng-disabled="vm.isProtected || vm.isDisableEntityAccess" class="md-primary md-raised"
+                                   layout="row" layout-align="center center"
+                                   ng-if="itemElementData.isMultiple && ((itemElementData.recurring_limit == 0) || itemElementData.subFormControls.length < itemElementData.recurring_limit)"
+                                   last-element elementcondition="{{((itemElementData.isLastSubFormElement) && ((itemElementData.recurring_limit == 0) || itemElementData.subFormControls.length < itemElementData.recurring_limit)? true : false)}}"
+                                   ng-click="vm.AddNewSubFormRecord(itemElementData)" aria-label="Add New">
+                          Add<md-tooltip>
+                            <span>Add Row</span>
+                          </md-tooltip>
+                        </md-button>
+                      </div>
+                      <!--<md-button ng-disabled="vm.isProtected || vm.isDisableEntityAccess" class="md-primary md-raised"
+                                 layout="row" layout-align="center center"
+                                 ng-if="itemElementData.isMultiple && ((itemElementData.recurring_limit == 0) || itemElementData.subFormControls.length < itemElementData.recurring_limit)"
+                                 ng-click="vm.AddNewSubFormRecord(itemElementData)" aria-label="Add New">
+                          Add<md-tooltip>
+                              <span>Add Row</span>
+                          </md-tooltip>
+                      </md-button>-->
+                    </div>
+                  </td>
+                  <!-- [E] Sub Form Control -->
+                  <!-- [S] Label Control -->
+                  <th ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Label">
+                    <p class="margin-top-0 margin-bottom-5 label-container" ng-if="!itemElementData.isHideLabel">
+                      {{itemElementData.dataElementName}}
+                      <md-icon class="tooltip-icon help-icon" md-font-icon="icon-help-circle"
+                               ng-if="itemElementData.tooltip">
+                        <md-tooltip><span>{{itemElementData.tooltip}}</span></md-tooltip>
+                      </md-icon>
+                    </p>
+                  </th>
+                  <td ng-if="itemElementData.controlTypeID == vm.InputeFieldKeys.Label" class="flex pt-5">
+                    <p ng-bind-html="itemElementData.defaultValue">
+                    </p>
+                  </td>
+                  <!-- [E] Label Control -->
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </md-content>
+      <div flex="100" class="md-1-line cursor-not-allow margin-top-20" ng-if="vm.dataelementList.length == 0">
+        <div class="empty-state text-center full-height" layout-align="center-center" layout="row" layout-wrap flex="100">
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+          </div>
+          <p class="empty-state-title font-size-2 useadded-emptytxt">
+            {{vm.EmptyMesssage.MESSAGE}}
+          </p>
+          <p flex="100" ng-if="!applyTravelerFilter">
+            {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+          </p>
+          <p flex="100" ng-if="!applyTravelerFilter">
+            <md-button ng-disabled="vm.isProtected || vm.isDisableEntityAccess" class="md-fab md-mini" aria-label="Add Elements"
+                       ng-click="vm.addRecord(null,$event)">
+              <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus">
+                <md-tooltip>Add new</md-tooltip>
+              </md-icon>
+            </md-button>
+            <md-button ng-disabled="vm.isProtected || vm.isDisableEntityAccess" class="md-fab md-mini" aria-label="Refresh Data Fields"
+                       ng-click="vm.getAndDisplayUpdatedDataFields()">
+              <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon">
+                <md-tooltip>Refresh</md-tooltip>
+              </md-icon>
+            </md-button>
+          </p>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

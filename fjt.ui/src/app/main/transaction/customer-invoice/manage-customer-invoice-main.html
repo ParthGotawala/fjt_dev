@@ -1,0 +1,310 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-warehouse-bin-navbar cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="header md-accent-bg" layout="row" flex="100">
+    <div class="white-fg" layout-alingn="start center" layout="row">
+      <div>
+        <md-button class="goto-rfq-button md-icon-button cm-back-btn-p-m" type="button" aria-label="Go to Customer Packing List" ng-click="vm.goBack()">
+          <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+          </md-icon>
+          <md-tooltip ng-if="vm.transType === vm.CORE.TRANSACTION_TYPE.INVOICE">Back to Customer Invoice List</md-tooltip>
+          <md-tooltip ng-if="vm.transType === vm.CORE.TRANSACTION_TYPE.CREDITNOTE">Back to Customer Credit Memo List</md-tooltip>
+        </md-button>
+      </div>
+      <div layout="column" flex-gt-lg="nogrow">
+        <div layout="column" layout-align="start start">
+          <div class="h2" layout="row" layout-align="start center">
+            <pagetitle is-list="false"
+                       is-display-menu-name="true"
+                       prefix-content="vm.packingId ? 'Update' : 'Add'"
+                       suffix-content="vm.packingId ? ('#: ' + vm.packingSlipNumber) : ''"
+                       prefix-page-title="vm.packingSlipNumber ? vm.packingSlipNumber: ''"></pagetitle>
+            <md-tooltip md-direction="right" ng-if="vm.packingSlipNumber">{{vm.packingSlipNumber}}</md-tooltip>
+          </div>
+          <div layout="row" layout-align="start center">
+            <breadcrumbs class="flex-noshrink"></breadcrumbs>
+          </div>
+        </div>
+      </div>
+      <div class="cm-header-search-add-container" layout="column">
+        <div class="w-350">
+          <md-input-container ng-if="vm.autoCompletePackingSlip" class="width-100p autocompletecustom margin-0 widget-dashboard-search-area" flex="100" flex-gt-xs="100">
+            <custom-auto-complete-search on-search-fn="vm.autoCompletePackingSlip.onSearchFn"
+                                         column-name="vm.autoCompletePackingSlip.columnName"
+                                         key-column-name="vm.autoCompletePackingSlip.keyColumnName"
+                                         input-name="vm.autoCompletePackingSlip.inputName"
+                                         placeholder-name="vm.autoCompletePackingSlip.placeholderName"
+                                         key-column-id="vm.autoCompletePackingSlip.keyColumnId"
+                                         is-required="vm.autoCompletePackingSlip.isRequired"
+                                         is-addnew="vm.autoCompletePackingSlip.isAddnew"
+                                         callback-fn="vm.autoCompletePackingSlip.callbackFn"
+                                         on-select-callback-fn="vm.autoCompletePackingSlip.onSelectCallbackFn">
+          </md-input-container>
+        </div>
+        <div ng-if="vm.autoCompletePackingSlip" class="cm-square-icon-btn pt-2">
+          <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-if="vm.packingId && vm.transType === vm.CORE.TRANSACTION_TYPE.INVOICE" ng-click="vm.addcustomerInvoice(false)">
+            <md-icon md-font-icon="t-icons-customer-invoice add-icon" class="material-icons"></md-icon>
+            <md-tooltip>Add Customer Invoice In New Tab</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-if="vm.packingId && vm.transType === vm.CORE.TRANSACTION_TYPE.INVOICE" ng-click="vm.addcustomerInvoice(true)">
+            <md-icon md-font-icon="t-icons-customer-invoice add-icon same-tab-icon" class="material-icons"></md-icon>
+            <md-tooltip>Add Customer Invoice</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-if="vm.packingId && vm.transType === vm.CORE.TRANSACTION_TYPE.CREDITNOTE" ng-click="vm.addcustomerInvoice(false)">
+            <md-icon md-font-icon="t-icons-customer-credit-memo add-icon" class="material-icons"></md-icon>
+            <md-tooltip>Add Credit Memo In New Tab</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-if="vm.packingId && vm.transType === vm.CORE.TRANSACTION_TYPE.CREDITNOTE" ng-click="vm.addcustomerInvoice(true)">
+            <md-icon md-font-icon="t-icons-customer-credit-memo add-icon same-tab-icon" class="material-icons"></md-icon>
+            <md-tooltip>Add Credit Memo</md-tooltip>
+          </md-button>
+          <span ng-if="vm.packingId && vm.transType === vm.CORE.TRANSACTION_TYPE.INVOICE" ng-class="{'label-box label-success': (vm.packingSlipType == 2 || vm.packingSlipType == 1) ,'label-box label-warning':vm.packingSlipType == 3 }">
+            {{vm.packingSlipMainObj.invoiceTypeText}}
+            <md-tooltip>Customer Invoice Type: {{vm.packingSlipMainObj.invoiceTypeText}}</md-tooltip>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div layout="row" flex>
+      <div layout="row" flex="100" layout-wrap layout-align="start center">
+        <div flex layout="row" layout-wrap>
+          <div flex="100" ng-if="vm.packingSlipMainObj.packingSlipNumber" layout-wrap>
+            <table cellspacing="0" cellpadding="0" class="cm-header-data-table">
+              <tbody>
+                <tr>
+                  <th ng-if="vm.packingSlipMainObj.customerId">
+                    <a class="cursor-pointer text-underline" ng-click="vm.goToCustomerList();">
+                      {{vm.lableConstant.Customer.Customer}}:
+                    </a>&nbsp;
+                  </th>
+                  <td ng-if="vm.packingSlipMainObj.customerId" class="color-black">
+                    <span class="cm-name text-underline cursor-pointer" ng-click="vm.goToManageCustomer(vm.packingSlipMainObj.customerId)">
+                      <md-tooltip ng-if="vm.packingSlipMainObj.customerName">{{vm.packingSlipMainObj.customerName}}</md-tooltip>
+                      <b>{{vm.packingSlipMainObj.customerName}}</b>
+                    </span>
+                  </td>
+                  <th ng-if="vm.packingSlipMainObj.packingSlipNumber">
+                    <a class="cursor-pointer text-underline" ng-click="vm.goToPackingSlipList();">
+                      {{vm.lableConstant.CustomerPackingSlip.PackingSlipNumber}}:
+                    </a>&nbsp;
+                  </th>
+                  <td ng-if="vm.packingSlipMainObj.packingSlipNumber">
+                    <span class="cm-data" ng-click="vm.goToPackingSlipDetails()"
+                          ng-class="{'text-underline': vm.packingSlipMainObj.packingSlipID }">
+                      <md-tooltip ng-if="vm.packingSlipMainObj.packingSlipNumber">{{vm.packingSlipMainObj.packingSlipNumber}}</md-tooltip>
+                      <b>{{vm.packingSlipMainObj.packingSlipNumber}}</b>
+                    </span>
+                    <copy-text label="vm.lableConstant.CustomerPackingSlip.PackingSlipNumber" text="vm.packingSlipMainObj.packingSlipNumber"></copy-text>
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <spna ng-if="vm.packingSlipMainObj.poNumber">
+                      <a class="cursor-pointer text-underline" ng-click="vm.goToSalesOrderList();">
+                        {{vm.lableConstant.SalesOrder.PO}}:
+                      </a>&nbsp;
+                    </spna>
+                  </th>
+                  <td>
+                    <span ng-if="vm.packingSlipMainObj.poNumber" class="cm-data"
+                          ng-class="{'text-underline': vm.packingSlipMainObj.refSalesOrderId}" ng-click="vm.goToManageSalesOrder()">
+                      <md-tooltip ng-if="vm.packingSlipMainObj.poNumber">{{vm.packingSlipMainObj.poNumber}}</md-tooltip>
+                      <b>{{vm.packingSlipMainObj.poNumber}}</b>
+                    </span>
+                    <copy-text label="vm.lableConstant.SalesOrder.PO" text="vm.packingSlipMainObj.poNumber" ng-if="vm.packingSlipMainObj.poNumber"></copy-text>
+                  
+                    <span class="cm-data label-box ml-10" ng-if="vm.packingSlipMainObj.poType" ng-class="vm.getPOTypeClassName(vm.packingSlipMainObj.poType)">
+                      <b>{{vm.packingSlipMainObj.poType}}</b>
+                      <md-tooltip>{{vm.lableConstant.SalesOrder.POType}}: {{vm.packingSlipMainObj.poType}}</md-tooltip>
+                    </span>
+                  
+                  </td>
+                  <th ng-if="vm.packingSlipMainObj.packingSlipTypeText">{{vm.lableConstant.CustomerPackingSlip.PackingSliptype}}:&nbsp;&nbsp;</th>
+                  <td ng-if="vm.packingSlipMainObj.packingSlipTypeText">
+                    <span class="cm-data">
+                      <!--<md-tooltip ng-if="vm.packingSlipMainObj.packingSlipNumber">{{vm.packingSlipMainObj.packingSlipNumber}}</md-tooltip>-->
+                      <b>{{vm.packingSlipMainObj.packingSlipTypeText}}</b>
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <th ng-if="vm.packingSlipNumber">
+                    <a class="cursor-pointer text-underline" ng-click="vm.goToCustomerInvoiceList();">
+                      Invoice#:
+                    </a>&nbsp;
+                  </th>
+                  <td ng-if="vm.packingSlipNumber">
+                    <span class="cm-data">
+                      <md-tooltip ng-if="vm.packingSlipNumber">{{vm.packingSlipNumber}}</md-tooltip>
+                      <b>{{vm.packingSlipNumber}}</b>
+                    </span>
+                    <copy-text label="'Invoice#'" text="vm.packingSlipNumber" ng-if="vm.packingSlipNumber"></copy-text>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div flex="100" ng-if="vm.packingId && vm.transType === vm.CORE.TRANSACTION_TYPE.CREDITNOTE" layout-wrap>
+            <table cellspacing="0" cellpadding="0" class="cm-header-data-table">
+              <tbody>
+                <tr>
+                  <th ng-if="vm.packingSlipNumber">
+                    <a class="cursor-pointer text-underline" ng-click="vm.goToCustomerCreditMemoList();">
+                      Credit Memo#:
+                    </a>&nbsp;
+                  </th>
+                  <td ng-if="vm.packingSlipNumber">
+                    <span class="cm-data">
+                      <md-tooltip ng-if="vm.packingSlipNumber">{{vm.packingSlipNumber}}</md-tooltip>
+                      <b>{{vm.packingSlipNumber}}</b>
+                    </span>
+                    <copy-text label="'Credit Memo#'" text="vm.packingSlipNumber" ng-if="vm.packingSlipNumber"></copy-text>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div layout="row" layout-align="end center" class="cm-square-icon-btn">
+      <md-button class="md-primary md-raised" ng-if="(!vm.packingId) && vm.transType === vm.CORE.TRANSACTION_TYPE.INVOICE " ng-click="vm.goToAddPackingSlip()">
+        Add Customer Packing Slip
+      </md-button>
+      <div class="ml-25 mr-10" layout layout-wrap layout-align="start start">
+        <div layout="row">
+          <span class="label-box padding-5-imp margin-right-10" ng-if="vm.packingSlipMainObj.materialStatus" ng-class="vm.getMaterialStatusClass()">
+            {{vm.packingSlipMainObj.materialStatus}}
+            <md-tooltip>Material & Invoice Status</md-tooltip>
+          </span>
+        </div>
+        <span ng-if="vm.paymentStatusObj" layout="column">
+          <span class="label-box padding-5-imp margin-right-10" ng-class="vm.paymentStatusObj.ClassName">
+            {{vm.paymentStatusObj.Name}}
+            <md-tooltip ng-if="vm.transType === vm.CORE.TRANSACTION_TYPE.INVOICE">Payment Status </md-tooltip>
+          </span>
+          <span class="font-size-10 line-height-10" ng-if="vm.transType === vm.CORE.TRANSACTION_TYPE.CREDITNOTE">
+            Credit Applied Status
+          </span>
+        </span>
+        <span ng-if="vm.packingId && vm.packingSlipMainObj && vm.packingSlipMainObj.creditMemoRefundStatusText" layout="column">
+          <span class="label-box padding-5-imp"
+                ng-class="vm.getCustCreditMemoRefundStatusClassName(vm.packingSlipMainObj.refundStatus)">
+            {{vm.packingSlipMainObj.creditMemoRefundStatusText}}
+            <!--<md-tooltip>Refund Status</md-tooltip>-->
+          </span>
+          <span class="font-size-10 line-height-10">
+            Refund Status
+          </span>
+        </span>
+        <span class="label-box label-danger margin-left-10" ng-if="vm.packingSlipMainObj.isLocked">
+          Locked
+          <md-tooltip md-direction="bottom" class="tt-multiline" ng-if="vm.packingSlipMainObj.isLocked">
+            Locked By: {{vm.packingSlipMainObj.lockedBy}} <br />
+            Locked Date: {{vm.packingSlipMainObj.lockedAt}}
+          </md-tooltip>
+        </span>
+        <!--<label class="padding-5-imp margin-right-10 label-box label-primary" ng-if="vm.isLegacyPO">
+          Legacy PO
+        </label>
+        <label class="padding-5-imp margin-right-10 label-box label-primary" ng-if="vm.isRMAPO">
+          RMA PO
+        </label>-->
+        <div layout="row" layout-align="center center" class="margin-right-10" ng-if="vm.activeTab!=0">
+          <span class="label-box padding-5-imp" ng-class="vm.getPackingSlipStatusClassName(vm.subStatus)" ng-if="vm.transType === vm.CORE.TRANSACTION_TYPE.INVOICE">{{vm.getCustomerInvoiceStatus(vm.subStatus)}}</span>
+          <span class="label-box padding-5-imp" ng-class="vm.getCrMemoStatusClassName(vm.subStatus)" ng-if="vm.transType === vm.CORE.TRANSACTION_TYPE.CREDITNOTE">{{vm.getCustomerCreditMemoStatus(vm.subStatus)}}</span>
+          <md-tooltip ng-if="vm.transType === vm.CORE.TRANSACTION_TYPE.INVOICE">Customer Invoice Status</md-tooltip>
+          <md-tooltip ng-if="vm.transType === vm.CORE.TRANSACTION_TYPE.CREDITNOTE">Customer Credit Memo Status</md-tooltip>
+        </div>
+      </div>
+      <div layout layout-wrap layout-align="end center" ng-class="{'layout-lg-column': vm.transType === vm.CORE.TRANSACTION_TYPE.INVOICE}">
+        <div layout="row" class="cm-header-draft-btn" layout-wrap layout-align="center center" ng-if="vm.activeTab==0">
+          <md-menu-bar id="user-menu" ng-if="vm.transType === vm.CORE.TRANSACTION_TYPE.INVOICE">
+            <md-menu md-position-mode="left bottom">
+              <md-button class="user-button" ng-click="$mdOpenMenu()"
+                         aria-label="User settings" ng-disabled="!vm.packingId || (vm.packingSlipMainObj.isLocked)">
+                <div layout="row" layout-align="space-between center">
+                  <span class="username">{{vm.getCustomerInvoiceStatus(vm.subStatus)}}</span>
+                  <md-icon md-font-icon="icon-chevron-down"
+                           class="icon s16"></md-icon>
+                </div>
+              </md-button>
+              <md-menu-content width="3">
+                <md-menu-item ng-repeat="status in vm.packingSlipStatus | orderBy:'DisplayOrder'" ng-disabled="!vm.packingId || (vm.packingSlipMainObj.isLocked)">
+                  <md-button ng-click="vm.changePackingSlipStatus(status)">{{status.Name}}</md-button>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </md-menu-bar>
+          <md-menu-bar id="user-menu" ng-if="vm.transType === vm.CORE.TRANSACTION_TYPE.CREDITNOTE">
+            <md-menu md-position-mode="left bottom">
+              <md-button class="user-button" ng-click="$mdOpenMenu()" ng-disabled="vm.packingSlipMainObj.isLocked"
+                         aria-label="User settings">
+                <div layout="row" layout-align="space-between center">
+                  <span class="username">{{vm.getCustomerCreditMemoStatus(vm.subStatus)}}</span>
+                  <md-icon md-font-icon="icon-chevron-down"
+                           class="icon s16"></md-icon>
+                </div>
+              </md-button>
+              <md-menu-content width="3">
+                <md-menu-item ng-repeat="status in vm.packingSlipStatus | orderBy:'DisplayOrder'" ng-disabled="!vm.packingId || (vm.packingSlipMainObj.isLocked)">
+                  <md-button ng-click="vm.changePackingSlipStatus(status)">{{status.Name}}</md-button>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </md-menu-bar>
+          <!--<div layout="row" layout-align="center center" ng-if="vm.activeTab==0">
+        <span ng-if="vm.label" class="cm-font-10 padding-bottom-8"><b>{{vm.label}}</b></span>
+      </div>-->
+        </div>
+        <div layout="row" layout-align="end center" class="cm-btn-group ">
+          <md-button class="md-primary md-raised" ng-click="vm.applyCustomerCreditMemo()"
+                     ng-if="vm.transType === vm.CORE.TRANSACTION_TYPE.CREDITNOTE && vm.activeTab == 0 && vm.packingId && vm.status === vm.custCreditNoteStatusConst.PUBLISHED">
+            Apply Credit Memo to Invoice
+          </md-button>
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-click="vm.opencustomerpackingSlipChangesHistoryAuditLog()" ng-disabled="vm.frmCustomerPackingSlip.$dirty" ng-if="vm.packingId">
+            <md-icon md-font-icon="t-icons-history-text" class="material-icons"></md-icon>
+            <md-tooltip>{{vm.historyactionButtonName}}</md-tooltip>
+          </md-button>
+          <md-button ng-if="vm.activeTab==0 && vm.packingId" class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-click="vm.printRecord(false)" ng-disabled="vm.frmCustomerInvoice.$dirty || vm.isPrintDisable">
+            <md-icon md-font-icon="icon-printer" class="material-icons"></md-icon>
+            <md-tooltip>Print</md-tooltip>
+          </md-button>
+          <md-button ng-if="vm.activeTab==0 && vm.packingId" class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-click="vm.printRecord(true)" ng-disabled="vm.frmCustomerInvoice.$dirty || vm.isDownloadDisabled">
+            <md-icon md-font-icon="icon-download" class="material-icons"></md-icon>
+            <md-tooltip>Download</md-tooltip>
+          </md-button>
+          <md-button ng-if="vm.activeTab==0 && vm.packingId && vm.CORE.TRANSACTION_TYPE.INVOICE===vm.transType" class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-click="vm.exportSalesCommission()" ng-disabled="vm.frmCustomerInvoice.$dirty">
+            <md-icon md-font-icon="icon-export" class="material-icons"></md-icon>
+            <md-tooltip>Export Sales Commission</md-tooltip>
+          </md-button>
+          <md-button class="md-primary md-raised" ng-disabled="vm.isDisableInvEntry || vm.packingSlipMainObj.isLocked"
+                     ng-class="{'md-formdirty': vm.frmCustomerInvoice.$dirty}"
+                     id="saveBtn" ng-click="vm.saveCustomerInvoice();"
+                     ng-if="vm.activeTab==0 || vm.activeTab === (vm.transType === 'I' ? 3 : 2 )">
+            Save
+          </md-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-card padding-top-60" layout="row" flex="100">
+    <md-content flex="100" layout="column">
+      <ms-form-wizard flex>
+        <md-tabs validate-step="true" is-valid="vm.isStepValid" md-dynamic-height md-border-bottom md-selected="vm.activeTab" class="cm-fullheight manage-customer-tabing padding-0">
+          <md-tab ng-repeat="item in vm.tabList" ng-disabled="item.isDisabled || !vm.checkDisable(item.state)" md-on-select="vm.onTabChanges(item)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-text">{{item.title}}&nbsp;<span ng-if="item.documentCount >=0 ">({{item.documentCount || 0}})</span></span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div class="" ui-view="{{item.viewsrc}}"></div>
+            </md-tab-body>
+          </md-tab>
+        </md-tabs>
+      </ms-form-wizard>
+    </md-content>
+  </div>
+</div>
+
+

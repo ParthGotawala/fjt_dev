@@ -1,0 +1,182 @@
+<div flex="100" flex-xs="100" layout="row" layout-wrap class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}">
+  <div layout="row" flex="100" layout-wrap layout-align="space-between center">
+    <div layout="row" flex layout-align="start center">
+      <div layout-align="start start" ng-if="vm.isFromMasterTemplate" layout="row" flex class="mr-10">
+        <p class="label-container margin-top-4 margin-right-25-1600 margin-right-5-1920 margin-right-48-1400 margin-right-40-1440 margin-right-55-1280" flex="15">
+          <a tabindex="-1" class="cm-text-decoration" ng-click="vm.gotoOperationManagementList();">Operation Management</a>
+          <span>&nbsp;*</span>
+        </p>
+        <md-input-container class="autocompletecustom margin-bottom-0 width-300" ng-if="vm.autoCompleteMasterTemplate" flex="50">
+          <custom-auto-complete datalist="vm.MasterTemplateList"
+                                column-name="vm.autoCompleteMasterTemplate.columnName"
+                                controller-name="vm.autoCompleteMasterTemplate.controllerName"
+                                view-template-url="vm.autoCompleteMasterTemplate.viewTemplateURL"
+                                key-column-name="vm.autoCompleteMasterTemplate.keyColumnName"
+                                input-name="vm.autoCompleteMasterTemplate.inputName"
+                                placeholder-name="vm.autoCompleteMasterTemplate.placeholderName"
+                                key-column-id="vm.autoCompleteMasterTemplate.keyColumnId"
+                                is-required="vm.autoCompleteMasterTemplate.isRequired"
+                                is-addnew="vm.autoCompleteMasterTemplate.isAddnew"
+                                callback-fn="vm.autoCompleteMasterTemplate.callbackFn"
+                                on-select-callback-fn="vm.autoCompleteMasterTemplate.onSelectCallbackFn">
+          </custom-auto-complete>
+        </md-input-container>
+      </div>
+    </div>
+    <div class="md-subheader-inner selectedcount margin-bottom-5" flex="{{vm.isFromMasterTemplate == true ? '35' : '85'}}" layout="row"
+         ng-if="vm.isMasterOperationsCreated" layout-align="end-center">
+      <div class="md-subheader-content margin-0" no-translate-class><span>{{ !vm.selectedMasterTemplate ? vm.OperationAddedList.length : "0"}}</span> Operation(s) Selected</div>
+    </div>
+  </div>
+  <div flex="100" layout="row" layout-wrap>
+    <div flex flex-xs="100" layout-wrap flex-sm="100">
+      <div flex="100" flex-xs="100" layout="row" class="mobilesearch userpermissionhead" layout-align="space-between center" ng-if="vm.isMasterOperationsCreated">
+        <md-input-container md-no-float class="md-block error-none no-label clickedsearch" flex flex-xs="75">
+          <input id="SearchNoAddedListOperation" type="text"
+                 placeholder="Type here to search operations"
+                 ng-model="vm.SearchNoAddedListOperation"
+                 ng-keyup="vm.SearchOperation(vm.SearchNoAddedListOperation, false)"
+                 custom-blur="vm.SearchOperation(vm.SearchNoAddedListOperation, false)" ignore-dirty>
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-disabled="!vm.SearchNoAddedListOperation"
+                   ng-click="vm.SearchNoAddedListOperation='';vm.SearchOperation(vm.SearchNoAddedListOperation, false);">
+          Clear
+        </md-button>
+        <md-button class="md-primary md-raised mv-0 margin-right-0" ng-click="vm.refreshOperationList();">
+          Refresh
+        </md-button>
+        <md-button class="md-primary md-raised mv-0 margin-right-0" ng-click="vm.goToManageOperation(null);">
+          Add New
+        </md-button>
+      </div>
+      <md-list class="height-500 operation-popup permissiontab custom-scroll dragbox" flex="100" ng-class="{'layout-column': vm.OperationNoAddedList.length == 0}">
+        <md-list-item id="operationNoAddedList" class="padding-0 items-container" layout="row" flex="100" layout-wrap
+                      ui-sortable="sortableOptions"
+                      ng-model="vm.OperationNoAddedList"
+                      haveadded="false">
+          <div flex="100" class="md-1-line margin-0 dragsortable"
+               ng-repeat="operation in vm.OperationNoAddedList"
+               ui-sortable-selectable
+               ng-model="operation"
+               layout="row" layout-align="start center">
+            <div flex class="text-main">
+              {{ operation.opFullName }}
+            </div>
+            <span>
+              <operation-flux-type-icon flux-type="operation.fluxTypeList"></operation-flux-type-icon>
+            </span>
+          </div>
+          
+          <div class="empty-state text-center" layout="row" flex="100" layout-wrap ng-if="vm.OperationNoAddedList.length == 0">
+            <div class="emty-icon" flex="100">
+              <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+            </div>
+            <p class="empty-state-title font-size-2 useadded-emptytxt" flex="100" ng-if="vm.SearchNoAddedListOperation == null && vm.OperationNoAddedList.length == 0">
+              {{vm.EmptyMesssage.All_ASSIGNED}}
+            </p>
+            <p class="empty-state-title font-size-2 useadded-emptytxt" flex="100" ng-if="vm.SearchNoAddedListOperation != null && vm.FilterOperationNotAdded != true">
+              {{vm.EmptyMesssage.EMPTY_SEARCH_MESSAGE}}
+            </p>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+    <div class="cm-data-fields-buttons" layout="row" layout-align="space-between center" flex-sm="100">
+      <div flex="100" layout-xs="row" layout-sm="row" layout="column" layout-align="space-between center">
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="!selectAnyAddedOperation"
+                   ng-click="vm.ModifyPageAddedOperation('Remove')">
+          <i class="icon-chevron-left icondrag"></i>
+          <md-tooltip>Remove</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="vm.OperationAddedList.length == 0"
+                   ng-click="vm.ModifyPageAddedOperation('RemoveAll')">
+          <i class="icon-chevron-double-left icondrag"></i>
+          <md-tooltip>Remove All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="vm.OperationNoAddedList.length == 0"
+                   ng-click="vm.ModifyPageAddedOperation('AddAll')">
+          <i class="icon-chevron-double-right icondrag"></i>
+          <md-tooltip>Add All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="!selectAnyNoAddedOperation"
+                   ng-click="vm.ModifyPageAddedOperation('Add')">
+          <i class="icon-chevron-right icondrag"></i>
+          <md-tooltip>Add</md-tooltip>
+        </md-button>
+      </div>
+    </div>
+    <div flex flex-xs="100" layout-wrap flex-sm="100">
+      <div flex="100" flex-xs="100" layout="row" class="mobilesearch userpermissionhead" layout-align="space-between center" ng-if="vm.isMasterOperationsCreated">
+        <md-input-container md-no-float class="md-block error-none no-label clickedsearch" flex flex-xs="75">
+          <input id="SearchAddedListOperation" type="text"
+                 placeholder="Type here to search added operations"
+                 ng-model="vm.SearchAddedListOperation"
+                 ng-keyup="vm.SearchOperation(vm.SearchAddedListOperation, true)"
+                 custom-blur="vm.SearchOperation(vm.SearchAddedListOperation, true)" ignore-dirty>
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-disabled="!vm.SearchAddedListOperation"
+                   ng-click="vm.SearchAddedListOperation='';vm.SearchOperation(vm.SearchAddedListOperation, true);">
+          Clear
+        </md-button>
+      </div>
+      <md-list class="height-500 operation-popup permissiontab custom-scroll dragbox" flex="100" ng-class="{'layout-column': vm.OperationAddedList.length == 0}">
+        <md-list-item id="operationAddedList" class="padding-0 items-container" layout="row" flex="100" layout-wrap
+                      ui-sortable="sortableOptions"
+                      ng-model="vm.OperationAddedList"
+                      haveadded="true">
+          <div flex="100" class="md-1-line margin-0 dragsortable"
+               ng-repeat="operation in vm.OperationAddedList | orderBy: 'opNumber'"
+               ui-sortable-selectable
+               ng-model="operation"
+               layout="row" layout-align="start center"
+               ng-class="{'cursor-not-allow': vm.maxOperationNumber >= operation.opNumber}"
+               ng-disabled="vm.maxOperationNumber >= operation.opNumber">
+            <div flex class="text-main">
+              {{ operation.opFullName }}
+            </div>
+            <span>
+              <operation-flux-type-icon flux-type="operation.fluxTypeList"></operation-flux-type-icon>
+            </span>
+          </div>
+          <div class="empty-state text-center" layout="row" flex="100" layout-wrap ng-if="vm.OperationAddedList.length == 0">
+            <div class="emty-icon" flex="100">
+              <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+            </div>
+            <p class="empty-state-title font-size-2 useadded-emptytxt" flex="100" ng-if="vm.SearchAddedListOperation == null && vm.OperationAddedList.length == 0">
+              {{vm.EmptyMesssage.NO_ASSIGNED}}
+            </p>
+            <p class="empty-state-title font-size-2 useadded-emptytxt" flex="100" ng-if="vm.SearchAddedListOperation != null && vm.FilterOperationAdded != true">
+              {{vm.EmptyMesssage.EMPTY_SEARCH_MESSAGE}}
+            </p>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+  </div>
+  <!--<div class="empty-state text-center" layout="row" flex="100" layout-wrap ng-if="vm.OperationList.length == 0">
+    <div class="emty-icon" flex="100">
+      <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+    </div>
+    <p class="empty-state-title font-size-2 useadded-emptytxt" flex="100" ng-if="vm.SearchOperationText == null && vm.OperationList.length == 0">
+      {{vm.EmptyMesssage.NO_SELECTED}}
+    </p>
+    <p class="empty-state-title font-size-2 useadded-emptytxt" flex="100" ng-if="vm.SearchOperationText != null && vm.FilterOperationList != true">
+      {{vm.EmptyMesssage.EMPTY_SEARCH_MESSAGE}}
+    </p>
+    <div flex="100" layout-align="center center" ng-if="!vm.isMasterOperationsCreated">
+      <md-button class="md-primary md-raised mv-0 ml-0" aria-label="Add Operation" ng-click="vm.moveToAddMasterOperations()">
+        Add Operations
+      </md-button>
+      <md-button class="md-primary md-raised margin-0" aria-label="Add Operation" ng-click="vm.refreshOperationList()">
+        Refresh
+      </md-button>
+    </div>
+  </div>-->
+</div>
+

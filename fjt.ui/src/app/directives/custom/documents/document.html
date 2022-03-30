@@ -1,0 +1,435 @@
+<div ng-class="{'cm-back-drop':!disableDIV}" class="cm-custom-label-common" flex="100" layout="column">
+  <div ng-if="!vm.isRestrictWODocAsNotValidEmpStd && !vm.isRecycleddirectiveCall" flex="100" layout="row" layout-wrap class="cm-document-list">
+    <div flex="20" ng-if="!vm.isHideDisplayTree" flex-sm="30" class="cm-all-type-document cm-doc-left">
+      <document-jstree source="vm.FolderFileList"
+                       name="documenttree"
+                       is-upload-file="true"
+                       options="treeOptions"
+                       tree-node-creator="createNode(item)"
+                       on-item-selected="vm.selectedFolder(item)"
+                       on-item-created="vm.folderCreated(item, callback)"
+                       on-item-renamed="vm.folderRename(item, callback)"
+                       on-item-upload="vm.toggleRightPreviewDoc()"
+                       on-item-moved="vm.moveFolderFile(item, isfolder)"
+                       on-item-removed="vm.deleteFolder(item, callback)"
+                       on-item-archived="NodeArcive(item, callback)"
+                       on-item-download="onItemDownload(item, callback)"
+                       on-item-tagged="onItemTagged(item, callback)"
+                       on-tree-load="vm.onTreeLoaded(item, callback)"
+                       tag-list="TagMst"
+                       is-read-only="vm.isReadOnly || vm.isWOUnderTermination"+
+                       id="documenttree"
+                       div-class="vm.doumentClass"></document-jstree>
+    </div>
+    <div ng-attr-flex="{{(vm.isHideDisplayTree) ? 100:80}}" layout="column" flex-sm="70">
+      <div ng-if="!vm.isMainRootFolderSelected" flex layout="column">
+        <div layout="row" layout-align="space-between center">
+          <div ng-if="vm.title && isPreview">
+            <md-button aria-label="Add Equipment" class="md-icon-button" ng-click="vm.back()">
+              <md-icon md-font-icon="icon-keyboard-backspace" class="material-icons mat-icon icon-camera"></md-icon>
+              <md-tooltip md-direction="top">Back</md-tooltip>
+            </md-button>
+            <b>Operation: </b> {{vm.title.operation}}
+          </div>
+          <div ng-if="vm.title.clusterName">
+            <b>Cluster: </b> {{vm.title.clusterName}}
+          </div>
+        </div>
+        <div layout="row" class="pregress-bar-document ">
+          <div class="resumable-progress">
+            <table>
+              <tr>
+                <td width="100%"><div class="progress-container"><div class="progress-bar"></div></div></td>
+                <td class="progress-text" nowrap="nowrap"></td>
+                <td class="progress-pause" nowrap="nowrap">
+                </td>
+              </tr>
+            </table>
+            <ul class="resumable-list"></ul>
+          </div>
+        </div>
+        <div class="addtemplate fab-footer-right layout-wrap" layout="row" layout-align="start start" ng-if="!vm.isProfile && !vm.isopenSidebar">
+          <md-button class="md-raised md-primary ml-0 mr-auto" ng-click="vm.manageRecycleBin()">
+            Recycle ({{vm.recycleCount}})
+          </md-button>
+          <div class="search searchbar document-search-box" ng-if="vm.isNoDocumentFound" layout="row" layout-align="end end">
+            <input class="search-input" type="text" placeholder="Type here to search document"
+                   ng-model="vm.queryDocument.documentSearch" ng-change="vm.searchDocument(vm.queryDocument.documentSearch)"
+                   max="255">
+          </div>
+          <md-button class="md-raised md-primary cm-document-attachment-button"
+                     ng-click="vm.ClearSearch()"
+                     ng-if="vm.queryDocument.documentSearch">
+            Clear
+          </md-button>
+          <md-button ng-disabled="(vm.isReadOnly || vm.isProtected || vm.isWOUnderTermination || vm.isDisableToAccess)" class="md-raised md-primary" aria-label="Add Folder"
+                     ng-click="vm.createNewFolder($event)" ng-if="(!vm.isHideDisplayTree)">
+            New Folder
+          </md-button>
+          <md-button class="md-raised md-primary cm-document-attachment-button" ng-if="(vm.isShowPicture ? isVerifiedLabel : true)" aria-label="Add Document"
+                     ng-disabled="vm.isReadOnly || vm.isWOUnderTermination ||vm.isProtected || vm.isDisableToAccess">
+            <div ngf-select-disabled="{{IsRemove || vm.isWOUnderTermination ||vm.isProtected || vm.isDisableToAccess}}"
+                 ngf-select="vm.opensidebarAndSetDocuments($files, $invalidFiles, $event)"
+                 ng-model="vm.genericFile.documentFilesFromUploadButton"
+                 class="drop-box droparea file document mb-10"
+                 ngf-multiple="true"
+                 ngf-allow-dir="true"
+                 accept="{{vm.FileTypeList}}"
+                 ngf-pattern="{{vm.FileTypeList}}" name="genericFilesFromUploadButton">
+            </div>
+            Upload Documents
+          </md-button>
+          <md-button ng-disabled="vm.isReadOnly || vm.isProtected || vm.isWOUnderTermination || vm.isDisableToAccess"
+                     ng-if="(vm.isShowPicture ? isVerifiedLabel : true)" class="md-raised md-primary"
+                     aria-label="Add Equipment" ng-click="takePicture($event)">
+            Take Picture
+          </md-button>
+          <div layout="row">
+            <div layout="column">
+              <div layout="row" flex="100">
+                <md-button ng-disabled="vm.isReadOnly || vm.isProtected || vm.isWOUnderTermination || vm.isDisableToAccess || !vm.isEnableTakePictureViaIPFeature"
+                           ng-if="(vm.isShowPicture ? isVerifiedLabel : true)" class="md-raised md-primary cm-feture-btn-color mb-0"
+                           aria-label="Add Equipment" ng-click="takePictureViaIp($event)">
+                  Take Picture (IPWebcam)
+                </md-button>
+              </div>
+              <div layout="row" flex="100" class="pl-10">
+                <span class="font-weight-600 font-size-10" ng-if="!vm.isEnableTakePictureViaIPFeature">
+                  Allow feature to enable.
+                </span>
+              </div>
+            </div>
+          </div>
+          <md-button class="md-raised md-primary" aria-label="Refresh" ng-click="vm.refreshDocument()">
+            Refresh
+          </md-button>
+          <md-button class="md-raised md-primary" ng-click="vm.moveMultipleFolderFile()"
+                     ng-disabled="(vm.isReadOnly || !vm.selectedFileFolder.length || vm.isDisableToAccess)"
+                     ng-if="(!isViewOnly) && (!vm.isProfile)"
+                     ng-hide="vm.isHideDisplayTree || vm.isProtected">
+            Move
+          </md-button>
+          <md-button class="md-raised md-primary" ng-click="vm.DownloadMultipleFilesInZip()"
+                     ng-disabled="!vm.selectedFileFolder.length || vm.isProtected">
+            Download Item(s)
+          </md-button>
+          <md-button ng-if="vm.Entity == vm.allentity.Operation.Name" class="md-raised md-primary"
+                     ng-disabled="(vm.isReadOnly || !vm.selectedFileFolder.length || vm.isDisableToAccess)"
+                     ng-click="vm.openWoListPopupToCopyOpDocFolder($event)">
+            Copy To Active Work Order
+          </md-button>
+          <md-button class="md-raised md-primary" ng-click="vm.DeleteMultipleRows()"
+                     ng-disabled="(vm.isReadOnly || !vm.selectedFileFolder.length || vm.isDisableToAccess || vm.isProtected)">
+            Delete Item(s)
+          </md-button>
+        </div>
+        <form name="vm.employeeDcoumentList" id="file-manager-form" class="padding-0 cm-document-upload-section cm-doc-right" novalidate cg-busy="{promise:vm.cgBusyLoading}">
+          <div flex="100" class="relative pastewrapper cursor-default" onmousedown="return true">
+            <div ngf-select-disabled="true"
+                 ngf-drop="vm.opensidebarAndSetDocuments($files, $invalidFiles, $event)"
+                 ng-model="vm.genericFile.documentFilesFromDragArea"
+                 ngf-drop-disabled="(vm.isShowPicture ? (!isVerifiedLabel ) : false)"
+                 class="droparea file document mb-10"
+                 ng-class="{'drop-box' : !vm.isReadOnly && !vm.isProtected && !vm.isWOUnderTermination}"
+                 ngf-drag-over-class="'dragover'"
+                 ngf-multiple="true"
+                 ngf-allow-dir="true"
+                 accept="{{vm.FileTypeList}}"
+                 ngf-pattern="{{vm.FileTypeList}}" name="genericFilesFromDragArea">
+              <p class="cm-upload-area" ng-hide="vm.isReadOnly || vm.isProtected || vm.isWOUnderTermination">{{vm.CORE_MESSAGE_CONSTANT.DROP_FILE_TO_UPLOAD}}</p>
+              <div id="file-manager" class="page-layout simple right-sidenav" layout="row" ng-show="vm.isNoDocumentFound">
+                <!-- CENTER -->
+                <div class="center cm-doc-scroll" layout="column" flex>
+                  <!-- CONTENT -->
+                  <md-content class="content custom-scroll text-left" flex layout>
+                    <!--<div ng-include="'app/directives/custom/documents/views/grid/grid-view.html'"></div>-->
+                    <div ng-include="'app/directives/custom/documents/views/list/list-view.html'" flex="100" layout="column" class="text-left"></div>
+                  </md-content>
+                  <!-- / CONTENT -->
+                </div>
+                <!-- / CENTER -->
+              </div>
+              <div class="empty-state text-center full-height cm-overflow-auto" layout="row" layout-align="center center" layout-wrap ng-if="!vm.isNoDocumentFound">
+                <div class="emty-icon" flex="nogrow">
+                  <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title" ng-bind-html="vm.EmptyMesssage.MESSAGE"
+                   ng-hide="vm.isReadOnly || vm.isProtected || vm.isWOUnderTermination"></p>
+                <p flex="100" class="empty-state-title" ng-if="vm.isReadOnly || vm.isProtected || vm.isWOUnderTermination">
+                  {{vm.EmptyMesssage.NO_ANY_DOC_MESSAGE}}
+                </p>
+              </div>
+            </div>
+          </div>
+        </form>
+        <md-sidenav md-disable-backdrop class="md-sidenav-right md-whiteframe-4dp imagepreview documentupload cm-upload-sidebar"
+                    cg-busy="{promise:vm.cgBusyDocLoading}" md-component-id="{{vm.sideName}}" style="position:fixed;"
+                    md-disable-close-events>
+          <md-toolbar class="md-theme-light" layout="row" layout-align="space-between center">
+            <h1 class="md-toolbar-tools" ng-if="!vm.isView && !vm.isEdit">Upload Document</h1>
+            <h1 class="md-toolbar-tools" ng-if="vm.isEdit || vm.isView">Document: {{vm.documentName}}</h1>
+            <div layout="row">
+              <md-button class="md-icon-button margin-0" ng-click="vm.closePreviewSidenav()">
+                <md-icon md-font-icon="icon-close"></md-icon>
+              </md-button>
+            </div>
+          </md-toolbar>
+          <md-content layout-padding layout="row" flex="100" layout-align="start start" class="fullheight-toolbar-footer custom-scroll cm-overflow-x-h">
+            <form name="vm.documentForm" flex="100" layout class="documnet-form" novalidate cg-busy="{promise:vm.cgBusyLoading}">
+              <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+              <!--<div layout="column" class="form-section" layout-gt-xs="row" flex>-->
+              <div layout="column" ng-class="{'form-section' :vm.isView || vm.iszoom}" layout-gt-xs="row" flex>
+                <div flex="100" layout="row" layout-wrap>
+                  <div flex="100" class="relative pastewrapper" ng-if="!vm.isEdit  &&  !vm.isView">
+                    <div ngf-select-disabled="{{IsRemove || vm.isDisableToAccess}}"
+                         ngf-drop="vm.documentFiles($files, $invalidFiles, $event)"
+                         ngf-select="vm.documentFiles($files, $invalidFiles, $event)"
+                         ng-model="vm.genericFile.documentFiles"
+                         class="drop-box droparea file document mb-10"
+                         ngf-drag-over-class="'dragover'"
+                         ngf-multiple="true"
+                         ngf-allow-dir="true"
+                         accept="{{vm.FileTypeList}}"
+                         ngf-pattern="{{vm.FileTypeList}}" name="genericFiles">
+                      <div flex layout="row" class="uploadedimage" layout-wrap ng-if="vm.genericDocument.length > 0">
+                        <div class="repeatimage margin-bottom-15" layout="row" ng-repeat="objFile in vm.genericDocument">
+                          <div class="image">
+                            <img ng-if="objFile" ngf-thumbnail="objFile || '/thumb.jpg'" class="img img-no-drag" ngf-size="{quality: 1}">
+                            <img ng-show="!vm.isImage(objFile)" ng-src="{{objFile.icon}}" class="img img-no-drag" />
+                            <p class="cm-document-name"><md-tooltip>{{objFile.name}}</md-tooltip>{{objFile.name}}</p>
+                            <i class="icon-cancel" ng-click="vm.removeDocument($index)" ng-if="!objFile.isProcessed"></i>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="drag-txt">{{vm.CORE_MESSAGE_CONSTANT.DRAG_AND_DROP_MESSAGE}}</p>
+                    </div>
+                  </div>
+                  <div flex="100" ng-if="vm.isEdit && !vm.isView && isImageFile" class="margin-bottom-20" layout="row" layout-align="start center">
+                    <md-button type="button" class="md-primary md-icon-button md-raised margin-left-0 mr-0 imgaction" ng-click="cropImage();" ng-disabled="vm.isProtected">
+                      <md-icon md-font-icon="icon-crop"></md-icon>
+                      <md-tooltip><span>Crop</span></md-tooltip>
+                    </md-button>
+                    <md-button type="button" class="md-primary md-icon-button md-raised margin-left-0 mr-0 imgaction" ng-click="drawRectangle();" ng-disabled="vm.isProtected">
+                      <md-icon md-font-icon="icon-crop-landscape"></md-icon>
+                      <md-tooltip><span>Rectangle</span></md-tooltip>
+                    </md-button>
+                    <md-button type="button" class="md-primary md-icon-button md-raised margin-left-0 mr-0 imgaction" ng-click="drawLine();" ng-disabled="vm.isProtected">
+                      <md-icon md-font-icon="icon-minus"></md-icon>
+                      <md-tooltip><span>Line</span></md-tooltip>
+                    </md-button>
+                    <md-button type="button" class="md-primary md-icon-button md-raised margin-left-0 mr-0 imgaction" ng-click="drawPencil();" ng-disabled="vm.isProtected">
+                      <md-icon md-font-icon="icon-pencil"></md-icon>
+                      <md-tooltip><span>Pen</span></md-tooltip>
+                    </md-button>
+                    <md-button type="button" class="md-primary md-icon-button md-raised margin-left-0 mr-0 imgaction" ng-click="drawText();" ng-disabled="vm.isProtected">
+                      <md-icon md-font-icon="icon-format-text"></md-icon>
+                      <md-tooltip><span>Text</span></md-tooltip>
+                    </md-button>
+                    <!-- <button ng-click="drawCircle()">Circle</button> -->
+                    <md-button type="button" class="md-primary md-icon-button md-raised margin-left-0 mr-0 imgaction" ng-click="drawArrow();" ng-disabled="vm.isProtected">
+                      <md-icon md-font-icon="icon-arrow-top-right"></md-icon>
+                      <md-tooltip><span>Arrow</span></md-tooltip>
+                    </md-button>
+                    <md-button type="button" class="md-primary md-icon-button md-raised margin-left-0 mr-0 imgaction" ng-click="zoom()">
+                      <md-icon md-font-icon="icon-magnify-plus"></md-icon>
+                      <md-tooltip><span>Zoom</span></md-tooltip>
+                    </md-button>
+                    <md-button type="button" class="md-primary md-icon-button md-raised margin-left-0 mr-0 imgaction" ng-disabled="ImageHisory.undo.length == 0 ||vm.isProtected" ng-click="undo();">
+                      <md-icon md-font-icon="icon-undo"></md-icon>
+                      <md-tooltip><span>Undo</span></md-tooltip>
+                    </md-button>
+                    <md-button type="button" class="md-primary md-icon-button md-raised margin-left-0 mr-0 imgaction" ng-disabled="ImageHisory.redo.length == 0 || vm.isProtected" ng-click="redo();">
+                      <md-icon md-font-icon="icon-redo"></md-icon>
+                      <md-tooltip><span>Redo</span></md-tooltip>
+                    </md-button>
+                    <md-button type="button" ng-disabled="vm.isProtected || vm.iszoom" class="md-primary md-icon-button md-raised margin-left-0 mr-0 imgaction" ng-click="finish();">
+                      <md-icon md-font-icon="icon-check-circle"></md-icon>
+                      <md-tooltip><span>Apply</span></md-tooltip>
+                    </md-button>
+                    <!--<div flex ng-if="vm.setDetault">&nbsp;&nbsp;&nbsp;&nbsp;</div>-->
+                    <md-button type="button" ng-disabled="vm.isProtected" class="md-primary md-icon-button md-raised margin-left-0 mr-0 imgaction" ng-click="clear();">
+                      <md-icon md-font-icon="icon-close-circle"></md-icon>
+                      <md-tooltip><span>Clear</span></md-tooltip>
+                    </md-button>
+                  </div>
+                  <div class="canvs-image margin-auto" id="image-main-canvas" ng-if="vm.isEdit && !vm.iszoom && image.src" name="image-main-canvas" layout="row" layout-align="center center">
+                    <canvas width="{{cWidth}}" height="{{cHeight}}" id="my_canvas_id" name="my_canvas_id"></canvas>
+                  </div><br />
+                  <div flex="100" class="contain-div" ng-if="(vm.iszoom || !vm.isEdit) && image && image.src && isImageFile && !vm.isVideoFile  && !vm.isAudioFile">
+                    <div class="image-div" flex="100" layout-align="center center" layout="column">
+                      <img ng-if="isImageFile" ng-src="{{image.src}}" data-high-res-src="{{image.src}}" alt="" id="captureImg">
+                      <img ng-if="(!isImageFile)" ng-src="{{image.src}}" alt="">
+                    </div>
+                    <div class="zoom-btn" layout="row">
+                      <md-button class="md-default md-raised margin-0 width-28" ng-click="vm.zoomIn('captureImageViewer')"
+                                 ng-disabled="vm.captureImageViewer.zoomValue == 500">
+                        <i class="icon-plus icondrag"></i><md-tooltip>Zoom In</md-tooltip>
+                      </md-button>
+                      <md-button class="md-default md-raised margin-0 width-28" ng-click="vm.zoomOut('captureImageViewer')"
+                                 ng-disabled="vm.captureImageViewer.zoomValue == 100">
+                        <i class="icon-minus icondrag"></i><md-tooltip>Zoom Out</md-tooltip>
+                      </md-button>
+                      <md-button class="md-default md-raised margin-0 fit-to-screen width-28" ng-click="vm.resetCaptureImage()" ng-disabled="vm.captureImageViewer.zoomValue == 100">
+                        <i class="icon-crop-free icondrag"></i><md-tooltip>Fit To Screen</md-tooltip>
+                      </md-button>
+                    </div>
+                  </div>
+                  <div flex="100" class="contain-div" ng-class="{'layout-align-center-center':!vm.isPDFFile}" layout="row" ng-if="vm.isPDFFile && vm.file.docURL">
+                    <pdfjs-viewer data="vm.file.arrayData" download="false" print="false" open="false"></pdfjs-viewer>
+                  </div>
+                  <div flex="100" class="contain-div" layout-align="center center" layout="row" ng-if="vm.isVideoFile">
+                    <video width="450" class="video" height="240" controls>
+                      <source ng-src="{{vm.vidpath}}" type="video/mp4">
+                    </video>
+                  </div>
+                  <div flex="100" class="contain-div" layout-align="center center" layout="row" ng-if="vm.isAudioFile">
+                    <audio controls layout-align="center center" layout="row">
+                      <source ng-src="{{vm.audioFile}}" type="audio/mpeg">
+                    </audio>
+                  </div>
+                  <div flex="100" class="contain-div cm-document-no-preview" layout-align="center center" layout="column" ng-if="(vm.isView || vm.isEdit) && !(isImageFile || vm.isVideoFile || vm.isAudioFile || vm.isPDFFile)">
+                    <img draggable="false" class="margin-bottom-10-imp" ng-src="{{vm.documentDetail.documentIcon}}" />
+                    <p ng-if="vm.isView">{{vm.FILE_PREVIEW_NOT_AVAILABLE.message}}</p>
+                    <md-button class="md-raised md-primary margin-0" ng-click="vm.downloadDocument(vm.documentDetail)"
+                               ng-if="vm.isEdit && !(vm.isProtected)">
+                      <md-icon md-font-icon="icon-download" class="material-icons mat-icon s16"></md-icon>
+                      Download
+                    </md-button>
+                  </div>
+                  <div flex="100" class="text-align-center margin-10" ng-if="vm.isEdit || vm.isView">
+                    <!--ng-if="isImageFile">--> <!--&& !vm.isVideoFile  && !vm.isAudioFile && !vm.isPDFFile">-->
+                    <md-button class="md-raised md-primary margin-0" ng-disabled="vm.previewIndex.previousIndex == null ? true: false"
+                               ng-click="vm.viewNextPreviousImage(vm.previewIndex.previousIndex)">
+                      <!-- viewPreviousImage -->
+                      Previous
+                    </md-button>
+                    <md-button class="md-raised md-primary margin-0 margin-left-5-imp" ng-disabled="vm.previewIndex.nextIndex == null ? true: false"
+                               ng-click="vm.viewNextPreviousImage(vm.previewIndex.nextIndex)">
+                      Next
+                    </md-button>
+                  </div>
+                  <div flex="100" class="cm-document-type">
+                    <!--<a ng-audio='{{vm.audioFile}}' ng-audio-hover='{{vm.audioFile}}' volume-hover=0.2 class="navbar-brand" ui-sref='home'>ngAudio</a>-->
+                    <div ng-class="{'padding-10 border margin-top-10':!vm.isView}">
+                      <p class="margin-bottom-0 label-container" ng-hide="vm.isView" layout-align="start center" layout="row" flex="100">Description</p>
+                      <md-input-container layout="column" ng-if="!vm.isView">
+                        <textarea ng-model="vm.documentDescription" type="text" name="description" id="description" placeholder="Description" ng-maxlength="500" ng-change="handleMouseOut(out)"
+                                  ng-disabled="vm.isDisableToAccess"></textarea>
+                        <div ng-messages="vm.documentForm.description.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(500, vm.documentForm.description.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </div>
+                    <div flex="100">
+                      <div flex="100">
+                        <div ng-if="vm.isView" ng-class="{'padding-10 border margin-top-10':!vm.isView}">
+                          <div>
+                            <span ng-if="vm.documentDescription"><b>Description: </b></span>
+                          </div>
+                          <div>
+                            <span>
+                              {{vm.documentDescription}}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div layout="row" layout-wrap class="file-types document-type cm-document-type padding-10 border margin-top-10">
+                        <div class="cm-section-header mb-10" flex="100" layout="row" layout-align="space-between center">
+                          <span flex="50" ng-click="vm.goToDocumentTypesList()" class="cm-text-decoration margin-top-10 margin-bottom-10"><b>Document(s) Type</b></span>
+                          <span flex layout class="quote-note-title">
+                            <span flex class="search search-input"><input class="search-input width-100p" type="text" placeholder="Type here to search document type" ng-model="vm.searchText" max="255" /></span>
+                            <md-button class="md-raised md-primary mr-0 mt-0 mb-0" aria-label="Add Document Type" ng-click="vm.addDocumentType()"
+                                       ng-disabled="vm.isReadOnly || vm.isDisableDocType || vm.isDisableToAccess">
+                              Add <span>Document Types</span>
+                            </md-button>
+                            <md-button class="md-raised md-primary mr-0 mt-0 mb-0 margin-left-5-imp" aria-label="Add Document Type" ng-click="vm.refreshDoctype()">
+                              Refresh
+                            </md-button>
+                          </span>
+                        </div>
+                        <md-radio-group ng-model="vm.fileGroupBy" ng-repeat="grouptype in vm.FileGroup | filter : vm.searchText" flex="33" name="rbFileType" ng-change="vm.fileTypeChange()"
+                                        ng-disabled="vm.isDisableToAccess">
+                          <md-radio-button ng-disabled="vm.isView || (!grouptype.isActive) || vm.isDisableDocType" flex ng-value="grouptype.gencCategoryID" class="md-primary margin-right-35">{{grouptype.gencCategoryName}}</md-radio-button>
+                        </md-radio-group>
+                        <div class="empty-state full-height-90" flex="100" layout="row" layout-wrap layout-align="center center"
+                             ng-if="(vm.FileGroup | filter: vm.searchText).length === 0 ">
+                          <div class="emty-icon" flex="100">
+                            <img ng-src="{{vm.empty.IMAGEURL}}" />
+                          </div>
+                          <p class="empty-state-title" flex="100">{{vm.empty.MESSAGE}}</p>
+                        </div>
+                      </div>
+                      <div layout="row" flex="100" layout-wrap ng-if="!vm.docTagReadOnly || vm.docTags.length > 0" class="padding-10 border margin-top-10 margin-bottom-10">
+                        <label class="label-container" flex="100">Tags</label>
+                        <md-chips class="cm-document-chip chip-input-250" flex="100" name="keyword" ng-model="vm.docTags"
+                                  readonly="vm.docTagReadOnly || vm.isDisableToAccess"
+                                  placeholder="Type Tag and Press Enter"
+                                  delete-button-label="Remove tag"
+                                  delete-hint="Press delete to remove tag">
+                          <md-chip-template>
+                            <span>
+                              <strong>{{$chip}}</strong>
+                            </span>
+                          </md-chip-template>
+                          <button md-chip-remove class="md-primary">
+                            <md-icon md-font-icon="icon-close"></md-icon>
+                          </button>
+                        </md-chips>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </md-content>
+          <md-footer flex="100" layout="row" layout-align="end center" ng-if="!isProfile">
+            <md-button class="md-raised" ng-click="vm.closePreviewSidenav()" ng-if="vm.isEdit && !vm.isView">Cancel</md-button>
+            <md-button class="md-default md-raised" ng-click="vm.closePreviewSidenav()" ng-if="!vm.isEdit">Close</md-button>
+            <md-button type="button" class="md-raised md-primary" ng-click="vm.upload($event)" ng-if="vm.isEdit && !vm.isView"
+                       ng-disabled="vm.saveDisable || vm.isDisableToAccess"
+                       ng-class="{'md-formdirty': vm.checkFormDirty(vm.documentForm,null)}">
+              Save
+            </md-button>
+            <md-button ng-click="vm.uploadFiles($event)"
+                       ng-disabled="vm.isDisableUploadDocumentBtn || vm.saveDisable || vm.isDisableToAccess"
+                       class="md-raised md-primary" ng-if="!vm.isEdit && !vm.isView"
+                       ng-class="{'md-formdirty': vm.checkFormDirty(vm.documentForm,null)}">Upload Document</md-button>
+          </md-footer>
+        </md-sidenav>
+      </div>
+      <div ng-if="vm.isMainRootFolderSelected" class="full-height">
+        <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap>
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.emptyStateForRootFolderSelected.IMAGEURL}}" />
+          </div>
+          <p flex="100" class="empty-state-title" ng-bind-html="vm.emptyStateForRootFolderSelected.MESSAGE"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div ng-if="vm.isRestrictWODocAsNotValidEmpStd && !vm.isRecycleddirectiveCall" flex="100">
+    <div class="empty-state text-center full-height margin-top-20" layout="row" layout-align="center center" layout-wrap>
+      <div class="emty-icon" flex="100">
+        <img ng-src="{{vm.EmptyStateForEmpCertiRestriction.IMAGEURL}}" />
+      </div>
+      <p flex="100" class="empty-state-title" ng-bind-html="vm.EmptyStateForEmpCertiRestriction.MESSAGE"></p>
+      <p flex="100" ng-hide="(vm.isReadOnly || vm.isWOUnderTermination || vm.isProtected)">
+        <md-button class="md-fab md-mini" aria-label="Add Employee Certification" ng-click="vm.addEmployeeCertification()">
+          <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+          <md-tooltip>Add Personnel Certification</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-mini" aria-label="Refresh Document" ng-click="vm.refreshDocument($event)">
+          <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon"></md-icon>
+          <md-tooltip>Refresh</md-tooltip>
+        </md-button>
+      </p>
+    </div>
+  </div>
+  <div ng-if="vm.isRecycleddirectiveCall" flex="100" layout="column">
+    <recycle-bin flex="100" class="padding-5" layout="column" ref-trans-id="vm.refTransID" is-read-only="vm.isReadOnly"
+                 entity="vm.Entity" role-id="vm.selectedFolderFileRoleId"></recycle-bin>
+  </div>
+</div>
+

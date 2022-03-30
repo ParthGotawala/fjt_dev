@@ -1,0 +1,149 @@
+<form name="vm.workStationDetail" class="padding-10-imp cm-search-tab-operation-list" ms-form-wizard-form novalidate>
+  <div flex="100" layout="row" layout-wrap ng-if="vm.isContainOpMasterWorkstation">
+    <div flex flex-xs="100" layout="row" layout-wrap>
+      <div flex="100" flex-xs="100" layout="row" class="mobilesearch employee-workstaion-search-box userpermissionhead" layout-align="space-between center">
+        <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75" ng-class="{'clickedsearch':isButtonWorkStationClicked}">
+          <input id="SearchNoAddedListWorkStation" type="text" placeholder="Type here to search workstations" ng-model="vm.SearchNoAddedListWorkStation"
+                 ng-keyup="vm.SearchWorkStation(vm.workStationNoAddedList, vm.SearchNoAddedListWorkStation, false)"
+                 custom-blur="vm.SearchWorkStation(vm.workStationNoAddedList, vm.SearchNoAddedListWorkStation, false)">
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-disabled="!vm.SearchNoAddedListWorkStation"
+                   ng-click="vm.SearchNoAddedListWorkStation='';vm.SearchWorkStation(vm.workStationNoAddedList, vm.SearchNoAddedListWorkStation, false)">
+          Clear
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.refreshData()">
+          Refresh
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.addData(null,$event)">
+          Add New
+        </md-button>
+      </div>
+      <md-list flex="100" class="permissiontab custom-scroll dragbox" ng-class="{'layout-column': vm.workStationNoAddedList.length == 0}">
+        <md-list-item id="workStationNoAddedList" class="padding-0 items-container" layout="row" flex="100" layout-wrap ui-sortable="sortableOptionsWorkStation"
+                      ng-model="vm.workStationNoAddedList" haveadded="false">
+          <div flex="100" class="md-1-line margin-0 dragsortable" ng-repeat="workStation in vm.workStationNoAddedList" ui-sortable-selectable
+               ng-model="workStation" layout="row" layout-align="start center">
+            <div class="avatar-wrapper">
+              <img class="md-avatar avatar margin-top-0 margin-bottom-0" ng-src="{{workStation.ProfilePic}}" />
+            </div>
+            <div class="md-list-item-text" layout="column" layout-wrap layout-align="center-start">
+              <h3 class="name margin-0 md-primary-fg underline inline-block width-fit-content" ng-click="vm.goToManageEquipmentWorkstation(workStation);$event.stopPropagation();">
+                <b>{{workStation.assetName}}</b>
+              </h3>
+              <p class="last-message text-truncate margin-0">
+                {{workStation.eqpMake != "null" ? workStation.eqpMake : '-'}}
+                {{workStation.eqpModel != "null" ? "| " + workStation.eqpModel : '-'}}
+                <span> {{workStation.eqpYear ? "| " + workStation.eqpYear : ''}}</span>
+              </p>
+            </div>
+          </div>
+          <div flex="100" class="md-1-line margin-0 cursor-not-allow " ng-if="vm.workStationNoAddedList.length == 0" ui-sortable-selectable>
+            <div class="empty-state text-center">
+              <div class="emty-icon">
+                <img ng-src="{{vm.EmptyMesssageWorkStation.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchNoAddedListWorkStation == null && vm.workStationNoAddedList.length == 0">
+                {{vm.EmptyMesssageWorkStation.ALL_ASSIGNED}}
+              </p>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchNoAddedListWorkStation != null && vm.FilterworkStationNotAdded != true">
+                {{vm.EmptyMesssageWorkStation.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+    <div layout="row" flex-xs="100" class="cm-data-fields-buttons" layout-align="space-between center">
+      <div flex="100" flex-xs="100" layout-xs="row" layout="column" layout-align="space-between center">
+        <md-button class="md-fab md-raised md-mini" ng-disabled="!selectAnyAdded" ng-click="vm.ModifyPageAddedWorkStation('Remove')">
+          <i class="icon-chevron-left icondrag"></i>
+          <md-tooltip>Remove</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini" ng-disabled="vm.workStationAddedList.length == 0" ng-click="vm.ModifyPageAddedWorkStation('RemoveAll')">
+          <i class="icon-chevron-double-left icondrag"></i>
+          <md-tooltip>Remove All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini" ng-disabled="vm.workStationNoAddedList.length == 0" ng-click="vm.ModifyPageAddedWorkStation('AddAll')">
+          <i class="icon-chevron-double-right icondrag"></i>
+          <md-tooltip>Add All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini" ng-disabled="!selectAnyNoAdded" ng-click="vm.ModifyPageAddedWorkStation('Add')">
+          <i class="icon-chevron-right icondrag"></i>
+          <md-tooltip>Add</md-tooltip>
+        </md-button>
+      </div>
+    </div>
+    <div flex flex-xs="100">
+      <div flex="100" flex-xs="100" layout="row" class="mobilesearch employee-workstaion-search-box userpermissionhead" layout-align="space-between end">
+        <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75" ng-class="{'clickedsearch':isButtonWorkStationAddedClicked}">
+          <input id="SearchAddedListWorkStation" type="text" placeholder="Type here to search added workstations" ng-model="vm.SearchAddedListWorkStation"
+                 ng-keyup="vm.SearchWorkStation(vm.workStationAddedList, vm.SearchAddedListWorkStation, true)"
+                 custom-blur="vm.SearchWorkStation(vm.workStationAddedList, vm.SearchAddedListWorkStation, true)">
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-disabled="!vm.SearchAddedListWorkStation"
+                   ng-click="vm.SearchAddedListWorkStation='';vm.SearchWorkStation(vm.workStationAddedList, vm.SearchAddedListWorkStation, true)">
+          Clear
+        </md-button>
+      </div>
+      <md-list flex="100" class="permissiontab custom-scroll dragbox" ng-class="{'layout-column': vm.workStationAddedList.length == 0}">
+        <md-list-item id="workStationAddedList" class="padding-0 items-container" layout="row" flex="100" layout-wrap ui-sortable="sortableOptionsWorkStation"
+                      ng-model="vm.workStationAddedList">
+          <div flex="100" class="md-1-line margin-0 dragsortable" ng-repeat="workStation in vm.workStationAddedList" ui-sortable-selectable
+               ng-model="workStation" layout="row" layout-align="start center">
+            <div class="avatar-wrapper">
+              <img class="md-avatar avatar margin-top-0 margin-bottom-0" ng-src="{{workStation.ProfilePic}}" />
+            </div>
+            <div class="md-list-item-text" layout="column" layout-wrap layout-align="center-start">
+              <h3 class="name margin-0 md-primary-fg underline inline-block width-fit-content" ng-click="vm.goToManageEquipmentWorkstation(workStation);$event.stopPropagation();">
+                <b>{{workStation.assetName}}</b>
+              </h3>
+              <p class="last-message text-truncate margin-0">
+                {{workStation.eqpMake != "null" ? workStation.eqpMake : '-'}}
+                {{workStation.eqpModel != "null" ? "| " + workStation.eqpModel : '-'}}
+                <span> {{workStation.eqpYear ? "| " + workStation.eqpYear : ''}}</span>
+              </p>
+            </div>
+          </div>
+          <div flex="100" class="md-1-line margin-0 cursor-not-allow " ng-if="vm.workStationAddedList.length == 0" ui-sortable-selectable>
+            <div class="empty-state text-center">
+              <div class="emty-icon">
+                <img ng-src="{{vm.EmptyMesssageWorkStation.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchAddedListWorkStation == null && vm.workStationAddedList.length == 0">
+                {{vm.EmptyMesssageWorkStation.MESSAGE}}
+              </p>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchAddedListWorkStation != null && vm.FilterWorkStationAdded != true">
+                {{vm.EmptyMesssageWorkStation.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+  </div>
+  <div flex="100" class="md-1-line margin-0 cursor-not-allow " ng-if="!vm.isContainOpMasterWorkstation">
+    <div class="empty-state text-center full-height">
+      <div class="emty-icon">
+        <img ng-src="{{vm.EmptyMesssageForEquipmentWorkstation.IMAGEURL}}" />
+      </div>
+      <p class="empty-state-title font-size-2 useadded-emptytxt">
+        {{vm.Message}}
+      </p>
+      <p flex="100">
+        {{vm.AddnewMessage}}
+      </p>
+      <p flex="100">
+        <md-button class="md-fab md-mini" aria-label="Add" ng-click="vm.addData(null,$event)">
+          <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+          <md-tooltip md-direction="top">Add</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.refreshData()">
+          <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-refresh"></md-icon>
+          <md-tooltip md-direction="top">Refresh</md-tooltip>
+        </md-button>
+      </p>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,129 @@
+<md-dialog aria-label="PaidVarificationSlip" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="90">
+  <form name="vm.formPaidPackaging" class="md-inline-form">
+
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{vm.popupTitle}}</h2>
+        <span flex></span>
+        <div class="text-align-center pr-5" ng-if="vm.lockStatus === vm.TRANSACTION.CustomerPaymentLockStatus.Locked">
+          <span class="label-box font-weight-500 font-size-13 label-danger">
+            Locked
+            <md-tooltip md-direction="bottom" class="tt-multiline">
+              Locked By: {{vm.lockByName}} <br />
+              Locked Date: {{vm.lockedAt}}
+            </md-tooltip>
+          </span>
+        </div>
+        <div class="text-align-center cm-payment-status-header" ng-if="vm.paymentId && !vm.isVoidAndReIssuePayment">
+          <span class="font-weight-500 font-size-13 margin-left-4 color-black">Payment Status: </span>
+          <span class="label-box font-weight-500 font-size-13 cm-payment-status-text"
+                ng-class="{'label-success': !vm.isPaymentVoided,
+                'label-warning': vm.isPaymentVoided}">
+            {{vm.isPaymentVoided ? 'Voided' : 'Paid'}}
+          </span>
+        </div>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content class="padding-10">
+      <md-content ng-class="{'min-height-400': vm.isSearchPaymentOrCheckDisplay}">
+        <div ng-if="vm.isSearchPaymentOrCheckDisplay" class="margin-bottom-5">
+          <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+            <tbody>
+              <tr>
+                <th ng-if="vm.autoCompleteSearchPaymentOrCheckNumber">
+                  <p class="label-container font-weight-normal">
+                    Payment# or Check#
+                    <span>&nbsp;*</span>
+                  </p>
+                </th>
+                <td colspan="4" ng-if="vm.autoCompleteSearchPaymentOrCheckNumber" class="width-300">
+                  <md-input-container class="autocompletecustom cm-custom-autocomplete width-100p" flex="100">
+                    <custom-auto-complete-search on-search-fn="vm.autoCompleteSearchPaymentOrCheckNumber.onSearchFn"
+                                                 column-name="vm.autoCompleteSearchPaymentOrCheckNumber.columnName"
+                                                 controller-name="vm.autoCompleteSearchPaymentOrCheckNumber.controllerName"
+                                                 view-template-url="vm.autoCompleteSearchPaymentOrCheckNumber.viewTemplateURL"
+                                                 parent-column-name="vm.autoCompleteSearchPaymentOrCheckNumber.parentColumnName"
+                                                 key-column-name="vm.autoCompleteSearchPaymentOrCheckNumber.keyColumnName"
+                                                 input-name="vm.autoCompleteSearchPaymentOrCheckNumber.inputName"
+                                                 placeholder-name="vm.autoCompleteSearchPaymentOrCheckNumber.placeholderName"
+                                                 key-column-id="vm.autoCompleteSearchPaymentOrCheckNumber.keyColumnId"
+                                                 is-required="true"
+                                                 is-addnew="vm.autoCompleteSearchPaymentOrCheckNumber.isAddnew"
+                                                 callback-fn="vm.autoCompleteSearchPaymentOrCheckNumber.callbackFn"
+                                                 search-text="vm.autoCompleteSearchPaymentOrCheckNumber.searchText"
+                                                 custom-auto-focus="{{true}}"
+                                                 add-data="vm.autoCompleteSearchPaymentOrCheckNumber.addData"
+                                                 on-select-callback-fn="vm.autoCompleteSearchPaymentOrCheckNumber.onSelectCallbackFn">
+                    </custom-auto-complete-search>
+                    <span class="font-size-10">
+                      <b>i.e. (CheckNo) BankAccountCode, SupplierCode</b>
+                    </span>
+                  </md-input-container>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div ng-if="!vm.isHidePaymentPopupDetails">
+          <supplier-invoice-payment data="vm.packingSlipData"
+                                    payment-for-ids="vm.paymentForIds"
+                                    is-any-row-selected="vm.anyItemSelect"
+                                    cg-busy-loading="vm.cgBusyLoading"
+                                    is-payment-voided="vm.isPaymentVoided"
+                                    payment-id="vm.paymentId"
+                                    supplier-det="vm.supplierDet"
+                                    save-btn-disable-flag="vm.saveBtnDisableFlag"
+                                    is-payment-locked="vm.isPaymentLocked",
+                                    lock-status="vm.lockStatus"
+                                    lock-by-name="vm.lockByName"
+                                    locked-at="vm.lockedAt"
+                                    set-focus-on-close-button="vm.setFocusOnCloseButton">
+          </supplier-invoice-payment>
+        </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row" layout-align="space-between center">
+      <div layout="row" layout-align="start center">
+        <md-button class="md-primary md-raised ml-0 cm-feture-btn-color"
+                   ng-if="!vm.viewOnly && !vm.isHidePaymentPopupDetails && !vm.isVoidAndReIssuePayment"
+                   ng-disabled="vm.isPaymentVoided || vm.viewOnly || !vm.paymentId || vm.isVoidAndReIssuePayment || !vm.allowToVoidAndReIssuePaymentFeature || vm.saveBtnDisableFlag || vm.isPaymentLocked"
+                   custom-auto-focus="{{false}}"
+                   ng-click="vm.voidAndReIssuePayment()">Void & Reissue Payment</md-button>
+        <md-button class="md-primary md-raised cm-feture-btn-color"
+                   ng-if="!vm.viewOnly && !vm.isHidePaymentPopupDetails && !vm.isVoidAndReIssuePayment"
+                   ng-disabled="vm.isPaymentVoided || vm.viewOnly || !vm.paymentId || !vm.allowToVoidAndReIssuePaymentFeature || vm.saveBtnDisableFlag || vm.isPaymentLocked"
+                   custom-auto-focus="{{false}}"
+                   ng-click="vm.voidPayment()">Void Payment & Release Invoice Group</md-button>
+      </div>
+      <div layout="row" layout-align="end center">
+        <md-button name="btnClose" id="btnClose" class="md-default md-raised" ng-click="vm.cancel()">{{(vm.viewOnly || vm.isHidePaymentPopupDetails) ? 'Close' : 'Cancel'}}</md-button>
+        <md-button class="md-primary md-raised"
+                   ng-class="{'md-formdirty': (vm.formPaidPackaging.$dirty)}"
+                   ng-click="vm.paidAmount();" aria-label="Submit"
+                   ng-if="!vm.viewOnly && !vm.isHidePaymentPopupDetails"
+                   custom-auto-focus="{{false}}"
+                   ng-disabled="!vm.anyItemSelect || vm.saveBtnDisableFlag || (vm.lockStatus === vm.TRANSACTION.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin) || vm.isPaymentLocked">Save</md-button>
+        <md-button class="md-primary md-raised"
+                   ng-click="vm.printCheck();" aria-label="Submit"
+                   ng-if="!vm.isHidePaymentPopupDetails"
+                   custom-auto-focus="{{false}}"
+                   ng-disabled="!vm.anyItemSelect || vm.formPaidPackaging.$dirty || !vm.paymentId || vm.isPaymentVoided || vm.isPrintDisabled">Print Preview</md-button>
+        <!--<md-button class="md-primary md-raised"
+                   ng-click="vm.printCheckDirectToPrinter();" aria-label="Submit"
+                   ng-if="!vm.viewOnly && !vm.isHidePaymentPopupDetails"
+                   ng-disabled="!vm.anyItemSelect || vm.formPaidPackaging.$dirty || !vm.paymentId || true">Print</md-button>-->
+        <md-button class="md-primary md-raised"
+                   ng-click="vm.printRemittanceReport();" aria-label="Submit"
+                   ng-if="!vm.isHidePaymentPopupDetails"
+                   custom-auto-focus="{{false}}"
+                   ng-disabled="!vm.anyItemSelect || vm.formPaidPackaging.$dirty || !vm.paymentId || vm.isPrintRemittDisabled">Print Preview Remittance</md-button>
+      </div>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

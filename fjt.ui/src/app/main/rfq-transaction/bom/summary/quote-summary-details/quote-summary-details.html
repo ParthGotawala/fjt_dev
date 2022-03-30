@@ -1,0 +1,2296 @@
+<div id="e-commerce-order" class="page-layout fullwidth simple tabbed breadcrumb-fixed" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <!-- HEADER -->
+  <div class="header md-accent-bg quote-header-height" layout="row" layout-align="start center">
+    <div class="white-fg layout-wrap-rs-1024" layout="row" layout-align="start center" flex>
+      <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" aria-label="Go to Cost Summary" ng-click="vm.goBack()">
+        <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+        </md-icon>
+      </md-button>
+      <div layout="column" layout-align="start start">
+        <div class="h2">
+          <span class="header-title">{{vm.isQuotePage? vm.assyData.isQuoteHistory?'Quote History':'Quote':'Quote Preview'}}</span>
+          <pagetitle is-list="false" is-display-menu-name="false" prefix-page-title="vm.isQuotePage?vm.assyData.isQuoteHistory?'Quote Summary History':'Quote Summary':'Quote Preview'"></pagetitle>
+        </div>
+        <div layout="row" layout-align="start center">
+          <breadcrumbs></breadcrumbs>
+        </div>
+      </div>
+      <div layout="row" flex layout-wrap layout-align="end">
+        <div layout="row" layout-wrap layout-align="end center" flex="100" ng-if="vm.isCustomerAccess" flex-xs="100">
+          <div>
+            <span class="margin-left-5 cm-bom-t-title text-right">{{vm.LabelConstant.BOM.RFQStatus}}:</span>
+            <span class="label-box"
+                  ng-class="{'label-success':vm.assyData.status == vm.statusGridHeaderDropdown[3].value,
+                      'label-info':vm.assyData.status == vm.statusGridHeaderDropdown[2].value,
+                      'label-danger':vm.assyData.status == vm.statusGridHeaderDropdown[4].value,
+                      'red A200-bg':vm.assyData.status == vm.statusGridHeaderDropdown[5].value,
+                      'label-warning':vm.assyData.status == vm.statusGridHeaderDropdown[1].value}">
+              {{vm.assyData.status}}
+            </span>
+          </div>
+          <div ng-if="vm.assyData.quoteValidTillDate">
+            <span class="margin-left-5 cm-bom-t-title text-right">Quote valid Till:</span>
+            <span>
+              {{vm.assyData.quoteValidTillDate |  date : vm.DateFormatArray}}
+            </span>
+          </div>
+          <md-button class="md-raised md-primary" ng-click="vm.goBack()">
+            Back To Summary
+          </md-button>
+          <md-button class="md-raised md-primary" ng-if="vm.reQuoteCount>0" ng-click="vm.ViewQuoteHistory($event)">
+            Assembly Revised Quote History
+          </md-button>
+          <md-button class="md-raised md-primary" ng-if="vm.isEdit && vm.isSummaryView && vm.assyData.isSummaryComplete && vm.isQuotePage" ng-disabled="vm.assyData.quoteFinalStatus==vm.quoteStatus.COMPLETED.VALUE || !vm.isActivityStart" ng-click="vm.revisedQuote()">
+            Revise
+          </md-button>
+          <md-button class="md-raised md-primary" ng-if="vm.isEdit && vm.isSummaryView && vm.isQuotePage && vm.assyData.isSummaryComplete" ng-disabled="vm.assyData.status==vm.rfqAssyStatus.CANCEL.VALUE || !vm.isActivityStart" ng-click="vm.ChangeAssyStatus()">
+            Change Assembly Quote Status
+          </md-button>
+          <md-button class="md-raised md-primary" ng-if="vm.isEdit && vm.isSummaryView && vm.isQuotePage && false">
+            Email To Customer
+          </md-button>
+          <!--<fieldset class="container-box margin-bottom-5" ng-if="vm.isSummaryView && vm.isQuotePage">
+            <legend class="margin-0"></legend>
+            <md-checkbox ng-model="vm.isShowAvailableStock" name="isShowAvailableStock" class="margin-4 header-check-box">
+              Show Available Stock
+            </md-checkbox>
+            <md-input-container class="margin-0" flex="100" md-no-float>
+              <md-select name="reportFormat"
+                         ng-model="vm.reportFormat"
+                         placeholder="Report Format">
+                <md-option ng-value="1">Detail View</md-option>
+                <md-option ng-value="2">Summary View</md-option>
+              </md-select>
+            </md-input-container>
+            <md-button class="md-raised md-primary" ng-if="vm.isSummaryView && vm.isQuotePage" ng-click="vm.quoteSummaryReport(true)">
+              Export Quote
+            </md-button>
+            <md-button class="md-raised md-primary" ng-if="vm.isSummaryView && vm.isQuotePage" ng-click="vm.quoteSummaryReport(false)">
+              Print Preview
+            </md-button>
+          </fieldset>-->
+          <md-button class="md-primary md-raised" ng-if="vm.isEdit"  ng-class="{'md-formdirty': vm.summaryDetailForm.$dirty}" ng-disabled="vm.assyData.quoteFinalStatus==vm.quoteStatus.COMPLETED.VALUE || !vm.isActivityStart" ng-click="vm.editSummary(vm.summaryDetailForm)">
+            {{vm.isSummaryView && vm.isQuotePage?'Update':'Save'}}
+          </md-button>
+          <md-button class="md-raised" ng-if="!vm.isSummaryView && vm.isQuotePage" ng-click="vm.cancelChanges(vm.summaryDetailForm)">
+            Cancel
+          </md-button>
+        </div>
+        <div layout="row" class="mr-10" layout-wrap layout-align="end center" flex="nogrow" ng-if="vm.isCustomerAccess">
+          <fieldset class="container-box margin-bottom-5" ng-if="vm.isSummaryView && vm.isQuotePage">
+            <!--<legend class="margin-0"></legend>-->
+            <md-checkbox ng-model="vm.isShowAvailableStock" name="isShowAvailableStock" class="margin-4 header-check-box">
+              Show Available Stock
+            </md-checkbox>
+            <md-input-container class="margin-0" flex="100" md-no-float>
+              <md-select name="reportFormat"
+                         ng-model="vm.reportFormat"
+                         placeholder="Report Format">
+                <md-option ng-value="1">Detail View</md-option>
+                <md-option ng-value="2">Summary View</md-option>
+              </md-select>
+            </md-input-container>
+            <md-button class="md-raised md-primary" ng-if="vm.isSummaryView && vm.isQuotePage" ng-click="vm.quoteSummaryReport(true)" ng-disabled="vm.isDownloadDisabled">
+              Export Quote
+            </md-button>
+            <md-button class="md-raised md-primary" ng-if="vm.isSummaryView && vm.isQuotePage" ng-click="vm.quoteSummaryReport(false)" ng-disabled="vm.isPrintDisable">
+              Print Preview
+            </md-button>
+          </fieldset>
+        </div>
+        <div class="margin-bottom-5 cm-bom-change-error pt-5" layout-align="end center" flex="nogrow" layout="row" role="alert" ng-if="vm.assyData.quoteFinalStatus != vm.quoteStatus.COMPLETED.VALUE">
+          <span ng-if="vm.currentTimerDiff && vm.isActivityStart" class="text-right pr-5">
+            Costing Activity Started At
+            <span>
+              <b>{{vm.ActivityStartAt  | date : vm.FullDateTimeFormat}}</b>
+            </span>
+            By <b>{{vm.CostingActivityStartedByUserName}}</b>.
+            <label flex="100" layout-align="start center" layout="row"
+                   class="label-box label-warning">
+              {{vm.currentTimerDiff}}
+            </label>
+          </span>
+          <span ng-if="!vm.isActivityStart" class="text-right pr-5">
+            You can start costing process by clicking on <b>Start Costing Activity</b> button.
+          </span>
+          <md-button class="md-raised md-primary md-ink-ripple margin-vertical-0 margin-left-0 margin-top-m2" ng-click="vm.startCostingActivity(true)" ng-if="!vm.isActivityStart">
+            Start Costing Activity
+          </md-button>
+          <md-button class="md-raised md-primary md-ink-ripple margin-vertical-0 margin-left-0 margin-top-m2" ng-click="vm.startCostingActivity(false)" ng-if="vm.isActivityStart && (vm.loginUserId == vm.activityStartBy || vm.loginUser.isUserSuperAdmin)">
+            Stop Costing Activity
+          </md-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- / HEADER -->
+
+  <div class="cm-custom-label-common">
+    <!-- CONTENT -->
+    <style>
+
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      .blog {
+        width: 50%;
+        float: left;
+        margin-right: 0px !important;
+      }
+
+      [class^="icon-"], [class*=" icon-"] {
+        font-family: 'icomoon';
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      * {
+        text-rendering: optimizeLegibility;
+        -o-text-rendering: optimizeLegibility;
+        -ms-text-rendering: optimizeLegibility;
+        -moz-text-rendering: optimizeLegibility;
+        -webkit-text-rendering: optimizeLegibility;
+        -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
+        font-family: 'Roboto', sans-serif;
+        /*page-break-before: avoid;page-break-after: avoid;*/
+      }
+
+      /*.check-mark {
+                margin-right: 5px;
+                color: rgba(0,0,0,0.54);
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                min-width: 21px;
+                min-height: 21px;
+                opacity: 0.7;
+            }*/
+
+      .check-mark img {
+        width: 100%;
+        float: left;
+      }
+
+      .detail img {
+        width: 100%;
+      }
+
+      table.header-table tr td:first-child {
+        width: 50%;
+        padding: 2px 0px;
+      }
+
+      table.piece-details {
+        margin-top: 6px;
+        border: 1px solid #cccccc;
+        border-radius: 3px;
+      }
+
+        table.piece-details tr td {
+          width: 20%;
+          padding-bottom: 7px;
+          padding-top: 7px;
+          text-align: center;
+        }
+
+      table.fields-details {
+        margin-top: 6px;
+        border: 1px solid #cccccc;
+        border-radius: 3px;
+      }
+
+        table.fields-details tr td {
+          width: 20%;
+          padding-bottom: 7px;
+          padding-top: 7px;
+          text-align: left;
+          padding-left: 5px;
+        }
+
+      th.b-bottom, td.b-bottom {
+        border-bottom: 1px solid #eee;
+        padding: 2px 10px;
+      }
+
+      th.b-bottom-design, td.b-bottom-design {
+      }
+
+      .tbl-text-left {
+        text-align: left !important;
+      }
+
+      .tbl-text-right {
+        text-align: right !important;
+      }
+
+      .tbl-text-center {
+        text-align: center !important;
+      }
+
+      td.dos {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 15px;
+      }
+
+        td.dos ul {
+          list-style: none;
+          padding: 0;
+        }
+
+        td.dos div {
+          padding-top: 5px;
+          padding-bottom: 5px;
+        }
+
+      .dis-table {
+        margin-top: 6px;
+        /*border: 1px solid #eee;*/
+        /*border-radius: 3px;*/
+      }
+
+      .table-one {
+        width: 98%;
+        border: 1px solid #ccc;
+        margin: 0 auto;
+        border-radius: 3px;
+      }
+
+        .table-one tr td, .table-one tr th {
+          padding: 5px 0;
+          text-align: center;
+          border-bottom: 1px solid #ddd;
+        }
+
+        .table-one tr th {
+          padding: 5px 0;
+        }
+
+      .t-head {
+        color: #444;
+        font-weight: bold;
+      }
+
+      .completed-process {
+        margin: 15px auto;
+      }
+
+        .completed-process tr td, .completed-process tr th {
+          width: 33%;
+        }
+
+        .completed-process .t-head {
+          margin: 0;
+          background: #eee;
+          padding: 8px 5px;
+        }
+
+      th.heding-table {
+        /*border: 1px solid #eee;*/
+        width: 98.5%;
+        margin: 0 auto;
+        display: block;
+        margin-top: 5px;
+        border-radius: 3px;
+      }
+
+      body, h1, h2, h3, ol, ul, div {
+        width: auto;
+        border: 0;
+        /*padding: 0;*/
+        float: none;
+        position: static;
+        overflow: visible;
+      }
+
+      .checkbox {
+        width: 18px;
+        height: 18px;
+        border: 1px solid #121212;
+        display: inline-block;
+        border-radius: 3px;
+      }
+
+        /* This is what simulates a checkmark icon */
+        .checkbox.checked:after {
+          content: '';
+          display: block;
+          width: 6px;
+          height: 10px;
+          position: relative;
+          top: 2px;
+          left: 5px;
+          border: solid #000;
+          border-width: 0 2px 2px 0;
+          transform: rotate(45deg);
+        }
+
+      td ul {
+        padding: 15px;
+      }
+
+      #watermark {
+        background-image: url(../../../../../assets/images/logos/stop.png);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        opacity: 0.1;
+        position: fixed;
+        margin: 0 auto;
+        height: 75%;
+        width: 75%;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        top: 50%;
+        -ms-transform: translate(0%, -20%) rotate(-60deg); /* IE 9 */
+        -webkit-transform: translate(0%, -20%) rotate(-60deg); /* Chrome, Safari, Opera */
+        transform: translate(0%, -20%) rotate(-60deg);
+      }
+
+      tr.page-brk {
+        page-break-before: always;
+        display: block;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        vertical-align: top;
+        border: none;
+      }
+
+      hr.style-border-bottom {
+        border: 0;
+        height: 1px;
+        background: #333;
+        background-image: -webkit-linear-gradient(left, #ccc, #333, #ccc);
+        background-image: -moz-linear-gradient(left, #ccc, #333, #ccc);
+        background-image: -ms-linear-gradient(left, #ccc, #333, #ccc);
+        background-image: -o-linear-gradient(left, #ccc, #333, #ccc);
+        margin: 20px;
+      }
+
+      /*hr.style-border-bottom:after {
+                    content: "§";
+                    display: inline-block;
+                    position: relative;
+                    top: -0.7em;
+                    font-size: 1.5em;
+                    padding: 0 0.25em;
+                    background: white;
+                }*/
+      /*thead {display: table-header-group;}*/
+
+      .oplabel-class {
+        text-align: center;
+        min-width: 150px !important;
+        display: inline-block;
+        padding: 3px;
+        font-weight: bold;
+      }
+
+      .version-lbl {
+        background-color: rgb(255,120,78);
+        color: black !important;
+      }
+
+      .firstpiece-lbl {
+        background: #4ac7ff !important;
+        color: black !important;
+      }
+
+      .finished-lbl {
+        background: #40d840 !important;
+        color: black !important;
+      }
+
+      .scrap-lbl {
+        background: #f55252 !important;
+        color: black !important;
+      }
+
+      .total-time-lbl {
+        background: #eefd2a !important;
+        color: black !important;
+        font-size: 24px !important;
+      }
+
+      .team-operation-lbl {
+        background: rgb(255,87,34);
+        margin: 0;
+        height: 32px;
+        min-width: 0;
+        line-height: 24px;
+        padding: 6px;
+        width: 32px;
+        border-radius: 50%;
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      .title-label-class {
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .print-static {
+        position: relative;
+      }
+
+      .th-border-bottom {
+        border-bottom: 1px solid black !important;
+        padding-bottom: 10px;
+      }
+
+      .show-details {
+        display: table-row !important;
+      }
+
+      .hide-details {
+        display: none !important;
+      }
+
+      .work-profile-table .transwise-operation-table-main {
+        width: 100%;
+        display: inline-block;
+        padding: 5px 0px;
+      }
+
+      .work-profile-table .work-profile-main {
+        width: 50%;
+        display: inline-block;
+      }
+
+      .work-profile-table p {
+        margin: 0;
+        padding: 3px 1px;
+      }
+
+      .padding-5-imp {
+        padding: 4px !important;
+      }
+
+      .cm-quote-summary-print {
+        padding: 0px 15px;
+      }
+
+      .cm-table-sections {
+        width: 100%;
+        /*display: flex;*/
+        margin-top: 100px;
+        padding: 15px 0px;
+      }
+
+      .cm-info-table {
+        /*width: 60%;*/
+        padding-right: 20px;
+      }
+
+      .cm-quote-table {
+        width: 40%;
+      }
+        /*.cm-info-table table,
+            .cm-quote-table table{
+                border: 1px solid #e3e3e3;
+            }*/
+        .cm-info-table table tr td,
+        .cm-quote-table table tr td {
+          padding: 4px 10px;
+          border: 1px solid #c0c0c0;
+        }
+
+      .cm-button-section {
+        padding: 15px 0px;
+        border-top: 1px solid #a0a0a0;
+      }
+
+        .cm-button-section button {
+          margin: 0;
+          margin-right: 15px;
+        }
+
+      .cm-summary-detail-table {
+        padding: 0px 0px 15px;
+        width: 100%;
+      }
+
+        .cm-summary-detail-table .cm-detail-inner-table {
+          width: 100%;
+        }
+
+      .cm-summary-title {
+        font-weight: 600;
+        text-align: left;
+        padding: 10px 0px;
+        color: #383838;
+        margin: 0;
+        font-size: 16px;
+        border-bottom: 1px solid #a0a0a0;
+      }
+
+      .cm-sub-table {
+        padding: 10px 0px 0px;
+      }
+
+        .cm-sub-table tr td {
+          padding: 3px 10px;
+        }
+
+        .cm-sub-table tr th {
+          padding: 5px 10px;
+        }
+
+        .cm-sub-table tr th, .cm-sub-table tr td {
+          border: 1px solid #c0c0c0;
+        }
+
+      span.quote-note-title {
+        display: block;
+        font-size: 16px;
+        font-weight: 600;
+        padding: 15px 0 5px 0px;
+        color: #383838;
+        border-bottom: 1px solid #dedede;
+        margin-bottom: 5px;
+      }
+
+      .quote-note-des p {
+        padding: 0px 10px 10px;
+      }
+
+      .quote-section-checkbox {
+        padding-top: 20px;
+      }
+
+        .quote-section-checkbox ul {
+          padding: 0px;
+          list-style: none;
+          width: 100%;
+          display: inline-block;
+        }
+
+      .price-table li h5 {
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      .price-table .style-1 h5 {
+        margin: 5px 0;
+      }
+
+      .quote-check-box-ul li.checktextlist {
+        float: left;
+      }
+
+      @media print {
+        @page {
+          size: landscape;
+        }
+
+        td .text-right {
+          text-align: right;
+        }
+
+        .print-display-none {
+          display: none;
+        }
+
+        .Pagefooter {
+          display: none;
+          position: relative;
+          bottom: 0px;
+          right: 0px;
+        }
+
+        .Pagefooter {
+          content: counter(page);
+          counter-increment: page;
+        }
+
+        .quote-section-checkbox ul {
+          padding: 0px;
+          list-style: none;
+        }
+
+        .cm-button-section {
+          display: none !important;
+        }
+
+        .opration-table tr th td {
+          border: 1px solid black;
+        }
+
+        tr {
+          page-break-after: always;
+        }
+
+        .checkbox {
+          width: 18px;
+          height: 18px;
+          border: 1px solid #121212;
+          display: inline-block;
+          border-radius: 3px;
+        }
+
+          /* This is what simulates a checkmark icon */
+          .checkbox.checked:after {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 10px;
+            position: relative;
+            top: 2px;
+            left: 5px;
+            border: solid #000;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+          }
+
+          .checkbox.checked:after {
+            width: 4px;
+            height: 8px;
+          }
+
+        .opration-table .text-right {
+          text-align: right !important;
+        }
+
+        table {
+          font-size: 13px;
+          padding: 10px;
+        }
+
+        td ul {
+          padding: 15px;
+        }
+
+        .t-head, .table-one tr td, .table-one tr th {
+          color: rgba(0,0,0,0.70);
+        }
+
+        table.body-table-main {
+          color: #252525;
+        }
+
+        table.dis-table img {
+          /*width: 200px;*/
+        }
+
+        .print-static {
+          position: static !important;
+        }
+
+        #watermark {
+          top: 25% !important;
+        }
+
+        hr.style-border-bottom {
+          border: 0;
+          height: 1px;
+          background: #333;
+          background-image: -webkit-linear-gradient(left, #ccc, #333, #ccc);
+          background-image: -moz-linear-gradient(left, #ccc, #333, #ccc);
+          background-image: -ms-linear-gradient(left, #ccc, #333, #ccc);
+          background-image: -o-linear-gradient(left, #ccc, #333, #ccc);
+          margin: 20px;
+        }
+      }
+    </style>
+    <form name="vm.summaryDetailForm" class="md-inline-form padding-bottom-10 cm-fullwidth" novalidate>
+      <div class="cm-quote-summary-print" ng-if="vm.isCustomerAccess">
+        <div class="cm-table-sections">
+          <div class="cm-info-table">
+            <table width="100%" cellspacing="0" cellpadding="0">
+              <tr>
+                <td class="text-right" width="10%"><a tabindex="-1" class="cm-text-decoration" ng-click="vm.goTocustomerList()"><b>{{vm.LabelConstant.Customer.Customer}}</b></a></td>
+                <td style="text-wrap:normal;">{{vm.assyData.mfgName}}</td>
+                <td class="text-right" width="10%"><b>Quote#</b></td>
+                <td style="text-wrap:normal;">{{vm.revisedQuoteData.quoteNumber}}</td>
+                <td class="text-right" width="10%"><b>Quote Date</b></td>
+                <td style="text-wrap:normal;">{{vm.revisedQuoteData.quoteSubmitDate | date:vm.DateFormatArray}}</td>
+                <td class="text-right" width="10%"><b>Quoted Internal Version</b></td>
+                <td style="text-wrap:normal;">{{vm.revisedQuoteData.bomLastVersion}}</td>
+              </tr>
+              <tr>
+                <td colspan="4">
+                  <b>Ship To:</b>
+                  <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="!vm.shippingAddress">
+                    <p class="margin-0" flex="100">No Shipping address added yet</p>
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.shippingAddress.companyName">
+                    {{vm.shippingAddress.companyName}}
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.selectedShipContactPerson.personFullName">
+                    <label class="text-right margin-right-5">Attention:</label>
+                    {{vm.selectedShipContactPerson.personFullName}}
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.selectedShipContactPerson.division">
+                    {{vm.selectedShipContactPerson.division}}
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.shippingAddress.street1">
+                    {{vm.shippingAddress.street1}}{{vm.shippingAddress.street2 ? ", " + vm.shippingAddress.street2 : ""}}{{vm.shippingAddress.street3 ? ", " + vm.shippingAddress.street3 : ""}}
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.shippingAddress">
+                    {{vm.shippingAddress.city}}, {{vm.shippingAddress.state}}, {{vm.shippingAddress.countryMst.countryName}} - {{vm.shippingAddress.postcode}}
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.selectedShipContactPerson.emailList">
+                    <label class="text-right margin-right-5">Email:</label>
+                    {{vm.selectedShipContactPerson.emailList}}
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.selectedShipContactPerson.phone">
+                    <label class="text-right margin-right-5">Phone:</label>
+                    {{vm.selectedShipContactPerson.phone}}{{vm.selectedShipContactPerson.phExtension ? " " + "Ext." + vm.selectedShipContactPerson.phExtension : ""}}
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.selectedShipContactPerson.faxNumber">
+                    <label class="text-right margin-right-5">Fax:</label>
+                    {{vm.selectedShipContactPerson.faxNumber}}
+                  </div>
+                </td>
+                <td colspan="4">
+                  <b>Billing Address:</b>
+                  <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="!vm.billingAddress">
+                    <p class="margin-0" flex="100">No billing address added yet</p>
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.billingAddress.companyName">
+                    {{vm.billingAddress.companyName}}
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.selectedContactPerson.personFullName">
+                    <label class="text-right margin-right-5">Attention:</label>
+                    {{vm.selectedContactPerson.personFullName}}
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.selectedContactPerson.division">
+                    {{vm.selectedContactPerson.division}}
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.billingAddress.street1">
+                    {{vm.billingAddress.street1}}{{vm.billingAddress.street2 ? ", " + vm.billingAddress.street2 : ""}}{{vm.billingAddress.street3 ? ", " + vm.billingAddress.street3 : ""}}
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.billingAddress">
+                    {{vm.billingAddress.city}}, {{vm.billingAddress.state}}, {{vm.billingAddress.countryMst.countryName}} - {{vm.billingAddress.postcode}}
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.selectedContactPerson.emailList">
+                    <label class="text-right margin-right-5">Email:</label>
+                    {{vm.selectedContactPerson.emailList}}
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.selectedContactPerson.phone">
+                    <label class="text-right margin-right-5">Phone:</label>
+                    {{vm.selectedContactPerson.phone}}{{vm.selectedContactPerson.phExtension ? " " + "Ext." + vm.selectedContactPerson.phExtension : ""}}
+                  </div>
+                  <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.selectedContactPerson.faxNumber">
+                    <label class="text-right margin-right-5">Fax:</label>
+                    {{vm.selectedContactPerson.faxNumber}}
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="text-right" width="10%"><a class="cm-text-decoration" tabindex="-1" ng-click="vm.goTocomponentList();"><b>{{vm.LabelConstant.Assembly.MFGPN}}</b></a></td>
+                <td>
+                  <common-pid-code-label-link component-id="vm.assyData.partID"
+                                              label="vm.LabelConstant.Assembly.MFGPN"
+                                              value="vm.assyData.mfgPN"
+                                              is-mfg="false"
+                                              is-copy="true"
+                                              is-custom-part="vm.assyData.isCustom"
+                                              cust-part-number="vm.assyData.custAssyPN"
+                                              is-copy-ahead-label="false"
+                                              rohs-icon="vm.rohsImagePath+vm.assyData.rohsIconPath"
+                                              rohs-status="vm.assyData.rohsComplientConvertedValue"
+                                              is-assembly="true">
+                  </common-pid-code-label-link>
+                </td>
+                <td class="text-right" width="10%"><a class="cm-text-decoration" tabindex="-1" ng-click="vm.goTocomponentList();"><b>{{vm.LabelConstant.Assembly.ID}}</b></a></td>
+                <td>
+                  <common-pid-code-label-link component-id="vm.assyData.partID"
+                                              label="vm.LabelConstant.Assembly.ID"
+                                              value="vm.assyData.PIDCode"
+                                              is-mfg="false"
+                                              is-copy="true"
+                                              is-custom-part="vm.assyData.isCustom"
+                                              cust-part-number="vm.assyData.custAssyPN"
+                                              is-copy-ahead-label="false"
+                                              rohs-icon="vm.rohsImagePath+vm.assyData.rohsIconPath"
+                                              rohs-status="vm.assyData.rohsComplientConvertedValue"
+                                              is-assembly="true">
+                  </common-pid-code-label-link>
+                </td>
+                <td class="text-right print-display-none" width="10%"><b>Current Internal Version</b></td>
+                <td class="print-display-none">{{vm.liveInternalVersion}}</td>
+                <td class="text-right" width="10%"><a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToRFQType();"><b>RFQ Type</b></a></td>
+                <td>{{vm.assyData.RFQType}}</td>
+              </tr>
+              <tr>
+                <td class="text-right" width="10%"><b>Assy Description</b></td>
+                <td colspan="7">{{vm.assyData.mfgPNDescription}}</td>
+              </tr>
+              <tr>
+                <td class="text-right" width="10%"><b>Standards</b></td>
+                <td colspan="3" class="cm-quote-standard-label">
+                  {{vm.assyData.standards}}
+                </td>
+                <td class="text-right" width="10%"><a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToJobList();"><b>Job Type</b></a></td>
+                <td>{{vm.assyData.JobType}}</td>
+                <td class="text-right" width="10%"><a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToAssyTypeList();"><b>Assy Type</b></a></td>
+                <td>{{vm.assyData.AssyType}}</td>
+              </tr>
+              <tr>
+                <td class="text-right" width="10%"><b>Payment Term</b></td>
+                <td style="text-wrap:normal;">{{vm.assyData.selectedPaymentTerm?vm.assyData.selectedPaymentTerm.gencCategoryName:''}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div>
+          <div layout="row" class="margin-top-0" flex="100">
+            <div flex="100" layout="row">
+              <div flex="40" layout="row" class="input-wrapper" layout-align="start start" ng-if="!vm.isSummaryView">
+                <p class="label-container cm-label-assy">
+                  <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToPaymentTermsList();"><b>Payment Term</b></a>
+                </p>
+                <md-input-container ng-if="vm.autoCompletePaymentTerms" class="autocompletecustom width-100p cm-rfq-ac-zindex margin-0">
+                  <custom-auto-complete datalist="vm.GenericCategoryList"
+                                        column-name="vm.autoCompletePaymentTerms.columnName"
+                                        key-column-name="vm.autoCompletePaymentTerms.keyColumnName"
+                                        controller-name="vm.autoCompletePaymentTerms.controllerName"
+                                        view-template-url="vm.autoCompletePaymentTerms.viewTemplateURL"
+                                        is-addnew="vm.autoCompletePaymentTerms.isAddnew"
+                                        add-data="vm.autoCompletePaymentTerms.addData"
+                                        input-name="vm.autoCompletePaymentTerms.inputName"
+                                        key-column-id="vm.autoCompletePaymentTerms.keyColumnId"
+                                        callback-fn="vm.autoCompletePaymentTerms.callbackFn"
+                                        on-select-callback-fn="vm.autoCompletePaymentTerms.onSelectCallbackFn">
+                  </custom-auto-complete>
+                </md-input-container>
+              </div>
+            </div>
+          </div>
+          <div layout="row" class="margin-top-0" flex="100" ng-if="!vm.isSummaryView">
+            <div ng-class="{'default-addresses': vm.ShippingAddress.isDefault == true}" flex="50" class="input-width width-100p margin-left-5" layout="row" layout-wrap ng-if="vm.viewShipCustAddrOtherDet">
+              <view-cust-address-contact-det layout param-address-det="vm.shippingAddress"
+                                             param-contact-person-det="vm.selectedShipContactPerson"
+                                             param-addr-action-btn-det="vm.custShipAddrViewActionBtnDet"
+                                             param-cont-person-action-btn-det="vm.contShipPersonViewActionBtnDet"
+                                             param-add-update-addr-callback-fn="vm.addEditShipAddress"
+                                             param-select-addr-callback-fn="vm.selectShipToAddressDet"
+                                             param-other-det="vm.viewShipCustAddrOtherDet"
+                                             param-add-update-contact-callback-fn="vm.addEditShipContactPerson"
+                                             param-select-contact-callback-fn="vm.selectShipContactPerson"
+                                             param-refresh-address-callback-fn="vm.refreshAddress"
+                                             param-delete-cont-person-callback-fn=""></view-cust-address-contact-det>
+              <!--<div flex="80" class="address-detail-section">
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100">
+                  <label flex="100"> Shipping Address:</label>
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.ShippingAddressList.length==0">
+                  <p class="margin-0" flex="100">No shipping address added yet</p>
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.ShippingAddress.companyName && vm.ShippingAddressList.length >0">
+                  <p class="margin-0" flex="100">{{vm.ShippingAddress.companyName}}</p>
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.ShippingAddress.personName && vm.ShippingAddressList.length >0">
+                  <label class="text-right margin-right-5">Attention:</label>
+                  <p class="margin-0" flex="100">{{vm.ShippingAddress.personName}}</p>
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.ShippingAddress.division && vm.ShippingAddressList.length >0">
+                  <p class="margin-0" flex="100">{{vm.ShippingAddress.division}}</p>
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.ShippingAddress.street1 && vm.ShippingAddressList.length >0">
+                  <p class="margin-0" flex="100">{{vm.ShippingAddress.street1}}{{vm.ShippingAddress.street2 ? ", " + vm.ShippingAddress.street2 : ""}}{{vm.ShippingAddress.street3 ? ", " + vm.ShippingAddress.street3 : ""}}</p>
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.ShippingAddress && vm.ShippingAddressList.length >0">
+                  <p class="margin-0" flex="100">
+                    {{vm.ShippingAddress.city}}, {{vm.ShippingAddress.state}}, {{vm.ShippingAddress.countryMst.countryName}} - {{vm.ShippingAddress.postcode}}
+                  </p>
+                </div>
+                <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.ShippingAddress.email">
+                  <label class="text-right margin-right-5">Email:</label>
+                  {{vm.ShippingAddress.email}}
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.ShippingAddress.contact && vm.ShippingAddressList.length >0">
+                  <label class="text-right margin-right-5">Phone:</label>
+                  <p flex="100" class="margin-0">{{vm.ShippingAddress.contact}}{{vm.ShippingAddress.phExtension ? " " + "Ext." + vm.ShippingAddress.phExtension : ""}}</p>
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.ShippingAddress.faxNumber && vm.ShippingAddressList.length >0">
+                  <label class="text-right margin-right-5">Fax:</label>
+                  <p flex="100" class="margin-0">{{vm.ShippingAddress.faxNumber}}</p>
+                </div>
+              </div>
+              <div flex="20" layout="row" class="address-button">
+                <md-button ng-disabled="vm.isDisable" class="md-icon-button margin-5 md-primary md-raised md-mini"
+                           ng-click="vm.addEditAddress('S',$event,null)">
+                  <md-icon md-font-icon="icon-plus" class="material-icons mat-icon"></md-icon>
+                  <md-tooltip>Add</md-tooltip>
+                </md-button>
+                <md-button class="md-icon-button margin-5 md-primary md-raised md-mini" ng-disabled="vm.ShippingAddressList.length==0 || vm.isDisable"
+                           ng-click="vm.addEditAddress('S',$event,vm.ShippingAddress)">
+                  <md-icon md-font-icon="icon-pencil" class="material-icons mat-icon"></md-icon>
+                  <md-tooltip>Update</md-tooltip>
+                </md-button>
+                <md-button class="md-icon-button margin-5 md-primary md-raised md-mini" ng-disabled="vm.ShippingAddressList.length==0 || vm.isDisable" ng-click="vm.selectAddress('S',$event)">
+                  <md-icon md-font-icon="icon-format-list-bulleted" class="material-icons mat-icon"></md-icon>
+                  <md-tooltip>Apply New</md-tooltip>
+                </md-button>
+              </div>-->
+            </div>
+            <div ng-class="{'default-addresses': vm.BillingAddress.isDefault == true}" flex="50" class="input-width width-100p margin-left-5" layout="row" layout-wrap ng-if="vm.viewCustAddrOtherDet">
+              <view-cust-address-contact-det layout param-address-det="vm.billingAddress"
+                                             param-contact-person-det="vm.selectedContactPerson"
+                                             param-addr-action-btn-det="vm.custAddrViewActionBtnDet"
+                                             param-cont-person-action-btn-det="vm.contPersonViewActionBtnDet"
+                                             param-add-update-addr-callback-fn="vm.addEditAddress"
+                                             param-select-addr-callback-fn="vm.selectAddress"
+                                             param-other-det="vm.viewCustAddrOtherDet"
+                                             param-add-update-contact-callback-fn="vm.addEditContactPerson"
+                                             param-select-contact-callback-fn="vm.selectContactPerson"
+                                             param-delete-addr-callback-fn=""
+                                             param-refresh-address-callback-fn="vm.refreshAddress"
+                                             param-delete-cont-person-callback-fn=""></view-cust-address-contact-det>
+              <!--<div flex="80" class="address-detail-section">
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100">
+                  <label flex="100"> Billing Address:</label>
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.BillingAddressList.length==0">
+                  <p class="margin-0" flex="100">No billing address added yet</p>
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.BillingAddress.companyName && vm.BillingAddressList.length >0">
+                  <p class="margin-0" flex="100">{{vm.BillingAddress.companyName}}</p>
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.BillingAddress.personName && vm.BillingAddressList.length >0">
+                  <label class="text-right margin-right-5">Attention:</label>
+                  <p class="margin-0" flex="100">{{vm.BillingAddress.personName}}</p>
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.BillingAddress.division && vm.BillingAddressList.length >0">
+                  <p class="margin-0" flex="100">{{vm.BillingAddress.division}}</p>
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.BillingAddress.street1 && vm.BillingAddressList.length >0">
+                  <p class="margin-0" flex="100">{{vm.BillingAddress.street1}}{{vm.BillingAddress.street2 ? ", " + vm.BillingAddress.street2 : ""}}{{vm.BillingAddress.street3 ? ", " + vm.BillingAddress.street3 : ""}}</p>
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.BillingAddress && vm.BillingAddressList.length >0">
+                  <p class="margin-0" flex="100">
+                    {{vm.BillingAddress.city}}, {{vm.BillingAddress.state}}, {{vm.BillingAddress.countryMst.countryName}} - {{vm.BillingAddress.postcode}}
+                  </p>
+                </div>
+                <div class="row-main margin-bottom-0" layout="row" flex="100" ng-if="vm.ShippingAddress.email">
+                  <label class="text-right margin-right-5">Email:</label>
+                  {{vm.ShippingAddress.email}}
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.BillingAddress.contact && vm.BillingAddressList.length >0">
+                  <label class="text-right margin-right-5">Phone:</label>
+                  <p flex="100" class="margin-0">{{vm.BillingAddress.contact}}{{vm.BillingAddress.phExtension ? " " + "Ext." + vm.BillingAddress.phExtension : ""}}</p>
+                </div>
+                <div class="row-main md-tab margin-bottom-0" layout="row" flex="100" ng-if="vm.BillingAddress.faxNumber && vm.BillingAddressList.length >0">
+                  <label class="text-right margin-right-5">Fax:</label>
+                  <p flex="100" class="margin-0">{{vm.BillingAddress.faxNumber}}</p>
+                </div>
+              </div>
+              <div flex="20" layout="row" class="address-button">
+                <md-button ng-disabled="vm.isDisable" class="md-icon-button margin-5 md-primary md-raised md-mini"
+                           ng-click="vm.addEditAddress('B',$event,null)">
+                  <md-icon md-font-icon="icon-plus" class="material-icons mat-icon"></md-icon>
+                  <md-tooltip>Add</md-tooltip>
+                </md-button>
+                <md-button class="md-icon-button margin-5 md-primary md-raised md-mini" ng-disabled="vm.BillingAddressList.length==0 || vm.isDisable"
+                           ng-click="vm.addEditAddress('B',$event,vm.BillingAddress)">
+                  <md-icon md-font-icon="icon-pencil" class="material-icons mat-icon"></md-icon>
+                  <md-tooltip>Update</md-tooltip>
+                </md-button>
+                <md-button class="md-icon-button margin-5 md-primary md-raised md-mini" ng-disabled="vm.BillingAddressList.length==0 || vm.isDisable" ng-click="vm.selectAddress('B',$event)">
+                  <md-icon md-font-icon="icon-format-list-bulleted" class="material-icons mat-icon"></md-icon>
+                  <md-tooltip>Apply New</md-tooltip>
+                </md-button>
+              </div>-->
+            </div>
+
+          </div>
+        </div>
+        <div class="cm-summary-detail-table cm--quote-description">
+          <div class="cm-detail-inner-table">
+            <div>
+
+              <span class="quote-note-title" style="display: flex;align-items: center;">
+                Quote Summary Details
+                <md-button class="md-raised md-primary" ng-if="!vm.isQuotePage && !vm.isQuoteCompleted && !vm.assyData.isSummaryComplete && vm.isActivityStart" ng-click="vm.generateSummary()">
+                  Generate Summary
+                </md-button>
+                <span style="font-size:small;display: inline-block;" ng-if="!vm.isQuotePage && !vm.isQuoteCompleted && !vm.assyData.isSummaryComplete"> (<span>Note:</span>&nbsp;<span>In order to generate Quote summary details, Please click on Generate Summary button after every page refresh OR modification.<br /> To get updated summary details, make sure summary details has been saved.</span>)</span>
+              </span>
+            </div>
+
+            <div class="cm-sub-table" ng-if="vm.quoteDetails.length>0">
+              <table class="opration-table text-center body-table-main" width="100%" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-right">
+                      Item
+                    </th>
+                    <th class="text-right">
+                      Price Group
+                    </th>
+                    <th class="text-right">
+                      {{vm.LabelConstant.BOM.QuoteQty}}
+                    </th>
+                    <th class="text-right">
+                      Turn Time
+                    </th>
+                    <th class="text-right">
+                      Material Cost/ea <br />[A]
+                    </th>
+                    <th class="text-right">
+                      Material <br />Lead Time<br /> [A1]
+                    </th>
+                    <th class="text-right">
+                      Labor Cost/ea<br /> [B]
+                    </th>
+                    <th class="text-right">
+                      Labor <br />Lead Time<br /> [B1]
+                    </th>
+                    <th class="text-right">
+                      Overhead Cost/ea<br /> [C]
+                    </th>
+                    <th class="text-right">
+                      Overhead<br /> Lead Time <br />[C1]
+                    </th>
+                    <th class="text-right">
+                      All Cost/ea<br /> [D]
+                    </th>
+                    <th class="text-right">
+                      All<br /> Lead Time <br />[D1]
+                    </th>
+                    <th class="text-right">
+                      Unit Price [A+B+C+D]
+                    </th>
+                    <th class="text-right">
+                      Total <br />Lead Time<br /> [A1+ Higher of [B1 or C1]]
+                    </th>
+                    <th class="text-right">
+                      Extended Cost
+                    </th>
+                    <th class="text-right">
+                      Excess Material Cost
+                    </th>
+                    <th class="text-right">
+                      NRE/Tooling Cost<br /> (OTC)
+                    </th>
+                    <th class="text-right">
+                      NRE/Tooling<br /> Lead Time
+                    </th>
+                  </tr>
+                  <tr ng-repeat="quote in vm.quoteDetails">
+                    <td class="text-right">
+                      <span class="value">
+                        {{$index+1}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value" ng-if="quote.priceGroup">
+                        {{quote.priceGroup}}
+                      </span>
+                      <span class="value" ng-if="!quote.priceGroup">-</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.qty | numberWithoutDecimal}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.turntimedays | numberWithoutDecimal}} Days
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.materialCost?quote.materialCost:0 | amount}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.materialLeadTime?quote.materialLeadTime:0 | numberWithoutDecimal}} Days
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.laborCost?quote.laborCost:0 | amount}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.laborLeadTime?quote.laborLeadTime:0 | numberWithoutDecimal}} Days
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.additionalCost?quote.additionalCost:0 | amount}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.customItemLeadTime?quote.customItemLeadTime:0 | numberWithoutDecimal}} Days
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.allCost?quote.allCost:0 | amount}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.allDays?quote.allDays:0 | numberWithoutDecimal}} Days
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.unitPrice?quote.unitPrice:0 | amount}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.totalLeadTime?quote.totalLeadTime:0 | numberWithoutDecimal}} Days
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.extendedCost?quote.extendedCost:0 | amount}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.excessMaterialCost?quote.excessMaterialCost:0  | amount}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.nreCost?quote.nreCost:0 | amount}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.nreDays?quote.nreDays:0 | numberWithoutDecimal}} Days
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <span ng-if="vm.quoteDetails.length==0"> Quote for this assembly is pending</span>
+          </div>
+        </div>
+        <div class="cm-summary-detail-table cm--quote-description" ng-if="vm.rfqPriceGroup.length>0">
+          <div class="cm-detail-inner-table">
+            <div>
+              <span class="quote-note-title" style="display: flex;align-items: center;">
+                RFQ Price Group Detail
+              </span>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.rfqPriceGroup.length>0">
+              <table class="opration-table text-center body-table-main" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-right">
+                      #
+                    </th>
+                    <th class="text-left">
+                      {{vm.LabelConstant.Assembly.ID}}
+                    </th>
+                    <th class="text-right" ng-repeat="item in  vm.rfqPriceGroup">
+                      {{item.name}}
+                    </th>
+                  </tr>
+                  <tr ng-repeat="item in vm.PriceGroupMatrix">
+                    <td class="text-right">
+                      <span class="value">
+                        {{$index+1}}
+                      </span>
+                    </td>
+                    <td class="text-left">
+                      <span class="value">
+                        <common-pid-code-label-link component-id="item.partID"
+                                                    label="vm.LabelConstant.Assembly.ID"
+                                                    value="item.PIDCode"
+                                                    is-copy="true"
+                                                    is-mfg="true"
+                                                    is-custom-part="item.isCustom"
+                                                    cust-part-number="item.custAssyPN"
+                                                    mfg-label="vm.LabelConstant.Assembly.MFGPN"
+                                                    mfg-value="item.mfgPN"
+                                                    is-copy-ahead-label="true"
+                                                    rohs-icon="item.RoHSIcon"
+                                                    rohs-status="item.rohsName"
+                                                    is-assembly="true">
+                        </common-pid-code-label-link>
+                      </span>
+                    </td>
+                    <td class="p-5 text-right" ng-repeat="detail in item.priceGroupDetail">
+                      <span class="value" ng-if="detail.qty">
+                        {{detail.qty | numberWithoutDecimal}}
+                      </span>
+                      <span class="value" ng-if="!detail.qty">-</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="cm-summary-detail-table cm--quote-description" ng-if="vm.CustomPartDetails.length>0">
+          <div class="cm-detail-inner-table">
+            <div>
+              <span class="quote-note-title">
+                Custom Part Details
+                (<md-checkbox ng-model="vm.assyData.isCustomPartDetShowInReport" ng-disabled="vm.isSummaryView && vm.isQuotePage" name="isCustomPartDetShowInReport" class="margin-4 header-check-box">
+                  Show Custom Part Summary on Report
+                </md-checkbox>)
+              </span>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.CustomPartDetails.length>0">
+              <table class="opration-table body-table-main" width="50%" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-center">
+                      Custom Part
+                    </th>
+                    <th class="text-center">
+                      Quote Qty
+                    </th>
+                    <th class="text-center">
+                      Turn Time
+                    </th>
+                    <th class="text-center">
+                      Cost Type
+                    </th>
+                    <th class="text-right">
+                      Cost
+                    </th>
+                    <th class="text-right">
+                      Extended Cost
+                    </th>
+                  </tr>
+                  <tr ng-repeat="CustomPartObj in vm.CustomPartDetails">
+                    <td>
+                      <span class="value text-align-center">
+                        <common-pid-code-label-link component-id="CustomPartObj.mfgPNID"
+                                                    label="vm.LabelConstant.MFG.MFGPN"
+                                                    value="CustomPartObj.CustomPart"
+                                                    is-copy="true"
+                                                    is-mfg="true"
+                                                    cust-part-number="CustomPartObj.custAssyPN"
+                                                    is-copy-ahead-label="false"
+                                                    rohs-icon="vm.rohsImagePath+CustomPartObj.rohsIcon"
+                                                    rohs-status="CustomPartObj.rohsName"
+                                                    is-custom-part="true">
+                        </common-pid-code-label-link>
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{CustomPartObj.requestedQty | numberWithoutDecimal}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{CustomPartObj.turnTime | numberWithoutDecimal}} Days
+                      </span>
+                    </td>
+                    <td class="text-left">
+                      <span class="value">
+                        {{CustomPartObj.fieldName}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{CustomPartObj.amount | amount}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{CustomPartObj.extendedCost | amount}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="cm-summary-detail-table cm--quote-description">
+          <div class="cm-detail-inner-table">
+            <div>
+              <span class="quote-note-title" style="display: flex;align-items: center;">
+                Quote NRE/Tooling Summary Details
+              </span>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.quoteDetails.length>0">
+              <table class="opration-table text-center body-table-main" width="50%" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-right">
+                      Item
+                    </th>
+                    <th class="text-right">
+                      {{vm.LabelConstant.BOM.QuoteQty}}
+                    </th>
+                    <th class="text-right">
+                      Turn Time
+                    </th>
+                    <th class="text-right">
+                      NRE/Tooling Cost<br /> (OTC)
+                    </th>
+                    <th class="text-right">
+                      NRE/Tooling<br /> Lead Time
+                    </th>
+                    <th class="text-left">
+                      NRE/Tooling Description
+                    </th>
+                  </tr>
+                  <tr ng-repeat="quote in vm.quoteDetails">
+                    <td class="text-right">
+                      <span class="value">
+                        {{$index+1}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.qty | numberWithoutDecimal}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.turntimedays | numberWithoutDecimal}} Days
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.nreCost?quote.nreCost:0 | amount}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{quote.nreDays?quote.nreDays:0 | numberWithoutDecimal}} Days
+                      </span>
+                    </td>
+                    <td class="text-left">
+                      <span class="value" ng-bind-html="quote.nretoolingdescription">
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <span ng-if="vm.quoteDetails.length==0">Quote for this assembly is pending</span>
+          </div>
+        </div>
+        <div class="cm-summary-detail-table cm--quote-description">
+          <div class="cm-detail-inner-table">
+            <div>
+              <span class="quote-note-title">
+                NRE Summary Details
+              </span>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.NREDetails.length>0">
+              <table class="opration-table body-table-main" width="50%" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-center">
+                      NRE Type
+                    </th>
+                    <th class="text-right">
+                      NRE Cost
+                    </th>
+                    <th class="text-right">
+                      NRE Quantity
+                    </th>
+                    <th class="text-right">
+                      Extended Cost
+                    </th>
+                    <th class="text-right">
+                      NRE Lead Time
+                    </th>
+                  </tr>
+                  <tr ng-repeat="NRE in vm.NREDetails">
+                    <td>
+                      <span class="value text-align-center">
+                        {{NRE.fieldName}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{NRE.amount | amount}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{NRE.toolingQty | numberWithoutDecimal}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{NRE.extendedCost | amount}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value" ng-if="NRE.isDaysRequire">
+                        {{NRE.days | numberWithoutDecimal}} Days
+                      </span>
+                      <span class="value" ng-if="!NRE.isDaysRequire">
+                        {{vm.NotApplicableText}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <span ng-if="vm.NREDetails.length==0"> NRE costing for this assembly is pending</span>
+          </div>
+        </div>
+        <div class="cm-summary-detail-table cm--quote-description">
+          <div class="cm-detail-inner-table">
+            <div>
+              <span class="quote-note-title">
+                Tooling Summary Details
+              </span>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.ToolingDetails.length>0">
+              <table class="opration-table body-table-main" width="50%" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-center">
+                      Tooling Type
+                    </th>
+                    <th class="text-right">
+                      Tooling Cost
+                    </th>
+                    <th class="text-right">
+                      Tooling Quantity
+                    </th>
+                    <th class="text-right">
+                      Extended Cost
+                    </th>
+                    <th class="text-right">
+                      Tooling Lead Time
+                    </th>
+                  </tr>
+                  <tr ng-repeat="Tooling in vm.ToolingDetails">
+                    <td>
+                      <span class="value text-align-center">
+                        {{Tooling.fieldName}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{Tooling.amount | amount}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{Tooling.toolingQty | numberWithoutDecimal}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{Tooling.extendedCost | amount}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value" ng-if="Tooling.isDaysRequire">
+                        {{Tooling.days | numberWithoutDecimal}} Days
+                      </span>
+                      <span class="value" ng-if="!Tooling.isDaysRequire">
+                        {{vm.NotApplicableText}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <span ng-if="vm.ToolingDetails.length==0"> Tooling costing for this assembly is pending</span>
+          </div>
+        </div>
+        <div class="cm-summary-detail-table cm--quote-description">
+          <div class="cm-detail-inner-table">
+            <div>
+              <span class="quote-note-title">
+                Quote is Subject to following
+              </span>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.BOMIssues.CustomerEngineeringBOMIssue.length>0">
+              <span class="border-0 font-size-13 padding-0 quote-note-title">
+                Issues Require Customer Engineering Resolution
+              </span>
+              <table class="opration-table body-table-main" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-center">
+                      {{vm.LabelConstant.Assembly.MFGPN}}
+                    </th>
+                    <th class="text-center">
+                      Issue
+                    </th>
+                  </tr>
+                  <tr ng-repeat="objCustomerEngineeringBOMIssue in vm.BOMIssues.CustomerEngineeringBOMIssue">
+                    <td>
+                      <span class="value">
+                        {{objCustomerEngineeringBOMIssue.PIDCode}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objCustomerEngineeringBOMIssue.BOMIssue}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.BOMIssues.ExcessMaterial.length>0">
+
+              <span class="border-0 font-size-13 padding-0 quote-note-title">
+                Excess Material
+              </span>
+              <table class="opration-table body-table-main" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-center">
+                      Item
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.BOM.REF_DES}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.CPN}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.MFGCode}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.MFGPN}}
+                    </th>
+                    <th class="text-center">
+                      Issue
+                    </th>
+                  </tr>
+                  <tr ng-repeat="objExcessMaterial in vm.BOMIssues.ExcessMaterial">
+                    <td class="text-right">
+                      <span class="value">
+                        {{objExcessMaterial.lineID}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objExcessMaterial.refDesg}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value" ng-if="objExcessMaterial.CPN">
+                        {{objExcessMaterial.CPN}}Rev{{objExcessMaterial.CPNRev?objExcessMaterial.CPNRev:'-'}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objExcessMaterial.mfrCode}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objExcessMaterial.mfrPN}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objExcessMaterial.BOMIssue}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.BOMIssues.CustomerConsigned.length>0">
+              <span class="border-0 font-size-13 padding-0 quote-note-title">
+                Customer Consigned Parts Detail
+              </span>
+              <table class="opration-table body-table-main" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-center">
+                      Item
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.BOM.REF_DES}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.CPN}}
+                    </th>
+                    <th class="text-center">
+                      Issue
+                    </th>
+                  </tr>
+                  <tr ng-repeat="objCustomerConsigned in vm.BOMIssues.CustomerConsigned">
+                    <td class="text-right">
+                      <span class="value">
+                        {{objCustomerConsigned.lineID}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objCustomerConsigned.refDesg}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value" ng-if="objCustomerConsigned.CPN">
+                        {{objCustomerConsigned.CPN}}Rev{{objCustomerConsigned.CPNRev?objCustomerConsigned.CPNRev:'-'}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objCustomerConsigned.BOMIssue}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.BOMIssues.UnquotedItem.length>0">
+              <span class="border-0 font-size-13 padding-0 quote-note-title">
+                Unquoted Items
+              </span>
+              <table class="opration-table body-table-main" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-center">
+                      Item
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.BOM.REF_DES}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.CPN}}
+                    </th>
+                    <th class="text-center">
+                      Issue
+                    </th>
+                  </tr>
+                  <tr ng-repeat="objUnquotedItem in vm.BOMIssues.UnquotedItem">
+                    <td class="text-right">
+                      <span class="value">
+                        {{objUnquotedItem.lineID}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objUnquotedItem.refDesg}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value" ng-if="objUnquotedItem.CPN">
+                        {{objUnquotedItem.CPN}}Rev{{objUnquotedItem.CPNRev?objUnquotedItem.CPNRev:'-'}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objUnquotedItem.BOMIssue}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.BOMIssues.UnquotedLaborItem.length>0">
+              <span class="border-0 font-size-13 padding-0 quote-note-title">
+                Unquoted Labor Items
+              </span>
+              <table class="opration-table body-table-main" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-center">
+                      {{vm.LabelConstant.Assembly.MFGPN}}
+                    </th>
+                    <th class="text-center">
+                      Issue
+                    </th>
+                  </tr>
+                  <tr ng-repeat="objUnquotedLaborItem in vm.BOMIssues.UnquotedLaborItem">
+                    <td>
+                      <span class="value">
+                        {{objUnquotedLaborItem.PIDCode}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objUnquotedLaborItem.BOMIssue}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.BOMIssues.LowStockAlert.length>0">
+              <span class="border-0 font-size-13 padding-0 quote-note-title">
+                Low Stock Alert (Custom parts are excluded)
+              </span>
+              <table class="opration-table body-table-main" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-center">
+                      Item
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.BOM.REF_DES}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.CPN}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.MFGCode}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.MFGPN}}
+                    </th>
+                    <th class="text-right">
+                      {{vm.comapnyCode}} Stock
+                    </th>
+                    <th class="text-center">
+                      Issue
+                    </th>
+                  </tr>
+                  <tr ng-repeat="objLowStockAlert in vm.BOMIssues.LowStockAlert">
+                    <td class="text-right">
+                      <span class="value">
+                        {{objLowStockAlert.lineID}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objLowStockAlert.refDesg}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value" ng-if="objLowStockAlert.CPN">
+                        {{objLowStockAlert.CPN}}Rev{{objLowStockAlert.CPNRev?objLowStockAlert.CPNRev:'-'}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objLowStockAlert.mfrCode}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objLowStockAlert.mfrPN}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{objLowStockAlert.actualStock}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objLowStockAlert.BOMIssue}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.BOMIssues.LongLeadTime.length>0">
+              <span class="border-0 font-size-13 padding-0 quote-note-title">
+                Long Lead Time Risks
+              </span>
+              <table class="opration-table body-table-main" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-center">
+                      Item
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.BOM.REF_DES}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.CPN}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.MFGCode}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.MFGPN}}
+                    </th>
+                    <th class="text-right">
+                      {{vm.comapnyCode}} Stock
+                    </th>
+                    <th class="text-center">
+                      Issue
+                    </th>
+                  </tr>
+                  <tr ng-repeat="objLongLeadTime in vm.BOMIssues.LongLeadTime">
+                    <td class="text-right">
+                      <span class="value">
+                        {{objLongLeadTime.lineID}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objLongLeadTime.refDesg}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value" ng-if="objLongLeadTime.CPN">
+                        {{objLongLeadTime.CPN}}Rev{{objLongLeadTime.CPNRev?objLongLeadTime.CPNRev:'-'}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objLongLeadTime.mfrCode}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objLongLeadTime.mfrPN}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{objLongLeadTime.actualStock}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objLongLeadTime.BOMIssue}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.BOMIssues.LongLeadTimeCustomPart.length>0">
+              <span class="border-0 font-size-13 padding-0 quote-note-title">
+                Standard Lead time for Custom Parts
+              </span>
+              <table class="opration-table body-table-main" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-center">
+                      Item
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.BOM.REF_DES}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.CPN}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.MFGCode}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.MFGPN}}
+                    </th>
+                    <th class="text-right">
+                      {{vm.comapnyCode}} Stock
+                    </th>
+                    <th class="text-center">
+                      Issue
+                    </th>
+                  </tr>
+                  <tr ng-repeat="objLongLeadTime in vm.BOMIssues.LongLeadTimeCustomPart">
+                    <td class="text-right">
+                      <span class="value">
+                        {{objLongLeadTime.lineID}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objLongLeadTime.refDesg}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value" ng-if="objLongLeadTime.CPN">
+                        {{objLongLeadTime.CPN}}Rev{{objLongLeadTime.CPNRev?objLongLeadTime.CPNRev:'-'}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objLongLeadTime.mfrCode}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objLongLeadTime.mfrPN}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{objLongLeadTime.actualStock}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objLongLeadTime.BOMIssue}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.BOMIssues.ObsoletePart.length>0">
+              <span class="border-0 font-size-13 padding-0 quote-note-title">
+                Obsolete Parts
+              </span>
+              <table class="opration-table body-table-main" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-center">
+                      Item
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.BOM.REF_DES}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.CPN}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.MFGCode}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.MFGPN}}
+                    </th>
+                    <th class="text-center">
+                      Issue
+                    </th>
+                  </tr>
+                  <tr ng-repeat="objObsoletePart in vm.BOMIssues.ObsoletePart">
+                    <td class="text-right">
+                      <span class="value">
+                        {{objObsoletePart.lineID}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objObsoletePart.refDesg}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value" ng-if="objObsoletePart.CPN">
+                        {{objObsoletePart.CPN}}Rev{{objObsoletePart.CPNRev?objObsoletePart.CPNRev:'-'}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objObsoletePart.mfrCode}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objObsoletePart.mfrPN}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objObsoletePart.BOMIssue}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.BOMIssues.PartLOA.length>0">
+              <span class="border-0 font-size-13 padding-0 quote-note-title">
+                LOA Parts Detail
+              </span>
+              <table class="opration-table body-table-main" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-center">
+                      Item
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.BOM.REF_DES}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.CPN}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.MFGCode}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.MFGPN}}
+                    </th>
+                    <th class="text-center">
+                      Issue
+                    </th>
+                  </tr>
+                  <tr ng-repeat="objPartLOA in vm.BOMIssues.PartLOA">
+                    <td class="text-right">
+                      <span class="value">
+                        {{objPartLOA.lineID}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objPartLOA.refDesg}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value" ng-if="objPartLOA.CPN">
+                        {{objPartLOA.CPN}}Rev{{objPartLOA.CPNRev?objPartLOA.CPNRev:'-'}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objPartLOA.mfrCode }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objPartLOA.mfrPN }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objPartLOA.BOMIssue}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="cm-sub-table" ng-if="vm.BOMIssues.BOMIsses.length>0">
+              <span class="border-0 font-size-13 padding-0 quote-note-title">
+                Customer Engineering Approved Items
+              </span>
+              <table class="opration-table body-table-main" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <th class="text-center">
+                      {{vm.LabelConstant.Assembly.MFGPN}}
+                    </th>
+                    <th class="text-center">
+                      Item
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.BOM.REF_DES}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.CPN}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.MFG}}
+                    </th>
+                    <th class="text-center">
+                      {{vm.LabelConstant.MFG.MFGPN}}
+                    </th>
+                    <th class="text-center">
+                      Issue
+                    </th>
+                    <th class="text-center">
+                      Approved By
+                    </th>
+                  </tr>
+                  <tr ng-repeat="objBOMIsses in vm.BOMIssues.BOMIsses">
+                    <td>
+                      <span class="value">
+                        {{objBOMIsses.PIDCode}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="value">
+                        {{objBOMIsses.lineID}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objBOMIsses.refDesg}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value" ng-if="objBOMIsses.CPN">
+                        {{objBOMIsses.CPN}}Rev{{objBOMIsses.CPNRev?objBOMIsses.CPNRev:'-'}}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objBOMIsses.mfrCode }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objBOMIsses.mfrPN }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value" ng-bind-html="objBOMIsses.BOMIssue">
+                      </span>
+                    </td>
+                    <td>
+                      <span class="value">
+                        {{objBOMIsses.approvedBy}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div name="vm.wizardOtherDetail" class="md-inline-form" ng-if="vm.assyData">
+          <span class="quote-note-title">RFQ MISC Detail:</span>
+          <div layout="column" layout-gt-xs="100">
+            <view-data-element entity="{{vm.Entity}}" dataelement-list="vm.dataElementList" ref-trans-id="{{vm.assyData.quoteID}}"
+                               ref-trans-history-id="vm.assyData.isSummaryComplete || vm.assyData.isQuoteHistory ? vm.quoteSubmittedID:null"
+                               entity-id="vm.entityID" file-list="vm.fileList" is-protected="true"
+                               curr-active-form="vm.summaryDetailForm"></view-data-element>
+          </div>
+        </div>
+        <div class="cm--quote-description">
+          <table width="100%">
+            <tr ng-if="vm.assyData.quoteNote">
+              <td class="quote-note-des">
+                <span class="quote-note-title">Customer Quote Note:<span style="font-size:small"> (Note: Image in below content will not display in Report)</span></span>
+                <span ng-bind-html="vm.assyData.quoteNote"></span>
+              </td>
+            </tr>
+            <tr ng-if="vm.assyData.additionalRequirement||!vm.isSummaryView">
+              <td class="quote-note-des">
+                <span class="quote-note-title">Assembly Requirement:<span style="font-size:small"> (Note: Image in below content will not display in Report)</span></span>
+                <span class="margin-bottom-10" ng-if="vm.summaryDetailForm.additionalRequirement.$error.taMaxText" style="color:red; font-size:12px">{{vm.getMaxLengthValidation(vm.taToolbar.MAX_LENGTH, vm.summaryDetailForm.additionalRequirement.$viewValue.length)}}</span>
+                <div ng-if="!vm.isSummaryView && !vm.isQuoteCompleted">
+                  <text-angular class="RFQ-info-text-area text-angular-editor-scroll" ta-toolbar="vm.taToolbar.INLINE" cg-busy-loading="vm.cgBusyLoading"
+                                ng-class="{'text-angular-custom-border':vm.summaryDetailForm.additionalRequirement.$error.taMaxText}"
+                                ng-model="vm.assyData.additionalRequirement"
+                                name="additionalRequirement"
+                                ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"></text-angular>
+                </div>
+                <span ng-if="vm.isSummaryView" ng-bind-html="vm.assyData.additionalRequirement"></span>
+              </td>
+            </tr>
+            <tr ng-if="vm.assyData.OtherNotes||!vm.isSummaryView">
+              <td class="quote-note-des">
+                <span class="quote-note-title">Other Comments:<span style="font-size:small"> (Note: Image in below content will not display in Report)</span></span>
+                <span class="margin-bottom-10" ng-if="vm.summaryDetailForm.OtherNotes.$error.taMaxText" style="color:red; font-size:12px">{{vm.getMaxLengthValidation(vm.taToolbar.MAX_LENGTH, vm.summaryDetailForm.OtherNotes.$viewValue.length)}}</span>
+                <div ng-if="!vm.isSummaryView && !vm.isQuoteCompleted">
+                  <text-angular class="RFQ-info-text-area text-angular-editor-scroll" ta-toolbar="vm.taToolbar.INLINE" cg-busy-loading="vm.cgBusyLoading"
+                                ng-class="{'text-angular-custom-border':vm.summaryDetailForm.OtherNotes.$error.taMaxText}"
+                                ng-model="vm.assyData.OtherNotes"
+                                name="OtherNotes"
+                                ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"></text-angular>
+                </div>
+                <span ng-if="vm.isSummaryView" ng-bind-html="vm.assyData.OtherNotes"></span>
+              </td>
+            </tr>
+            <tr ng-if="vm.assyData.promotions||!vm.isSummaryView">
+              <td class="quote-note-des">
+                <span class="quote-note-title">Promotions:<span style="font-size:small"> (Note: Image in below content will not display in Report)</span></span>
+                <span class="margin-bottom-10" ng-if="vm.summaryDetailForm.Promotions.$error.taMaxText" style="color:red; font-size:12px">{{vm.getMaxLengthValidation(vm.taToolbar.MAX_LENGTH, vm.summaryDetailForm.Promotions.$viewValue.length)}}</span>
+                <div ng-if="!vm.isSummaryView && !vm.isQuoteCompleted">
+                  <text-angular class="RFQ-info-text-area text-angular-editor-scroll" ta-toolbar="vm.taToolbar.INLINE" cg-busy-loading="vm.cgBusyLoading"
+                                ng-class="{'text-angular-custom-border':vm.summaryDetailForm.Promotions.$error.taMaxText}"
+                                ng-model="vm.assyData.promotions"
+                                name="Promotions"
+                                ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"></text-angular>
+                </div>
+                <span ng-if="vm.isSummaryView" ng-bind-html="vm.assyData.promotions"></span>
+              </td>
+            </tr>
+            <tr ng-if="vm.selectedTerm.length>0||!vm.isSummaryView">
+              <td class="quote-note-des quote-section-checkbox">
+                <span class="quote-note-title">
+                  <span ng-if="vm.isSummaryView">
+                    Terms & Conditions
+                  </span>
+                  <span ng-if="!vm.isSummaryView">
+                    <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToQouteTC();">Terms & Conditions</a>
+                  </span>
+                  <md-button class="md-primary md-icon-button md-raised md-mini" ng-if="!vm.isSummaryView && !vm.isQuoteCompleted" ng-click="vm.addTermsAndCondition($event)">
+                    <md-icon md-font-icon="icon-plus" class="material-icons mat-icon"></md-icon>
+                    <md-tooltip>Add Terms & Conditions Category</md-tooltip>
+                  </md-button>
+                  <md-button class="md-primary md-icon-button md-raised md-mini" ng-if="!vm.isSummaryView && !vm.isQuoteCompleted" ng-click="vm.RefreshTermsAndConditionValue($event)">
+                    <md-icon md-font-icon="icon-refresh" class="material-icons mat-icon"></md-icon>
+                    <md-tooltip>Refresh Terms & Conditions</md-tooltip>
+                  </md-button>
+                </span>
+                <div class="content" flex="100" ng-if="!vm.isSummaryView ||(!vm.isQuotePage && !vm.isQuoteCompleted)">
+                  <div class="price-tables manage-standard" flex="100" layout="row" layout-wrap>
+                    <div class="cm-section-main price-table" layout="column" flex="100" flex-xs="100" ng-repeat="item in vm.termsDetails">
+                      <div class="cm-normal-header package-type">
+                        <div layout-wrap layout="row" class="margin-top-10">
+                          <h3>
+                            <span>
+                              <a class="cm-text-decoration" tabindex="-1" ng-click="vm.addTermsAndCondition($event,item);">{{item.name}}</a>
+                            </span>
+                          </h3>
+                          <h5 class="margin-top-5 margin-left-10">
+                            ({{ item.multiSelect?'Select Multiple':'Select Single'}})
+                          </h5>
+                        </div>
+                        <div layout="row">
+                          <md-button class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-right-5" type="button" ng-if="!vm.isSummaryView||!vm.isQuotePage" ng-click="vm.TermsAndConditionValueList()">T&C Attributes List</md-button>
+                          <md-button class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-right-5" type="button" ng-if="!vm.isSummaryView||!vm.isQuotePage" ng-click="vm.addTermsAndConditionValue($event,item)">Add T&C Attributes</md-button>
+                        </div>
+                      </div>
+                      <div layout="row" class="chekboxlistmain" flex="100" layout-wrap>
+                        <div ng-repeat="values in item.ecoTypeValues" layout="row" layout-align="start center" class="checktextlist" ng-class="{'conditionalinput': !values.noteRequired}">
+                          <md-checkbox class="margin-0" ng-model="values.selected" ng-change="vm.AllowToSelect(values,item)"></md-checkbox>
+                          <div flex class="text-main" tabindex="1" layout-wrap>
+                            <i class="icon-checkbox-blank-circle-outline normal"></i>
+                            <i class="icon-check-circle checked"></i>
+                            <div layout="row" layout-align="start center">
+                              <span class="text-truncate cm-quote-list margin-right-10">
+                                {{ values.name }}
+                              </span>
+                              <md-input-container class="checktextbox md-input-focused md-input-has-placeholder">
+                                <input type="text" name="note_{{$parent.$index}}_{{$index}}" placeholder="{{ values.name }}"
+                                       ng-model="values.note">
+                                <div ng-messages="vm.summaryDetailForm['note_'+ $parent.$index+'_'+$index].$error" role="alert">
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(255, vm.summaryDetailForm['note_'+$parent.$index+'_'+$index].$viewValue,vm.summaryDetailForm['note_'+ $parent.$index+'_'+$index],$parent.$index,$index)}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <ul class="price-table style-1 margin-bottom-5" ng-if="(vm.isSummaryView && item.ecoTypeValues.length>0)" layout="column" flex="100" flex-xs="100" ng-repeat="item in vm.selectedTerm">
+                  <li>
+                    <h5>{{item.name}}</h5>
+                    <ul class="quote-check-box-ul" ng-if="item.ecoTypeValues.length>0">
+                      <li ng-repeat="values in item.ecoTypeValues" ng-if="values.selected" layout="row" class="checktextlist padding-5" ng-class="{'conditionalinput': !values.noteRequired}">
+                        <span class="checklable text-truncate cm-quote-list padding-left-5">
+                          <span class="margin-0 checkbox checked" ng-if="values.selected"></span>
+                          <span class="cm-quote-name">{{ values.name }}&nbsp; &nbsp;</span>
+                          <span type="text" class="cm-quote-name" ng-if="values.note">
+                            <b>Note</b>: <span>{{values.note}}</span>
+                          </span>
+                        </span>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="empty-state text-center full-height margin-100 padding-top-side" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isCustomerAccess == false">
+        <div class="emty-icon" flex="100">
+          <img ng-src="{{vm.EmptyMesssage.PERSONNAL_CUSTOMER_UNAUTHORIZE_ACCESS.IMAGEURL}}" />
+        </div>
+        <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.PERSONNAL_CUSTOMER_UNAUTHORIZE_ACCESS.MESSAGE}}</p>
+        <p flex="100">
+          {{vm.EmptyMesssage.PERSONNAL_CUSTOMER_UNAUTHORIZE_ACCESS.CONTACT_ADMINISTRATOR}}
+        </p>
+      </div>
+    </form>
+    <!-- / CONTENT -->
+  </div>
+</div>

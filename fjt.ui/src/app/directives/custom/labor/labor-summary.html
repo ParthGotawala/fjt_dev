@@ -1,0 +1,266 @@
+<md-content flex="100" class="cm-import-bom-container cm-custom-label-common cm-labor-cost cm-labor-manual" layout-wrap layout="row" cg-busy="{promise:vm.cgBusyLoading}" id="labor">
+  <div class="content fullpage-datatable" ng-show="!vm.isNoDataFound" flex="100" excel-reader er-options="vm.eroOptions">
+    <div layout="row" layout-align="start center" ng-if="(vm.listField.length - vm.requestQtyList.length) >0">
+      <span class="ml-15" flex><b>{{vm.PricedPercentage}}</b></span>
+      <div class="cm-section-main font-weight-700" layout="row" layout-align="end-center">
+        <div class="cm-section-inner full-height advanced-filters" layout-wrap layout="row">
+          <div layout="row" layout-align="start center" class="mr-10">
+            <p class="mb-0 nowrap">Price Type:</p>
+            <md-input-container flex="100" ng-if="vm.autoCompleteLaborPriceTypeMatrix" class="autocompletecustom cm-custom-autocomplete width-210">
+              <custom-auto-complete datalist="vm.priceMatrixPriceTypes"
+                                    column-name="vm.autoCompleteLaborPriceTypeMatrix.columnName"
+                                    key-column-name="vm.autoCompleteLaborPriceTypeMatrix.keyColumnName"
+                                    input-name="vm.autoCompleteLaborPriceTypeMatrix.inputName"
+                                    placeholder-name="vm.autoCompleteLaborPriceTypeMatrix.placeholderName"
+                                    key-column-id="vm.autoCompleteLaborPriceTypeMatrix.keyColumnId"
+                                    is-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId"
+                                    is-refresh-disabled="true"
+                                    is-addnew="vm.autoCompleteLaborPriceTypeMatrix.isAddnew"
+                                    on-select-callback-fn="vm.autoCompleteLaborPriceTypeMatrix.onSelectCallbackFn"
+                                    is-required="vm.autoCompleteLaborPriceTypeMatrix.isRequired">
+              </custom-auto-complete>
+            </md-input-container>
+          </div>
+          <div layout="row" layout-align="start center" class="mr-10">
+            <p class="mb-0 nowrap"><a class="cm-text-decoration" ng-if="!vm.assymblyData.isSummaryComplete" ng-click="vm.goToLaborCostTemplateList();" tabindex="-1">Template Name</a><span ng-if="vm.assymblyData.isSummaryComplete">Template Name</span>:</p>
+            <md-input-container flex="100" ng-if="vm.autoCompleteLaborMatrix" class="autocompletecustom cm-custom-autocomplete width-220">
+              <custom-auto-complete datalist="vm.priceMatrixTypes"
+                                    column-name="vm.autoCompleteLaborMatrix.columnName"
+                                    key-column-name="vm.autoCompleteLaborMatrix.keyColumnName"
+                                    input-name="vm.autoCompleteLaborMatrix.inputName"
+                                    placeholder-name="vm.autoCompleteLaborMatrix.placeholderName"
+                                    key-column-id="vm.autoCompleteLaborMatrix.keyColumnId"
+                                    is-disabled="!vm.autoCompleteLaborPriceTypeMatrix.keyColumnId || vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId"
+                                    is-addnew="vm.autoCompleteLaborMatrix.isAddnew"
+                                    callback-fn="vm.autoCompleteLaborMatrix.callbackFn"
+                                    add-data="vm.autoCompleteLaborMatrix.addData"
+                                    is-add-from-route="vm.autoCompleteLaborMatrix.isAddFromRoute"
+                                    on-select-callback-fn="vm.autoCompleteLaborMatrix.onSelectCallbackFn"
+                                    route-name="vm.autoCompleteLaborMatrix.routeName"
+                                    is-required="vm.autoCompleteLaborMatrix.isRequired">
+              </custom-auto-complete>
+            </md-input-container>
+          </div>
+          <div class="cm-desktop-bom" flex layout>
+            <div layout="row" layout-align="start center">
+              <md-button class="md-raised md-primary md-primary margin-vertical-0 margin-left-0" ng-class="{'item-disabled':(!vm.autoCompleteLaborMatrix.keyColumnId || !vm.autoCompleteLaborPriceTypeMatrix.keyColumnId || vm.isSummaryComplete || !vm.isLaborAllow  || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId) }" ng-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.autoCompleteLaborMatrix.keyColumnId || !vm.autoCompleteLaborPriceTypeMatrix.keyColumnId  || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" ng-click="vm.applyLaborTemplate()">Apply Template</md-button>
+            </div>
+            <div layout="row" layout-align="start center">
+              <md-button class="md-raised md-primary md-primary margin-vertical-0 margin-left-0" ng-class="{'item-disabled':vm.isSummaryComplete || !vm.isLaborAllow}" ng-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" ng-click="vm.clearAllLabor()">Clear All Labor Cost</md-button>
+            </div>
+            <div layout="row" layout-align="start center">
+              <md-button class="md-raised md-primary md-primary margin-vertical-0 margin-left-0" ng-class="{'item-disabled':(vm.isSummaryComplete || !vm.isLaborAllow || !vm.enableDraftSave || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId),'md-formdirty': !vm.enableSubmitSave}" ng-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.enableDraftSave  || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" ng-click="vm.saveLabor(false)">Save Labor Cost</md-button>
+            </div>
+            <div layout="row" layout-align="start center" ng-if="vm.isCurrentComponent">
+              <md-button class="md-raised md-primary md-primary margin-vertical-0 margin-left-0" ng-click="vm.saveLabor(true)" ng-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.enableSubmitSave || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" ng-class="{'item-disabled':(vm.isSummaryComplete || !vm.isLaborAllow || !vm.enableSubmitSave || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId) }">Submit Labor to Summary</md-button>
+            </div>
+            <div layout="row" layout-align="start center">
+              <md-button class="md-raised md-primary md-primary margin-vertical-0 margin-left-0" ng-click="vm.exportTemplate($event)" ng-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" ng-class="{'item-disabled':vm.isSummaryComplete || !vm.isLaborAllow  || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId}">Export Labor Template</md-button>
+            </div>
+            <div layout="row" layout-align="start center">
+              <md-button class="md-raised md-primary md-primary margin-vertical-0 margin-left-0" ng-click="vm.importPricing($event)" ng-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" ng-class="{'item-disabled':vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId}">Import Labor Cost</md-button>
+            </div>
+            <!--<div layout="row" layout-align="start center" ng-if="false">
+              <md-button class="md-raised md-primary md-primary margin-vertical-0 margin-left-0" ng-click="vm.laborPartReport()">Report</md-button>
+            </div>-->
+          </div>
+          <div class="cm-rs-bom">
+            <md-menu>
+              <md-button class="margin-0 width-25 md-primary smt-drag-drop-action-btn" ng-click="$mdOpenMenu()" md-menu-origin
+                         md-menu-align-target aria-label="Options">
+                <md-icon md-font-icon="icon-dots-vertical" class="icon"></md-icon>
+              </md-button>
+              <md-menu-content class="padding-0" width="3">
+                <md-menu-item layout="row" flex="100" class="cursor-pointer">
+                  <md-button class="md-raised md-primary md-primary margin-vertical-0 margin-left-0" ng-class="{'item-disabled':(!vm.autoCompleteLaborMatrix.keyColumnId || !vm.autoCompleteLaborPriceTypeMatrix.keyColumnId || vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId) }" ng-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.autoCompleteLaborMatrix.keyColumnId || !vm.autoCompleteLaborPriceTypeMatrix.keyColumnId  || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" ng-click="vm.applyLaborTemplate()">Apply Template</md-button>
+                </md-menu-item>
+                <md-menu-item layout="row" flex="100" class="cursor-pointer">
+                  <md-button class="md-raised md-primary md-primary margin-vertical-0 margin-left-0" ng-class="{'item-disabled':vm.isSummaryComplete || !vm.isLaborAllow  || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId}" ng-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" ng-click="vm.clearAllLabor()">Clear All Labor Cost</md-button>
+                </md-menu-item>
+                <md-menu-item layout="row" flex="100" class="cursor-pointer">
+                  <md-button class="md-raised md-primary md-primary margin-vertical-0 margin-left-0" ng-class="{'item-disabled':(vm.isSummaryComplete || !vm.isLaborAllow || !vm.enableDraftSave || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId) }" ng-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.enableDraftSave  || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" ng-click="vm.saveLabor(false)">Save Labor Cost</md-button>
+                </md-menu-item>
+                <md-menu-item layout="row" flex="100" class="cursor-pointer" ng-if="vm.isCurrentComponent">
+                  <md-button class="md-raised md-primary md-primary margin-vertical-0 margin-left-0" ng-click="vm.saveLabor(true)" ng-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.enableSubmitSave || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" ng-class="{'item-disabled':(vm.isSummaryComplete || !vm.isLaborAllow || !vm.enableSubmitSave || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId) }">Submit Labor to Summary</md-button>
+                </md-menu-item>
+                <md-menu-item layout="row" flex="100" class="cursor-pointer">
+                  <md-button class="md-raised md-primary md-primary margin-vertical-0 margin-left-0" ng-click="vm.exportTemplate($event)" ng-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" ng-class="{'item-disabled':vm.isSummaryComplete || !vm.isLaborAllow  || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId}">Export Labor Template</md-button>
+                </md-menu-item>
+                <md-menu-item layout="row" flex="100" class="cursor-pointer">
+                  <md-button class="md-raised md-primary md-primary margin-vertical-0 margin-left-0" ng-click="vm.importPricing($event)" ng-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" ng-class="{'item-disabled':vm.isSummaryComplete || !vm.isLaborAllow  || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId}">Import Labor Cost</md-button>
+                </md-menu-item>
+                <md-menu-item layout="row" flex="100" class="cursor-pointer">
+                  <md-button class="md-raised md-primary md-primary margin-vertical-0 margin-left-0" ng-click="vm.laborPartReport ()">Report</md-button>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div data-split-pane class="feeder-location-main-split-pane-height" data-split-pane-properties="splitPaneProperties">
+      <div class="cm-labor-table min-height-200 cm-labor-summary-min-rs" data-split-pane-component data-height="100%" id="feeder-location">
+        <div class="cm-fixed-column-header-table">
+          <table class="border-separate" id="summarydetail" ng-if="(vm.listField.length - vm.requestQtyList.length) >0">
+            <thead class="md-grey-300-bg">
+              <tr>
+                <th width="250px" class="pl-10 pt-24">Mounting Type</th>
+                <th width="50px" class="pl-5 pt-24 padding-right-20 text-right">QPA</th>
+                <th width="100px" class="text-right padding-right-25 pt-24">Line Count</th>
+                <th width="100px" class="text-center pt-24">
+                  <span class="pb-2">Line Overhead Price($) ea</span>
+                  <md-icon role="img" md-font-icon="icons-copy-to-all-vertical" ng-class="{'item-disabled': vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId}" ng-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5" ng-click="vm.applyAllLaborVertically()"><md-tooltip md-direction="top" ng-if="!vm.isSummaryComplete || !vm.isLaborAllow">Copy First to All</md-tooltip></md-icon>
+                </th>
+                <th width="100px" class="text-center pt-24">Line Overhead Price($) Per Assy</th>
+                <th class="w-480" ng-repeat="item in vm.requestQtyList" id="title_{{$index}}">
+                  <div id="qty_{{$index}}">
+                    <div width="150px"></div>
+                    <div width="416px" class="text-center border-black" ng-if="!item.priceGroup">{{item.requestQty}}</div>
+                    <div width="416px" class="text-center border-black" ng-if="item.priceGroup">{{item.priceGroup}}({{item.requestQty}})</div>
+                  </div>
+                  <div width="150px" class="text-center table-labor-box-border" layout="row">
+                    <span flex="25" class="text-center pb-2">
+                      <span>Mounting Type Labor price($) ea</span>
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical" ng-class="{'item-disabled': vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId}" ng-disabled="vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5" ng-click="vm.applyAllLaborVertically(item)"><md-tooltip md-direction="top" ng-if="!vm.isSummaryComplete || !vm.isLaborAllow">Copy First to All</md-tooltip></md-icon>
+                    </span>
+                    <span flex="25" class="text-center border-left-1px">Mounting Type Labor Price($) Per Assy</span>
+                    <span flex="25" class="text-center border-left-1px">Price($) Per Assy with Overhead</span>
+                    <span flex="25" class="text-center border-left-1px">Ext. Price($)</span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="laborsummary">
+              <tr>
+                <td class="pt-5"></td>
+              </tr>
+              <tr ng-repeat="item in vm.laborList track by $index" ng-if="item.rfqMountingType.name!=vm.RFQTRANSACTION.LABOR.TotalLabor">
+                <td width="250px" class="cm-white-space-nowrap pl-10">
+                  <md-icon role="img" md-font-icon="iconsm-copy-to-all" ng-class="{'item-disabled':item.subAssyID || vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId}" ng-disabled="item.subAssyID || vm.isSummaryComplete || !vm.isLaborAllow  || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" class="material-icons mat-icon iconsm-copy-to-all cursor-pointer margin-right-5 margin-left-5" ng-click="vm.applyalllabor(item)"><md-tooltip md-direction="top" ng-if="!item.subAssyID">Copy First to All</md-tooltip></md-icon>
+                  <span>{{item.rfqMountingType.name}}</span>
+                </td>
+                <td class="text-right padding-right-20 pl-5" width="50px">
+                  <span>{{item.totalQPA}}</span>
+                </td>
+                <td class="text-right padding-right-25" width="100px">
+                  <span>{{item.lineCount}}</span>
+                </td>
+                <td class="pr-5" width="100px" style="margin-right:4px">
+                  <div>
+                    <input onkeypress="return OnlyNumbersWithFirstDot(event, this)" ng-readonly="!item.isInstall || vm.isSummaryComplete || !vm.isLaborAllow  || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" custom-auto-focus="{{$index==0?true:false}}"
+                           class="text-right text-price width-100px cm-table-cell-focus" type="text" name="overheadprice" ng-model="item.overHeadPrice" custom-blur="vm.changeOverHeadprice(item)"
+                           maxlength="20">
+                  </div>
+                </td>
+                <td class="pr-5" width="100px" style="margin-right:4px">
+                  <div>
+                    <input onkeypress="return OnlyNumbersWithFirstDot(event, this)" ng-readonly="true"
+                           class="text-right text-price width-100px cm-disable-color" type="text" name="perAssyOverHeadPrice" tabindex="-1" ng-model="item.perAssyOverHeadPrice"
+                           maxlength="20">
+                  </div>
+                </td>
+                <td ng-repeat="quote in vm.requestQtyList" id="price_{{$index}}" ng-class="{'table-labor-box-top': ($parent.$index == vm.laborList.length-2),'table-labor-box-bottom':($parent.$index == 0)}" class="table-labor-box-side-border">
+                  <div ng-repeat="data in vm.listField" layout ng-if="quote.id==data.rfqAssyQtyID && item.id==data.rfqAssyBOMMountingID">
+                    <span flex="25" class="pr-5">
+                      <input onkeypress="return OnlyNumbersWithFirstDot(event, this)" ng-readonly="data.subAssyID || vm.isSummaryComplete || !vm.isLaborAllow || !vm.isActivityStart || vm.activityStartBy != vm.loginUserId" ng-style="{'background-color': vm.getbackColor(data,item.totalQPA,quote.requestQty,true)}"
+                             class="text-right width-100p text-price cm-table-cell-focus" type="text" name="price" ng-model="data.price" custom-blur="vm.changeprice(data,item.totalQPA,quote.requestQty,item.overHeadAssyPrice)" ng-class="{'yellow-background':data.isPricePending && data.subAssyID}"
+                             maxlength="20">
+                    </span>
+                    <span flex="25" class="pr-5">
+                      <input ng-readonly="true" tabindex="-1" ng-style="{'background-color': vm.getbackColor(data,item.totalQPA,quote.requestQty,true)}"
+                             class="text-right width-100p text-price cm-disable-color" type="text" name="perAssyPrice" ng-model="data.perAssyPrice"
+                             maxlength="20">
+                    </span>
+                    <span flex="25" class="pr-5">
+                      <input ng-readonly="true" tabindex="-1"
+                             class="text-right width-100p text-price cm-disable-color" type="text" name="overheadextprice" ng-model="data.overheadextprice"
+                             maxlength="20">
+                    </span>
+                    <span flex="25">
+                      <input ng-readonly="true" tabindex="-1" ng-style="{'background-color': vm.getbackColor(data,item.totalQPA,quote.requestQty,false)}"
+                             class="text-right width-100p text-price cm-disable-color" type="text" name="extprice" ng-model="data.extprice"
+                             maxlength="20">
+                    </span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="pt-5"></td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="bgcolor-summary margin-top-5" ng-repeat="item in vm.laborList track by $index"
+                  ng-if="item.rfqMountingType.name==vm.RFQTRANSACTION.LABOR.TotalLabor">
+                <td class="pl-10" width="250px">
+                  <span><b>Total Labor</b></span>
+                </td>
+                <td class="text-right padding-right-20 pl-5" width="50px">
+                  <span><b>{{vm.totalQPA()}}</b></span>
+                </td>
+                <td class="text-right padding-right-25" width="100px">
+                  <span><b>{{vm.totalLineCount()}}</b></span>
+                </td>
+                <td class="text-right" width="100px">
+                  <span><b></b></span>
+                </td>
+                <td class="text-right pr-8" width="100px">
+                  <span><b>{{vm.totalOverHead() | amount}}</b></span>
+                </td>
+                <td ng-repeat="quote in vm.requestQtyList" id="total_{{$index}}" class="table-labor-box-border">
+                  <div class="" layout ng-repeat="data in vm.listField" ng-if="quote.id==data.rfqAssyQtyID && item.id==data.rfqAssyBOMMountingID && item.subAssyID==data.subAssyID">
+                    <span flex="25" class="color-white text-right"><b></b></span>
+                    <span flex="25" class="color-white text-right pr-8"><b>{{vm.getTotalAssyPrice(quote.id) | amount}}</b></span>
+                    <span flex="25" class="color-white text-right pr-8"><b>{{vm.getTotalAssyOverHeadPrice(quote.id) | amount}}</b></span>
+                    <span flex="25" class="color-white text-right padding-right-3"><b>{{vm.getTotalExtPrice(quote.id) | amount}}</b></span>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      <div data-split-pane-divider data-height="5px" ng-show="vm.isCurrentComponent"></div>
+      <div class="content-card padding-10 labor-data-table min-height-260" data-split-pane-component id="feeder-location-child">
+        <div class=" cm-labor-summary-attribute cm-labor-summary-qty-table cm-labor-summary-min-rs-bottom">
+          <div class="cm-common-table-ui border-0">
+            <table class="table-responsive" id="summarydetailtbl" ng-if="(vm.listField.length - vm.requestQtyList.length) >0 && vm.isCurrentComponent">
+              <thead>
+                <tr>
+                  <th width="200"><div class="text-left margin-left-5">{{vm.LabelConstant.BOM.QuoteQty}}</div></th>
+                  <th ng-repeat="item in vm.turnTimeQtyList" width="200">
+                    <div class="text-center" ng-if="!item.priceGroup">{{item.requestQty}} ({{item.turnTime}}&nbsp;{{item.unitOfTime==vm.timeType.WEEK.VALUE?vm.timeType.WEEK.TYPE:item.unitOfTime==vm.timeType.BUSINESS_DAY.VALUE?vm.timeType.BUSINESS_DAY.TYPE:vm.timeType.WEEK_DAY.TYPE}})</div>
+                    <div class="text-center" ng-if="item.priceGroup">{{item.priceGroup}}({{item.requestQty}}) ({{item.turnTime}}&nbsp;{{item.unitOfTime==vm.timeType.WEEK.VALUE?vm.timeType.WEEK.TYPE:item.unitOfTime==vm.timeType.BUSINESS_DAY.VALUE?vm.timeType.BUSINESS_DAY.TYPE:vm.timeType.WEEK_DAY.TYPE}})</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="item in vm.laborAttribute">
+                  <td width="200" class="text-left">
+                    <span class="margin-left-5">{{item.Name}}</span>
+                  </td>
+                  <td ng-repeat="data in vm.laborSummaryAssyDetail" ng-if="item.id==data.id" width="200" ng-class="{'background-red':data.isIssue}">
+                    <div class="text-right">{{data.price | amount}}</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div ng-cloak class="empty-state text-center full-height" layout="row" layout-align="center center" flex="100" layout-wrap ng-if="(vm.listField.length - vm.requestQtyList.length)==0">
+      <div class="emty-icon" flex="100">
+        <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+      </div>
+      <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+      <p flex="100">
+        {{vm.EmptyMesssage.MESSAGE_DISCRIPTIOM}}
+      </p>
+      <p flex="100">
+        {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+      </p>
+    </div>
+    <input id="fiexcel" name="file" type="file" class="hidden" style="height:0px;width:0px;left: -100%;position:absolute">
+  </div>
+</md-content>

@@ -1,0 +1,114 @@
+<md-dialog aria-label="ProductionStock" flex="90" cg-busy="{promise:vm.cgBusyLoading}" class="cm-custom-label-common" draggable>
+  <!--flex="50"-->
+  <form name="vm.productionStockForm" class="md-inline-form">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{(vm.IsCheckInOperation && !vm.isSetup) ? "Add" : "View"}} Processed Serial# {{(vm.IsCheckInOperation && !vm.isSetup) ? "" : "Transaction"}}</h2>
+        <span flex></span>
+        <div layout="row" layout-align="center center">
+          <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        </div>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding" layout="column">
+      <md-content class="padding-10">
+        <div layout="row" layout-align="space-between start" class="mb-10">
+          <div flex>
+            <serial-number-selection woid="vm.workorder_trans_model.woID" woopid="vm.workorder_trans_model.opID" check-in-operation="vm.IsCheckInOperation"
+                                     on-select-callback-fn="vm.getPassedSerialNumber" view-transaction-data="vm.transactiondataObj"
+                                     is-display-transaction-button="true"></serial-number-selection>
+          </div>
+        </div>
+        <div layout-align="start start" class="mb-5" flex="100" layout="column"
+             ng-if="vm.readyStockData && !vm.readyStockData.returnPending && vm.IsCheckInOperation">
+          <span class="color-red font-size-18 text-bold">{{vm.zeroAvailableQtyNote}}</span>
+        </div>
+        <div ng-if="vm.IsCheckInOperation" layout="row" flex="100">
+          <div class="input-wrapper" layout="row" layout-align="end center" flex="100">
+            <div layout-align="end">
+              <!--<md-button class="md-primary md-raised mv-0 mr-0" ng-disabled="(vm.readyStockData ? vm.readyStockData.totalValidQty <= vm.totalSourceDataCount : false)" ng-click="vm.AddSerialNo(vm.statusText.Passed, $event);">-->
+              <md-button class="md-primary md-raised mv-0 margin-right-0" ng-disabled="(vm.readyStockData ? vm.readyStockData.totalValidQty <= (vm.totalSourceDataCountOfInProcessingSerial) : false)"
+                         ng-click="vm.passSerialNumber(vm.statusText.Passed, $event);">
+                Passed
+              </md-button>
+              <md-button class="md-primary md-raised mv-0 margin-right-0" ng-disabled="(vm.readyStockData ? vm.readyStockData.totalValidQty <= (vm.totalSourceDataCountOfInProcessingSerial) : false)"
+                         ng-click="vm.passSerialNumber(vm.statusText.DefectObserved, $event);"
+                         ng-if="!vm.isRework && !vm.data.isMoveToStock">
+                Defect Observed
+              </md-button>
+              <md-button class="md-primary md-raised mv-0 margin-right-0"
+                         ng-disabled="(vm.readyStockData ? vm.readyStockData.totalValidQty <= (vm.totalSourceDataCountOfInProcessingSerial) : false)"
+                         ng-if="!vm.isParallelOperation"
+                         ng-click="vm.passSerialNumber(vm.statusText.Scraped, $event);">
+                Scrapped
+              </md-button>
+              <md-button class="md-primary md-raised mv-0 margin-right-0" ng-disabled="(vm.readyStockData ? vm.readyStockData.totalValidQty <= (vm.totalSourceDataCountOfInProcessingSerial) : false)"
+                         ng-click="vm.passSerialNumber(vm.statusText.ReworkRequired, $event);"
+                         ng-if="!vm.isRework && !vm.data.isMoveToStock">
+                Rework Required
+              </md-button>
+              <md-button class="md-primary md-raised mv-0 margin-right-0"
+                         ng-if="vm.data.isAllowMissingPartQty && !vm.data.inspectionProcess && !vm.isRework
+                         && !vm.isSetup && !vm.data.isMoveToStock"
+                         ng-disabled="(vm.readyStockData ? vm.readyStockData.totalValidQty <= (vm.totalSourceDataCountOfInProcessingSerial) : false)"
+                         ng-click="vm.passSerialNumber(vm.statusText.BoardWithMissingParts, $event);">
+                {{vm.statusTextValueConst.BoardWithMissingParts.Text}}
+              </md-button>
+              <md-button class="md-primary md-raised mv-0 margin-right-0"
+                         ng-if="vm.data.isAllowBypassQty && !vm.isRework && !vm.isSetup && !vm.data.isMoveToStock"
+                         ng-disabled="(vm.readyStockData ? vm.readyStockData.totalValidQty <= (vm.totalSourceDataCountOfInProcessingSerial) : false)"
+                         ng-click="vm.passSerialNumber(vm.statusText.Bypassed, $event);">
+                {{vm.statusTextValueConst.Bypassed.Text}}
+              </md-button>
+              <md-button class="md-primary md-raised mv-0 mr-0" 
+                         id="clearButton" ng-click="vm.clearSection();">
+                Clear
+              </md-button>
+
+              <div class="input-wrapper" layout="row" layout-align="center center" flex="100">
+                <div layout-align="center">
+                  <p class="text-bold margin-0">OR</p>
+                </div>
+              </div>
+              <div class="input-wrapper" layout="row" layout-align="center" flex="100">
+                <div layout-align="center">
+                  <md-button class="md-primary md-raised mv-0 mr-0" ng-disabled="(vm.readyStockData ? vm.readyStockData.totalValidQty <= (vm.totalSourceDataCountOfInProcessingSerial): false)"
+                             ng-click="vm.passSerialNumber(vm.statusText.Reprocessed, $event);">
+                    REPROCESS REQUIRED
+                  </md-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <md-card layout="column" class="margin-0" flex layout-align="space-between stretch" ng-show="!vm.isNoDataFound">
+          <ui-grid-extention class="cm-add-serial-popup-grid"
+                             load-data="vm.loadData"
+                             grid-option="vm.gridOptions"
+                             header="vm.sourceHeader"
+                             grid-data="vm.sourceData"
+                             total-data-count="vm.totalSourceDataCount"
+                             reset-grid="vm.resetSourceGrid"
+                             selectted-rows="vm.selectedRowsList"
+                             paging-info="vm.pagingInfo"
+                             current-item="vm.currentdata"
+                             get-data-down="vm.getDataDown"
+                             empty-state="vm.emptyState"
+                             delete-multiple-data="vm.deleteMultipleData">
+        </md-card>
+        <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound == true">
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+          </div>
+          <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">{{(vm.IsCheckInOperation && !vm.isSetup) ? "Cancel" : "Close"}}</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

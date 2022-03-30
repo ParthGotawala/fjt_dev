@@ -1,0 +1,128 @@
+<md-dialog aria-label="Employee Certification" class="receiving-pop-main" cg-busy="{promise:vm.cgBusyLoading}" draggable>  <!--flex="75"-->
+    <form name="vm.employeeCertificationForm">
+        <md-toolbar>
+            <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+                <h2>Select Personnel Certification</h2>
+                <span flex></span>
+                <popup-header-label label-data="vm.headerdata"></popup-header-label>
+                <md-button class="md-icon-button" ng-click="vm.cancel()">
+                    <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content class="customer-modal no-padding custom-scroll" layout="column">
+            <md-content class="padding-10">
+                <div class="content cm-standard-list-container">
+                    <div class="price-tables manage-standard" flex="100" layout="row" layout-wrap ng-if="!vm.isNoDataFound">
+                        <div layout="row" flex="100" layout-align="end end">
+                            <md-button class="md-primary md-raised" aria-label="Add Standards" ng-click="vm.StandardList()">
+                                Standards
+                            </md-button>
+                            <md-button class="md-primary md-raised" aria-label="Add Standards" ng-click="vm.addNewCertificateStandards($event)">
+                                Add Standards
+                            </md-button>
+                            <md-button class="md-primary md-raised" aria-label="Add Standards" ng-click="vm.StandardCategoryList()">
+                                Standards Categories
+                            </md-button>
+                            <md-button class="md-primary md-raised" aria-label="Add Standards Categories" ng-click="vm.addStandardClass($event)">
+                                Add Standards Categories
+                            </md-button>
+                            <md-button class="md-primary md-raised" aria-label="Refresh Standards" ng-click="vm.refreshStandards($event)">
+                                Refresh
+                            </md-button>
+                        </div>
+                        <div flex="33" flex-sm="100" ng-repeat="stdTypeItem in vm.standardTypeList">
+                            <div class="cm-standard-main" flex="100">
+                                <md-collapsible class="md-accordion" layout="row">
+                                    <md-collapsible-item class="price-table style-1 active" flex="100">
+                                        <md-collapsible-header layout="row">
+                                            <div class="cm-section-main cm-border-radius" flex="100">
+                                                <div class="cm-section-header" layout="row" layout-align="space-between center" flex="100">
+                                                    <h2>{{stdTypeItem.gencCategoryName}}</h2>
+                                                    <md-icon ng-if="(vm.allStandardWithClassList | filter : stdTypeItem.gencCategoryID).length > 0"
+                                                             class="mdi mdi-chevron-down cursor-pointer cm-std-list-button margin-horizontal-5" aria-label="Open" role="button"></md-icon>
+                                                </div>
+                                            </div>
+                                        </md-collapsible-header>
+                                        <md-collapsible-body>
+                                            <md-list>
+                                                <div ng-repeat="cert in vm.allStandardWithClassList | filter : stdTypeItem.gencCategoryID"
+                                                     ng-if="cert.standardTypeID == stdTypeItem.gencCategoryID"
+                                                     class="required-list-item cm-wo-std" layout="row" layout-align="start stretch">
+                                                    <md-collapsible layout="row" flex="100" class="md-accordion">
+                                                        <md-collapsible-item flex="100" class="active">
+                                                            <md-collapsible-header layout-align="space-between center" layout="row">
+                                                                <div class="pos-rel" ng-class="{'list-item-disable': cert.disableStandard}">
+                                                                    <md-checkbox class="margin-0" name="class_{{cert.certificateStandardID}}" ng-model="cert.selected"
+                                                                                 ng-disabled="cert.disableStandard"
+                                                                                 ng-change="vm.passwordProtected(cert)">
+                                                                    </md-checkbox>
+                                                                    <div flex class="text-main">
+                                                                        <i class="icon-checkbox-blank-circle-outline normal"></i>
+                                                                        <i class="icon-check-circle checked"></i>
+                                                                        <span>
+                                                                            <a class="cm-text-decoration" tabindex="-1" ng-click="vm.updatestandard(cert);">{{ cert.fullName }}</a>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <md-icon ng-if="cert.CertificateStandard_Class && cert.CertificateStandard_Class.length > 0"
+                                                                         class="mdi mdi-chevron-down cursor-pointer cm-std-list-button padding-right-5 padding-left-5" aria-label="Open" role="button"></md-icon>
+                                                            </md-collapsible-header>
+                                                            <md-collapsible-body>
+                                                                <div class="cm-standard-inner-option" ng-repeat="certiClass in cert.CertificateStandard_Class">
+                                                                    <div class="cm-standard-inner-datalist" ng-class="{'list-item-disable':  cert.disableStandard  || certiClass.disableClass }">
+                                                                        <md-checkbox class="margin-0" name="class_{{certiClass.classID}}"
+                                                                                     ng-model="certiClass.selected"
+                                                                                     ng-disabled="cert.disableStandard || certiClass.disableClass"
+                                                                                     ng-change="vm.AllowToSelect(certiClass,cert)">
+                                                                        </md-checkbox>
+                                                                        <div flex class="text-main">
+                                                                            <i class="icon-checkbox-blank-circle-outline normal"></i>
+                                                                            <i class="icon-check-circle checked"></i>
+                                                                            {{ certiClass.className }}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </md-collapsible-body>
+                                                        </md-collapsible-item>
+                                                    </md-collapsible>
+                                                </div>
+                                            </md-list>
+                                        </md-collapsible-body>
+                                    </md-collapsible-item>
+                                </md-collapsible>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound == true">
+                        <div class="emty-icon" flex="100">
+                            <img ng-src="{{vm.CertificateEmptyMesssage.IMAGEURL}}" />
+                        </div>
+                        <p flex="100" class="empty-state-title">
+                            {{vm.CertificateEmptyMesssage.MESSAGE}}
+                        </p>
+                        <p flex="100">
+                            {{vm.CertificateEmptyMesssage.ADDNEWMESSAGE}}
+                        </p>
+                        <p flex="100">
+                            <md-button class="md-fab md-mini" aria-label="Add Certificate & Standards" ng-click="vm.addNewCertificateStandards($event)">
+                                <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+                                <md-tooltip>Add Certificate & Standards</md-tooltip>
+                            </md-button>
+                            <md-button class="md-fab md-mini" aria-label="Refresh Certificate & Standards" ng-click="vm.refreshStandards($event)">
+                                <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon"></md-icon>
+                                <md-tooltip>Refresh Certificate & Standards</md-tooltip>
+                            </md-button>
+                        </p>
+                    </div>
+                </div>
+            </md-content>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+            <md-button class="md-primary md-raised" ng-click="vm.SaveEmployeeCertification($event)"
+                       ng-disabled="!vm.employeeCertificationForm.$dirty" aria-label="Submit">Save</md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

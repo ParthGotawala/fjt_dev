@@ -1,0 +1,131 @@
+<md-dialog aria-label="coustomer-confirmation" flex="60" class="copy-bom-select cm-custom-label-common cm-copy-assy-popup" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.CopyPurchaseOrderForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>
+          <span>Create Duplicate PO</span>
+        </h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll" layout="column">
+      <md-content class="padding-10">
+        <div class="cm-section-main border-0 margin-bottom-5" ng-if="true">
+          <div class="cm-section-inner">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <th class="padding-top-0">
+                    <p class="label-container"><b>Note:</b></p>
+                  </th>
+                  <td class="font-size-12 height-25">
+                    <ul class="pl-15">
+                      <li><b>A new PO will be created as a Draft.</b></li>
+                      <li><b>{{vm.COPY_PO_NOTES}}</b></li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">{{vm.LabelConstant.SalesOrder.PODate}}<span>&nbsp;*</span></p></th>
+                  <td>
+                    <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 width-140">
+                      <input type="text" class="float-left"
+                             id="poDate"
+                             name="poDate"
+                             required
+                             allow-past-date="true"
+                             allow-future-date="true"
+                             datetime-picker="{{$root.dateDisplayFormat}}"
+                             ng-model="vm.poModel.poDate"
+                             enable-time="false"
+                             ui-options="{clearOnBlur  : true}"
+                             ui-mask="{{$root.uimaskFormat.date.mask}}"
+                             ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                             model-view-value="true"
+                             datepicker-options="vm.poDateOptions"
+                             is-open="vm.IsPickerOpen[vm.DATE_PICKER.poDate]"
+                             close-text="Close" />
+                      <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.poDate] =true">
+                      </md-icon>
+                      <div ng-messages="vm.CopyPurchaseOrderForm.poDate.$error" role="alert">
+                        <div ng-message="valid">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="datetime">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="padding-top-0">
+                    <p class="label-container"><b>Hint:</b></p>
+                  </th>
+                  <td class="font-size-12 height-25">
+                    <div ng-if="vm.partRequirements.length>0"  layout layout-wrap>
+                      <span flex="100">Mismatch found! <br />Mismatch of description, comments or requirements between Part Master and selected PO.</span>
+                      <div flex="100" layout layout-wrap class="max-height-200 cm-overflow-auto">
+                        <span ng-repeat="item in vm.partRequirements">
+                          <common-pid-code-label-link class="margin-top-5"
+                                                      component-id="item.mfgPartID"
+                                                      label="'MFR'"
+                                                      value="item.mfgParts.PIDCode"
+                                                      is-custom-part="item.mfgParts.isCustom || item.mfgParts.isCustomSupplier "
+                                                      cust-part-number="item.mfgParts.custAssyPN"
+                                                      is-copy="true"
+                                                      rohs-icon="vm.rohsImagePath+item.rfqRoHS.rohsIcon"
+                                                      rohs-status="item.rfqRoHS.name"
+                                                      is-formated="true"
+                                                      is-assembly="item.mfgParts.isCustom"
+                                                      is-search-digi-key="false"
+                                                      is-search-findchip="false"></common-pid-code-label-link>
+                        </span>
+                      </div>
+                    </div>
+                    <div ng-if="vm.partRequirements.length==0">
+                      <span>
+                        No mismatch of description, comments or requirements between Part Master and selected PO.
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <p class="label-container"></p>
+                  </th>
+                  <td>
+                    <fieldset flex="90" class="container-box">
+                      <legend class="margin-0"></legend>
+                      <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                        <div class="input-wrapper" layout="row" layout-align="start center">
+                          <md-radio-group class=" mb-5" flex="100" layout="row" ng-model="vm.poModel.isPartRequirements" name="isPartRequirements">
+                            <md-radio-button ng-value="true" class="md-primary margin-top-0">Select description, comments & requirements from selected PO.</md-radio-button>
+                            <md-radio-button ng-value="false" class="md-primary margin-top-0">Select description, comments & requirements from Part Master.</md-radio-button>
+                          </md-radio-group>
+                        </div>
+                      </div>
+                    </fieldset>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </md-content>
+
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-class="{'md-formdirty': vm.CopyPurchaseOrderForm.$dirty || vm.poModel.poDate}" ng-click="vm.createDuplicatePurchaseOrder()" aria-label="Submit">SAVE</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

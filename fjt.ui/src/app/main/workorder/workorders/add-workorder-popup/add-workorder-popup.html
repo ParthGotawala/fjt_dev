@@ -1,0 +1,1170 @@
+<md-dialog aria-label="Add Work Order" flex="95" flex-lg="95" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.addWorkorderForm" class="md-inline-form" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2 flex="20">Add Work Order</h2>
+        <span flex></span>
+        <div layout="row" layout-align="center center">
+          <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        </div>
+        <md-button class="md-primary md-raised" ng-click="vm.viewWONumberBuildHistory($event)">
+          WO Build History
+        </md-button>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll cm-popup-fix-height mh-5" layout="column">
+      <md-content class="padding-5" layout="row" layout-wrap>
+        <!-- Start : Row 1 : Fieldset with Select One-->
+        <div layout="row" layout-sm="column" flex="100">
+          <fieldset flex="45" flex-sm="100" flex-order-sm="1" class="container-box margin-right-10">
+            <legend class="margin-0">Select One</legend>
+            <!--<p>{{vm.dataFilled }}</p>-->
+            <div class="margin-0">
+              <md-input-container layout="row" flex="100" class="md-block">
+                <md-radio-group flex="100"
+                                flex-xs="100"
+                                name="addWOFrom"
+                                id="addWOFrom"
+                                ng-model="vm.addWorkorderModel.isFromSO"
+                                layout="row"
+                                layout-wrap
+                                class="margin-0"
+                                required
+                                md-autofocus
+                                ng-change="vm.changeWOFromType()"
+                                ng-disabled="vm.woData && vm.woData.isFromList === 1">
+                  <md-radio-button class="margin-top-0" ng-repeat="item in vm.RadioGroup.addWOFrom.array"
+                                   name="{{item.Key}}" value="{{item.Value}}" ng-disabled="vm.woData.isFromWO && item.Value != 'S'">{{item.Key}}</md-radio-button>
+                </md-radio-group>
+              </md-input-container>
+            </div>
+          </fieldset>
+          <fieldset flex="55" flex-sm="100" class="container-box">
+            <legend class="margin-0">Notes</legend>
+            <div class="font-size-12 md-accent-fg" flex="100">
+              <ul>
+                <li class="pb-2 color-black" ng-bind-html="vm.ADD_WORKORDER_OPTION_NOTES_FROM_WORKORDER"></li>
+                <li class="pb-2 color-black" ng-bind-html="vm.ADD_WORKORDER_OPTION_NOTES_FROM_SALESORDER"></li>
+                <li class="pb-2 color-black" ng-bind-html="vm.ADD_WORKORDER_OPTION_NOTES_FROM_UNDERTERMIANTE_WORKORDER"></li>
+                <li class="color-black" ng-bind-html="vm.ADD_WORKORDER_OPTION_NOTES_FROM_NONE"></li>
+              </ul>
+              <h5 class="mt-0 mb-0"></h5>
+              <ul ng-if="vm.addWorkorderModel.isFromSO == 'U'" class="mb-5">
+                <li><span><b>{{vm.FOR_REVISED_WO_BUILDQTY_BASED_ON_TRANSFER}}</b></span></li>
+              </ul>
+            </div>
+          </fieldset>
+        </div>
+        <!-- End : Row 1 : Fieldset with Select One-->
+        <!-- Start: Row 2 : Select Customer and Assembly-->
+        <div class="cm-section-main margin-top-10" layout="row" ng-class="{'flex-30': vm.addWorkorderModel.isFromSO === 'U', 'flex-100': vm.addWorkorderModel.isFromSO !== 'U'}">
+          <div class="cm-section-inner" layout-wrap layout="row" flex="100">
+            <div class="cm-section-header" flex="100" ng-if="vm.addWorkorderModel.isFromSO === 'U'">
+              <h2>Terminating {{vm.allLabelConstant.Workorder.WO}}</h2>
+            </div>
+            <!-- Start: Select Customer-->
+            <div class="cm-custom-label-common" flex="100">
+              <div layout="column" class="margin-left-0 cm-overflow-auto-1281">
+                <form name="vm.WoSalesOrderDetails" class="md-inline-form padding-bottom-0" novalidate>
+                  <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+                  <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                    <!--Start Top Section-->
+                    <tr class="cm-customer-data">
+                      <td colspan="9" class="padding-5">
+                        <div layout>
+                          <!--Left Section-->
+                          <!--'border-right': vm.showPartitionInTopSection,-->
+                          <div layout="row" class="border-color-gray" ng-class="{'flex-40': vm.showPartitionInTopSection, 'flex-100': (!vm.showPartitionInTopSection)}">
+                            <table ng-class="{'width-100p': vm.addWorkorderModel.isFromSO === 'U'}">
+                              <tr ng-if="vm.addWorkorderModel.isFromSO == 'W'">
+                                <th>
+                                  <p class="label-container text-left">
+                                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToCustomerList();">{{vm.autoCompleteCustomer.placeholderName}}</a>
+                                    <span ng-if="vm.autoCompleteCustomer.isRequired && (!vm.disableObject.CustomerForWOwithoutSO)">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td class="width-65P min-width-400">
+                                  <md-input-container id="leftSectionCustomerFromWO" ng-if="vm.autoCompleteCustomer" class="autocompletecustom cm-custom-autocomplete margin-0" flex="100">
+                                    <custom-auto-complete-search on-search-fn="vm.autoCompleteCustomer.onSearchFn"
+                                                                 column-name="vm.autoCompleteCustomer.columnName"
+                                                                 controller-name="vm.autoCompleteCustomer.controllerName"
+                                                                 view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                                                 key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                                                 input-name="vm.autoCompleteCustomer.inputName"
+                                                                 placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                                                 key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                                                 is-required="vm.autoCompleteCustomer.isRequired && (!vm.disableObject.CustomerForWOwithoutSO)"
+                                                                 is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                                                 callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                                                 add-data="vm.autoCompleteCustomer.addData"
+                                                                 on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn"
+                                                                 is-disabled="vm.disableObject.CustomerForWOwithoutSO"
+                                                                 custom-auto-focus="{{vm.addWorkorderModel.isFromSO == 'W'}}">
+                                    </custom-auto-complete-search>
+                                  </md-input-container>
+                                </td>
+                              </tr>
+                              <!-- End: Select Customer-->
+                              <!-- Start: Work Order Sales Order Details-->
+                              <tr ng-if="vm.addWorkorderModel.isFromSO == 'W'">
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToAssemblyList();">{{vm.autoCompleteAssy.placeholderName}}</a>
+                                    <span ng-if="vm.autoCompleteAssy.isRequired && vm.autoCompleteCustomer.keyColumnId  && (!vm.disableObject.AssemblyForWOwithoutSO)">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td>
+                                  <md-input-container id="autocompleteAssyInput" ng-if="vm.autoCompleteAssy" flex="100"
+                                                      class="autocompletecustom cm-custom-autocomplete margin-0"
+                                                      custom-auto-focus="{{vm.autoCompleteCustomer.keyColumnId && vm.autoCompleteAssy?true:false}}">
+                                    <custom-auto-complete datalist="vm.assyList"
+                                                          column-name="vm.autoCompleteAssy.columnName"
+                                                          controller-name="vm.autoCompleteAssy.controllerName"
+                                                          view-template-url="vm.autoCompleteAssy.viewTemplateURL"
+                                                          key-column-name="vm.autoCompleteAssy.keyColumnName"
+                                                          input-name="vm.autoCompleteAssy.inputName"
+                                                          placeholder-name="vm.autoCompleteAssy.placeholderName"
+                                                          key-column-id="vm.autoCompleteAssy.keyColumnId"
+                                                          is-required="vm.autoCompleteAssy.isRequired && vm.autoCompleteCustomer.keyColumnId && (!vm.disableObject.AssemblyForWOwithoutSO)"
+                                                          is-disabled="!vm.autoCompleteCustomer.keyColumnId || vm.disableObject.AssemblyForWOwithoutSO"
+                                                          is-addnew="vm.autoCompleteAssy.isAddnew"
+                                                          callback-fn="vm.autoCompleteAssy.callbackFn"
+                                                          add-data="vm.autoCompleteAssy.addData"
+                                                          on-select-callback-fn="vm.autoCompleteAssy.onSelectCallbackFn">
+                                      <!--parent-id="vm.autoCompleteCustomer.keyColumnId"-->
+                                    </custom-auto-complete>
+                                  </md-input-container>
+                                </td>
+                              </tr>
+                              <tr ng-if="vm.addWorkorderModel.isFromSO == 'S'">
+                                <th>
+                                  <p class="label-container text-left">
+                                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToSalesOrderList();">{{vm.autoCompleteSOList.placeholderName}}</a>
+                                    <span ng-if="vm.autoCompleteSOList.isRequired">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td class="min-width-400">
+                                  <md-input-container ng-if="vm.autoCompleteSOList" class="autocompletecustom cm-custom-autocomplete margin-0" flex="100">
+                                    <custom-auto-complete-search on-search-fn="vm.autoCompleteSOList.onSearchFn"
+                                                                 column-name="vm.autoCompleteSOList.columnName"
+                                                                 controller-name="vm.autoCompleteSOList.controllerName"
+                                                                 view-template-url="vm.autoCompleteSOList.viewTemplateURL"
+                                                                 key-column-name="vm.autoCompleteSOList.keyColumnName"
+                                                                 input-name="vm.autoCompleteSOList.inputName"
+                                                                 placeholder-name="vm.autoCompleteSOList.placeholderName"
+                                                                 key-column-id="vm.autoCompleteSOList.keyColumnId"
+                                                                 is-required="vm.autoCompleteSOList.isRequired && (!vm.disableObject.SOListForWOwithSO)"
+                                                                 is-addnew="vm.autoCompleteSOList.isAddnew"
+                                                                 callback-fn="vm.autoCompleteSOList.callbackFn"
+                                                                 add-data="vm.autoCompleteSOList.addData"
+                                                                 on-select-callback-fn="vm.autoCompleteSOList.onSelectCallbackFn"
+                                                                 is-disabled="vm.disableObject.SOListForWOwithSO">
+                                    </custom-auto-complete-search>
+                                  </md-input-container>
+                                  <div>
+                                    <span>SO# | PO# | (Customer Code)Customer Name | Assy ID | Assy# | PO Qty | Line ID</span>
+                                  </div>
+                                </td>
+                              </tr>
+                              <tr ng-if="vm.addWorkorderModel.isFromSO == 'U'">
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToWorkorderList();">Terminating {{vm.allLabelConstant.Workorder.WO}}</a>
+                                    <span ng-if="(vm.addWorkorderModel.isFromSO == 'U' && vm.autoCompleteAssyWO)">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td ng-if="vm.autoCompleteAssyWO" class="padding-right-15">
+                                  <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0">
+                                    <custom-auto-complete datalist="vm.woAssyList"
+                                                          column-name="vm.autoCompleteAssyWO.columnName"
+                                                          controller-name="vm.autoCompleteAssyWO.controllerName"
+                                                          view-template-url="vm.autoCompleteAssyWO.viewTemplateURL"
+                                                          key-column-name="vm.autoCompleteAssyWO.keyColumnName"
+                                                          input-name="vm.autoCompleteAssyWO.inputName"
+                                                          placeholder-name="vm.autoCompleteAssyWO.placeholderName"
+                                                          key-column-id="vm.autoCompleteAssyWO.keyColumnId"
+                                                          is-required="vm.addWorkorderModel.isFromSO == 'U' ? true : false"
+                                                          is-addnew="vm.autoCompleteAssyWO.isAddnew"
+                                                          callback-fn="vm.autoCompleteAssyWO.callbackFn"
+                                                          on-select-callback-fn="vm.autoCompleteAssyWO.onSelectCallbackFn"
+                                                          is-disabled="vm.addWorkorderModel.isFromSO != 'U'">
+                                    </custom-auto-complete>
+                                  </md-input-container>
+                                  <div>
+                                    <span>Hint: This WO will be terminated post operation.</span>
+                                  </div>
+                                </td>
+                              </tr>
+                              <tr ng-if="vm.addWorkorderModel.isFromSO == 'U'">
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToOperationList();">Terminating {{vm.allLabelConstant.Operation.OP}}</a>
+                                    <span ng-if="vm.addWorkorderModel.isFromSO == 'U' && vm.autoCompleteAssyWOOP">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td ng-if="vm.addWorkorderModel.isFromSO == 'U'">
+                                  <md-input-container flex="100" class="margin-bottom-0 nowrap" ng-if="!vm.autoCompleteAssyWOOP">
+                                    <input type="text" name="WoOp" id="WoOp" placeholder="WoOp" disabled />
+                                  </md-input-container>
+                                  <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0">
+                                    <custom-auto-complete ng-if="vm.autoCompleteAssyWOOP"
+                                                          datalist="vm.WorkorderOperationList"
+                                                          column-name="vm.autoCompleteAssyWOOP.columnName"
+                                                          controller-name="vm.autoCompleteAssyWOOP.controllerName"
+                                                          view-template-url="vm.autoCompleteAssyWOOP.viewTemplateURL"
+                                                          key-column-name="vm.autoCompleteAssyWOOP.keyColumnName"
+                                                          input-name="vm.autoCompleteAssyWOOP.inputName"
+                                                          placeholder-name="vm.autoCompleteAssyWOOP.placeholderName"
+                                                          key-column-id="vm.autoCompleteAssyWOOP.keyColumnId"
+                                                          is-required="vm.addWorkorderModel.isFromSO == 'U' ? true : false"
+                                                          is-addnew="vm.autoCompleteAssyWOOP.isAddnew"
+                                                          callback-fn="vm.autoCompleteAssyWOOP.callbackFn"
+                                                          on-select-callback-fn="vm.autoCompleteAssyWOOP.onSelectCallbackFn"
+                                                          is-disabled="vm.addWorkorderModel.isFromSO != 'U'">
+                                    </custom-auto-complete>
+                                  </md-input-container>
+                                </td>
+                              </tr>
+                              <tr ng-if="vm.addWorkorderModel.isFromSO == 'N'">
+                                <th>
+                                  <p class="label-container text-left">
+                                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToCustomerList();">{{vm.autoCompleteCustomer.placeholderName}}</a>
+                                    <span ng-if="vm.autoCompleteCustomer.isRequired && (!vm.disableObject.CustomerForWOwithoutSO)">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td class="width-65P min-width-400">
+                                  <md-input-container ng-if="vm.autoCompleteCustomer" class="autocompletecustom cm-custom-autocomplete margin-0" flex="100">
+                                    <custom-auto-complete-search on-search-fn="vm.autoCompleteCustomer.onSearchFn"
+                                                                 column-name="vm.autoCompleteCustomer.columnName"
+                                                                 controller-name="vm.autoCompleteCustomer.controllerName"
+                                                                 view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                                                 key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                                                 input-name="vm.autoCompleteCustomer.inputName"
+                                                                 placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                                                 key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                                                 is-required="vm.autoCompleteCustomer.isRequired && (!vm.disableObject.CustomerForWOwithoutSO)"
+                                                                 is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                                                 callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                                                 add-data="vm.autoCompleteCustomer.addData"
+                                                                 on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn"
+                                                                 is-disabled="vm.disableObject.CustomerForWOwithoutSO">
+                                    </custom-auto-complete-search>
+                                  </md-input-container>
+                                </td>
+                                <!--</tr>
+                                <tr ng-if="vm.addWorkorderModel.isFromSO == 'N'">-->
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToAssemblyList();">{{vm.autoCompleteAssy.placeholderName}}</a>
+                                    <span ng-if="vm.autoCompleteAssy.isRequired && vm.autoCompleteCustomer.keyColumnId  && (!vm.disableObject.AssemblyForWOwithoutSO)">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td>
+                                  <md-input-container id="autocompleteAssyInput" ng-if="vm.autoCompleteAssy" flex="100"
+                                                      class="autocompletecustom cm-custom-autocomplete margin-0 width-400"
+                                                      custom-auto-focus="{{vm.autoCompleteCustomer.keyColumnId && vm.autoCompleteAssy?true:false}}">
+                                    <custom-auto-complete datalist="vm.assyList"
+                                                          column-name="vm.autoCompleteAssy.columnName"
+                                                          controller-name="vm.autoCompleteAssy.controllerName"
+                                                          view-template-url="vm.autoCompleteAssy.viewTemplateURL"
+                                                          key-column-name="vm.autoCompleteAssy.keyColumnName"
+                                                          input-name="vm.autoCompleteAssy.inputName"
+                                                          placeholder-name="vm.autoCompleteAssy.placeholderName"
+                                                          key-column-id="vm.autoCompleteAssy.keyColumnId"
+                                                          is-required="vm.autoCompleteAssy.isRequired && (!vm.disableObject.AssemblyForWOwithoutSO)"
+                                                          is-disabled="!vm.autoCompleteCustomer.keyColumnId || vm.disableObject.AssemblyForWOwithoutSO"
+                                                          is-addnew="vm.autoCompleteAssy.isAddnew"
+                                                          callback-fn="vm.autoCompleteAssy.callbackFn"
+                                                          add-data="vm.autoCompleteAssy.addData"
+                                                          on-select-callback-fn="vm.autoCompleteAssy.onSelectCallbackFn">
+                                      <!--parent-id="vm.autoCompleteCustomer.keyColumnId"-->
+                                    </custom-auto-complete>
+                                  </md-input-container>
+                                </td>
+                              </tr>
+                            </table>
+                          </div>
+                          <div layout layout-align="center center" class="font-size-24 font-weight-600" flex="10" ng-if="vm.showPartitionInTopSection">
+                            <span>OR</span>
+                          </div>
+                          <!--Start Right Section-->
+                          <div layout="row" flex="50" class="border-color-gray margin-5" ng-if="vm.addWorkorderModel.isFromSO !== 'U'">
+                            <table ng-class="{'width-100p': vm.addWorkorderModel.isFromSO == 'W'}">
+                              <tr ng-if="vm.addWorkorderModel.isFromSO == 'W'">
+                                <th>
+                                  <p class="label-container">
+                                    {{vm.allLabelConstant.Workorder.WO}}
+                                    <span ng-if="vm.autoCompleteWOList.isRequired && (!vm.disableObject.WOListForWOwithoutSO)">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td>
+                                  <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" ng-if="vm.autoCompleteWOList">
+                                    <custom-auto-complete-search on-search-fn="vm.autoCompleteWOList.onSearchFn"
+                                                                 column-name="vm.autoCompleteWOList.columnName"
+                                                                 key-column-name="vm.autoCompleteWOList.keyColumnName"
+                                                                 input-name="vm.autoCompleteWOList.inputName"
+                                                                 placeholder-name="vm.autoCompleteWOList.placeholderName"
+                                                                 key-column-id="vm.autoCompleteWOList.keyColumnId"
+                                                                 is-required="vm.autoCompleteWOList.isRequired && (!vm.disableObject.WOListForWOwithoutSO)"
+                                                                 is-addnew="vm.autoCompleteWOList.isAddnew"
+                                                                 add-data="vm.autoCompleteWOList.addData"
+                                                                 on-select-callback-fn="vm.autoCompleteWOList.onSelectCallbackFn"
+                                                                 is-disabled="vm.disableObject.WOListForWOwithoutSO">
+                                    </custom-auto-complete-search>
+                                  </md-input-container>
+                                </td>
+                              </tr>
+                              <tr ng-if="vm.addWorkorderModel.isFromSO == 'W'">
+                                <td>
+                                  <p class="label-container padding-top-8-imp">Copy Operations</p>
+                                </td>
+                                <td class="padding-left-5">
+                                  <md-input-container layout="row" flex="100" class="md-block">
+                                    <md-radio-group flex="100"
+                                                    name="copyOPFrom"
+                                                    ng-model="vm.addWorkorderModel.isCopyOPFromRightSection"
+                                                    layout="row"
+                                                    class="margin-0 cm-add-wo-popup"
+                                                    md-autofocus
+                                                    ng-change="vm.changeCopyFromTypeRightSection()" layout-wrap ng-disabled="vm.disableObject.OpFromRightForWOwithoutSO">
+                                      <md-radio-button class="margin-top-0 width-45p"
+                                                       name="template" ng-value="'PW'">From Previous WO of same assembly</md-radio-button>
+                                      <md-radio-button class="margin-top-0 width-45p"
+                                                       name="wo" ng-value="'W'">From WO of Any Assembly</md-radio-button>
+                                    </md-radio-group>
+                                  </md-input-container>
+                                </td>
+                              </tr>
+                              <tr>
+                                <th ng-if="vm.addWorkorderModel.isCopyOPFromRightSection == 'W'">
+                                  <p class="label-container" layout-align="end-center">
+                                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToWorkorderList();">Select {{vm.allLabelConstant.Workorder.WO}}</a>
+                                    <span ng-if="vm.addWorkorderModel.isCopyOPFromRightSection == 'W'">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td ng-if="vm.addWorkorderModel.isCopyOPFromRightSection == 'W'">
+                                  <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" ng-if="vm.autoCompleteWO">
+                                    <custom-auto-complete datalist="vm.woList"
+                                                          column-name="vm.autoCompleteWO.columnName"
+                                                          controller-name="vm.autoCompleteWO.controllerName"
+                                                          view-template-url="vm.autoCompleteWO.viewTemplateURL"
+                                                          key-column-name="vm.autoCompleteWO.keyColumnName"
+                                                          input-name="vm.autoCompleteWO.inputName"
+                                                          placeholder-name="vm.autoCompleteWO.placeholderName"
+                                                          key-column-id="vm.autoCompleteWO.keyColumnId"
+                                                          is-required="vm.addWorkorderModel.isCopyOPFromRightSection == 'W' ? true : false"
+                                                          is-addnew="vm.autoCompleteWO.isAddnew"
+                                                          callback-fn="vm.autoCompleteWO.callbackFn"
+                                                          on-select-callback-fn="vm.autoCompleteWO.onSelectCallbackFn"
+                                                          is-disabled="vm.addWorkorderModel.isCopyOPFromRightSection != 'W' || vm.disableObject.OpFromRightForWOwithoutSO">
+                                    </custom-auto-complete>
+                                  </md-input-container>
+                                </td>
+                                <th ng-if="vm.addWorkorderModel.isCopyOPFromRightSection == 'PW'">
+                                  <p class="label-container" layout-align="end-center">
+                                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToWorkorderList();">Select {{vm.allLabelConstant.Workorder.WO}}</a>
+                                    <span ng-if="vm.addWorkorderModel.isCopyOPFromRightSection == 'PW' && (!vm.disableObject.OpFromRightForWOwithoutSO)">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td ng-if="vm.addWorkorderModel.isCopyOPFromRightSection == 'PW'">
+                                  <md-input-container flex="100" class="margin-bottom-0 nowrap" ng-if="!vm.autoCompletePrevWO && !vm.addWorkorderModel.customerID">
+                                    <input type="text" placeholder="Previous WO" disabled />
+                                  </md-input-container>
+                                  <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" ng-if="vm.autoCompletePrevWO && vm.addWorkorderModel.customerID && vm.addWorkorderModel.isCopyOPFromRightSection == 'PW'">
+                                    <custom-auto-complete datalist="vm.prevWoListForAssyCustomer"
+                                                          column-name="vm.autoCompletePrevWO.columnName"
+                                                          controller-name="vm.autoCompletePrevWO.controllerName"
+                                                          view-template-url="vm.autoCompletePrevWO.viewTemplateURL"
+                                                          key-column-name="vm.autoCompletePrevWO.keyColumnName"
+                                                          input-name="vm.autoCompletePrevWO.inputName"
+                                                          placeholder-name="vm.autoCompletePrevWO.placeholderName"
+                                                          key-column-id="vm.autoCompletePrevWO.keyColumnId"
+                                                          is-required="vm.addWorkorderModel.isCopyOPFromRightSection == 'PW'"
+                                                          is-addnew="vm.autoCompletePrevWO.isAddnew"
+                                                          callback-fn="vm.autoCompletePrevWO.callbackFn"
+                                                          on-select-callback-fn="vm.autoCompletePrevWO.onSelectCallbackFn"
+                                                          is-disabled="vm.addWorkorderModel.isCopyOPFromRightSection != 'PW' || vm.disableObject.OpFromRightForWOwithoutSO">
+                                    </custom-auto-complete>
+                                  </md-input-container>
+                                </td>
+                              </tr>
+                              <tr ng-if="vm.addWorkorderModel.isFromSO == 'S'">
+                                <th>
+                                  <p class="label-container text-left">
+                                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToCustomerList();">{{vm.allLabelConstant.MFG.Customer}}</a>
+                                    <span ng-if="vm.autoCompleteCustomer.isRequired && (!vm.disableObject.CustomerForWOwithSO)">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td class="width-65P min-width-400">
+                                  <md-input-container id="rightSectionCustomerFromSO" ng-if="vm.autoCompleteCustomer" class="autocompletecustom cm-custom-autocomplete margin-0" flex="100">
+                                    <custom-auto-complete-search on-search-fn="vm.autoCompleteCustomer.onSearchFn"
+                                                                 column-name="vm.autoCompleteCustomer.columnName"
+                                                                 controller-name="vm.autoCompleteCustomer.controllerName"
+                                                                 view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                                                 key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                                                 input-name="vm.autoCompleteCustomer.inputName"
+                                                                 placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                                                 key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                                                 is-required="vm.autoCompleteCustomer.isRequired && (!vm.disableObject.CustomerForWOwithSO)"
+                                                                 is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                                                 callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                                                 add-data="vm.autoCompleteCustomer.addData"
+                                                                 on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn"
+                                                                 is-disabled="vm.disableObject.CustomerForWOwithSO">
+                                    </custom-auto-complete-search>
+                                  </md-input-container>
+                                </td>
+                              </tr>
+                              <tr ng-if="vm.addWorkorderModel.isFromSO == 'S'">
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToAssemblyList();">{{vm.autoCompleteAssy.placeholderName}}</a>
+                                    <span ng-if="vm.autoCompleteAssy.isRequired && vm.autoCompleteCustomer.keyColumnId">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td>
+                                  <md-input-container id="rightSectionAssyFromSO" ng-if="vm.autoCompleteAssy" flex="100"
+                                                      class="autocompletecustom cm-custom-autocomplete margin-0"
+                                                      custom-auto-focus="{{vm.autoCompleteCustomer.keyColumnId && vm.autoCompleteAssy?true:false}}">
+                                    <custom-auto-complete datalist="vm.assyList"
+                                                          column-name="vm.autoCompleteAssy.columnName"
+                                                          controller-name="vm.autoCompleteAssy.controllerName"
+                                                          view-template-url="vm.autoCompleteAssy.viewTemplateURL"
+                                                          key-column-name="vm.autoCompleteAssy.keyColumnName"
+                                                          input-name="vm.autoCompleteAssy.inputName"
+                                                          placeholder-name="vm.autoCompleteAssy.placeholderName"
+                                                          key-column-id="vm.autoCompleteAssy.keyColumnId"
+                                                          is-required="vm.autoCompleteAssy.isRequired && (!vm.disableObject.AssemblyForWOwithSO) || vm.autoCompleteCustomer.keyColumnId"
+                                                          is-disabled="!vm.autoCompleteCustomer.keyColumnId || vm.disableObject.AssemblyForWOwithSO"
+                                                          is-addnew="vm.autoCompleteAssy.isAddnew"
+                                                          callback-fn="vm.autoCompleteAssy.callbackFn"
+                                                          add-data="vm.autoCompleteAssy.addData"
+                                                          on-select-callback-fn="vm.autoCompleteAssy.onSelectCallbackFn">
+                                      <!--parent-id="vm.autoCompleteCustomer.keyColumnId"-->
+                                    </custom-auto-complete>
+                                  </md-input-container>
+                                </td>
+                              </tr>
+                            </table>
+                          </div>
+                          <!--End Right Section-->
+                        </div>
+                      </td>
+                      <td class="vertical-middle-align w-55" ng-if="vm.addWorkorderModel.isFromSO === 'U'">
+                        <i class="mdi font-size-50 mdi-arrow-right-bold">
+                        </i>
+                      </td>
+                    </tr>
+                    <!--End Top Section-->
+                    <!--Start Middle Section-->
+                    <tr ng-if="vm.addWorkorderModel.customerID && vm.addWorkorderModel.partID && vm.addWorkorderModel.isFromSO == 'S' && vm.SOAssyListCustomerWise.length > 0" flex="100">
+                      <td colspan="9">
+                        <div class="wo-salesorder-grid">
+                          <table width="100%">
+                            <tr class="wo-salesorder-grid-header border">
+                              <th>
+                                <b>Type</b>
+                              </th>
+                              <th><b><a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToSalesOrderList()">{{vm.allLabelConstant.SalesOrder.SO}}, {{vm.allLabelConstant.Assembly.PIDCode}}, {{vm.allLabelConstant.Workorder.POQty}} (LineID)</a></b></th>
+                              <th><b><a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToSalesOrderList()">{{vm.allLabelConstant.Workorder.PO}}</a></b></th>
+                              <th class="text-right"><b>QPA</b></th>
+                              <th class="text-right"><b>{{vm.allLabelConstant.Workorder.POQty}}</b></th>
+                              <th class="text-right"><b>{{vm.allLabelConstant.Qty.IdlePOQty}}</b></th>
+                              <th class="text-right"><b>{{vm.allLabelConstant.Workorder.AssignedPOQty}}</b></th>
+                              <th></th>
+                            </tr>
+                            <tr ng-repeat="salesItem in vm.SOAssyListCustomerWise" class="wo-salesorder-grid-row border">
+                              <td class="width-10p">
+                                <md-input-container class="autocompletecustom cm-custom-autocomplete cm-so-input-container"
+                                                    custom-auto-focus="{{vm.SOAssyListCustomerWise.length==1?true:false}}">
+                                  <md-input-container flex="100">
+                                    <md-select name="assyType"
+                                               ng-model="salesItem.assyType"
+                                               ng-required="false"
+                                               md-container-class="containerClass"
+                                               ng-change="vm.bindAssembly(salesItem)">
+                                      <md-option ng-value="1">Assembly</md-option>
+                                      <md-option ng-value="2">Sub Assembly</md-option>
+                                    </md-select>
+                                  </md-input-container>
+                                </md-input-container>
+                              </td>
+                              <td class="width-25p">
+                                <md-input-container flex="100" ng-if="$index==0" class="autocompletecustom cm-custom-autocomplete cm-so-input-container"
+                                                    custom-auto-focus="{{vm.SOAssyListCustomerWise.length==1?true:false}}">
+                                  <custom-auto-complete datalist="salesItem.filteredSOList"
+                                                        column-name="salesItem.autoCompleteSOAssy.columnName"
+                                                        key-column-name="salesItem.autoCompleteSOAssy.keyColumnName"
+                                                        input-name="salesItem.autoCompleteSOAssy.inputName"
+                                                        placeholder-name="salesItem.autoCompleteSOAssy.placeholderName"
+                                                        key-column-id="salesItem.autoCompleteSOAssy.keyColumnId"
+                                                        is-required="salesItem.autoCompleteSOAssy.isRequired"
+                                                        is-addnew="salesItem.autoCompleteSOAssy.isAddnew"
+                                                        is-disabled="!salesItem.isEditClicked"
+                                                        callback-fn="salesItem.autoCompleteSOAssy.callbackFn"
+                                                        on-select-callback-fn="salesItem.autoCompleteSOAssy.onSelectCallbackFn"
+                                                        callback-fn-param="salesItem"
+                                                        is-add-from-route="salesItem.autoCompleteSOAssy.isAddFromRoute"
+                                                        route-name="salesItem.autoCompleteSOAssy.routeName"
+                                                        add-data="salesItem.autoCompleteSOAssy.addData">
+                                  </custom-auto-complete>
+                                </md-input-container>
+                                <md-input-container flex="100" ng-if="$index > 0" class="autocompletecustom cm-custom-autocomplete cm-so-input-container"
+                                                    custom-auto-focus="{{vm.SOAssyListCustomerWise.length==1 || salesItem.isCustomFocus ?true:false}}" id="filteredSOList{{$index}}">
+                                  <custom-auto-complete datalist="salesItem.filteredSOList"
+                                                        column-name="salesItem.autoCompleteSOAssy.columnName"
+                                                        key-column-name="salesItem.autoCompleteSOAssy.keyColumnName"
+                                                        input-name="salesItem.autoCompleteSOAssy.inputName"
+                                                        placeholder-name="salesItem.autoCompleteSOAssy.placeholderName"
+                                                        key-column-id="salesItem.autoCompleteSOAssy.keyColumnId"
+                                                        is-required="salesItem.autoCompleteSOAssy.isRequired"
+                                                        is-addnew="salesItem.autoCompleteSOAssy.isAddnew"
+                                                        is-disabled="!salesItem.isEditClicked"
+                                                        callback-fn="salesItem.autoCompleteSOAssy.callbackFn"
+                                                        on-select-callback-fn="salesItem.autoCompleteSOAssy.onSelectCallbackFn"
+                                                        callback-fn-param="salesItem"
+                                                        is-add-from-route="salesItem.autoCompleteSOAssy.isAddFromRoute"
+                                                        route-name="salesItem.autoCompleteSOAssy.routeName"
+                                                        add-data="salesItem.autoCompleteSOAssy.addData">
+                                  </custom-auto-complete>
+                                </md-input-container>
+                              </td>
+                              <td class="width-15p">
+                                <span class="cm-custom-td-span">
+                                  <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToManageSalesOrder(salesItem);">{{salesItem.poNumber}}</a>
+                                </span>
+                              </td>
+                              <td class="text-right">
+                                <span class="cm-custom-td-span"><b>{{salesItem.qpaa}}</b></span>
+                              </td>
+                              <td class="text-right">
+                                <span class="cm-custom-td-span"><b>{{salesItem.oldPOQty | numberWithoutDecimal}}</b></span>
+                              </td>
+                              <td class="text-right">
+                                <span class="cm-custom-td-span"><b>{{salesItem.idlePOQty | numberWithoutDecimal}}</b></span>
+                              </td>
+                              <td class="text-right width-15p">
+                                <md-input-container class="cm-so-input-container">
+                                  <input type="number"
+                                         name="poQty{{$index}}"
+                                         id="poQty{{$index}}"
+                                         ng-model="salesItem.poQty"
+                                         placeholder=""
+                                         min="0"
+                                         max="{{salesItem.actualIdlePOQty}}"
+                                         onkeypress="return OnlyNumeric(event)"
+                                         ng-disabled="!salesItem.isEditClicked" ng-required="salesItem.autoCompleteSOAssy.keyColumnId > 0">
+                                  <div ng-messages="vm.addWorkorderForm['poQty'+$index].$error">
+                                    <div ng-message="required">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                    </div>
+                                    <div ng-message="min">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                    </div>
+                                    <div ng-message="max">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.PO_QTY_INVALID_MESSAGE}}</span>
+                                    </div>
+                                  </div>
+                                </md-input-container>
+                              </td>
+                              <td class="width-15p">
+                                <md-input-container class="autocompletecustom cm-custom-autocomplete nowrap margin-top-0 margin-bottom-0 padding-right-8" layout-align="end" layout="row">
+                                  <md-button class="md-primary md-raised mv-0 margin-right-0" ng-click="vm.SaveWoSalesOrdrDetail(salesItem,$index)" ng-if="salesItem.isEditClicked">
+                                    Add
+                                  </md-button>
+                                  <md-button class="md-primary md-raised mv-0 margin-right-0" ng-if="salesItem.saleorderDetID && !salesItem.isEditClicked"
+                                             ng-click="vm.woSalesOrderEditClicked(salesItem)" ng-disabled="salesItem.isEditClicked">
+                                    Edit
+                                  </md-button>
+                                  <md-button class="md-primary md-raised mv-0 margin-right-0" ng-hide="!salesItem.saleorderDetID" ng-click="vm.deleteWoSalesOrdrDetail(salesItem, $index)">
+                                    Remove
+                                  </md-button>
+                                </md-input-container>
+                              </td>
+                            </tr>
+                          </table>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr ng-show="vm.SOAssyListCustomerWise.length == 0" ng-if="vm.addWorkorderModel.customerID && vm.addWorkorderModel.partID && vm.addWorkorderModel.isFromSO == 'S'" flex="100">
+                      <td colspan="9">
+                        <div ng-if="vm.SOAssyList.length == 0" class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap>
+                          <div class="emty-icon" flex="100">
+                            <img ng-src="{{vm.EmptyMesssageSalesOrder.IMAGEURL}}" />
+                          </div>
+                          <p flex="100" class="empty-state-title">{{vm.EmptyMesssageSalesOrder.MESSAGE}}</p>
+                          <p flex="100">
+                            {{vm.EmptyMesssageSalesOrder.ADDNEWMESSAGE}}
+                          </p>
+                          <p flex="100">
+                            <md-button class="md-fab md-mini" aria-label="Add Sales Order" ng-click="vm.addSalesOrderRecord()"
+                                       custom-auto-focus="{{vm.autoCompleteCustomer.keyColumnId && vm.autoCompleteAssy.keyColumnId && vm.addWorkorderModel.isFromSO == 'S'}}">
+                              <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+                              <md-tooltip>Add Sales Order</md-tooltip>
+                            </md-button>
+                            <md-button class="md-fab md-mini" aria-label="Refresh Sales Order" ng-click="vm.refreshSalesOrder()">
+                              <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-refresh"></md-icon>
+                              <md-tooltip>Refresh Sales Order</md-tooltip>
+                            </md-button>
+                            <md-button class="md-fab md-mini" aria-label="Go To Sales Order" ng-click="vm.goToSalesOrderList()">
+                              <md-icon role="img" md-font-icon="icon-eye" class="material-icons mat-icon icon-eye"></md-icon>
+                              <md-tooltip>View Sales Order</md-tooltip>
+                            </md-button>
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                    <!--End Middle Section-->
+                    <!-- End: Work Order Sales Order Details-->
+                  </table>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--Start Bottom Section-->
+        <div class="cm-section-main margin-top-10" layout="row" ng-class="{'flex-70': vm.addWorkorderModel.isFromSO === 'U', 'flex-100': vm.addWorkorderModel.isFromSO !== 'U'}">
+          <div class="cm-section-inner" layout-wrap layout="row" flex="100">
+            <div layout="column" class="margin-left-0 cm-overflow-auto-1281" flex>
+              <div class="cm-section-header" flex="100" ng-if="vm.addWorkorderModel.isFromSO === 'U'">
+                <h2>Transferring To {{vm.allLabelConstant.Workorder.WO}}</h2>
+              </div>
+              <table class="cm-table-input-main">
+                <tr>
+                  <th>
+                    <p class="label-container">
+                      <a class="cm-text-decoration" ng-click="vm.goToCustomerType();" tabindex="-1">{{vm.allLabelConstant.MFG.Customer}}</a>
+                    </p>
+                  </th>
+                  <td class="padding-top-4">
+                    <md-input-container flex="100" class="margin-bottom-0 nowrap" ng-if="!vm.addWorkorderModel.customerName">
+                      <input type="text" name="customerName" id="customerName" placeholder="Customer Name" disabled />
+                    </md-input-container>
+                    <a tabindex="-1" class="cm-text-decoration underline h4 text-bold" ng-click="vm.goToManageCustomer();" ng-if="vm.addWorkorderModel.customerName">
+                      {{vm.addWorkorderModel.customerName}}
+                    </a>
+                  </td>
+                  <th>
+                    <p class="label-container">
+                      <a class="cm-text-decoration" ng-click="vm.goToMFGPartList();" tabindex="-1">
+                        {{vm.allLabelConstant.Assembly.PIDCode}}
+                      </a>
+                    </p>
+                  </th>
+                  <td class="cm-wo-popup-assy-full width-350">
+                    <md-input-container flex="100" class="margin-bottom-0 nowrap" ng-if="!vm.addWorkorderModel.partID">
+                      <input type="text" name="AssyID" id="AssyID" placeholder="AssyID" disabled />
+                    </md-input-container>
+                    <common-pid-code-label-link ng-if="vm.addWorkorderModel.partID"
+                                                class="margin-top-4"
+                                                component-id="vm.addWorkorderModel.partID"
+                                                label="vm.allLabelConstant.MFG.PID"
+                                                value="vm.addWorkorderModel.PIDCode"
+                                                is-copy="true"
+                                                rohs-icon="vm.addWorkorderModel.rohsIcon"
+                                                rohs-status="vm.addWorkorderModel.rohsName"
+                                                is-formated="true"
+                                                is-assembly="true"></common-pid-code-label-link>
+                  </td>
+                  <th>
+                    <p class="label-container text-right">
+                      <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToAssemblyList();">{{vm.allLabelConstant.Assembly.MFGPN}}</a>
+                    </p>
+                  </th>
+                  <td class="padding-top-5 cm-wo-popup-assy-full width-350">
+                    <md-input-container flex="100" class="margin-bottom-0 nowrap" ng-if="!vm.addWorkorderModel.partID">
+                      <input type="text" name="AssyNumber" id="AssyNumber" placeholder="AssyNumber"
+                             disabled />
+                    </md-input-container>
+                    <common-pid-code-label-link ng-if="vm.addWorkorderModel.partID"
+                                                class="cm-assbly-header-label"
+                                                component-id="vm.addWorkorderModel.partID"
+                                                label="vm.allLabelConstant.Assembly.MFGPN"
+                                                value="vm.addWorkorderModel.mfgPN"
+                                                is-copy="true"
+                                                rohs-icon="vm.addWorkorderModel.rohsIcon"
+                                                rohs-status="vm.addWorkorderModel.rohsName"
+                                                is-formated="true"
+                                                is-assembly="true"
+                                                is-custom-part="vm.addWorkorderModel.isCustom"></common-pid-code-label-link>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="pl-10"><p class="label-container text-right">{{vm.allLabelConstant.Assembly.NickName}}</p></th>
+                  <td>
+                    <md-input-container flex="100" class="margin-bottom-0 nowrap" ng-if="!vm.addWorkorderModel.partID">
+                      <input type="text" name="nickName" id="nickName" placeholder="Nickname"
+                             disabled />
+                    </md-input-container>
+                    <span class="cm-custom-td-span"><b>{{vm.addWorkorderModel.nickName}}</b></span>
+                  </td>
+                  <th><p class="label-container">{{vm.allLabelConstant.Assembly.Description}}</p></th>
+                  <td>
+                    <md-input-container flex="100" class="width-100p">
+                      <textarea id="woDescription" type="text" name="description" ng-model="vm.addWorkorderModel.description" placeholder="{{vm.allLabelConstant.Assembly.Description}}"
+                                ng-disabled="true"></textarea>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <p class="label-container">
+                      <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToWorkorderList();">{{vm.allLabelConstant.Workorder.WO}}</a>
+                      <!--<span ng-if="vm.addWorkorderModel.isEdit">&nbsp;*</span>-->
+                    </p>
+                  </th>
+                  <td>
+                    <div flex="100" layout="row" layout-align="start start">
+                      <span class="cm-custom-td-span"><b>{{vm.addWorkorderModel.woNumber ? vm.addWorkorderModel.woNumber : "WOXXXXX-XX"}}</b></span>
+                    </div>
+                    <div flex="100" class="font-size-10">
+                      <b>{{vm.woNotesConst.SystemGenerateWONumber}}</b>
+                    </div>
+                  </td>
+                  <td class="padding-top-4" colspan="2">
+                    <a class="cm-text-decoration" ng-click="vm.addWorkorderModel.partID ? vm.ViewAssemblyStockStatus() : ''">
+                      <b>View Assembly Stock Details</b>
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div layout="column" class="margin-left-0 cm-overflow-auto-1281 " flex="20" ng-if="vm.addWorkorderModel.isFromSO !== 'U'">
+              <table class="cm-table-input-main">
+                <tr ng-if="vm.addWorkorderModel.isFromSO == 'S'">
+                  <th><p class="label-container">Total Assigned {{vm.allLabelConstant.Workorder.POQty}}</p></th>
+                  <td class="text-right">
+                    <!--<span class="cm-custom-td-span" ng-if="vm.addWorkorderModel.isFromSO == 'S'"><b>{{vm.addWorkorderModel.poQty | numberWithoutDecimal}}</b></span>-->
+                    <md-input-container flex="100" class="margin-bottom-0 nowrap">
+                      <input type="text" name="AssignedQty" id="AssignedQty" class="text-right" placeholder="AssignedQty" ng-model="vm.addWorkorderModel.poQty" disabled />
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th ng-if="vm.addWorkorderModel.isFromSO != 'U'"><p class="label-container">{{vm.allLabelConstant.Workorder.ExcessBuildQty}}</p></th>
+                  <td ng-if="vm.addWorkorderModel.isFromSO != 'U'">
+                    <md-input-container>
+                      <input type="number" name="excessQty" ng-model="vm.addWorkorderModel.excessQty"
+                             onkeypress="return OnlyNumeric(event)"
+                             ng-change="vm.checkQty()"
+                             placeholder="vm.allLabelConstant.Workorder.ExcessBuildQty" min="0">
+                      <div ng-messages="vm.addWorkorderForm.excessQty.$error" role="alert">
+                        <div ng-message="min">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN}}</span>
+                        </div>
+                        <div ng-message="invalidexcessQty">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th ng-if="vm.addWorkorderModel.isFromSO != 'U'"><p class="label-container">{{vm.allLabelConstant.Workorder.BuildQty}}<span>&nbsp;*</span></p></th>
+                  <td ng-if="vm.addWorkorderModel.isFromSO != 'U'">
+                    <md-input-container>
+                      <input type="number" name="buildQty" ng-model="vm.addWorkorderModel.buildQty"
+                             placeholder="vm.allLabelConstant.Workorder.BuildQty"
+                             onkeypress="return OnlyNumeric(event)"
+                             ng-change="vm.addWorkorderModel.buildQty?vm.checkBuildExcessQtyValidation():vm.addWorkorderModel.buildQty"
+                             required min="{{vm.addWorkorderModel.poQty ? (vm.addWorkorderModel.excessQty || 0) + 1 : (vm.addWorkorderModel.excessQty || 0)}}">
+                      <div ng-messages="vm.addWorkorderForm.buildQty.$error || vm.addWorkorderForm.buildQty.$touched">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="min">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.BUILDQTY_INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- End: Row 2 : Select Customer amd Assembly-->
+        <div class="cm-section-main margin-top-10" ng-if="vm.addWorkorderModel.isFromSO == 'W'" flex="100">
+          <div class="cm-section-inner" layout>
+            <!-- Start: Common Section-->
+            <div layout="row" layout-wrap flex="50" class="border-cell-right">
+              <div flex-sm="100" class=" pr-15">
+                <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                  <tr>
+                    <td>
+                      <p class="label-container padding-top-8-imp">Copy Operations</p>
+                    </td>
+                    <td class="padding-left-5">
+                      <md-input-container layout="row" flex="100" class="md-block">
+                        <md-radio-group flex="100"
+                                        name="copyOPFrom"
+                                        ng-model="vm.addWorkorderModel.isCopyOPFromLeftSection"
+                                        layout="row"
+                                        class="margin-0 cm-add-wo-popup"
+                                        md-autofocus
+                                        ng-change="vm.changeCopyFromTypeLeftSection()" layout-wrap ng-disabled="vm.disableObject.OpFromLeftForWOwithoutSO">
+                          <md-radio-button class="margin-top-0 width-40p"
+                                           name="template" ng-value="'PW'">From Previous WO of Same Assembly</md-radio-button>
+                          <md-radio-button class="margin-top-0 width-40p"
+                                           name="wo" ng-value="'W'">From WO of Any Assembly</md-radio-button>
+                          <md-radio-button class="margin-top-0 width-40p"
+                                           name="template" ng-value="'M'">From Operation Template</md-radio-button>
+                          <md-radio-button class="margin-top-0 width-40p"
+                                           name="none" ng-value="">From None of the above</md-radio-button>
+                        </md-radio-group>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr ng-if="vm.addWorkorderModel.isCopyOPFromLeftSection">
+                    <td ng-if="vm.addWorkorderModel.isCopyOPFromLeftSection == 'W'">
+                      <p class="label-container" layout-align="end-center">
+                        <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToWorkorderList();">Select {{vm.allLabelConstant.Workorder.WO}}</a>
+                        <span ng-if="vm.addWorkorderModel.isCopyOPFromLeftSection == 'W'">&nbsp;*</span>
+                      </p>
+                    </td>
+                    <td ng-if="vm.addWorkorderModel.isCopyOPFromLeftSection == 'W'">
+                      <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" ng-if="vm.autoCompleteWO">
+                        <custom-auto-complete datalist="vm.woList"
+                                              column-name="vm.autoCompleteWO.columnName"
+                                              controller-name="vm.autoCompleteWO.controllerName"
+                                              view-template-url="vm.autoCompleteWO.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteWO.keyColumnName"
+                                              input-name="vm.autoCompleteWO.inputName"
+                                              placeholder-name="vm.autoCompleteWO.placeholderName"
+                                              key-column-id="vm.autoCompleteWO.keyColumnId"
+                                              is-required="vm.addWorkorderModel.isCopyOPFromLeftSection == 'W' ? true : false"
+                                              is-addnew="vm.autoCompleteWO.isAddnew"
+                                              callback-fn="vm.autoCompleteWO.callbackFn"
+                                              on-select-callback-fn="vm.autoCompleteWO.onSelectCallbackFn"
+                                              is-disabled="vm.addWorkorderModel.isCopyOPFromLeftSection != 'W' || vm.disableObject.OpFromLeftForWOwithoutSO">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                    <td ng-if="vm.addWorkorderModel.isCopyOPFromLeftSection == 'M'">
+                      <p class="label-container" layout-align="end-center">
+                        <a tabindex="-1" class="cm-text-decoration" ng-click="vm.gotoOperationManagementList();">Select Operation Templates</a>
+                        <span ng-if="vm.addWorkorderModel.isCopyOPFromLeftSection == 'M'">&nbsp;*</span>
+                      </p>
+                    </td>
+                    <td ng-if="vm.addWorkorderModel.isCopyOPFromLeftSection == 'M'">
+                      <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" ng-if="vm.autoCompleteMasterTemplate">
+                        <custom-auto-complete datalist="vm.MasterTemplateList"
+                                              column-name="vm.autoCompleteMasterTemplate.columnName"
+                                              key-column-name="vm.autoCompleteMasterTemplate.keyColumnName"
+                                              input-name="vm.autoCompleteMasterTemplate.inputName"
+                                              placeholder-name="vm.autoCompleteMasterTemplate.placeholderName"
+                                              key-column-id="vm.autoCompleteMasterTemplate.keyColumnId"
+                                              is-required="vm.addWorkorderModel.isCopyOPFromLeftSection == 'M' ? true : false"
+                                              is-addnew="vm.autoCompleteMasterTemplate.isAddnew"
+                                              callback-fn="vm.autoCompleteMasterTemplate.callbackFn"
+                                              on-select-callback-fn="vm.autoCompleteMasterTemplate.onSelectCallbackFn"
+                                              is-disabled="vm.addWorkorderModel.isCopyOPFromLeftSection != 'M' || vm.disableObject.OpFromLeftForWOwithoutSO"
+                                              is-add-from-route="vm.autoCompleteMasterTemplate.isAddFromRoute"
+                                              route-name="vm.autoCompleteMasterTemplate.routeName"
+                                              add-data="vm.autoCompleteMasterTemplate.addData">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                    <td ng-if="vm.addWorkorderModel.isCopyOPFromLeftSection == 'PW'">
+                      <p class="label-container" layout-align="end-center">
+                        <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToWorkorderList();">Select {{vm.allLabelConstant.Workorder.WO}}</a>
+                        <span ng-if="vm.addWorkorderModel.isCopyOPFromLeftSection == 'PW'">&nbsp;*</span>
+                      </p>
+                    </td>
+                    <td ng-if="vm.addWorkorderModel.isCopyOPFromLeftSection == 'PW'">
+                      <md-input-container flex="100" class="margin-bottom-0 nowrap" ng-if="!vm.autoCompletePrevWO || !vm.addWorkorderModel.customerID  || !vm.addWorkorderModel.partID">
+                        <input type="text" placeholder="Previous WO" disabled />
+                      </md-input-container>
+                      <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" ng-if="vm.autoCompletePrevWO && vm.addWorkorderModel.customerID && vm.addWorkorderModel.partID">
+                        <custom-auto-complete datalist="vm.prevWoListForAssyCustomer"
+                                              column-name="vm.autoCompletePrevWO.columnName"
+                                              controller-name="vm.autoCompletePrevWO.controllerName"
+                                              view-template-url="vm.autoCompletePrevWO.viewTemplateURL"
+                                              key-column-name="vm.autoCompletePrevWO.keyColumnName"
+                                              input-name="vm.autoCompletePrevWO.inputName"
+                                              placeholder-name="vm.autoCompletePrevWO.placeholderName"
+                                              key-column-id="vm.autoCompletePrevWO.keyColumnId"
+                                              is-required="vm.addWorkorderModel.isCopyOPFromLeftSection == 'PW'"
+                                              is-addnew="vm.autoCompletePrevWO.isAddnew"
+                                              callback-fn="vm.autoCompletePrevWO.callbackFn"
+                                              on-select-callback-fn="vm.autoCompletePrevWO.onSelectCallbackFn"
+                                              is-disabled="vm.addWorkorderModel.isCopyOPFromLeftSection != 'PW' || vm.disableObject.OpFromLeftForWOwithoutSO">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <div layout="row" layout-wrap flex="50">
+              <div class="font-size-12 padding-left-15" flex-sm="100" ng-if="vm.addWorkorderModel.isFromSO == 'W' && vm.addWorkorderModel.fromWoId">
+                <h5 layout="row">
+                  Following action will be performed for selected "Copy Operations": &nbsp; <b>
+                    <label ng-if="!vm.addWorkorderModel.isCopyOPFromRightSection">From None of the above</label>
+                    <label ng-if="vm.addWorkorderModel.isCopyOPFromRightSection == 'W'">From WO of Any Assembly</label>
+                    <label ng-if="vm.addWorkorderModel.isCopyOPFromRightSection == 'M'">From Operation Template</label>
+                    <label ng-if="vm.addWorkorderModel.isCopyOPFromRightSection == 'PW'">From Previous WO of Same Assembly</label>
+                  </b>
+                </h5>
+                <div layout="row" ng-if="(!vm.addWorkorderModel.isCopyOPFromRightSection) || (vm.autoCompleteWO || vm.autoCompleteMasterTemplate || vm.autoCompletePrevWO)">
+                  <div layout="column" flex="50">
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFromRightSection)">
+                      <span><b>{{vm.ADD_WORKORDER_NOTES}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFromRightSection) && (vm.autoCompleteWO && vm.addWorkorderModel.isNewRevision)">
+                      <span><b>{{vm.COPY_DO_DONTS_MASTER}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFromRightSection)">
+                      <span><b>{{vm.COPY_ALL_DOCUMENT_FROM_PART}}  </b></span>
+                    </div>
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFromRightSection)">
+                      <span><b>{{vm.copy_All_Doc_From}} {{vm.allLabelConstant.Operation.PageName}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="vm.addWorkorderModel.isCopyOPFromRightSection && !(vm.addWorkorderModel.isCopyOPFromRightSection && (vm.autoCompleteWO || vm.autoCompleteMasterTemplate))">
+                      <span><b>{{vm.copy_All_Doc_From}} {{vm.allLabelConstant.Workorder.PageName}}</b></span>
+                    </div>
+                  </div>
+                  <div layout="column" flex="50">
+                    <div class="cm-wo-block cm-red-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFromRightSection)">
+                      <span><b>{{vm.not_copy_restrict_part}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-red-wo-block" ng-if="!(vm.addWorkorderModel.isCopyOPFromRightSection)">
+                      <span><b>{{vm.not_copy_any_doc_from}} {{vm.allLabelConstant.Assembly.PageName}} based on above selected</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-red-wo-block" ng-if="!vm.addWorkorderModel.isCopyOPFromRightSection || (vm.addWorkorderModel.isCopyOPFromRightSection && (vm.autoCompleteWO || vm.autoCompleteMasterTemplate))">
+                      <span><b>{{vm.NOT_COPY_DOCUMENT_FROM_WORKORDER}} </b></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="font-size-12 padding-left-15" flex-sm="100" ng-if="vm.addWorkorderModel.isFromSO == 'W' && !vm.addWorkorderModel.fromWoId">
+                <h5 layout="row">
+                  Following action will be performed for selected "Copy Operations": &nbsp; <b>
+                    <label ng-if="!vm.addWorkorderModel.isCopyOPFromLeftSection">From None of the above</label>
+                    <label ng-if="vm.addWorkorderModel.isCopyOPFromLeftSection == 'W'">From WO of Any Assembly</label>
+                    <label ng-if="vm.addWorkorderModel.isCopyOPFromLeftSection == 'M'">From Operation Template</label>
+                    <label ng-if="vm.addWorkorderModel.isCopyOPFromLeftSection == 'PW'">From Previous WO of Same Assembly</label>
+                  </b>
+                </h5>
+                <div layout="row" ng-if="(!vm.addWorkorderModel.isCopyOPFromLeftSection) || (vm.autoCompleteWO || vm.autoCompleteMasterTemplate || vm.autoCompletePrevWO)">
+                  <div layout="column" flex="50">
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFromLeftSection)">
+                      <span><b>{{vm.ADD_WORKORDER_NOTES}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFromLeftSection) && (vm.autoCompleteWO && vm.addWorkorderModel.isNewRevision)">
+                      <span><b>{{vm.COPY_DO_DONTS_MASTER}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="!(vm.addWorkorderModel.isCopyOPFromLeftSection)">
+                      <span><b>{{vm.ALLOW_TO_ADD_AS_REQUIRE}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFromLeftSection)">
+                      <span><b>{{vm.COPY_ALL_DOCUMENT_FROM_PART}}  </b></span>
+                    </div>
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFromLeftSection)">
+                      <span><b>{{vm.copy_All_Doc_From}} {{vm.allLabelConstant.Operation.PageName}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="vm.addWorkorderModel.isCopyOPFromLeftSection && !(vm.addWorkorderModel.isCopyOPFromLeftSection && (vm.autoCompleteWO || vm.autoCompleteMasterTemplate))">
+                      <span><b>{{vm.copy_All_Doc_From}} {{vm.allLabelConstant.Workorder.PageName}}</b></span>
+                    </div>
+                  </div>
+
+                  <div layout="column" flex="50">
+                    <div class="cm-wo-block cm-red-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFromLeftSection)">
+                      <span><b>{{vm.not_copy_restrict_part}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-red-wo-block" ng-if="!(vm.addWorkorderModel.isCopyOPFromLeftSection)">
+                      <span><b>{{vm.not_copy_any_doc_from}} {{vm.allLabelConstant.Assembly.PageName}} based on above selected</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-red-wo-block" ng-if="!(vm.addWorkorderModel.isCopyOPFromLeftSection)">
+                      <span><b>{{vm.not_copy_any_doc_from}} {{vm.allLabelConstant.Operation.PageName}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-red-wo-block" ng-if="!vm.addWorkorderModel.isCopyOPFromLeftSection || (vm.addWorkorderModel.isCopyOPFromLeftSection && (vm.autoCompleteWO || vm.autoCompleteMasterTemplate))">
+                      <span><b>{{vm.NOT_COPY_DOCUMENT_FROM_WORKORDER}} </b></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End: Common Section-->
+            <!--</tbody>-->
+            <!--</table>-->
+          </div>
+        </div>
+        <!-- Start: Row 3 : Common Section to select Option Copy Operations from-->
+        <div class="cm-section-main margin-top-10" ng-if=" (vm.addWorkorderModel.isFromSO == 'S' || vm.addWorkorderModel.isFromSO == 'U' || vm.addWorkorderModel.isFromSO == 'N')" flex="100">
+          <div class="cm-section-inner">
+            <!-- Start: Common Section-->
+            <div layout="row" layout-wrap>
+              <div flex="50" flex-sm="100" class="border-cell-right pr-15">
+                <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                  <tr>
+                    <td>
+                      <p class="label-container padding-top-8-imp">Copy Operations</p>
+                    </td>
+                    <td class="padding-left-5">
+                      <md-input-container layout="row" flex="100" class="md-block">
+                        <md-radio-group flex="100"
+                                        name="copyOPFrom"
+                                        ng-model="vm.addWorkorderModel.isCopyOPFrom"
+                                        layout="row"
+                                        class="margin-0 cm-add-wo-popup"
+                                        md-autofocus ng-disabled="vm.disableObject.isDisableOpFromCommon"
+                                        ng-change="vm.changeCopyFromType()" layout-wrap>
+                          <md-radio-button class="margin-top-0 width-45p" name="template" ng-value="'PW'">From Previous WO of Same Assembly</md-radio-button>
+                          <md-radio-button class="margin-top-0 width-45p" name="wo" ng-value="'W'">From WO of Any Assembly</md-radio-button>
+                          <md-radio-button class="margin-top-0 width-45p" name="template" ng-value="'M'">From Operation Template</md-radio-button>
+                          <md-radio-button class="margin-top-0 width-45p" name="none" ng-value="">From None of the above</md-radio-button>
+                        </md-radio-group>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr ng-if="((vm.addWorkorderModel.isFromSO == 'S' && vm.SOAssyList.length > 0) || vm.addWorkorderModel.isFromSO == 'U')">
+                    <td ng-if="vm.addWorkorderModel.isCopyOPFrom == 'W'">
+                      <p class="label-container" layout-align="end-center">
+                        <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToWorkorderList();">Select {{vm.allLabelConstant.Workorder.WO}}</a>
+                        <span ng-if="vm.addWorkorderModel.isCopyOPFrom == 'W'">&nbsp;*</span>
+                      </p>
+                    </td>
+                    <td ng-if="vm.addWorkorderModel.isCopyOPFrom == 'W'">
+                      <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" ng-if="vm.autoCompleteWO">
+                        <custom-auto-complete datalist="vm.woList"
+                                              column-name="vm.autoCompleteWO.columnName"
+                                              controller-name="vm.autoCompleteWO.controllerName"
+                                              view-template-url="vm.autoCompleteWO.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteWO.keyColumnName"
+                                              input-name="vm.autoCompleteWO.inputName"
+                                              placeholder-name="vm.autoCompleteWO.placeholderName"
+                                              key-column-id="vm.autoCompleteWO.keyColumnId"
+                                              is-required="vm.addWorkorderModel.isCopyOPFrom == 'W' ? true : false"
+                                              is-addnew="vm.autoCompleteWO.isAddnew"
+                                              callback-fn="vm.autoCompleteWO.callbackFn"
+                                              on-select-callback-fn="vm.autoCompleteWO.onSelectCallbackFn"
+                                              is-disabled="vm.addWorkorderModel.isCopyOPFrom != 'W'">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                    <td ng-if="vm.addWorkorderModel.isCopyOPFrom == 'M'">
+                      <p class="label-container" layout-align="end-center">
+                        <a tabindex="-1" class="cm-text-decoration" ng-click="vm.gotoOperationManagementList();">Select Operation Templates</a>
+                        <span ng-if="vm.addWorkorderModel.isCopyOPFrom == 'M'">&nbsp;*</span>
+                      </p>
+                    </td>
+                    <td ng-if="vm.addWorkorderModel.isCopyOPFrom == 'M'">
+                      <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" ng-if="vm.autoCompleteMasterTemplate">
+                        <custom-auto-complete datalist="vm.MasterTemplateList"
+                                              column-name="vm.autoCompleteMasterTemplate.columnName"
+                                              key-column-name="vm.autoCompleteMasterTemplate.keyColumnName"
+                                              input-name="vm.autoCompleteMasterTemplate.inputName"
+                                              placeholder-name="vm.autoCompleteMasterTemplate.placeholderName"
+                                              key-column-id="vm.autoCompleteMasterTemplate.keyColumnId"
+                                              is-required="vm.addWorkorderModel.isCopyOPFrom == 'M' ? true : false"
+                                              is-addnew="vm.autoCompleteMasterTemplate.isAddnew"
+                                              callback-fn="vm.autoCompleteMasterTemplate.callbackFn"
+                                              on-select-callback-fn="vm.autoCompleteMasterTemplate.onSelectCallbackFn"
+                                              is-disabled="vm.addWorkorderModel.isCopyOPFrom != 'M'"
+                                              is-add-from-route="vm.autoCompleteMasterTemplate.isAddFromRoute"
+                                              route-name="vm.autoCompleteMasterTemplate.routeName"
+                                              add-data="vm.autoCompleteMasterTemplate.addData">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                    <td ng-if="vm.addWorkorderModel.isCopyOPFrom == 'PW'">
+                      <p class="label-container" layout-align="end-center">
+                        <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToWorkorderList();">Select {{vm.allLabelConstant.Workorder.WO}}</a>
+                        <span ng-if="vm.addWorkorderModel.isCopyOPFrom == 'PW'">&nbsp;*</span>
+                      </p>
+                    </td>
+                    <td ng-if="vm.addWorkorderModel.isCopyOPFrom == 'PW'">
+                      <md-input-container flex="100" class="margin-bottom-0 nowrap" ng-if="!vm.autoCompletePrevWO && !vm.addWorkorderModel.customerID">
+                        <input type="text" placeholder="Previous WO" disabled />
+                      </md-input-container>
+                      <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" ng-if="vm.autoCompletePrevWO && vm.addWorkorderModel.customerID">
+                        <custom-auto-complete datalist="vm.prevWoListForAssyCustomer"
+                                              column-name="vm.autoCompletePrevWO.columnName"
+                                              controller-name="vm.autoCompletePrevWO.controllerName"
+                                              view-template-url="vm.autoCompletePrevWO.viewTemplateURL"
+                                              key-column-name="vm.autoCompletePrevWO.keyColumnName"
+                                              input-name="vm.autoCompletePrevWO.inputName"
+                                              placeholder-name="vm.autoCompletePrevWO.placeholderName"
+                                              key-column-id="vm.autoCompletePrevWO.keyColumnId"
+                                              is-required="vm.addWorkorderModel.isCopyOPFrom == 'PW'"
+                                              is-addnew="vm.autoCompletePrevWO.isAddnew"
+                                              callback-fn="vm.autoCompletePrevWO.callbackFn"
+                                              on-select-callback-fn="vm.autoCompletePrevWO.onSelectCallbackFn"
+                                              is-disabled="vm.addWorkorderModel.isCopyOPFrom != 'PW'">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              <div class="font-size-12 padding-left-15" flex="50" flex-sm="100">
+                <h5 layout="row">
+                  Following action will be performed for selected "Copy Operations": &nbsp; <b>
+                    <label ng-if="!vm.addWorkorderModel.isCopyOPFrom">From None of the above</label>
+                    <label ng-if="vm.addWorkorderModel.isCopyOPFrom == 'W'">From WO of Any Assembly</label>
+                    <label ng-if="vm.addWorkorderModel.isCopyOPFrom == 'M'">From Operation Template</label>
+                    <label ng-if="vm.addWorkorderModel.isCopyOPFrom == 'PW'">From Previous WO of Same Assembly</label>
+                  </b>
+                </h5>
+                <div layout="row" ng-if="(!vm.addWorkorderModel.isCopyOPFrom) || (vm.autoCompleteWO || vm.autoCompleteMasterTemplate || vm.autoCompletePrevWO)">
+                  <div layout="column" flex="50">
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFrom)">
+                      <span><b>{{vm.ADD_WORKORDER_NOTES}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFrom) && (vm.autoCompleteWO && vm.addWorkorderModel.isNewRevision)">
+                      <span><b>{{vm.COPY_DO_DONTS_MASTER}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="!(vm.addWorkorderModel.isCopyOPFrom)">
+                      <span><b>{{vm.ALLOW_TO_ADD_AS_REQUIRE}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFrom)">
+                      <span><b>{{vm.COPY_ALL_DOCUMENT_FROM_PART}}  </b></span>
+                    </div>
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFrom)">
+                      <span><b>{{vm.copy_All_Doc_From}} {{vm.allLabelConstant.Operation.PageName}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-right-wo-block" ng-if="vm.addWorkorderModel.isCopyOPFrom && !(vm.addWorkorderModel.isCopyOPFrom && (vm.autoCompleteWO || vm.autoCompleteMasterTemplate))">
+                      <span><b>{{vm.copy_All_Doc_From}} {{vm.allLabelConstant.Workorder.PageName}}</b></span>
+                    </div>
+                  </div>
+                  <div layout="column" flex="50">
+                    <!--<div class="cm-wo-block cm-red-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFrom) && (vm.autoCompleteWO && vm.addWorkorderModel.isNewRevision)">
+                      <span><b>{{vm.NOT_COPY_ALL_DOCUMENT_WITH_WORKORDER}}</b></span>
+                    </div>-->
+                    <div class="cm-wo-block cm-red-wo-block" ng-if="(vm.addWorkorderModel.isCopyOPFrom)">
+                      <span><b>{{vm.not_copy_restrict_part}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-red-wo-block" ng-if="!(vm.addWorkorderModel.isCopyOPFrom)">
+                      <span><b>{{vm.not_copy_any_doc_from}} {{vm.allLabelConstant.Assembly.PageName}} based on above selected</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-red-wo-block" ng-if="!(vm.addWorkorderModel.isCopyOPFrom)">
+                      <span><b>{{vm.not_copy_any_doc_from}} {{vm.allLabelConstant.Operation.PageName}}</b></span>
+                    </div>
+                    <div class="cm-wo-block cm-red-wo-block" ng-if="!vm.addWorkorderModel.isCopyOPFrom || (vm.addWorkorderModel.isCopyOPFrom && (vm.autoCompleteWO || vm.autoCompleteMasterTemplate))">
+                      <span><b>{{vm.NOT_COPY_DOCUMENT_FROM_WORKORDER}} </b></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End: Common Section-->
+            <!--</tbody>-->
+            <!--</table>-->
+          </div>
+        </div>
+        <!-- End: Row 3 : Common Section to select Option Copy Operations from-->
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.save($event)"
+                 ng-class="{'md-formdirty': vm.addWorkorderForm.$dirty}"
+                 ng-disabled="vm.saveBtnDisableFlag">Save</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

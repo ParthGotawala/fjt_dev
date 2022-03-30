@@ -1,0 +1,384 @@
+<md-dialog aria-label="Employee" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.checkOutForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{vm.data.title}}: {{vm.data.opData.opName}}<span class="cursor-pointer" ng-if="vm.readyStockData.currentIsLoopOperation"><md-icon md-font-icon="icon-rotate-3d"></md-icon><md-tooltip>Loop Operation</md-tooltip></span></h2>
+        <span flex></span>
+        <div layout="row" layout-align="center center">
+          <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        </div>
+        <div class="timer-div">
+          <timer-clock></timer-clock>
+        </div>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll">
+      <!-- Check-out (full)/Production stock (Interim)  -->
+      <md-content class="md-padding">
+        <div class="cm-section-main border-0" flex="100">
+          <div class="cm-section-inner">
+            <table class="cm-table-input-main">
+              <tbody>
+                <tr ng-if="vm.readyStockData.currentIsLoopOperation">
+                  <td colspan="8" class="padding-top-15">
+                    <span flex="100"><b>{{vm.LOOP_OPERATION_PASS_QTY_INFORMATION.message}}</b></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2" ng-if="vm.data.opData.qtyControl && !vm.data.woOPCurrentHistory.isSetup">
+                    <md-input-container class="md-block" flex="100">
+                      <div class="" layout-align="end center" layout-wrap flex="100" layout="row">
+                        <md-radio-group class="margin-0" layout="row" flex="100" layout-align="start start" layout-wrap
+                                        name="isInterimCheckout" ng-model="vm.data.isInterimCheckout">
+                          <md-radio-button ng-repeat="item in vm.RadioGroup.checkOutType.array"
+                                           name="{{item.Value}}" ng-value="{{item.Value}}"
+                                           ng-disabled="vm.data.opData.isStopOperation || vm.data.opData.isStopWorkorder">{{item.Key}}</md-radio-button>
+                        </md-radio-group>
+                      </div>
+                    </md-input-container>
+                    <span flex="100" class="font-size-10" ng-if="vm.data.opData.isTeamOperation && !vm.data.isSingleEmployee">
+                      <b class="cm-checkout-switch-label margin-left-3">{{vm.data.isInterimCheckout ? vm.interimCheckoutForTeamNote : vm.midShiftCheckoutForTeamNote }}</b>
+                    </span>
+                    <span flex="100" class="font-size-10" ng-if="!vm.data.opData.isTeamOperation || (vm.data.opData.isTeamOperation && vm.data.isSingleEmployee)">
+                      <b class="cm-checkout-switch-label margin-left-3">{{vm.data.isInterimCheckout ? vm.interimCheckoutForEmpNote : vm.midShiftCheckoutForEmpNote}}</b>
+                    </span>
+                  </td>
+                  <th></th>
+                  <td ng-if="vm.data.opData.qtyControl && !vm.data.woOPCurrentHistory.isSetup" class="pr-20">
+                    <md-input-container class="md-block" flex="100">
+                      <md-checkbox ng-model="vm.data.isFirstArticle" name="isFirstArticle" class="margin-0"
+                                   ng-disabled="vm.data.isViewHistory">
+                        1st Article
+                      </md-checkbox>
+                    </md-input-container>
+                  </td>
+                  <th ng-if="vm.data.opData.qtyControl && !vm.data.woOPCurrentHistory.isSetup">
+                    <p class="label-container">In-Process Setup Time</p>
+                  </th>
+                  <td ng-if="vm.data.opData.qtyControl && !vm.data.woOPCurrentHistory.isSetup">
+                    <md-input-container md-no-float ng-if="vm.data.opData.qtyControl && !vm.data.woOPCurrentHistory.isSetup">
+                      <input type="text" name="checkoutSetupTime" ng-model="vm.data.checkoutSetupTime" placeholder="HH:mm"
+                             ng-pattern="vm.OperationTimePattern" mask="{{vm.OperationTimeMask}}" validate="false">
+                      <div ng-messages="vm.checkOutForm.checkoutSetupTime.$error" role="alert">
+                        <div ng-message="pattern">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th ng-if="vm.data.opData.qtyControl && !vm.data.woOPCurrentHistory.isSetup">
+                    <p class="label-container">Total Qty<span>&nbsp;*</span></p>
+                  </th>
+                  <td ng-if="vm.data.opData.qtyControl && !vm.data.woOPCurrentHistory.isSetup">
+                    <md-input-container ng-if="vm.data.opData.qtyControl && !vm.data.woOPCurrentHistory.isSetup">
+                      <input type="number" name="totalQty" ng-model="vm.data.totalQty" min="{{vm.data.isInterimCheckout ? 1 : 0}}"
+                             max="{{vm.readyStockData.totalValidQty}}"
+                             ng-disabled="vm.isOperationTrackBySerialNo || vm.isTrackBySerialNo" placeholder="Total Qty" required md-autofocus
+                             onkeypress="return OnlyNumeric(event)">
+                      <span flex="100" class="font-size-10">
+                        <!--<b ng-if="!vm.data.opData.isRework">{{vm.travelerCommonLabels.TotalQty}}</b>
+                        <b ng-if="vm.data.opData.isRework">{{vm.travelerCommonLabels.ReworkTotalQty}}</b>-->
+                        <b>{{vm.totalQtySumNote}}</b>
+                      </span>
+                      <div ng-messages="vm.checkOutForm.totalQty.$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="invalidtotalQty">
+                          <span>{{vm.InTotalValidQtyMessage}}</span>
+                        </div>
+                        <div ng-message="min">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                        </div>
+                        <div ng-message="max">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.NOT_MORE_THAN_ISSUEQTY}}</span>
+                        </div>
+                        <div ng-message="number">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>                
+              </tbody>
+            </table>
+            <table class="cm-table-input-main cm-rs-table">
+              <tbody>                
+                <tr ng-if="vm.data.opData.qtyControl && !vm.data.woOPCurrentHistory.isSetup">
+                  <th>
+                    <p class="label-container">Passed Qty<span>&nbsp;</span></p>
+                  </th>
+                  <td class="width-50-1280">
+                    <md-input-container class="margin-0 cm-stop-activity-cell">
+                      <input type="number" name="passQty" ng-model="vm.data.passQty" min="0" max="{{vm.data.totalQty}}"
+                             ng-disabled="vm.isOperationTrackBySerialNo || vm.isTrackBySerialNo" placeholder="Passed Qty"
+                             onkeypress="return OnlyNumeric(event)">
+                      <div ng-messages="vm.checkOutForm.passQty.$error"
+                           role="alert">
+                        <div ng-message="min">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                        </div>
+                        <div ng-message="max">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.NOT_MORE_THAN_TOTALQTY}}</span>
+                        </div>
+                        <div ng-message="number">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th ng-if="!vm.data.opData.isRework && !vm.data.opData.isMoveToStock">
+                    <p class="label-container">Defect Observed Qty</p>
+                  </th>
+                  <td class="width-50-1280" ng-if="!vm.data.opData.isRework">
+                    <md-input-container class="margin-0 cm-stop-activity-cell"
+                                        ng-if="!vm.data.opData.isRework && !vm.data.opData.isMoveToStock">
+                      <input type="number" name="observedQty" ng-model="vm.data.observedQty" min="0" max="{{vm.data.totalQty}}"
+                             ng-disabled="vm.isOperationTrackBySerialNo || vm.isTrackBySerialNo" placeholder="Defect Observed Qty" onkeypress="return OnlyNumeric(event)">
+                      <div ng-messages="vm.checkOutForm.observedQty.$error"
+                           role="alert">
+                        <div ng-message="min">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                        </div>
+                        <div ng-message="max">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.NOT_MORE_THAN_TOTALQTY}}</span>
+                        </div>
+                        <div ng-message="number">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th ng-if="vm.data.opData.qtyControl && !vm.data.opData.isRework && !vm.data.woOPCurrentHistory.isSetup
+                      && !vm.data.opData.isMoveToStock">
+                    <p class="label-container">Rework Required Qty</p>
+                  </th>
+                  <td class="width-50-1280" ng-if="vm.data.opData.qtyControl && !vm.data.opData.isRework && !vm.data.woOPCurrentHistory.isSetup && !vm.data.opData.isMoveToStock">
+                    <md-input-container class="margin-0 cm-stop-activity-cell" ng-if="vm.data.opData.qtyControl && !vm.data.opData.isRework && !vm.data.woOPCurrentHistory.isSetup">
+                      <input type="number" name="reworkQty" ng-model="vm.data.reworkQty" min="0" max="{{vm.data.totalQty}}"
+                             ng-disabled="vm.isOperationTrackBySerialNo || vm.isTrackBySerialNo" placeholder="Rework Required Qty"
+                             onkeypress="return OnlyNumeric(event)">
+                      <div ng-messages="vm.checkOutForm.reworkQty.$error"
+                           role="alert">
+                        <div ng-message="min">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                        </div>
+                        <div ng-message="max">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.NOT_MORE_THAN_TOTALQTY}}</span>
+                        </div>
+                        <div ng-message="number">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th ng-if="!vm.isParallelOperation">
+                    <p class="label-container">Scrapped Qty</p>
+                  </th>
+                  <td class="width-50-1280" ng-if="!vm.isParallelOperation">
+                    <!-- Incase of parallel inspection operation they will find issue but while rework operation they will add scrap quantity -->
+                    <md-input-container class="margin-0 cm-stop-activity-cell">
+                      <input type="number" name="scrapQty" ng-model="vm.data.scrapQty" min="0" max="{{vm.data.totalQty}}"
+                             ng-disabled="vm.isOperationTrackBySerialNo || vm.isTrackBySerialNo" placeholder="Scrapped Qty"
+                             onkeypress="return OnlyNumeric(event)">
+                      <div ng-messages="vm.checkOutForm.scrapQty.$error"
+                           role="alert">
+                        <div ng-message="min">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                        </div>
+                        <div ng-message="max">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.NOT_MORE_THAN_TOTALQTY}}</span>
+                        </div>
+                        <div ng-message="number">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th ng-if="vm.data.opData.isAllowMissingPartQty && vm.data.opData.qtyControl && !vm.data.inspectionProcess
+                      && !vm.data.opData.isRework && !vm.data.woOPCurrentHistory.isSetup && !vm.data.opData.isMoveToStock">
+                    <p class="label-container">{{vm.LabelConstant.Traveler.BoardWithMissingPartsQty}}</p>
+                  </th>
+                  <td ng-if="vm.data.opData.isAllowMissingPartQty && vm.data.opData.qtyControl && !vm.data.inspectionProcess
+                      && !vm.data.opData.isRework && !vm.data.woOPCurrentHistory.isSetup && !vm.data.opData.isMoveToStock"
+                      class="width-50-1280">
+                    <md-input-container class="margin-0 cm-stop-activity-cell">
+                      <input type="number" name="boardWithMissingPartsQty" ng-model="vm.data.boardWithMissingPartsQty"
+                             min="0" max="{{vm.data.totalQty}}"
+                             ng-disabled="vm.isOperationTrackBySerialNo || vm.isTrackBySerialNo"
+                             placeholder="{{vm.LabelConstant.Traveler.BoardWithMissingPartsQty}}"
+                             onkeypress="return OnlyNumeric(event)">
+                      <div ng-messages="vm.checkOutForm.boardWithMissingPartsQty.$error"
+                           role="alert">
+                        <div ng-message="min">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                        </div>
+                        <div ng-message="max">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.NOT_MORE_THAN_TOTALQTY}}</span>
+                        </div>
+                        <div ng-message="number">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th ng-if="vm.data.opData.isAllowBypassQty && vm.data.opData.qtyControl && !vm.data.opData.isRework
+                      && !vm.data.woOPCurrentHistory.isSetup && !vm.data.opData.isMoveToStock">
+                    <p class="label-container">{{vm.LabelConstant.Traveler.BypassedQty}}</p>
+                  </th>
+                  <td  ng-if="vm.data.opData.isAllowBypassQty && vm.data.opData.qtyControl && !vm.data.opData.isRework
+                      && !vm.data.woOPCurrentHistory.isSetup && !vm.data.opData.isMoveToStock"
+                      class="width-50-1280">
+                    <md-input-container class="margin-0 cm-stop-activity-cell">
+                      <input type="number" name="bypassQty" ng-model="vm.data.bypassQty"
+                             min="0" max="{{vm.data.totalQty}}"
+                             ng-disabled="vm.isOperationTrackBySerialNo || vm.isTrackBySerialNo"
+                             placeholder="{{vm.LabelConstant.Traveler.BypassedQty}}"
+                             onkeypress="return OnlyNumeric(event)">
+                      <div ng-messages="vm.checkOutForm.bypassQty.$error"
+                           role="alert">
+                        <div ng-message="min">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                        </div>
+                        <div ng-message="max">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.NOT_MORE_THAN_TOTALQTY}}</span>
+                        </div>
+                        <div ng-message="number">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th ng-if="(vm.isOperationTrackBySerialNo || vm.isTrackBySerialNo)">
+                    <p class="label-container">Reprocess Required Qty</p>
+                  </th>
+                  <td class="width-50-1280" ng-if="(vm.isOperationTrackBySerialNo || vm.isTrackBySerialNo)">
+                    <!-- Incase of parallel inspection operation they will find issue but while rework operation they will add scrap quantity -->
+                    <md-input-container class="margin-0 cm-stop-activity-cell">
+                      <input type="number" name="reprocessQty" ng-model="vm.data.reprocessQty" min="0"
+                             ng-disabled="vm.isOperationTrackBySerialNo || vm.isTrackBySerialNo" placeholder="Scrapped Qty"
+                             onkeypress="return OnlyNumeric(event)">
+                      <div ng-messages="vm.checkOutForm.reprocessQty.$error"
+                           role="alert">
+                        <div ng-message="min">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                        </div>
+                        <div ng-message="max">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.NOT_MORE_THAN_TOTALQTY}}</span>
+                        </div>
+                        <div ng-message="number">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div flex="100" class="input-wrapper">
+              <span>Remark</span>
+              <span class="margin-bottom-10" ng-if="vm.checkOutForm.remark.$error.taMaxText" style="color:red; font-size:12px">
+                <span>{{vm.getMaxLengthValidation(vm.taToolbar.MAX_LENGTH, vm.checkOutForm.remark.$viewValue.length)}}</span>
+              </span>
+              <div layout="row">
+                <text-angular flex="100" ta-toolbar="vm.taToolbar.INLINE" ng-model="vm.data.remark" ta-disabled="vm.data.isViewHistory" cg-busy-loading="vm.cgBusyLoading"
+                              ng-class="{'text-angular-custom-border':vm.checkOutForm.remark.$error.taMaxText}"
+                              name="remark" class="textareafield" ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"></text-angular>
+              </div>
+            </div>
+          </div>
+        </div>
+      </md-content>
+      <!-- Production stock details in list -->
+      <md-content class="md-padding mh-5" ng-if="vm.data.opData.qtyControl && !vm.data.woOPCurrentHistory.isSetup">
+        <div layout="row" flex="100" layout-align="space-between center" ng-if="vm.ProductionList.length > 0">
+          <div class="cm-section-main mb-5" flex="100">
+          <div class="cm-section-header">
+            <h2>Production Details</h2>
+            </div>
+            <div class="cm-section-inner pt-0">
+              <div layout="row" layout-align="end end" flex-xs="50">
+                <md-input-container class="md-block search-header margin-0 error-none pb-4">
+                  <input type="text" ng-model="vm.query.search" ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Search">
+                </md-input-container>
+                <md-button class="md-icon-button toolbar-button " aria-label="Search" ng-if="!vm.query.search">
+                  <md-icon md-font-icon="icon-magnify" role="img" class="ml-0 mt-10"></md-icon>
+                </md-button>
+                <md-button class="md-icon-button toolbar-button " aria-label="Clear" ng-if="vm.query.search" ng-click="vm.query.search = ''">
+                  <md-icon md-font-icon="icon-close" role="img" class="ml-0 mt-10"></md-icon>
+                </md-button>
+              </div>
+            
+            <md-table-container flex="100" ng-if="vm.ProductionList.length > 0" ng-hide="(vm.ProductionList  | filter: vm.query.search).length == 0 && vm.query.search">
+              <table md-table class="md-data-table table-row-select cm-check-out-op border-color-gray" ng-model="vm.selectedItems">
+                <thead md-head md-order="vm.query.order">
+                  <tr md-row>
+                    <th md-column>#</th>
+                    <th md-column md-order-by="employee.name" class="width-200">Name</th>
+                    <th md-column md-order-by="createdAt" class="width-130">Date</th>
+                    <th md-column md-numeric md-order-by="totalQty" class="cm-checkout-st">Total Qty</th>
+                    <th md-column md-numeric md-order-by="passQty" class="cm-checkout-st">Passed Qty</th>
+                    <th md-column md-numeric md-order-by="reprocessQty" class="cm-checkout-st">Reprocess Required Qty</th>
+                    <th md-column md-numeric md-order-by="observedQty" class="cm-checkout-st">Defect Observed Qty</th>
+                    <th md-column md-numeric md-order-by="reworkQty" class="cm-checkout-st">Rework Required Qty</th>
+                    <th md-column md-numeric md-order-by="scrapQty" class="cm-checkout-st">Scrapped Qty</th>
+                    <th md-column md-numeric md-order-by="boardWithMissingPartsQty" class="cm-checkout-st">{{vm.LabelConstant.Traveler.BoardWithMissingPartsQty}}</th>
+                    <th md-column md-numeric md-order-by="bypassQty" class="cm-checkout-st">{{vm.LabelConstant.Traveler.BypassedQty}}</th>
+                    <th md-column md-order-by="isFirstArticle" class="cm-checkout-st">1st Article</th>
+                  </tr>
+                </thead>
+                <tbody md-body>
+                  <tr md-row ng-repeat="data in vm.ProductionList
+                                                                | filter: vm.query.search
+                                                                | orderBy: vm.query.order
+                                                                | limitTo: vm.query.limit : (vm.query.page -1) * vm.query.limit">
+                    <td md-cell>{{$index+1}}</td>
+                    <td md-cell class="width-200">{{data.employee.name}}</td>
+                    <td md-cell class="width-130">{{data.createdAt}}</td>
+                    <td md-cell class="cm-checkout-st">{{data.totalQty ? data.totalQty : '-' | numberWithoutDecimal}}</td>
+                    <td md-cell class="cm-checkout-st">{{data.passQty ? data.passQty : '-' | numberWithoutDecimal}}</td>
+                    <td md-cell class="cm-checkout-st">{{data.reprocessQty ? data.reprocessQty : '-' | numberWithoutDecimal}}</td>
+                    <td md-cell class="cm-checkout-st">{{data.observedQty ? data.observedQty : '-' | numberWithoutDecimal}}</td>
+                    <td md-cell class="cm-checkout-st">{{data.reworkQty ? data.reworkQty : '-' | numberWithoutDecimal}}</td>
+                    <td md-cell class="cm-checkout-st">{{data.scrapQty ? data.scrapQty : '-' | numberWithoutDecimal}}</td>
+                    <td md-cell class="cm-checkout-st">{{data.boardWithMissingPartsQty ? data.boardWithMissingPartsQty : '-' | numberWithoutDecimal}}</td>
+                    <td md-cell class="cm-checkout-st">{{data.bypassQty ? data.bypassQty : '-' | numberWithoutDecimal}}</td>
+                    <td md-cell class="cm-checkout-st">{{data.isFirstArticle == true ? "Yes" : "No"}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </md-table-container>
+            <md-table-pagination md-limit="vm.query.limit" md-limit-options="limitOptions" md-page="vm.query.page" md-total="{{vm.ProductionList.length}}" md-page-select md-boundary-links="false" ng-if="(vm.ProductionList | filter: vm.query.search).length != 0 && vm.query.isPagination"></md-table-pagination>
+           
+        
+            <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+                 ng-if="(vm.ProductionList  | filter: vm.query.search).length == 0 && vm.query.search">
+              <div class="emty-icon" flex="100">
+                <img ng-src="{{vm.emptySearch.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title" flex="100">{{vm.emptySearch.MESSAGE}}</p>
+            </div>
+            <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.ProductionList.length == 0">
+              <div class="emty-icon" flex="100">
+                <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+              </div>
+              <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+            </div>
+              </div>
+          </div>
+            </div>
+</md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.CheckOut(true)"
+                 ng-class="{'md-formdirty': vm.checkOutForm.$dirty}"
+                 ng-disabled="vm.saveBtnDisableFlag">{{vm.data.isInterimCheckout ? "Save Details": "Stop Activity"}}</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

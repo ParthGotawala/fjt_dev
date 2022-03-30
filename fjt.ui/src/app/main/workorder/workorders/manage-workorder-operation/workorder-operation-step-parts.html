@@ -1,0 +1,330 @@
+<form name="vm.woOpPartsForm" novalidate class="cm-custom-label-common" autocomplete="off">
+  <div layout-wrap ng-if="vm.isContainOpMasterParts" class="layout-wrap layout-sm-column layout-row flex-100">
+    <div class="cm-wo-supplies-list layout-wrap layout-row flex-xs-100 flex-sm-100 flex">
+      <div class="mobilesearch employee-workstaion-search-box userpermissionhead layout-align-space-between-center layout-row flex-xs-100 flex-100">
+        <md-input-container class="md-block error-none no-label md-input-has-placeholder md-default-theme flex-xs-75 flex" md-no-float
+                            ng-class="{'clickedsearch':isButtonPartClicked}">
+          <!--<md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75"
+                        ng-class="{'clickedsearch':isButtonPartClicked}">-->
+          <input id="SearchNoAddedListPart" type="text"
+                 placeholder="Type here to search supplies, materials & tools"
+                 ng-model="vm.SearchNoAddedListPart"
+                 ng-change="vm.searchPartFromNoAddedList()"
+                 ng-model-options="{debounce: vm.debounceTime }" max="255" ignore-dirty>
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-disabled="!vm.SearchNoAddedListPart"
+                   ng-click="vm.SearchNoAddedListPart='';vm.searchPartFromNoAddedList()">
+          Clear
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.refreshDataPart()">
+          Refresh
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.addDataPart()"
+                   ng-disabled="vm.isWoInSpecificStatusNotAllowedToChange">
+          Add New
+        </md-button>
+        <div>
+          <md-menu>
+            <md-button class="margin-0 width-25 md-primary smt-drag-drop-action-btn" ng-click="$mdOpenMenu()" md-menu-origin
+                       md-menu-align-target aria-label="Options">
+              <md-icon md-font-icon="icon-dots-vertical" class="icon"></md-icon>
+            </md-button>
+            <md-menu-content width="3">
+              <md-menu-item>
+                <md-button ng-click="vm.goToMountingGroupData()">
+                  <md-icon md-font-icon="icon-eye" class="icon"></md-icon>
+                  Mounting Group
+                </md-button>
+              </md-menu-item>
+            </md-menu-content>
+          </md-menu>
+        </div>
+      </div>
+      <md-list class="permissiontab custom-scroll dragbox flex-100"
+               ng-class="{'layout-column': vm.partNoAddedList.length == 0}">
+        <md-list-item id="partNoAddedList" class="padding-0 items-container drag-container-item layout-row
+                              flex-100 layout-wrap" ui-sortable="sortableOptionsPart" ng-model="vm.partNoAddedList"
+                      haveadded="false">
+          <div class="md-1-line margin-0 dragsortable layout-row layout-align-start-center flex-100"
+               ng-repeat="part in vm.partNoAddedList"
+               ui-sortable-selectable ng-model="part"
+               ng-class="{'cursor-not-allow': vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange}">
+            <div class="avatar-wrapper">
+              <img class="md-avatar avatar margin-top-0 margin-bottom-0" ng-src="{{::part.imageURL}}" />
+            </div>
+            <div class="md-list-item-text flex layout-align-space-between-center">
+              <div class="inline-block layout-row">
+                <h3 class="name margin-0 md-primary-fg flex"
+                    ng-style="{'background-color': part.isObsoletePart ? vm.obsoletePartErrorColor : '' }"
+                    ng-class="{'text-line-through': part.restrictUSEwithpermission || part.restrictUsePermanently
+                                            || part.restrictPackagingUseWithpermission || part.restrictPackagingUsePermanently
+                                            || part.restrictUseInBOMStep ,
+                                            'text-double-line-through': part.restrictUseInBOMWithPermissionStep}">
+                  <common-pid-code-label-link component-id="part.id" label="vm.LabelConstant.MFG.PID"
+                                              value="part.PIDCode" is-copy="true" is-mfg="true" mfg-label="vm.LabelConstant.MFG.MFGPN"
+                                              mfg-value="part.mfgPN" rohs-icon="part.displayRohsIcon" rohs-status="part.rohsStatus"
+                                              is-formated="true" is-copy-ahead-label="true"
+                                              is-search-digi-key="true" is-search-findchip="true"
+                                              is-custom-part="part.isCustom"></common-pid-code-label-link>
+                  <md-tooltip ng-if="part.isObsoletePart">Obsolete</md-tooltip>
+                </h3>
+              </div>
+              <div>
+                <span>
+                  {{::part.functionalCategoryName}}
+                  <md-tooltip ng-if="part.functionalCategoryName">Functional Type</md-tooltip>
+                </span>&nbsp;|&nbsp;
+                <span>
+                  {{::part.mountingTypeName}}
+                  <md-tooltip ng-if="part.mountingTypeName">
+                    Mounting Type
+                  </md-tooltip>
+                </span>
+              </div>
+              <div class="cm-document-name flex-100">
+                {{::part.mfgPNDescription}}
+                <md-tooltip>{{::part.mfgPNDescription}}</md-tooltip>
+              </div>
+              <div class="cm-pv-6">
+                <operation-flux-type-icon flux-type="part.fluxTypeList"></operation-flux-type-icon>
+              </div>
+              <span style="display:none;">{{part.cleaningTypeText}}</span>
+            </div>
+          </div>
+          <div flex="100" class="md-1-line margin-0 cursor-not-allow flex-100"
+               ng-if="vm.partNoAddedList.length == 0" ui-sortable-selectable>
+            <div class="empty-state text-center">
+              <div class="emty-icon">
+                <img ng-src="{{::vm.EmptyMesssagePart.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="!vm.SearchNoAddedListPart && vm.partNoAddedList.length == 0">
+                {{::vm.EmptyMesssagePart.ALL_ASSIGNED}}
+              </p>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="vm.SearchNoAddedListPart && vm.partNoAddedList.length == 0">
+                {{::vm.EmptyMesssagePart.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+      <div class="userpermissionhead flex-100 flex-xs-100 layout-row  layout-align-space-between-center">
+        <h4 class="mv-10"><b>Loaded {{vm.partNoAddedList.length}} of Total {{vm.partNoAddedListTotalCount}}</b></h4>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.getMoreSupplyMaterialToolData()"
+                   ng-if="vm.isLoadMore">
+          Show More
+        </md-button>
+      </div>
+    </div>
+    <div class="cm-data-fields-buttons flex-xs-100 layout-row layout-align-space-between-center">
+      <div class="flex-100 layout-xs-row layout-sm-row layout-column layout-align-space-between-center">
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="!selectAnyAdded || vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange"
+                   ng-click="vm.ModifyPageAddedPart('Remove',$event,null,null)">
+          <i class="icon-chevron-left icondrag"></i>
+          <md-tooltip>Remove</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="vm.partAddedList.length == 0 || vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange"
+                   ng-click="vm.ModifyPageAddedPart('RemoveAll',$event,null,null)">
+          <i class="icon-chevron-double-left icondrag"></i>
+          <md-tooltip>Remove All</md-tooltip>
+        </md-button>
+        <!--<md-button class="md-fab md-raised md-mini"
+                   ng-disabled="vm.partNoAddedList.length == 0 || vm.isWOUnderTermination"
+                   ng-click="vm.ModifyPageAddedPart('AddAll',$event,null,null)">
+            <i class="icon-chevron-double-right icondrag"></i>
+            <md-tooltip>Add All</md-tooltip>
+        </md-button>-->
+        <md-button class="md-fab md-raised md-mini"
+                   ng-disabled="!selectAnyNoAdded || vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange"
+                   ng-click="vm.ModifyPageAddedPart('Add',$event,null,null)">
+          <i class="icon-chevron-right icondrag"></i>
+          <md-tooltip>Add</md-tooltip>
+        </md-button>
+      </div>
+    </div>
+    <div class="flex flex-sm-100 flex-xs-100 layout-row layout-wrap">
+      <div class="mobilesearch userpermissionhead  flex-100 flex-xs-100 layout-row layout-align-space-between-end">
+        <md-input-container class="md-block error-none no-label flex flex-xs-75" md-no-float
+                            ng-class="{'clickedsearch':isButtonPartAddedClicked}">
+          <input id="SearchAddedListPart" type="text"
+                 placeholder="Type here to search added supplies, materials & tools"
+                 ng-model="vm.SearchAddedListPart"
+                 ng-change="vm.searchPartFromAddedList()"
+                 ng-model-options="{debounce: vm.debounceTime }" max="255" ignore-dirty>
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-disabled="!vm.SearchAddedListPart"
+                   ng-click="vm.SearchAddedListPart='';vm.searchPartFromAddedList()">
+          Clear
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.saveQPADetails($event)"
+                   ng-class="{'md-formdirty': vm.checkFormDirty(vm.woOpPartsForm,null)}"
+                   ng-disabled="vm.saveDisable || vm.isWoInSpecificStatusNotAllowedToChange">
+          Save QPA
+        </md-button>
+      </div>
+      <md-list class="permissiontab custom-scroll dragbox cm-wo-list-input flex-100"
+               ng-class="{'layout-column': vm.partAddedList.length == 0}">
+        <md-list-item id="partAddedList" class="padding-0 items-container drag-container-item layout-row flex-100 layout-wrap" ui-sortable="sortableOptionsPart" ng-model="vm.partAddedList"
+                      haveadded="true">
+          <div class="md-1-line margin-0 dragsortable flex-100 layout-row layout-align-start-center"
+               ng-repeat="part in vm.partAddedList"
+               ui-sortable-selectable
+               ng-model="part"
+               ng-class="{'cursor-not-allow': vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange}">
+            <div class="avatar-wrapper">
+              <img class="md-avatar avatar margin-top-0 margin-bottom-0" ng-src="{{part.imageURL}}" />
+            </div>
+            <div class="md-list-item-text flex layout-align-space-between-center">
+              <div class="layout-row layout-align-space-between">
+                <div class="layout-row layout-wrap flex-lg-75 flex-70">
+                  <div class="inline-block layout-row">
+                    <h3 class="name margin-0 md-primary-fg cm-operation-head flex"
+                        ng-style="{'background-color': part.isObsoletePart ? vm.obsoletePartErrorColor : '' }"
+                        ng-class="{'text-line-through': part.restrictUSEwithpermission || part.restrictUsePermanently
+                                            || part.restrictPackagingUseWithpermission || part.restrictPackagingUsePermanently
+                                            || part.restrictUseInBOMStep ,
+                                            'text-double-line-through': part.restrictUseInBOMWithPermissionStep}">
+                      <common-pid-code-label-link component-id="part.id" label="vm.LabelConstant.MFG.PID"
+                                                  value="part.PIDCode" is-copy="true" is-mfg="true"
+                                                  mfg-label="vm.LabelConstant.MFG.MFGPN" mfg-value="part.mfgPN"
+                                                  rohs-icon="part.displayRohsIcon" rohs-status="part.rohsStatus" is-formated="true"
+                                                  is-copy-ahead-label="true"
+                                                  is-search-digi-key="true" is-search-findchip="true"
+                                                  is-custom-part="part.isCustom"></common-pid-code-label-link>
+                      <md-tooltip ng-if="part.isObsoletePart">Obsolete</md-tooltip>
+                    </h3>
+                  </div>
+                  <div class="flex-100">
+                    <span>
+                      {{part.functionalCategoryName}}
+                      <md-tooltip ng-if="part.functionalCategoryName">Functional Type</md-tooltip>
+                    </span>&nbsp;|&nbsp;
+                    <span>
+                      {{part.mountingTypeName}}
+                      <md-tooltip ng-if="part.mountingTypeName">
+                        Mounting Type
+                      </md-tooltip>
+                    </span>
+                  </div>
+                  <div class="cm-document-name flex-100">
+                    {{part.mfgPNDescription}}
+                    <md-tooltip>{{part.mfgPNDescription}}</md-tooltip>
+                  </div>
+                  <div class="cm-pv-6">
+                    <operation-flux-type-icon flux-type="part.fluxTypeList"></operation-flux-type-icon>
+                  </div>
+                  <span style="display:none;">{{part.cleaningTypeText}}</span>
+                </div>
+                <!--<ng-form name="vm.qpaForm" flex-lg="25" flex="35" layout="row">-->
+                <div class="cm-md-list-input layout-column flex-lg-25 flex-30">
+                  <md-input-container md-no-float class="cm-supp-custom-qpa flex-lg-100">
+                    <input type="number" name="estimated_qpa_{{part.id}}" ng-model="part.qpa"
+                           onkeypress="return OnlyNumbersWithFirstDot(event, this)" placeholder="{{part.isMountingGroupTools ? 'Estimated Quantity' : 'Estimated QPA'}}"
+                           ng-maxlength="16" min="{{(part.isMountingGroupTools || !part.isQpaAllowedInDeciaml) ? 1 : $root.unitInputStep}}"
+                           ng-attr-input-number-decimal-place="{{part.isQpaAllowedInDeciaml === true}}"
+                           ng-attr-step="{{part.isQpaAllowedInDeciaml === true ? $root.unitInputStep : 1}}"
+                           ng-disabled="vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange">
+                    <div ng-messages="vm.woOpPartsForm['estimated_qpa_'+part.id].$error" role="alert">
+                      <div ng-message="maxlength">
+                        <span>{{vm.getMaxLengthValidation(16, vm.woOpPartsForm['estimated_qpa_'+part.id].$viewValue.length)}}</span>
+                      </div>
+                      <div ng-message="min || number || step">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="max">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                  <md-input-container md-no-float class="cm-supp-custom-qpa flex-lg-100">
+                    <input type="number" name="actual_qpa_{{part.id}}" ng-model="part.actualQpa"
+                           onkeypress="return OnlyNumbersWithFirstDot(event, this)" placeholder="{{part.isMountingGroupTools ? 'Actual Quantity' : 'Actual QPA'}}"
+                           ng-maxlength="16" min="{{(part.isMountingGroupTools || !part.isQpaAllowedInDeciaml) ? 1 : $root.unitInputStep}}"
+                           ng-attr-input-number-decimal-place="{{part.isQpaAllowedInDeciaml === true}}"
+                           ng-attr-step="{{part.isQpaAllowedInDeciaml === true ? $root.unitInputStep : 1}}"
+                           ng-disabled="vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange">
+                    <div ng-messages="vm.woOpPartsForm['actual_qpa_'+part.id].$error" role="alert">
+                      <div ng-message="maxlength">
+                        <span>{{vm.getMaxLengthValidation(16, vm.woOpPartsForm['actual_qpa_'+part.id].$viewValue.length)}}</span>
+                      </div>
+                      <div ng-message="min || number || step">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="max">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                  <md-input-container class="autocompletecustom cm-custom-autocomplete cm-supp-custom flex-lg-100">
+                    <custom-auto-complete datalist="part.uomlist"
+                                          column-name="part.autoCompleteuom.columnName"
+                                          key-column-name="part.autoCompleteuom.keyColumnName"
+                                          input-name="part.autoCompleteuom.inputName"
+                                          placeholder-name="part.autoCompleteuom.placeholderName"
+                                          key-column-id="part.autoCompleteuom.keyColumnId"
+                                          is-addnew="part.autoCompleteuom.isAddnew"
+                                          callback-fn="part.autoCompleteuom.callbackFn"
+                                          is-required="part.qpa != null || part.actualQpa"
+                                          on-select-callback-fn="part.autoCompleteuom.onSelectCallbackFn"
+                                          callback-fn-param="part.autoCompleteuom.callbackFnParam"
+                                          is-disabled="vm.isWOUnderTermination">
+                    </custom-auto-complete>
+                  </md-input-container>
+                </div>
+                <!--</ng-form>-->
+              </div>
+              <!--<div class="cm-document-name">
+                  {{part.mfgPNDescription}}
+                  <md-tooltip>{{part.mfgPNDescription}}</md-tooltip>
+              </div>-->
+            </div>
+          </div>
+          <div class="flex-100 md-1-line margin-0 cursor-not-allow" ng-if="vm.partAddedList.length == 0"
+               ui-sortable-selectable>
+            <div class="empty-state text-center">
+              <div class="emty-icon">
+                <img ng-src="{{vm.EmptyMesssagePart.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="!vm.SearchAddedListPart && vm.partAddedList.length == 0">
+                {{vm.EmptyMesssagePart.MESSAGE}}
+              </p>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="vm.SearchAddedListPart && vm.partAddedList.length == 0">
+                {{vm.EmptyMesssagePart.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+  </div>
+  <div class="md-1-line margin-0 cursor-not-allow flex-100" ng-if="!vm.isContainOpMasterParts">
+    <div class="empty-state text-center full-height">
+      <div class="emty-icon">
+        <img ng-src="{{vm.EmptyMesssageForOpDataFields.IMAGEURL}}" />
+      </div>
+      <p class="empty-state-title font-size-2 useadded-emptytxt">
+        {{vm.EmptyMesssageForOpDataFields.MESSAGE}}
+      </p>
+      <p class="flex-100">
+        {{vm.EmptyMesssageForOpDataFields.ADDNEWMESSAGE}}
+      </p>
+      <p class="flex-100">
+        <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.addDataPart()"
+                   ng-disabled="vm.isWoInSpecificStatusNotAllowedToChange">
+          <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+          <md-tooltip md-direction="top">Add New</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.refreshDataPart()">
+          <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-refresh"></md-icon>
+          <md-tooltip md-direction="top">Refresh</md-tooltip>
+        </md-button>
+      </p>
+    </div>
+  </div>
+</form>

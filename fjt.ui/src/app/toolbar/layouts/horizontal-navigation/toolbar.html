@@ -1,0 +1,748 @@
+<div class="top-row" layout="row" layout-align="space-between center" cg-busy="{promise:vm.cgBusyLoading}">
+  <div layout="row" layout-align="start center">
+    <div class="navigation-toggle" hide-gt-sm>
+      <md-button class="md-icon-button" ng-click="vm.toggleHorizontalMobileMenu()"
+                 aria-label="Toggle Mobile Navigation">
+        <md-icon md-font-icon="icon-menu"></md-icon>
+      </md-button>
+    </div>
+    <!--<div class="logo" flex layout="row" layout-align="start center" ui-sref="app.dashboard" href="#!/dashboard">
+        <img class="logo-mini" src="/image/favlogo.png">
+        <img class="logo-max" src="/image/logo.png">
+    </div>-->
+    <div class="logo" layout="row" layout-align="start center" ui-sref="app.dashboard" href="#!/dashboard">
+      <!--<span class="logo-image">Q</span>-->
+      <span ng-class="{'demo-logo': $root.isDemoApplication}" class="logo-image"><span>Q</span><span class="demo-text" ng-if="$root.isDemoApplication">DEMO</span></span>
+      <!--<span class="logo-text">Q2C</span>-->
+    </div>
+    <ms-search-bar on-search="vm.search(query)" on-result-click="vm.searchResultClick(item)"
+                   debounce="vm.debounceConstant.menuSearch" class="border-line-saperator ph-5"></ms-search-bar>
+    <ms-shortcuts ng-if="vm.ShortCutMenuVisible"></ms-shortcuts>
+  </div>
+  <div layout="row" layout-align="start center">
+    <md-progress-circular id="toolbar-progress" ng-if="$root.loadingProgress" class="md-accent"
+                          md-mode="indeterminate" md-diameter="32">
+    </md-progress-circular>
+    <div layout="row">
+      <!-- [S] - Enterprise Search-->
+      <div layout layout-align="start-center" class="border-line-saperator">
+        <md-menu id="entmenu" md-position-mode="right bottom">
+          <md-button class="ms-search-bar-expander md-icon-button pr-20" ng-click="$mdMenu.open();vm.enterpriseSearch()"
+                     aria-label="User settings" md-prevent-menu-close="md-prevent-menu-close"
+                     translate-attr-aria-label="TOOLBAR.USER_SETTINGS">
+            <md-icon md-font-icon="icons-enterprise-search" class="icon s24"></md-icon>
+            <md-tooltip>Enterprise Search</md-tooltip>
+          </md-button>
+          <div class="bg-white pv-10 min-width-600">
+            <md-menu-item>
+              <div class="ph-0 cm-custom-label-common border-0">
+                <div layout layout-align="start center" class="pl-10">
+                  <div>
+                    <md-icon class="cm-padding-left-5-imp icon-question-mark-circle help-icon h-16">
+                      <md-tooltip md-direction="bottom" class="cm-tooltip-table-data tooltip-height-auto pv-3">
+                        <span ng-bind-html="vm.ENTERPRISE_ADVANCE_SEARCH_FORMULA_TOOLTIP"></span>
+                      </md-tooltip>
+                    </md-icon>
+                  </div>
+                  <div flex>
+                    <md-input-container class="width-100p" md-no-float>
+                      <input placeholder="Type and press enter" id="headerEnterpriseSearch" ng-model="vm.headerSearchEnterpriseCriteria" ng-keydown="vm.headerEnterpriseSearch($event)" />
+                    </md-input-container>
+                  </div>
+                  <div>
+                    <md-button class="md-primary md-raised" ng-click="vm.searchOnEnterprise($event)">
+                      Search
+                    </md-button>
+                  </div>
+                </div>
+              </div>
+            </md-menu-item>
+          </div>
+        </md-menu>
+      </div>
+      <div layout layout-align="start-center" class="border-line-saperator">
+        <span class="padding-5"></span>
+      </div>
+      <!-- [E] - Search Part -->
+      <div class="cm-desktop-mob search-part-header-menu-section" layout layout-align="start-center">
+        <md-menu id="searchPartMenu" md-position-mode="right bottom">
+          <md-button class="ms-search-bar-expander md-icon-button pr-20" ng-click="$mdMenu.open();vm.searchPart();"
+                     aria-label="User settings" md-prevent-menu-close="md-prevent-menu-close"
+                     translate-attr-aria-label="TOOLBAR.USER_SETTINGS">
+            <md-icon md-font-icon="icons-search-part-number" class="icon s24"></md-icon>
+            <md-tooltip>Search Part</md-tooltip>
+          </md-button>
+          <div width="3" class="search-part-header-menu">
+            <md-menu-item>
+              <div class="ph-0 cm-custom-label-common border-0">
+                <table cellspacing="0" cellpadding="0" class="width-100p">
+                  <tbody>
+                    <tr class="input-wrapper">
+                      <th></th>
+                      <td>
+                        <div layout="row" class="cm-square-icon-btn cm-btn-group pr-10">
+                          <div class="padding-top-3">
+                            <md-checkbox class="cm-assbly-tab-btn margin-right-5" id="selectAllOption" ng-model="vm.showUMIDList">
+                              Show UMID list
+                            </md-checkbox>
+                          </div>
+                          <div class="margin-left-auto-imp">
+                            <button class=" md-icon-button border-radius-4 padding-2 md-primary-bg md-mini custom-button-focus" ng-click="vm.goToPartList(vm.MFG_TYPE.MFG)">
+                              <md-icon md-font-icon="t-icons-add-mfr-pn" class="material-icons color-white"></md-icon>
+                              <md-tooltip>{{vm.MFGConstant.Manufacturer}} Parts</md-tooltip>
+                            </button>
+                            <button class="md-icon-button border-radius-4 padding-2 md-primary-bg md-mini custom-button-focus"
+                                    ng-click="vm.goToAddPart(vm.MFG_TYPE.MFG)">
+                              <md-icon md-font-icon="t-icons-add-mfr-pn add-icon" class="material-icons color-white"></md-icon>
+                              <md-tooltip>Add {{vm.MFGConstant.Manufacturer}} Part</md-tooltip>
+                            </button>
+                            <button class=" md-icon-button border-radius-4 padding-2 md-primary-bg md-mini custom-button-focus" ng-click="vm.goToPartList(vm.MFG_TYPE.DIST)">
+                              <md-icon md-font-icon="t-icons-supplier-part" class="material-icons color-white"></md-icon>
+                              <md-tooltip>{{vm.MFGConstant.Supplier}} Parts</md-tooltip>
+                            </button>
+                            <button class="md-icon-button border-radius-4 padding-2 md-primary-bg md-mini custom-button-focus"
+                                    ng-click="vm.goToAddPart(vm.MFG_TYPE.DIST)">
+                              <md-icon md-font-icon="t-icons-supplier-part add-icon" class="material-icons color-white"></md-icon>
+                              <md-tooltip>Add {{vm.MFGConstant.Supplier}} Part</md-tooltip>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="input-wrapper">
+                      <th class="w-50 ">
+                        <a tabindex="-1" class="cm-text-decoration pl-5" ng-click="vm.goToPartList(vm.MFG_TYPE.MFG);$event.preventDefault();">{{vm.MFGConstant.MFGPN}}</a>
+                      </th>
+                      <td colspan="2">
+                        <div layout="row">
+                          <md-input-container class="width-100p autocompletecustom cm-custom-autocomplete margin-0" flex="100"
+                                              md-no-float flex-lg="100" ng-if="vm.autoCompleteSearchPart">
+                            <custom-auto-complete-search on-search-fn="vm.autoCompleteSearchPart.onSearchFn"
+                                                         column-name="vm.autoCompleteSearchPart.columnName"
+                                                         controller-name="vm.autoCompleteSearchPart.controllerName"
+                                                         view-template-url="vm.autoCompleteSearchPart.viewTemplateURL"
+                                                         parent-column-name="vm.autoCompleteSearchPart.parentColumnName"
+                                                         key-column-name="vm.autoCompleteSearchPart.keyColumnName"
+                                                         input-name="vm.autoCompleteSearchPart.inputName"
+                                                         placeholder-name="vm.autoCompleteSearchPart.placeholderName"
+                                                         key-column-id="vm.autoCompleteSearchPart.keyColumnId"
+                                                         is-required="vm.autoCompleteSearchPart.isRequired"
+                                                         is-addnew="vm.autoCompleteSearchPart.isAddnew"
+                                                         callback-fn="vm.autoCompleteSearchPart.callbackFn"
+                                                         parent-id=""
+                                                         search-text="vm.autoCompleteSearchPart.searchText"
+                                                         add-data="vm.autoCompleteSearchPart.addData"
+                                                         on-select-callback-fn="vm.autoCompleteSearchPart.onSelectCallbackFn"
+                                                         custom-auto-focus="{{true}}"
+                                                         is-display-description="true"
+                                                         is-disabled="false">
+                            </custom-auto-complete-search>
+                          </md-input-container>
+                          <button name="btnVerifyMFRPartCloud"
+                                  class="md-icon-button border-radius-4 md-primary-bg md-mini custom-button-focus"
+                                  ng-click="vm.getComponentVerification(vm.autoCompleteSearchPart.searchText,vm.MFG_TYPE.MFG, $event)"
+                                  ng-disabled="((vm.partSearchList.length !== 0 && vm.autoCompleteSearchPart.searchText) || (!vm.autoCompleteSearchPart.searchText))">
+                            <md-icon md-font-icon="icon-cloud" class="material-icons mat-icon"></md-icon>
+                            <md-tooltip md-direction="right">Verify Part from Cloud</md-tooltip>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="input-wrapper">
+                      <th></th>
+                      <td>
+                        <div class="color-black" flex="100">
+                          <span>(({{vm.MFGConstant.MFG}} Code) {{vm.MFGConstant.MFGPN}} | PID | Production PN)</span>
+                        </div>
+                        <div class="color-black" flex="100">
+                          <span>{{vm.MFGConstant.MFGPNDescription}}</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="input-wrapper">
+                      <th class="w-50 ">
+                        <a tabindex="-1" class="cm-text-decoration pl-5" ng-click="vm.goToPartList(vm.MFG_TYPE.DIST);$event.preventDefault();">{{vm.MFGConstant.SupplierPN}}</a>
+                      </th>
+                      <td colspan="2">
+                        <div layout="row">
+                          <md-input-container class="width-100p autocompletecustom cm-custom-autocomplete margin-0" flex="100"
+                                              md-no-float flex-lg="100" ng-if="vm.autoCompleteSearchSupplierPart">
+                            <custom-auto-complete-search on-search-fn="vm.autoCompleteSearchSupplierPart.onSearchFn"
+                                                         column-name="vm.autoCompleteSearchSupplierPart.columnName"
+                                                         controller-name="vm.autoCompleteSearchSupplierPart.controllerName"
+                                                         view-template-url="vm.autoCompleteSearchSupplierPart.viewTemplateURL"
+                                                         parent-column-name="vm.autoCompleteSearchSupplierPart.parentColumnName"
+                                                         key-column-name="vm.autoCompleteSearchSupplierPart.keyColumnName"
+                                                         input-name="vm.autoCompleteSearchSupplierPart.inputName"
+                                                         placeholder-name="vm.autoCompleteSearchSupplierPart.placeholderName"
+                                                         key-column-id="vm.autoCompleteSearchSupplierPart.keyColumnId"
+                                                         is-required="vm.autoCompleteSearchSupplierPart.isRequired"
+                                                         is-addnew="vm.autoCompleteSearchSupplierPart.isAddnew"
+                                                         callback-fn="vm.autoCompleteSearchSupplierPart.callbackFn"
+                                                         parent-id=""
+                                                         search-text="vm.autoCompleteSearchSupplierPart.searchText"
+                                                         add-data="vm.autoCompleteSearchSupplierPart.addData"
+                                                         on-select-callback-fn="vm.autoCompleteSearchSupplierPart.onSelectCallbackFn"
+                                                         custom-auto-focus="{{true}}"
+                                                         is-display-description="true"
+                                                         is-disabled="false">
+                            </custom-auto-complete-search>
+                          </md-input-container>
+                          <button name="btnVerifySupplierPartCloud"
+                                  class="md-icon-button border-radius-4 md-primary-bg md-mini custom-button-focus"
+                                  ng-click="vm.getComponentVerification(vm.autoCompleteSearchSupplierPart.searchText,vm.MFG_TYPE.DIST, $event)"
+                                  ng-disabled="((vm.partSearchList.length !== 0 && vm.autoCompleteSearchSupplierPart.searchText) || (!vm.autoCompleteSearchSupplierPart.searchText))">
+                            <md-icon md-font-icon="icon-cloud" class="material-icons mat-icon"></md-icon>
+                            <md-tooltip md-direction="right">Verify Part from Cloud {{(!vm.autoCompleteSearchSupplierPart.searchText)}} </md-tooltip>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="input-wrapper">
+                      <th></th>
+                      <td>
+                        <div class="color-black" flex="100">
+                          <span>(({{vm.MFGConstant.Supplier}} Code) {{vm.MFGConstant.SupplierPN}} | PID | Production PN)</span>
+                        </div>
+                        <div class="color-black" flex="100">
+                          <span>{{vm.MFGConstant.MFGPNDescription}}</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="input-wrapper">
+                      <th class="w-60">
+                        <a tabindex="-1" class="cm-text-decoration pl-5" ng-click="vm.goToUMIDList();$event.preventDefault();">UMID<scan-or-enter></scan-or-enter></a>
+                      </th>
+                      <td colspan="2">
+                        <md-input-container flex="100" class="margin-bottom-0 pr-10">
+                          <input type="text" name="searchHeaderScanUMID" id="searchHeaderScanUMID" autocomplete="off"
+                                 capitalize ng-model="vm.searchUMID" placeholder="Scan UMID"
+                                 ng-keypress="vm.scanUMID($event)">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr class="input-wrapper">
+                      <th></th>
+                      <td>
+                        <div class="color-black" flex="100">
+                          <b>{{vm.ScanOREnterUMID}}</b>
+                        </div>
+                        <div ng-if="vm.hasInvalidUMIDScan" class="color-black" flex="100">
+                          <span class="color-red" ng-bind-html="vm.invalidUMIDScanMsg"></span>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </md-menu-item>
+          </div>
+        </md-menu>
+      </div>
+      <div class="cm-desktop-mob" layout layout-align="start-center">
+        <week-calculator></week-calculator>
+      </div>
+      <div class="cm-desktop-mob border-line-saperator" layout-align="start-center" layout>
+        <div class="cm-custom-label-common pl-10">
+          <div class="white-fg" layout="row" layout-align="space-between center" flex="100">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <td class="width-216 cm-width-90-rs">
+                    <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0 search-part widget-dashboard-search-area p-0" md-no-float flex="100" ng-if="vm.autoCompleteWarehouse">
+                      <custom-auto-complete datalist="vm.WarehouseList"
+                                            column-name="vm.autoCompleteWarehouse.columnName"
+                                            controller-name="vm.autoCompleteWarehouse.controllerName"
+                                            view-template-url="vm.autoCompleteWarehouse.viewTemplateURL"
+                                            key-column-name="vm.autoCompleteWarehouse.keyColumnName"
+                                            input-name="vm.autoCompleteWarehouse.inputName"
+                                            placeholder-name="vm.autoCompleteWarehouse.placeholderName"
+                                            key-column-id="vm.autoCompleteWarehouse.keyColumnId"
+                                            is-required="vm.autoCompleteWarehouse.isRequired"
+                                            is-disabled="vm.data.ID"
+                                            is-addnew="vm.autoCompleteWarehouse.isAddnew"
+                                            on-select-callback-fn="vm.autoCompleteWarehouse.onSelectCallbackFn"
+                                            callback-fn="vm.autoCompleteWarehouse.callbackFn">
+                      </custom-auto-complete>
+                    </md-input-container>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <md-menu-bar id="status-menu" class="ph-10">
+          <md-menu md-position-mode="left bottom">
+            <div layout="column">
+              <md-button class="user-button padding-right-0-imp margin-0 cm-feture-btn-color md-raised" ng-click="$mdOpenMenu();vm.getAssignColors()" ng-disabled="!vm.isShowUserStatus"
+                         aria-label="Status settings">
+                <div layout="row" layout-align="space-between center">
+                  <span>{{vm.labelConstant.SmartCartUser}}</span>
+                  <md-icon md-font-icon="icon-chevron-down"
+                           class="icon s16" hide-sm></md-icon>
+                </div>
+              </md-button>
+              <span class="font-weight-600 font-size-10 color-white" ng-if="!vm.isShowUserStatus">
+                {{vm.labelConstant.FeatureEnableText}}
+              </span>
+            </div>
+
+            <md-menu-content width="5" class="cm-smart-cart-user">
+              <md-menu-item class="md-indent alignment-Item" ng-if="vm.assignColorDetails.length>0">
+                <table class="margin-bottom-0 table table-bordered font-size-11">
+                  <thead>
+                    <tr>
+                      <th>{{vm.labelConstant.Action}}</th>
+                      <th>{{vm.labelConstant.Image}}</th>
+                      <th>{{vm.labelConstant.PromptColor}}</th>
+                      <th>{{vm.labelConstant.PromptNumber}}</th>
+                      <th>{{vm.labelConstant.User}}</th>
+                      <th>{{vm.labelConstant.CountDown}}</th>
+                      <th>{{vm.labelConstant.UMID}}</th>
+                      <th>{{vm.labelConstant.FromWH}}</th>
+                      <th>{{vm.labelConstant.Dept}}</th>
+                      <th>{{vm.labelConstant.ToWH}}</th>
+                      <th>{{vm.labelConstant.RequestType}}</th>
+                      <th>{{vm.labelConstant.PickedUser}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="item in vm.assignColorDetails">
+                      <td class="vertical-middle-align">
+                        <md-button class="md-default md-raised cm-cancel-smart-cart" ng-click="vm.pickColor(item)" ng-disabled="!item.ispickallow || (item.userId==vm.loginUser.userid)">
+                          {{vm.loginUser.userid==item.pickUserID?vm.labelConstant.DropColor:vm.labelConstant.PickColor}}
+                        </md-button>
+                        <md-button class="md-default md-raised cm-cancel-smart-cart text-white" ng-click="vm.gotoUnauthorizePage()" ng-if="item.isauthorizedRequest">
+                          Unauthorized ({{item.unauthorizeCount}})
+                        </md-button>
+                        <md-button class="md-default md-raised cm-cancel-smart-cart" ng-click="vm.cancelRequest(item)" ng-if="!item.isauthorizedRequest">
+                          {{vm.labelConstant.CancelRequest}}
+                        </md-button>
+                      </td>
+                      <td>
+                        <md-button ng-class="item.ledColorCssClass" class="md-icon-button bdrrcvbtn cm-smart-cart-prompt mb-6">
+                          <md-icon class="btn-icon mdi mdi-account color-white"></md-icon>
+                        </md-button>
+                      </td>
+                      <td>{{item.ledColorName}}</td>
+                      <td class="text-right">{{item.promptId}}</td>
+                      <td>{{item.userName}}</td>
+                      <td>{{item.currentTimerDiff}}</td>
+                      <td>{{item.requestMessage.ReelBarCode}}</td>
+                      <td>{{item.fromWareHouse}}</td>
+                      <td>{{item.fromWareHouseParent}}</td>
+                      <td>{{item.uniqueCartID}}<span class="line-height-12 font-size-11" ng-if="item.uniqueCartID">&nbsp;({{vm.labelConstant.ReservedSide}} <b>{{item.side}}</b>)</span></td>
+                      <td>{{item.requestType}}</td>
+                      <td>{{item.pickuserName}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </md-menu-item>
+              <md-menu-item class="md-indent alignment-Item ml-10 cm-smart-idle-status" ng-if="vm.assignColorDetails.length==0">
+                <md-button ng-hide="true"></md-button>
+                <span ng-if="vm.isProgress">{{'Please wait..'}}</span><span ng-if="!vm.isProgress">
+                  <a tabindex="-1" class="underline cursor-pointer" ng-click="vm.gotoSmartCartWarehouseList()">Smart carts</a>{{vm.labelConstant.IdealCart}}
+                  <span class="smartcart-label-box margin-left-25" ng-class="{'label-warning':(vm.status===inovaxeStatus[2].id),'label-success':(vm.status===inovaxeStatus[1].id)}">{{vm.status}}</span>
+                </span>
+              </md-menu-item>
+              <md-menu-item class="md-indent alignment-Item cm-smart-idle-status padding-top-5" ng-if="vm.offlinesmartcarts>0">
+                <div class="margin-0">
+                  {{vm.labelConstant.OfflineSmartCarts}}:&nbsp;<a tabindex="-1" class="underline cursor-pointer" ng-click="vm.gotoSmartCartWarehouseList()"><b>{{vm.offlinesmartcarts}}</b></a>
+                </div>
+              </md-menu-item>
+            </md-menu-content>
+          </md-menu>
+        </md-menu-bar>
+      </div>
+      <div class="cm-desktop-mob border-line-saperator" layout-align="start-center" layout>
+        <md-menu-bar id="user-menu">
+          <md-menu md-position-mode="left bottom">
+            <md-button class="user-button" ng-click="$mdOpenMenu()"
+                       aria-label="User settings"
+                       translate-attr-aria-label="TOOLBAR.USER_SETTINGS">
+              <div layout="row" layout-align="space-between center">
+                <div class="avatar-wrapper">
+                  <img md-menu-align-target class="avatar margin-top-imp" ng-src="{{vm.imagefile}}">
+                  <md-icon md-font-icon ng-class="vm.userStatus.icon"
+                           data-ng-attr-style="{{ 'color: ' + vm.userStatus.color + ' !important' }}"
+                           class="icon status s16 bg-white">
+                  </md-icon>
+                </div>
+                <div class="cm-user-name" layout-wrap>
+                  <div layout="row" flex="100">
+                    <span class="username" hide-sm>{{vm.loginUser.username}}</span>
+                    <md-icon md-font-icon="icon-chevron-down"
+                             class="icon s16" hide-sm></md-icon>
+                  </div>
+                  <div layout="row" flex="100" layout-align="center center">
+                    <span ng-if="vm.defaultRoleName" class="cm-font-10"><b>{{vm.defaultRoleName}}</b></span>
+                  </div>
+                </div>
+              </div>
+            </md-button>
+            <md-menu-content width="3">
+              <md-menu-item ng-if="vm.userProfileState && vm.isProfilePage" class="md-indent">
+                <a class="md-button toolbar-menu" target="_blank" ui-sref="{{vm.userProfileState}}({id:{{vm.loginUser.employee.id}}})">
+                  <md-icon md-font-icon="icon-account" class="icon"></md-icon>
+                  My Profile
+                </a>
+              </md-menu-item>
+              <md-menu-item ng-if="vm.companyProfileState" class="md-indent">
+                <a class="md-button toolbar-menu" target="_blank" ui-sref="{{vm.companyProfileState}}">
+                  <md-icon md-font-icon="t-icons-company-profile" class="icon"></md-icon>
+                  Company Profile
+                </a>
+              </md-menu-item>
+              <md-menu-item class="md-indent">
+                <a class="md-button toolbar-menu" ng-click="vm.changePassword($event)">
+                  <md-icon md-font-icon="icon-account-key" class="icon"></md-icon>
+                  Change Password
+                </a>
+              </md-menu-item>
+
+              <md-menu-item ng-if="vm.employeeTimelineState && vm.isTimelinePage" class="md-indent">
+                <a class="md-button toolbar-menu" target="_blank" ui-sref="{{vm.employeeTimelineState}}({id:{{vm.loginUser.userid}}})">
+                  <md-icon md-font-icon="t-icons-history-text" class="icon"></md-icon>
+                  View Timeline
+                </a>
+              </md-menu-item>
+
+              <md-menu-item class="md-indent" ng-if="RoleList && RoleList.length > 0">
+                <md-icon md-font-icon="icon-account-switch" class="icon"></md-icon>
+                <md-menu id="user-status-menu">
+                  <md-button ng-click="$mdOpenMenu()" class="status">
+                    Switch Role
+                  </md-button>
+                  <md-menu-content width="2">
+                    <md-menu-item class="status md-indent" ng-class="{'md-accent-bg' : vm.loginUser.defaultLoginRoleID == role.roleId}"
+                                  ng-repeat="role in RoleList track by role.roleId">
+                      <md-icon md-font-icon="icon-account-switch" class="icon"></md-icon>
+                      <md-button ng-click="vm.setAsDefaultRole(role)">
+                        {{role.roleName}}
+                      </md-button>
+                    </md-menu-item>
+                  </md-menu-content>
+              </md-menu-item>
+              <md-menu-divider ng-if="vm.currentReleaseVersion"></md-menu-divider>
+              <md-menu-item ng-if="vm.currentReleaseVersion" class="md-indent">
+                <a class="md-button toolbar-menu" ui-sref="{{vm.releaseNoteState}}">
+                  <md-icon md-font-icon="icons-edit-field" class="icon md-18"></md-icon>
+                  Version {{vm.currentReleaseVersion}}
+                </a>
+              </md-menu-item>
+              <md-menu-item class="md-indent">
+                <a class="md-button toolbar-menu" href="" ng-click="vm.OpenApplicationStatus()">
+                  <md-icon md-font-icon="icons-service-status" class="icon md-18"></md-icon>
+                  Application & Service Status
+                </a>
+              </md-menu-item>
+              <md-menu-divider></md-menu-divider>
+              <md-menu-item class="md-indent">
+                <md-icon md-font-icon="icon-logout" class="icon"></md-icon>
+                <md-button ng-click="vm.logout()">Logout</md-button>
+              </md-menu-item>
+            </md-menu-content>
+          </md-menu>
+        </md-menu-bar>
+      </div>
+    </div>
+
+    <div class="cm-rs-mob" flex layout>
+      <md-menu>
+        <md-button class="margin-0 width-25 md-primary smt-drag-drop-action-btn" ng-click="$mdOpenMenu()" md-menu-origin
+                   md-menu-align-target aria-label="Options">
+          <md-icon md-font-icon="icon-dots-vertical" class="icon"></md-icon>
+        </md-button>
+        <md-menu-content layout-align="start-center" class="padding-0" width="1">
+          <md-menu-item layout="column" flex="100" class="cursor-pointer">
+
+
+            <div class="cm-custom-label-common">
+              <div class="white-fg" layout="row" layout-align="space-between center" flex="100">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <td class="cm-custom-label-btn">
+                        <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0 search-part widget-dashboard-search-area" md-no-float flex="100" ng-if="vm.autoCompleteWarehouse">
+                          <custom-auto-complete datalist="vm.WarehouseList"
+                                                column-name="vm.autoCompleteWarehouse.columnName"
+                                                controller-name="vm.autoCompleteWarehouse.controllerName"
+                                                view-template-url="vm.autoCompleteWarehouse.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteWarehouse.keyColumnName"
+                                                input-name="vm.autoCompleteWarehouse.inputName"
+                                                placeholder-name="vm.autoCompleteWarehouse.placeholderName"
+                                                key-column-id="vm.autoCompleteWarehouse.keyColumnId"
+                                                is-required="vm.autoCompleteWarehouse.isRequired"
+                                                is-disabled="vm.data.ID"
+                                                is-addnew="vm.autoCompleteWarehouse.isAddnew"
+                                                on-select-callback-fn="vm.autoCompleteWarehouse.onSelectCallbackFn"
+                                                callback-fn="vm.autoCompleteWarehouse.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+
+                  </tbody>
+                </table>
+
+              </div>
+            </div>
+
+            <md-menu-bar id="status-menu">
+              <md-menu md-position-mode="left bottom">
+                <div layout="column">
+                  <md-button class="user-button padding-right-0-imp margin-0 cm-feture-btn-color md-raised" ng-click="$mdOpenMenu();vm.getAssignColors()" ng-disabled="!vm.isShowUserStatus"
+                             aria-label="Status settings">
+                    <div layout="row" layout-align="space-between center">
+                      <span>{{vm.labelConstant.SmartCartUser}}</span>
+                      <md-icon md-font-icon="icon-chevron-down"
+                               class="icon s16" hide-sm></md-icon>
+                    </div>
+                  </md-button>
+                  <span class="font-weight-600 font-size-10 color-white" ng-if="!vm.isShowUserStatus">
+                    {{vm.labelConstant.FeatureEnableText}}
+                  </span>
+                </div>
+
+                <md-menu-content width="5" class="cm-smart-cart-user">
+                  <md-menu-item class="md-indent alignment-Item" ng-if="vm.assignColorDetails.length>0">
+                    <table class="margin-bottom-0 table table-bordered font-size-11">
+                      <thead>
+                        <tr>
+                          <th>{{vm.labelConstant.Action}}</th>
+                          <th>{{vm.labelConstant.Image}}</th>
+                          <th>{{vm.labelConstant.PromptColor}}</th>
+                          <th>{{vm.labelConstant.PromptNumber}}</th>
+                          <th>{{vm.labelConstant.User}}</th>
+                          <th>{{vm.labelConstant.CountDown}}</th>
+                          <th>{{vm.labelConstant.UMID}}</th>
+                          <th>{{vm.labelConstant.FromWH}}</th>
+                          <th>{{vm.labelConstant.Dept}}</th>
+                          <th>{{vm.labelConstant.ToWH}}</th>
+                          <th>{{vm.labelConstant.RequestType}}</th>
+                          <th>{{vm.labelConstant.PickedUser}}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="item in vm.assignColorDetails">
+                          <td class="vertical-middle-align">
+                            <md-button class="md-default md-raised cm-cancel-smart-cart" ng-click="vm.pickColor(item)" ng-disabled="!item.ispickallow || (item.userId==vm.loginUser.userid)">
+                              {{vm.loginUser.userid==item.pickUserID?vm.labelConstant.DropColor:vm.labelConstant.PickColor}}
+                            </md-button>
+                            <md-button class="md-default md-raised cm-cancel-smart-cart text-white" ng-click="vm.gotoUnauthorizePage()" ng-if="item.isauthorizedRequest">
+                              Unauthorized ({{item.unauthorizeCount}})
+                            </md-button>
+                            <md-button class="md-default md-raised cm-cancel-smart-cart" ng-click="vm.cancelRequest(item)" ng-if="!item.isauthorizedRequest">
+                              {{vm.labelConstant.CancelRequest}}
+                            </md-button>
+                          </td>
+                          <td>
+                            <md-button ng-class="item.ledColorCssClass" class="md-icon-button bdrrcvbtn cm-smart-cart-prompt mb-6">
+                              <md-icon class="btn-icon mdi mdi-account color-white"></md-icon>
+                            </md-button>
+                          </td>
+                          <td>{{item.ledColorName}}</td>
+                          <td class="text-right">{{item.promptId}}</td>
+                          <td>{{item.userName}}</td>
+                          <td>{{item.currentTimerDiff}}</td>
+                          <td>{{item.requestMessage.ReelBarCode}}</td>
+                          <td>{{item.fromWareHouse}}</td>
+                          <td>{{item.fromWareHouseParent}}</td>
+                          <td>{{item.uniqueCartID}}<span class="line-height-12 font-size-11" ng-if="item.uniqueCartID">&nbsp;({{vm.labelConstant.ReservedSide}} <b>{{item.side}}</b>)</span></td>
+                          <td>{{item.requestType}}</td>
+                          <td>{{item.pickuserName}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </md-menu-item>
+                  <md-menu-item class="md-indent alignment-Item ml-10 cm-smart-idle-status" ng-if="vm.assignColorDetails.length==0">
+                    <md-button ng-hide="true"></md-button>
+                    <span ng-if="vm.isProgress">{{'Please wait..'}}</span><span ng-if="!vm.isProgress">
+                      <a tabindex="-1" class="underline cursor-pointer" ng-click="vm.gotoSmartCartWarehouseList()">Smart carts</a>{{vm.labelConstant.IdealCart}}
+                      <span class="smartcart-label-box margin-left-25" ng-class="{'label-warning':(vm.status===inovaxeStatus[2].id),'label-success':(vm.status===inovaxeStatus[1].id)}">{{vm.status}}</span>
+                    </span>
+                  </md-menu-item>
+                  <md-menu-item class="md-indent alignment-Item cm-smart-idle-status padding-top-5" ng-if="vm.offlinesmartcarts>0">
+                    <div class="margin-0">
+                      {{vm.labelConstant.OfflineSmartCarts}}:&nbsp;<a tabindex="-1" class="underline cursor-pointer" ng-click="vm.gotoSmartCartWarehouseList()"><b>{{vm.offlinesmartcarts}}</b></a>
+                    </div>
+                  </md-menu-item>
+                </md-menu-content>
+              </md-menu>
+            </md-menu-bar>
+
+            <md-menu-bar id="user-menu" class="cm-user-menu-rs">
+              <md-menu md-position-mode="left bottom">
+                <md-button class="user-button" ng-click="$mdOpenMenu()"
+                           aria-label="User settings"
+                           translate-attr-aria-label="TOOLBAR.USER_SETTINGS">
+                  <div layout="row" layout-align="space-between center">
+                    <div class="avatar-wrapper">
+                      <img md-menu-align-target class="avatar margin-top-imp" ng-src="{{vm.imagefile}}">
+                      <md-icon md-font-icon ng-class="vm.userStatus.icon"
+                               ng-style="{'color': vm.userStatus.color }"
+                               class="icon status s16">
+                      </md-icon>
+                    </div>
+                    <div class="cm-user-name" layout-wrap>
+                      <div layout="row" flex="100">
+                        <span class="username" hide-sm>{{vm.loginUser.username}}</span>
+                        <md-icon md-font-icon="icon-chevron-down"
+                                 class="icon s16" hide-sm></md-icon>
+                      </div>
+                      <div layout="row" flex="100" layout-align="center center">
+                        <span ng-if="vm.defaultRoleName" class="cm-font-10"><b>{{vm.defaultRoleName}}</b></span>
+                      </div>
+                    </div>
+                  </div>
+                </md-button>
+                <md-menu-content width="3">
+                  <md-menu-item ng-if="vm.userProfileState && vm.isProfilePage" class="md-indent">
+                    <a class="md-button toolbar-menu" ui-sref="{{vm.userProfileState}}({id:{{vm.loginUser.employee.id}}})">
+                      <md-icon md-font-icon="icon-account" class="icon"></md-icon>
+                      My Profile
+                    </a>
+                  </md-menu-item>
+                  <md-menu-item ng-if="vm.companyProfileState" class="md-indent">
+                    <a class="md-button toolbar-menu" ui-sref="{{vm.companyProfileState}}">
+                      <md-icon md-font-icon="icons-company-profile" class="icon"></md-icon>
+                      Company Profile
+                    </a>
+                  </md-menu-item>
+                  <md-menu-item class="md-indent">
+                    <a class="md-button toolbar-menu" ng-click="vm.changePassword($event)">
+                      <md-icon md-font-icon="icon-account-key" class="icon"></md-icon>
+                      Change Password
+                    </a>
+                  </md-menu-item>
+
+                  <md-menu-item ng-if="vm.employeeTimelineState && vm.isTimelinePage" class="md-indent">
+                    <a class="md-button toolbar-menu" ui-sref="{{vm.employeeTimelineState}}({id:{{vm.loginUser.userid}}})">
+                      <md-icon md-font-icon="t-icons-history-text" class="icon"></md-icon>
+                      View Timeline
+                    </a>
+                  </md-menu-item>
+
+                  <md-menu-item class="md-indent" ng-if="RoleList && RoleList.length > 0">
+                    <md-icon md-font-icon="icon-account-switch" class="icon"></md-icon>
+                    <md-menu id="user-status-menu">
+                      <md-button ng-click="$mdOpenMenu()" class="status">
+                        Switch Role
+                      </md-button>
+                      <md-menu-content width="2">
+                        <md-menu-item class="status md-indent" ng-class="{'md-accent-bg' : vm.loginUser.defaultLoginRoleID == role.roleId}"
+                                      ng-repeat="role in RoleList track by role.roleId">
+                          <md-icon md-font-icon="icon-account-switch" class="icon"></md-icon>
+                          <md-button ng-click="vm.setAsDefaultRole(role)">
+                            {{role.roleName}}
+                          </md-button>
+                        </md-menu-item>
+                      </md-menu-content>
+                  </md-menu-item>
+                  <md-menu-divider></md-menu-divider>
+                  <md-menu-item class="md-indent">
+                    <md-icon md-font-icon="icon-logout" class="icon"></md-icon>
+                    <md-button ng-click="vm.logout()">Logout</md-button>
+                  </md-menu-item>
+                </md-menu-content>
+              </md-menu>
+            </md-menu-bar>
+          </md-menu-item>
+        </md-menu-content>
+      </md-menu>
+    </div>
+    <div class="cm-desktop" flex layout ng-if="!$root.isSiteLoadUpToTabletSize">
+      <chat></chat>
+      <notification></notification>
+      <md-menu id="language-menu" md-offset="0 72" md-position-mode="target-right target">
+        <md-button class="language-button" ng-click="$mdOpenMenu()"
+                   aria-label="Language" md-menu-origin md-menu-align-target>
+          <div layout="row" layout-align="center center">
+            <img class="flag" ng-src="assets/images/flags/{{vm.selectedLanguage.flag}}.png">
+            <span class="iso">{{vm.selectedLanguage.code}}</span>
+          </div>
+        </md-button>
+        <md-menu-content width="3" id="language-menu-content">
+          <md-menu-item ng-repeat="(iso, lang) in vm.languages">
+            <md-button ng-click="vm.changeLanguage(lang)" no-translate-class>
+              <span layout="row" layout-align="start center">
+                <img class="flag" ng-src="assets/images/flags/{{lang.flag}}.png">
+                <span translate="{{lang.translation}}">{{lang.title}}</span>
+              </span>
+            </md-button>
+          </md-menu-item>
+        </md-menu-content>
+      </md-menu>
+      <md-button id="quick-panel-toggle" class="mdi md-icon-button" ng-click="toggleShortcut()">
+        <!--<md-icon md-font-icon="mdi mdi-help-box" class="icon"></md-icon>-->
+        <md-icon md-font-icon="icons-help1" role="img" class="cm-custom-icon-font icons-help1 s24">
+          <md-tooltip>Help: {{vm.HBPageTooltip}}</md-tooltip>
+        </md-icon>
+      </md-button>
+    </div>
+    <div class="cm-rs" flex layout ng-if="$root.isSiteLoadUpToTabletSize">
+      <md-menu>
+        <md-button class="margin-0 width-25 md-primary smt-drag-drop-action-btn" ng-click="$mdOpenMenu()" md-menu-origin
+                   md-menu-align-target aria-label="Options">
+          <md-icon md-font-icon="icon-dots-vertical" class="icon"></md-icon>
+        </md-button>
+        <md-menu-content layout-align="start-center" class="padding-0" width="1">
+          <md-menu-item layout="row" flex="100" class="cursor-pointer">
+            <chat></chat>
+          </md-menu-item>
+          <md-menu-item layout="row" flex="100" class="cursor-pointer">
+            <notification></notification>
+          </md-menu-item>
+          <md-menu-item layout="row" flex="100" class="cursor-pointer">
+            <md-menu id="language-menu" md-offset="0 72" md-position-mode="target-right target">
+              <md-button class="language-button" ng-click="$mdOpenMenu()"
+                         aria-label="Language" md-menu-origin md-menu-align-target>
+                <div layout="row" layout-align="center center">
+                  <img class="flag mr-5" ng-src="assets/images/flags/{{vm.selectedLanguage.flag}}.png">
+                  <span class="iso color-black">{{vm.selectedLanguage.code}}</span>
+                </div>
+              </md-button>
+              <md-menu-content width="3" id="language-menu-content">
+                <md-menu-item ng-repeat="(iso, lang) in vm.languages">
+                  <md-button ng-click="vm.changeLanguage(lang)" no-translate-class>
+                    <span layout="row" layout-align="start center">
+                      <img class="flag" ng-src="assets/images/flags/{{lang.flag}}.png">
+                      <span translate="{{lang.translation}}">{{lang.title}}</span>
+                    </span>
+                  </md-button>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </md-menu-item>
+          <md-menu-item layout="row" flex="100" class="cursor-pointer">
+            <md-button id="quick-panel-toggle" class="mdi md-icon-button" ng-click="toggleShortcut()">
+              <!--<md-icon md-font-icon="mdi mdi-help-box" class="icon"></md-icon>-->
+              <md-icon md-font-icon="icons-help1" role="img" class="cm-custom-icon-font icons-help1 s24">
+                <md-tooltip>Help</md-tooltip>
+              </md-icon>
+            </md-button>
+          </md-menu-item>
+        </md-menu-content>
+      </md-menu>
+    </div>
+    <!--<div id="google_translate_element"></div>-->
+    <!--<md-button id="quick-panel-toggle" class="md-icon-button" ng-click="vm.toggleSidenav('quick-panel')"
+               aria-label="Toggle quick panel" translate translate-attr-aria-label="TOOLBAR.TOGGLE_QUICK_PANEL">
+        <md-icon md-font-icon="icon-format-list-bulleted" class="icon"></md-icon>
+    </md-button>-->
+  </div>
+</div>
+<style>
+  #menu_container_0 {
+    max-height: fit-content !important;
+    left: auto !important;
+    right: 18% !important;
+  }
+
+  /*@media(max-width:600px) {
+    .md-open-menu-container.md-active {
+        width: inherit;
+        overflow: auto;
+    }
+  }*/
+</style>

@@ -1,0 +1,331 @@
+
+<div class="cm-custom-label-common">
+  <md-toolbar class="md-theme-light" layout="row" layout-align="space-between center">
+    <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+      <div layout-align="center center" class="font-14" layout="row" flex="10" layout-wrap>
+        <label class="font-14 cm-bom-t-title">Quote Group:&nbsp; </label>
+        <label class="cm-bom-t-desc">
+          <a tabindex="-1" class="cursor-pointer cm-bom-t-desc color-black text-underline inline-block" ng-click="vm.goToRFQ()">{{vm.lineItem.rfqID}}</a>
+        </label>
+      </div>
+
+      <div class="font-14" layout="row" flex="30" layout-wrap>
+        <label class="font-14 cm-bom-t-title">
+          <a tabindex="-1" class="cursor-pointer cm-bom-t-title text-underline inline-block" ng-click="vm.goToAssyList()">{{vm.AssemblyLabelConstant.PIDCode}}</a>:&nbsp;
+        </label>
+        <label class="part-detail-info-header 0 font-14 margin-bottom-0 cm-bom-t-desc" layout="center center" ng-if="vm.lineItem.assemblyNumber">
+          <md-icon class="icon-content-copy cursor-pointer color-black text-align-center" ng-click="vm.copyMFGPNText(vm.lineItem.PIDCode)" ng-mouseover="vm.MFGPNStatus()">
+            <md-tooltip md-direction="top" ng-show="!vm.showMFGPNstatus">
+              Copy Assy ID
+            </md-tooltip>
+            <md-tooltip md-direction="bottom" ng-show="vm.showMFGPNstatus">
+              Copied
+            </md-tooltip>
+          </md-icon>
+          <span class="text-underline" ng-click="vm.gotoPartMaster(vm.lineItem)">{{vm.lineItem.PIDCode}}</span>&nbsp;
+          <span>
+            <img class="rohs-bom-image p-0-imp height-16" ng-src="{{vm.rohsIcon}}">
+            <md-tooltip>{{vm.lineItem.RoHS}}</md-tooltip>
+          </span>
+          <md-icon class="icon-content-copy cursor-pointer color-black text-align-center" ng-click="vm.copyMFGPNText(vm.lineItem.assemblyNumber)" ng-mouseover="vm.MFGPNStatus()">
+            <md-tooltip md-direction="top" ng-show="!vm.showMFGPNstatus">
+              Copy Assy#
+            </md-tooltip>
+            <md-tooltip md-direction="bottom" ng-show="vm.showMFGPNstatus">
+              Copied
+            </md-tooltip>
+          </md-icon>
+        </label>
+
+        <!--<label>{{vm.lineItem.assemblyNumber}}</label>-->
+      </div>
+      <!--<div layout-align="center center" class="font-14" layout="row" flex="10" layout-wrap>
+          <label class="font-14">Assy Rev:&nbsp; </label>
+          <label>{{vm.lineItem.assemblyRev}}</label>
+      </div>-->
+      <!--<div layout-align="center center" class="font-14" layout="row" flex="30" layout-wrap>
+          <label class="font-14">Assy Description:&nbsp; </label>
+          <label>{{vm.lineItem.assemblyDescription}}</label>
+      </div>-->
+      <div layout-align="center center" class="font-14" layout="row" flex="10" layout-wrap>
+        <label class="font-14 cm-bom-t-title">Item:&nbsp; </label>
+        <label class="cm-bom-t-desc">{{vm.lineItem.lineID}}</label>
+      </div>
+      <div layout-align="center center" class="font-14" layout="row" flex="10" layout-wrap>
+        <label class="font-14 cm-bom-t-title">QPA:&nbsp; </label>
+        <label class="cm-bom-t-desc">{{vm.lineItem.qpa}}</label>
+      </div>
+      <!--<div layout-align="center center" class="font-14" layout="row" flex layout-wrap >
+          <label class="font-14">UOM:&nbsp; </label>
+          <label>{{vm.lineItem.ConsolidateQuantity[0].abbreviation}}</label>
+      </div>-->
+      <div layout="row" layout-align="start start" class="font-14" flex="30" layout-wrap>
+        <div flex="100" class="marg">
+          <label class="font-14 margin-bottom-0 cm-bom-t-title">Aggregate Supplier Stock:&nbsp; </label>
+          <label class="margin-bottom-0 cm-bom-t-desc">{{vm.getcumilativeStock().toFixed(2)}} &nbsp;{{vm.sourceData.length>0?vm.sourceData[0].BOMAbbrivation:vm.lineItem.ConsolidateQuantity[0].abbreviation}}</label>
+        </div>
+        <div flex="100">
+          <label class="font-14 margin-bottom-0 cm-bom-t-title">Aggregate Internal Stock:&nbsp; </label>
+          <label class="margin-bottom-0 cm-bom-t-desc">{{vm.availableInternalstock?vm.availableInternalstock.toFixed(2):"0.00"}} &nbsp;{{vm.sourceData.length>0?vm.sourceData[0].BOMAbbrivation:vm.lineItem.ConsolidateQuantity[0].abbreviation}}</label>
+        </div>
+      </div>
+      <md-button class="md-icon-button" ng-click="cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-content layout="row" flex="100" layout-align="start start" layout-wrap cg-busy="{promise:vm.cgBusyLoading}">
+    <div flex="100" class="height-50" layout="row" layout-wrap>
+      <div flex="45" layout="row" layout-align="center start">
+        <label flex="75" class="width-100p"><marquee ng-if="vm.showMarquee" onmouseover="this.stop();" scrollamount="2" onmouseout="this.start();" onload="this.start();">{{vm.lineItem.mfgPN}}</marquee></label>
+        <div layout="row" flex="25" class="cm-border-left" layout-wrap layout-align="center center">
+          <md-input-container>
+            <md-select ng-model="vm.PriceType" ng-change="vm.pricingChange()">
+              <md-option ng-value="item.ID" ng-repeat="item in vm.PricingType">{{ item.Name }}</md-option>
+            </md-select>
+          </md-input-container>
+          <label ng-if="vm.lineItem.PricingFilterID==vm.DefaultPriceFilter.ID && vm.PriceType!=vm.PriceTypeDetail.HISTORICAL_PRICE" class="margin-right-20"><b>Priced items {{vm.lineItem.pricePercentage}}</b></label>
+        </div>
+      </div>
+      <div flex="15" layout="row" class="cm-border-right" layout-align="center center">
+        <md-checkbox ng-model="vm.isShowPriceBreak" ng-change="vm.showPrice(vm.isShowPriceBreak)">
+          <span class="padding-left-5">View Price Break</span><!--View Price Break of Selected Row-->
+        </md-checkbox>
+      </div>
+      <div flex layout="row" class="cm-border-left cm-square-icon-btn cm-pricing-icon-buttons cm-btn-group" layout-align="end center">
+
+        <md-button class="md-fab md-mini md-icon-button custom-tab-button"
+                   ng-if="vm.iscustomPartNumber"
+                   ng-disabled="vm.PriceType==vm.PriceTypeDetail.HISTORICAL_PRICE ||!vm.lineItem.qpa"
+                   ng-class="{'item-disabled':(vm.PriceType==vm.PriceTypeDetail.HISTORICAL_PRICE)}"
+                   ng-click="vm.openSupplierQuoteDet($event)">
+          <md-tooltip md-direction="top">Fetch Supplier Quote</md-tooltip>
+          <md-icon md-font-icon="icons-sq" class="material-icons mat-icon mdi-file-import" role="img"></md-icon>
+        </md-button>
+        <md-button ng-disabled="vm.isshow || vm.PriceType != vm.PriceTypeDetail.CURRENT_PRICE || !vm.lineItem.qpa" ng-if="vm.iscustomPartNumber" class="md-mini md-fab md-icon-button custom-tab-button" aria-label="Add manual price" ng-click="vm.gotoSupplierQuote()">
+          <md-icon role="img" md-font-icon="icons-supplier-quote" class="material-icons mat-icon icon-plus"></md-icon>
+          <md-tooltip>Supplier Quote List</md-tooltip>
+        </md-button>
+        <md-button ng-disabled="vm.isshow || vm.PriceType != vm.PriceTypeDetail.CURRENT_PRICE || !vm.lineItem.qpa" ng-if="vm.iscustomPartNumber" class="md-mini md-fab md-icon-button custom-tab-button" aria-label="Add manual price" ng-click="vm.addSupplierQuoteDetail()">
+          <md-icon role="img" md-font-icon="icons-sq-plus" class="material-icons mat-icon icon-plus"></md-icon>
+          <md-tooltip>Add Supplier Quote</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-mini md-icon-button custom-tab-button line-height-normal"
+                   ng-disabled="vm.PriceType==vm.PriceTypeDetail.HISTORICAL_PRICE ||  vm.sourceData.length==0"
+                   ng-class="{'item-disabled':(vm.PriceType==vm.PriceTypeDetail.HISTORICAL_PRICE ||  vm.sourceData.length==0)}"
+                   ng-click="vm.stockUpdate($event)">
+          <md-tooltip md-direction="top">Update Stock</md-tooltip>
+          <img ng-src="{{vm.path}}" />
+        </md-button>
+        <md-button ng-disabled="vm.PriceType != vm.PriceTypeDetail.CURRENT_PRICE || vm.sourceData.length==0" class="md-mini md-fab md-icon-button custom-tab-button" aria-label="Clear Price" ng-click="vm.clearselectedPrice()">
+          <md-icon role="img" md-font-icon="icons-data-clean" class="material-icons mat-icon icon-plus"></md-icon>
+          <md-tooltip>Clear Price</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-mini md-icon-button custom-tab-button"
+                   ng-disabled="vm.PriceType==vm.PriceTypeDetail.HISTORICAL_PRICE ||!vm.lineItem.qpa "
+                   ng-click="vm.importPricing($event)">
+          <md-tooltip md-direction="top">Import</md-tooltip>
+          <md-icon md-font-icon="mdi mdi-file-import" class="material-icons mat-icon mdi-file-import" role="img"></md-icon>
+        </md-button>
+        <md-button class="md-fab md-mini md-icon-button custom-tab-button"
+                   ng-disabled="vm.PriceType==vm.PriceTypeDetail.HISTORICAL_PRICE"
+                   ng-click="vm.exportPricing($event)">
+          <md-tooltip md-direction="top">Export</md-tooltip>
+          <md-icon md-font-icon="mdi mdi-file-export" class="material-icons mat-icon mdi-file-export" role="img"></md-icon>
+        </md-button>
+        <md-button ng-disabled="vm.checkLastPrevPricing()" class="md-fab md-mini md-icon-button custom-tab-button" aria-label="Prev Price" ng-click="vm.getPrevNextQty('P')">
+          <md-icon role="img" md-font-icon="icon-skip-previous" class="material-icons mat-icon icon-skip-previous"></md-icon>
+          <md-tooltip>Prev Item</md-tooltip>
+        </md-button>
+        <md-button ng-disabled="vm.checkLastNextPricing()" class="md-mini md-fab md-icon-button custom-tab-button" aria-label="Next Price" ng-click="vm.getPrevNextQty('N')">
+          <md-icon role="img" md-font-icon="icon-skip-next " class="material-icons mat-icon icon-skip-next"></md-icon>
+          <md-tooltip>Next Item</md-tooltip>
+        </md-button>
+        <md-button ng-disabled="!vm.checkUnPricedQty() ||vm.PriceTypeDetail.HISTORICAL_PRICE==vm.PriceType" class="md-mini md-fab md-icon-button custom-tab-button" ng-click="vm.getUnPricedQty()">
+          <md-icon role="img" md-font-icon="icon-chevron-double-right" class="material-icons mat-icon icon-chevron-double-right"></md-icon>
+          <md-tooltip>Next UnPriced Item</md-tooltip>
+        </md-button>
+        <md-button ng-disabled="vm.isshow || vm.PriceType != vm.PriceTypeDetail.CURRENT_PRICE || vm.isNoDataFound || !vm.lineItem.qpa" class="md-mini md-fab md-icon-button custom-tab-button" aria-label="Add manual price" ng-click="vm.openPopupManualPrice($event)">
+          <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+          <md-tooltip>Add Price</md-tooltip>
+        </md-button>
+        <md-button class="md-raised md-primary md-button md-ink-ripple text-white" ng-click="vm.saveFinalPrice()" ng-class="{'md-formdirty': vm.isdirty}" ng-disabled="vm.PriceType==vm.PriceTypeDetail.HISTORICAL_PRICE || vm.isNoDataFound || !vm.isdirty">Save</md-button>
+      </div>
+    </div>
+    <div class="content-card" layout="column" flex="100" ng-show="!vm.isNoDataFound" excel-reader er-options="vm.erOptions">
+      <div flex="100">
+        <md-card flex class="margin-0" ng-class="{'fullgridui-height':(!vm.isShowPriceBreak ||!vm.qtyBreakList || vm.qtyBreakList.length==0),'fullgrid-height':(vm.isShowPriceBreak &&vm.qtyBreakList.length>0) }">
+          <ui-grid-extention load-data="vm.loadData"
+                             grid-option="vm.gridOptions"
+                             header="vm.sourceHeader"
+                             grid-data="vm.sourceData"
+                             total-data-count="vm.totalSourceDataCount"
+                             reset-grid="vm.resetSourceGrid"
+                             selectted-rows="vm.selectedRowsList"
+                             paging-info="vm.pagingInfo"
+                             current-item="vm.currentdata"
+                             empty-state="vm.emptyState"
+                             get-data-down="vm.getDataDown"
+                             class="cm-price-cost-grid">
+
+        </md-card>
+      </div>
+      <input id="fi-excel" name="file" type="file" class="hidden" style="height:0px;width:0px;left: -100%;position:absolute">
+    </div>
+
+    <div layout="row" flex="100" class="empty-state text-center full-height" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound">
+      <div class="emty-icon" flex="100">
+        <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+      </div>
+      <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+      <p flex="100" ng-if="vm.PriceType == vm.PriceTypeDetail.CURRENT_PRICE">
+        {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+      </p>
+      <p flex="100" ng-if="vm.PriceType == vm.PriceTypeDetail.CURRENT_PRICE">
+        <md-button class="md-mini md-fab" aria-label="Add price" ng-click="vm.openPopupManualPrice($event)" ng-disabled="!vm.lineItem.qpa">
+          <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+          <md-tooltip>Add Price</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-mini" aria-label="Refresh Price" ng-click="vm.refreshPrice()">
+          <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+          <md-tooltip>Refresh Price</md-tooltip>
+        </md-button>
+      </p>
+    </div>
+    <div layout="row" class="cm-overflow-auto" ng-if="vm.isShowPriceBreak && (vm.qtyBreakList.length>0 && vm.getselectedRow()) ">
+      <div layout-wrap ng-if="vm.selectedPartPriceMatrix.length>0">
+        <div class="cm-section-main" layout="row" layout-wrap flex="100">
+          <div class="cm-normal-header" flex="100">
+            <h2>Selected Part Price</h2>
+          </div>
+          <div class="cm-section-inner" flex="100">
+            <table border="1" class="cm-price-select">
+              <tr>
+                <th class="padding-5-imp">Request Qty</th>
+                <th class="padding-5-imp">Reqd. Qty</th>
+                <th class="padding-5-imp">Quote Qty</th>
+                <th class="padding-5-imp">Units</th>
+                <th class="padding-5-imp text-left">UOM</th>
+                <th class="padding-5-imp">Selected Unit Price($)</th>
+                <th class="padding-5-imp">Ext. Price($)</th>
+                <th class="padding-5-imp">Std. Lead Time (Weeks)</th>
+                <th class="padding-5-imp text-left">{{vm.LabelConstant.MFGPN}}</th>
+                <th class="padding-5-imp text-left">Packaging</th>
+                <th class="padding-5-imp text-left">{{vm.LabelConstant.Supplier}}</th>
+                <th class="padding-5-imp text-left">Price Type</th>
+              </tr>
+              <tr ng-repeat="item in vm.selectedPartPriceMatrix  track by $index">
+                <td class="padding-5-imp">{{item.requestQty}}</td>
+                <td class="padding-5-imp">{{item.RequireQty}}</td>
+                <td class="padding-5-imp">{{item.QuoteQty}}</td>
+                <td class="padding-5-imp">{{item.Units}}</td>
+                <td class="padding-5-imp text-left">{{item.UOM}}</td>
+                <td class="padding-5-imp">${{item.ActualQuotePrice.toFixed(5)}}</td>
+                <td class="padding-5-imp">${{item.Ext_Price.toFixed(2)}}</td>
+                <td class="padding-5-imp">{{item.leadTime}}</td>
+                <td class="padding-5-imp text-left">
+                  <div class="ui-grid-cell-contents min-width-max-content">
+                    <span class="underline cursor-pointer" ng-click="vm.gotoComponent(item);$event.stopPropagation();">
+                      {{item.ManufacturerPartNumber}}
+                      <md-tooltip> {{item.ManufacturerPartNumber}} </md-tooltip>
+                    </span>
+                    <span ng-if="item.rohsIcon">
+                      <img class="rohs-bom-image" ng-src="{{vm.rohsName(item.rohsIcon)}}">
+                      <md-tooltip>{{item.RoHS}} {{item.isCustom}}</md-tooltip>
+                    </span>
+                    <md-icon ng-if="item.isPackaging" md-font-icon="icon-share">
+                      <md-tooltip md-direction="top">Packaging alias</md-tooltip>
+                    </md-icon>
+                    <span ng-click="vm.getProductDetail(item.ProductUrl);$event.stopPropagation();" ng-hide="item.isCustom || !item.ProductUrl">
+                      <img role="img" class="margin-top-5 height-12 padding-right-5 padding-left-5" ng-src="{{vm.getImage(item)}}" />
+                      <md-tooltip md-direction="top" ng-if="vm.getImage(item)">Search on {{item.SupplierName}}</md-tooltip>
+                    </span>
+                    <span ng-click="vm.getFindchip(item.ManufacturerPartNumber);$event.stopPropagation();" ng-hide="item.isCustom">
+                      <img role="img" class="margin-top-5 height-12 padding-right-5" ng-src="{{vm.apiConstant.FindChipImage}}" />
+                      <md-tooltip md-direction="top">Search on FindChip</md-tooltip>
+                    </span>
+                    <md-icon class="icon-cog color-black padding-top-5 margin-0" style="min-width: 16px;width: 16px" ng-click="vm.getOctoPart(item.ManufacturerPartNumber);$event.stopPropagation();" ng-hide="item.isCustom">
+                      <md-tooltip md-direction="top">
+                        Search on OctoPart
+                      </md-tooltip>
+                    </md-icon>
+                    <span ng-click="vm.getGooglesearch(item.ManufacturerPartNumber);$event.stopPropagation();" ng-hide="item.isCustom">
+                      <img role="img" class="margin-top-5 height-12 padding-right-5" ng-src="{{vm.apiConstant.GOOGLE_IMAGE}}" />
+                      <md-tooltip md-direction="top">Search on Google</md-tooltip>
+                    </span>
+                    <copy-text label="vm.LabelConstant.MFGPN" text="item.ManufacturerPartNumber"></copy-text>
+                    <copy-part-text label="PID" text="item.custAssyPN" ng-if="item.custAssyPN"></copy-part-text>
+                  </div>
+                </td>
+                <td class="padding-5-imp text-left">{{item.Packaging}}</td>
+                <td class="padding-5-imp text-left">
+                  <a class="cm-text-decoration underline" ng-click="vm.goToSupplierDetail(item.SupplierID);"
+                     tabindex="-1">{{item.SupplierName}}</a>
+                </td>
+                <td class="padding-5-imp text-left">{{item.PriceType}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div layout-wrap class="margin-left-10 margin-top-25" ng-repeat="price in vm.qtyBreakList">
+        <div class="cm-section-main border-0" layout="row" layout-wrap flex="100">
+          <div class="cm-section-inner cm-price-break">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-pricing-table-data">
+              <tbody>
+                <tr>
+                  <th><p class="label-container">{{vm.LabelConstant.MFGPN}}:</p></th>
+                  <td class="pr-10">{{vm.selectedrow.ManufacturerPartNumber && vm.selectedrow.ManufacturerPartNumber!="null" && vm.selectedrow.ManufacturerPartNumber!="undefined"?vm.selectedrow.ManufacturerPartNumber:"N/A"}}</td>
+                  <th><p class="label-container">Packaging:</p></th>
+                  <td>{{price.packaging && price.packaging!="null" && price.packaging!="undefined"?price.packaging:"N/A"}}</td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">Supplier PN:</p></th>
+                  <td class="pr-10">{{price.supplierPN && price.supplierPN!="null" && price.supplierPN!="undefined"?price.supplierPN:"N/A"}}</td>
+                  <th><p class="label-container">Unit:</p></th>
+                  <td>{{vm.selectedrow.connectorTypeID==-2?vm.selectedrow.ApiNoOfPosition: vm.selectedrow.packageQty}}&nbsp;{{vm.selectedrow.connectorTypeID==0?vm.selectedrow.BOMAbbrivation:vm.selectedrow.PartAbbrivation}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <table border="1" class="cm-price-select">
+          <tr>
+            <th>
+              Qty
+            </th>
+            <th>
+              Unit Price($)
+            </th>
+            <th>
+              Ext.Price($)
+            </th>
+            <th ng-if="vm.iscustomPartNumber">
+              Std. Lead Time (Weeks)
+            </th>
+          </tr>
+          <tr ng-repeat="item in price.priceBreak ">
+            <td>{{item.qty}}</td>
+            <td>${{item.price.toFixed(5)}}</td>
+            <td>${{((item.qty)*(item.price)).toFixed(2)}}</td>
+            <td ng-if="vm.iscustomPartNumber">{{item.leadTime}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </md-content>
+</div>
+<style>
+
+  .ui-grid-row.ui-grid-row-selected > [ui-grid-row] > .ui-grid-cell {
+    background-color: #E5FFAF !important;
+  }
+
+  .ui-grid-cell .ui-grid-vertical-bar {
+    height: 28px !important;
+  }
+
+  .font-14 {
+    font-size: 14px;
+  }
+</style>

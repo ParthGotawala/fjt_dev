@@ -1,0 +1,109 @@
+Step1: open cmd with administrator rights 
+
+Step2: go to C:\Program Files\MongoDB\Server\4.4\bin path 
+
+Step3: use mongo shell using "mongo" command
+
+Spte4: login into admin using "use admin" command.
+
+step5: create root user using " db.createUser({ user: "fjt", pwd: "triveni123", roles: ["userAdminAnyDatabase","root"] })"
+
+step6: close all mongodb connection [close APi and service]
+
+step7: perform step1 and step2 again 
+
+step8: perform "sc delete MongoDB" command
+
+Step8.1: go to window services or execute  "services.msc" from run and check monogoDB service is visible or not. if visible then stop it its auto remove from list.
+
+Step9: create new service of MongoDB with Authentication using this command 
+   in this every system have different path of WiredTiger so check in local and accordingly change path in below command.
+   "C:\Program Files\MongoDB\Server\4.4\bin\mongod.exe" --config "C:\Program Files\MongoDB\Server\4.4\Mongod.cfg" --dbpath "C:\MongoDB\MongoDB4.0Data\WiredTiger" --storageEngine wiredTiger --wiredTigerCacheSizeGB 1 --auth --install
+   
+step10: go to service and refresh and restart MongoDB service.
+
+Step11: in same cmd go to mongo session using "mongo" command or perform step1 to 3
+
+step12: perform following steps 
+  use admin 
+  db.auth("fjt","triveni123")
+  use fjtpricing_dev
+  db.createUser( { user : "admin", pwd : "admin123", roles: [ {role: "dbOwner", db : "fjtpricing_dev"}]})
+  use admin 
+  use fjtpricing_dev
+  db.auth("admin","admin123")
+  db.AssemblyQtyBreak.createIndex({"qtySupplierID" : 1})
+  db.FJTMongoQtySupplier.createIndex({"rfqAssyID" : 1})
+
+Step13: Change in mongodb.js URL (var url = "mongodb://fjt:triveni123@localhost:27017";)
+
+Step14: Change in Pricing service app.config (<add key="MongoDBServer" value="mongodb://fjt:triveni123@localhost:27017" />)
+
+step15: Connect with 'Management Studio"
+  name: databaseName
+  connection: fjt:triveni123@localhost:27017
+
+step16: Connect with 'MongoDB Compass Community"
+  host:localhost
+  Port : 27017
+  Authentication: Username/ Password
+  Username: fjt
+  Password: triveni123
+
+======================================================================
+
+Upgrader MongoDB version from 4.0 to 4.4
+------------------------------------------------
+Step 1: Take all DB backup using below command (Note : Execute below command per your database)
+  - "C:\Program Files\MongoDB\Server\4.4\bin\mongodump" --host localhost --port 27017 --username fjt --password triveni123 --db <Your Database> --authenticationDatabase admin  --out "C:\FJTBackup\12282021\12282021133702"
+Step 2: Install version 4.2 and 4.4 version
+  - copy below .exe into '4.4' Server 'Bin' folder
+    - bsondump.exe
+    - mongodump.exe
+    - mongoexport.exe
+    - mongofiles.exe
+    - mongoimport.exe
+    - mongorestore.exe
+    - mongorestat.exe
+    - mongotop.exe
+Step 3: Perform below step for check Configure mongoDB
+  - open cmd with administrator rights
+  - Go to C:\Program Files\MongoDB\Server\4.4\bin path 
+  - use mongo shell using "mongo" command
+  - Run below command
+    1.use admin
+    2.db.adminCommand({getParameter: 1, featureCompatibilityVersion: 1})
+    3.if it is '4.0' then execute below command
+       db.adminCommand({setFeatureCompatibilityVersion:4.2})
+    4.Once command executed Restart mongo Service
+    5.After retry with step 1 to 2
+      if its will return 4.2 then execute below command
+      - db.adminCommand({setFeaturCompatibilityVersion:4.4})
+Step 4: open cmd with administrator rights 
+Step 5: go to C:\Program Files\MongoDB\Server\4.4\bin path 
+Step 6: Check service exists or not (If exist then stop service)
+Step 7: perform "sc delete MongoDB" command
+Step 8: create new service of MongoDB with Authentication using this command 
+   in this every system have different path of WiredTiger so check in local and accordingly change path in below command.
+   "C:\Program Files\MongoDB\Server\4.4\bin\mongod.exe" --config "C:\Program Files\MongoDB\Server\4.4\bin\Mongod.cfg" --dbpath "C:\MongoDB\MongoDB4.0Data\WiredTiger" --storageEngine wiredTiger --wiredTigerCacheSizeGB 1 --auth --install
+  - If Face Any error Like : 'mongod log file not open'
+    - Give MongoDB folder right for access
+    - And Change mongod.log file path from "C:\Program Files\MongoDB\Server\4.4\bin\Mongod.cfg"
+Step 9: Follow Step 4 and 5
+Step 10: Execute below Command
+  - use mongo shell using => "mongo" command
+  use admin 
+  db.auth("fjt","triveni123")
+  use fjtpricing_dev
+  db.createUser( { user : "admin", pwd : "admin123", roles: [ {role: "dbOwner", db : "fjtpricing_dev"}]})
+  use admin 
+  use fjtpricing_dev
+  db.auth("admin","admin123")
+  - create root user using "db.createUser({ user: "fjt", pwd: "triveni123", roles: ["userAdminAnyDatabase","root"] })"
+  db.AssemblyQtyBreak.createIndex({"qtySupplierID" : 1})
+  db.FJTMongoQtySupplier.createIndex({"rfqAssyID" : 1})
+Step 11: create root user using " db.createUser({ user: "fjt", pwd: "triveni123", roles: ["userAdminAnyDatabase","root"] })"
+Step 12: Create 'dump' folder into  "C:\Program Files\MongoDB\Server\4.4\bin"
+Step 13: Follow Step 4 and 5
+Step 14: Excute below Command for Restrore Database (make sure 'mongorestore.exe' into 'bin' folder')
+  - mongorestore -h localhost:27017 -u fjt -p triveni123 --authenticationDatabase admin

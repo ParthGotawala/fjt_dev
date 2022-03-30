@@ -1,0 +1,107 @@
+(function () {
+  'use strict';
+
+  angular
+    .module('app.core')
+    .controller('PartInPOLinePopupController', PartInPOLinePopupController);
+
+  /** @ngInject */
+  function PartInPOLinePopupController($scope, $mdDialog, DialogFactory, CORE, USER, data, BaseService, $timeout, ComponentFactory) {
+    const vm = this;
+
+    vm.selectedPOReleaseItem = [];
+    console.log(data);
+    vm.POReleaseLineList = data.POReleaseLineList ? data.POReleaseLineList : [];
+    vm.POLineDet = data.POLlineDet ? data.POLlineDet : null;
+    vm.poNumber = data.poNumber ? data.poNumber : '-';
+    vm.supplierName = data.supplierName ? data.supplierName : '-';
+    vm.supplierSONumber = data.supplierSONumber ? data.supplierSONumber : '-';
+    vm.sysgenPOID = data.sysgenPOID ? data.sysgenPOID : null;
+    vm.supplierID = data.supplierID;
+    vm.Labels = CORE.LabelConstant;
+
+    vm.POReleaseLineList.forEach((item) => {
+      item['formattedshippingDate'] = BaseService.getUIFormatedDateTimeInCompanyTimeZone(item.shippingDate);
+      item['formattedpromisedShipDate'] = BaseService.getUIFormatedDateTimeInCompanyTimeZone(item.promisedShipDate);
+      item['formattedStatus'] = item.poLineWorkingStatus === 'C' ? 'Closed' : 'Open';
+    });
+
+    vm.selectReleaseLine = (item) => {
+
+      // $mdDialog.hide(item);
+
+
+      //[PP]: for handling selection using selectButton
+      const itenIndex = vm.selectedPOReleaseItem.findIndex((val) => {
+        return val.id === item.id;
+      });
+      console.log('itenIndex: ', itenIndex);
+      if (itenIndex !== -1) {
+        vm.selectedPOReleaseItem.splice(itenIndex, 1);
+      }
+      else {
+        vm.selectedPOReleaseItem.push(item);
+      }
+      console.log(vm.selectedPOReleaseItem);
+    }
+
+    vm.selectItem = () => {
+
+      if (vm.selectedPOReleaseItem.length === 1) {
+        $mdDialog.hide(vm.selectedPOReleaseItem[0]);
+      }
+      else {
+        //alert[choose only one item]
+      }
+
+    }
+
+
+
+
+    vm.goToPurchaseOrderDetail = () => {
+      BaseService.goToPurchaseOrderDetail(vm.sysgenPOID);
+    };
+
+    // go to purchase order list
+    vm.goToPurchaseOrderList = () => {
+      BaseService.goToPurchaseOrderList();
+    };
+
+    vm.goToSupplierList = () => {
+      BaseService.goToSupplierList();
+      return false;
+    };
+
+    vm.goToSupplierDetail = () => {
+      BaseService.goToSupplierDetail(vm.supplierID);
+      return false;
+    };
+    vm.cancel = () => {
+      $mdDialog.cancel();
+    };
+
+    vm.headerdata = [
+      {
+        label: vm.Labels.Purchase.PO,
+        value: vm.poNumber,
+        displayOrder: 1,
+        valueLinkFn: vm.goToPurchaseOrderDetail,
+        labelLinkFn: vm.goToPurchaseOrderList
+      },
+      {
+        label: vm.Labels.Purchase.SO,
+        value: vm.supplierSONumber,
+        displayOrder: 2
+        // labelLinkFn: vm.goToCameraList
+        // valueLinkFn: vm.goToManageSalesOrder
+      },
+      {
+        label: vm.Labels.SupplierRMA.Supplier,
+        value: vm.supplierName,
+        displayOrder: 3,
+        labelLinkFn: vm.goToSupplierList,
+        valueLinkFn: vm.goToSupplierDetail
+      }];
+  }
+})();

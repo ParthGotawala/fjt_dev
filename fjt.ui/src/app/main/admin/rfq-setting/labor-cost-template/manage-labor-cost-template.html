@@ -1,0 +1,300 @@
+<div class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common" layout="row" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="header md-accent-bg" layout="row" layout-align="space-between center">
+    <div flex layout="row" layout-align="start center">
+      <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" aria-label="Go to GenericCategorylist" ng-click="vm.goBack()">
+        <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+        </md-icon>
+      </md-button>
+      <div class="white-fg" layout="column" layout-align="start start">
+        <div class="h2" layout="row" layout-align="start center">
+          <pagetitle is-list="false"
+                     is-display-menu-name="true"
+                     prefix-content="vm.id ? 'Update' : 'Add'"
+                     suffix-content="vm.id ? (': ' + vm.laborCostTemplate) : ''"
+                     prefix-page-title="vm.laborCostTemplate ? vm.laborCostTemplate: ''"></pagetitle>
+          <md-tooltip md-direction="right" ng-if="vm.laborCostTemplate">{{vm.laborCostTemplate}}</md-tooltip>
+        </div>
+        <div layout="row" layout-align="start center" class="product-count">
+          <breadcrumbs></breadcrumbs>
+        </div>
+      </div>
+      <div layout="column" flex="30" ng-if="vm.autoCompleteLaborCostTemplate" class="margin-left-20 cm-header-search-add-container">
+        <div>
+          <md-input-container ng-if="vm.autoCompleteLaborCostTemplate" class="width-100p autocompletecustom margin-0 widget-dashboard-search-area" flex="100" flex-gt-xs="100">
+            <custom-auto-complete-search on-search-fn="vm.autoCompleteLaborCostTemplate.onSearchFn"
+                                         column-name="vm.autoCompleteLaborCostTemplate.columnName"
+                                         key-column-name="vm.autoCompleteLaborCostTemplate.keyColumnName"
+                                         input-name="vm.autoCompleteLaborCostTemplate.inputName"
+                                         placeholder-name="vm.autoCompleteLaborCostTemplate.placeholderName"
+                                         key-column-id="vm.autoCompleteLaborCostTemplate.keyColumnId"
+                                         is-required="vm.autoCompleteLaborCostTemplate.isRequired"
+                                         is-addnew="vm.autoCompleteLaborCostTemplate.isAddnew"
+                                         callback-fn="vm.autoCompleteLaborCostTemplate.callbackFn"
+                                         on-select-callback-fn="vm.autoCompleteLaborCostTemplate.onSelectCallbackFn">
+          </md-input-container>
+        </div>
+        <div class="cm-square-icon-btn pt-2">
+          <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-if="vm.id" ng-click="vm.addlaborCostTemplate(false)">
+            <md-icon md-font-icon="t-icons-labor-cost add-icon" class="material-icons"></md-icon>
+            <md-tooltip>Add Labor Cost Template In New Tab</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-if="vm.id" ng-click="vm.addlaborCostTemplate(true)">
+            <md-icon md-font-icon="t-icons-labor-cost add-icon same-tab-icon" class="material-icons"></md-icon>
+            <md-tooltip>Add Labor Cost Template</md-tooltip>
+          </md-button>
+        </div>
+      </div>
+    </div>
+    <div layout="row" layout-align="center center" class="cm-btn-group cm-square-icon-btn">
+    <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-click="vm.openLaborCostHistoryPopup($event)" ng-disabled="vm.laborCostForm.$dirty" ng-if="vm.id">
+      <md-icon md-font-icon="icons-history-text" class="material-icons"></md-icon>
+      <md-tooltip>{{vm.historyactionButtonName}}</md-tooltip>
+    </md-button>
+    <md-button class="md-raised md-primary" ng-click="vm.saveLaborCostDetails()" ng-class="{'md-formdirty': vm.checkdirty || vm.laborCostForm.$dirty}">
+      Save
+    </md-button>
+    </div>
+  </div>
+  <!-- / CONTENT HEADER -->
+  <div class="content-card padding-top-side" layout="column" flex="100">
+    <div layout="row" flex="100">
+      <div flex>
+        <form name="vm.laborCostForm" layout="row" layout-wrap class="md-inline-form padding-10-imp" novalidate>
+          <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+          <div flex="100" layout="row" layout-wrap layout-md="column" layout-sm="column" class="padding-bottom-20">
+            <div class="cm-section-main" flex>
+              <div class="cm-section-inner" flex="100">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th><p class="label-container">Price Type<span>&nbsp;*</span></p></th>
+                      <td>
+                        <md-input-container flex="100">
+                          <md-select name="matrixType"
+                                     custom-auto-focus="true"
+                                     ng-model="vm.laborCost.pricetype"
+                                     required
+                                     ng-disabled="vm.id"
+                                     ng-change="vm.changePartType()"
+                                     md-container-class="containerClass">
+                            <md-option ng-repeat="option in vm.priceMatrixTypes" ng-value="option.Value">{{option.Key}}</md-option>
+                          </md-select>
+                          <div ng-messages="vm.laborCostForm.matrixType.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th><p class="label-container">Template Name<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" id="templateName"
+                                 name="templateName"
+                                 ng-model="vm.laborCost.templateName"
+                                 placeholder="PO #"
+                                 required
+                                 ng-maxlength="50"
+                                 custom-blur="vm.checkUniqueTemplateName()">
+                          <div ng-messages="vm.laborCostForm.templateName.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(50, vm.laborCostForm.templateName.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <td>
+                        <md-input-container flex="100">
+                          <md-radio-group layout="row" layout-align="start start" layout-wrap
+                                          name="active" ng-model="vm.laborCost.isActive"
+                                          last-element data-focusButton="saveGenericeCatBtn" elementcondition="true">
+                            <md-radio-button class="margin-top-0" ng-repeat="item in vm.RadioGroup.isActive.array"
+                                             name="{{item.Value}}" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                          </md-radio-group>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </form>
+        <form name="vm.laborCostDetailsForm" layout="row" layout-wrap class="md-inline-form padding-10-imp" novalidate>
+          <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+          <div flex="100" layout="row">
+            <div class="cm-section-main" layout="row" layout-wrap flex="100">
+              <div class="cm-normal-header" flex="100">
+                <h2>Labor Cost Template Price Details</h2>
+              </div>
+              <div class="cm-section-inner" flex="100" layout-wrap>
+                <div layout="row">
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            <a class="cm-text-decoration underline"
+                               ng-click="vm.goToEquipmentTypeList();"
+                               tabindex="-1">
+                              Mounting Type
+                            </a><span ng-hide="!vm.laborCost.pricetype">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" ng-if="vm.autoCompleteMountingType" class="autocompletecustom cm-custom-autocomplete">
+                            <custom-auto-complete datalist="vm.mountingTypeList"
+                                                  column-name="vm.autoCompleteMountingType.columnName"
+                                                  key-column-name="vm.autoCompleteMountingType.keyColumnName"
+                                                  controller-name="vm.autoCompleteMountingType.controllerName"
+                                                  view-template-url="vm.autoCompleteMountingType.viewTemplateURL"
+                                                  input-name="vm.autoCompleteMountingType.inputName"
+                                                  placeholder-name="vm.autoCompleteMountingType.placeholderName"
+                                                  key-column-id="vm.autoCompleteMountingType.keyColumnId"
+                                                  is-addnew="vm.autoCompleteMountingType.isAddnew"
+                                                  add-data="vm.autoCompleteMountingType.addData"
+                                                  is-required="vm.autoCompleteMountingType.isRequired"
+                                                  input-id="'autoCompleteMountingType'"
+                                                  is-disabled="!vm.laborCost.pricetype"
+                                                  callback-fn="vm.autoCompleteMountingType.callbackFn">
+                            </custom-auto-complete>
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container">QPA / Line Count <span ng-hide="!vm.laborCost.pricetype">&nbsp;*</span></p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100">
+                            <input type="number"
+                                   id="qpa"
+                                   name="qpa"
+                                   ng-model="vm.laborCostDetails.qpa"
+                                   placeholder="QPA"
+                                   required
+                                   ng-maxlength="8"
+                                   ng-disabled="!vm.laborCost.pricetype"
+                                   custom-blur="vm.checkUniqueQPA()">
+                            <div ng-messages="vm.laborCostDetailsForm.qpa.$touched && vm.laborCostDetailsForm.qpa.$error"
+                                 role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength || number || min || invalid">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                        <th><p class="label-container">Ordered Qty<span ng-hide="vm.laborCost.pricetype==2 || !vm.laborCost.pricetype">&nbsp;*</span></p></th>
+                        <td>
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="number" name="orderedqty"
+                                   ng-model="vm.laborCostDetails.orderedQty"
+                                   placeholder="Ordered QTY"
+                                   ng-required="vm.laborCost.pricetype==1"
+                                   ng-maxlength="8"
+                                   ng-value="vm.laborCost.pricetype==2?0:''"
+                                   ng-disabled="vm.laborCost.pricetype==2 || !vm.laborCost.pricetype"
+                                   custom-blur="vm.checkUniqueQPA()">
+                            <div ng-messages="vm.laborCostDetailsForm.orderedqty.$touched && vm.laborCostDetailsForm.orderedqty.$error"
+                                 role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength || number || min || invalid">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                        <th><p class="label-container">Price $<span ng-hide="!vm.laborCost.pricetype">&nbsp;*</span></p></th>
+                        <td>
+                          <md-input-container flex="100" class="autocompletecustom cm-custom-autocomplete">
+                            <input type="number"
+                                   id="price"
+                                   name="price"
+                                   ng-model="vm.laborCostDetails.price"
+                                   placeholder="Price"
+                                   required
+                                   ng-maxlength="8"
+                                   ng-disabled="!vm.laborCost.pricetype">
+                            <div ng-messages="vm.laborCostDetailsForm.price.$touched && vm.laborCostDetailsForm.price.$error"
+                                 role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength || number || min || invalid">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                        <th><p class="label-container"></p></th>
+                        <td class="float-right">
+                          <md-button class="md-raised md-primary" ng-click="vm.addRow()" ng-class="{'md-formdirty': vm.laborCostDetailsForm.$dirty}" ng-show="!vm.isLaborCostDetailsUpdate" ng-disabled="!vm.laborCost.pricetype">
+                            Add
+                          </md-button>
+                          <md-button class="md-raised md-primary" ng-click="vm.editRow()" ng-class="{'md-formdirty': vm.laborCostDetailsForm.$dirty}" ng-show="vm.isLaborCostDetailsUpdate" ng-disabled="!vm.laborCost.pricetype">
+                            Update
+                          </md-button>
+                          <md-button class="md-raised md-button md-default-theme md-ink-ripple" type="button" ng-click="vm.reset(true)" ng-disabled="!vm.laborCost.pricetype">
+                            Reset
+                          </md-button>
+                        </td>
+
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div layout="row" excel-reader er-options="vm.erOptions" class="ph-10" layout-align="space-between-center">
+          <input id="fi-excel" name="file" type="file" class="hidden" style="height:0px;width:0px;left: -100%;position:absolute">
+          <span class="color-red ph-5">*Please click on save button in order to save the record(s).</span>
+          <div class="ph-5">
+            <md-button class="md-raised md-primary" ng-click="vm.importDocument()">
+              Import Labor Cost Template Data
+            </md-button>
+            <md-button class="md-raised md-primary" ng-click="vm.downloadDocument()">
+              Export Labor Cost Template
+            </md-button>
+            <md-button class="md-raised md-primary" ng-if="vm.id" ng-click="vm.ExportLaborCostDetailDocument()">
+              Export Labor Cost Template With Detail
+            </md-button>
+          </div>
+        </div>
+        <div class="content-card cm-labor-cost-grid" layout="column" flex>
+          <md-card layout="column" flex layout-align="space-between stretch" ng-show="!vm.isNoDataFound">
+            <ui-grid-extention class="PartType-grid" load-data="vm.loadData"
+                               grid-option="vm.gridOptions"
+                               header="vm.sourceHeader"
+                               grid-data="vm.sourceData"
+                               total-data-count="vm.totalSourceDataCount"
+                               reset-grid="vm.resetSourceGrid"
+                               selectted-rows="vm.selectedRowsList"
+                               paging-info="vm.pagingInfo"
+                               current-item="vm.currentdata"
+                               get-data-down="vm.getDataDown"
+                               empty-state="vm.emptyState"
+                               delete-multiple-data="vm.deleteMultipleData">
+          </md-card>
+          <div id="LaborCostDiv" class="empty-state text-center" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound">
+            <div class="emty-icon" flex="100">
+              <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+            </div>
+            <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- / CENTER -->
+<!--</div>-->

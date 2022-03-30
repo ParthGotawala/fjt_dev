@@ -1,0 +1,1314 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common cm-manage-supplier-invoice-slip" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <ms-form-wizard flex="100" layout="row">
+
+    <div class="header md-accent-bg overflow-auto-rs" ng-class="{'height-95': vm.supplierRMA.refInvoice, 'height-70': !vm.supplierRMA.refInvoice}" layout="row" flex="100" layout-align="space-between">
+
+      <div layout="row" layout-align="center center">
+        <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" aria-label="Go to Customerlist" ng-click="vm.goBack()">
+          <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+          </md-icon>
+        </md-button>
+        <div class="white-fg" layout="column" layout-align="start start">
+          <div class="h2" layout="row" layout-align="start center">
+            <pagetitle is-list="false"
+                       is-display-menu-name="true"
+                       prefix-content="vm.supplierRMAParamId ? 'Update' : 'Add'"
+                       suffix-content="vm.supplierRMAParamId ? ('#: '+ vm.supplierRMA.packingSlipNumber) : ''"
+                       prefix-page-title="vm.supplierRMA.packingSlipNumber ? vm.supplierRMA.packingSlipNumber: ''"></pagetitle>
+            <md-tooltip md-direction="right" ng-if="vm.supplierRMAParamId">{{vm.supplierRMA.packingSlipNumber}}</md-tooltip>
+            <!--<pagetitle is-list="true" is-display-menu-name="true"></pagetitle>-->
+          </div>
+          <div layout="row" layout-align="start center">
+            <breadcrumbs></breadcrumbs>
+          </div>
+        </div>
+      </div>
+
+      <div ng-if="vm.autoCompleteSupplierRMA" class="margin-left-15" flex="20">
+        <div class="margin-top-6">
+          <md-input-container ng-if="vm.autoCompleteSupplierRMA" class="width-100p autocompletecustom margin-0 widget-dashboard-search-area" flex="100" flex-gt-xs="100">
+            <custom-auto-complete-search on-search-fn="vm.autoCompleteSupplierRMA.onSearchFn"
+                                         column-name="vm.autoCompleteSupplierRMA.columnName"
+                                         key-column-name="vm.autoCompleteSupplierRMA.keyColumnName"
+                                         key-column-id="vm.autoCompleteSupplierRMA.keyColumnId"
+                                         input-name="vm.autoCompleteSupplierRMA.inputName"
+                                         placeholder-name="vm.autoCompleteSupplierRMA.placeholderName"
+                                         is-required="vm.autoCompleteSupplierRMA.isRequired"
+                                         is-addnew="vm.autoCompleteSupplierRMA.isAddnew"
+                                         callback-fn="vm.autoCompleteSupplierRMA.callbackFn"
+                                         on-select-callback-fn="vm.autoCompleteSupplierRMA.onSelectCallbackFn">
+            </custom-auto-complete-search>
+          </md-input-container>
+        </div>
+        <div class="cm-square-icon-btn pt-2">
+          <md-button class="md-primary md-raised mv-0-imp ml-0 md-icon-button" ng-click="vm.addSupplierRMA(true)"
+                     ng-if="vm.supplierRMAParamId">
+            <md-icon md-font-icon="t-icons-supplier-rma add-icon" class="add-icon icon"></md-icon>
+            <md-tooltip>Add Supplier RMA OR RMA Packing Slip In New Tab</md-tooltip>
+          </md-button>
+          <md-button class="md-primary md-raised mv-0-imp ml-0 md-icon-button" ng-click="vm.addSupplierRMA(false)"
+                     ng-if="vm.supplierRMAParamId">
+            <md-icon md-font-icon="t-icons-supplier-rma add-icon" class="add-icon icon same-tab-icon"></md-icon>
+            <md-tooltip>Add Supplier RMA OR RMA Packing Slip</md-tooltip>
+          </md-button>
+        </div>
+      </div>
+
+      <div layout="row" flex="25">
+        <div layout="row" flex="100" class="cm-workorder-table" layout-wrap>
+          <div flex layout="row" layout-wrap>
+            <div flex="100" layout-wrap>
+
+              <table cellspacing="0" cellpadding="0" class="cm-header-data-table cm-supplier-rma-header-table">
+                <tbody>
+
+                  <tr>
+                    <th>
+                      <a class="cursor-pointer text-underline" ng-click="vm.goToSupplierRMAList();">
+                        {{vm.LabelConstant.SupplierRMA.RMANumber}}:
+                      </a>
+                    </th>
+                    <td>
+                      <span class="cm-data">
+                        <md-tooltip ng-if="vm.supplierRMA.poNumber">{{vm.supplierRMA.poNumber}}</md-tooltip>
+                        <b>{{vm.supplierRMA.poNumber}}</b>
+                      </span>
+                      <copy-text ng-if="vm.supplierRMA.poNumber" label="vm.LabelConstant.SupplierRMA.RMANumber" text="vm.supplierRMA.poNumber"></copy-text>
+                    </td>
+
+                    <th>
+                      <a class="cursor-pointer text-underline" ng-click="vm.goToSupplierRMAList();">
+                        {{vm.LabelConstant.SupplierRMA.PackingSlipNumber}}:
+                      </a>
+                    </th>
+                    <td>
+                      <span class="cm-data">
+                        <md-tooltip ng-if="vm.supplierRMA.packingSlipNumber">{{vm.supplierRMA.packingSlipNumber}}</md-tooltip>
+                        <b>{{vm.supplierRMA.packingSlipNumber}}</b>
+                      </span>
+                      <copy-text label="vm.LabelConstant.SupplierRMA.PackingSlipNumber" text="vm.supplierRMA.packingSlipNumber"></copy-text>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <th>{{vm.LabelConstant.SupplierRMA.RMADate}}:</th>
+                    <td>
+                      <span class="cm-date">
+                        <b>{{vm.supplierRMA.poDate | date: vm.DefaultDateFormat}}</b>
+                      </span>
+                    </td>
+
+                    <th>{{vm.LabelConstant.SupplierRMA.PackingSlipDate}}:</th>
+                    <td>
+                      <span class="cm-date">
+                        <b>{{vm.supplierRMA.packingSlipDate | date: vm.DefaultDateFormat}}</b>
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <th>
+                      <a class="cursor-pointer text-underline" ng-click="vm.goToSupplierList();">
+                        {{vm.LabelConstant.SupplierRMA.Supplier}}:
+                      </a>
+                    </th>
+                    <td>
+                      <span class="cm-name" ng-class="{'text-underline': vm.supplierRMA.mfgFullName, 'cursor-pointer': vm.supplierRMA.mfgFullName}" ng-click="vm.supplierRMA.mfgFullName ? vm.goToSupplierDetail() : ''">
+                        <b>{{vm.supplierRMA.mfgFullName}}</b>
+                      </span>
+                    </td>
+                    <th>{{vm.LabelConstant.SupplierRMA.ShippedDate}}:</th>
+                    <td>
+                      <span class="cm-date">
+                        <b>{{vm.supplierRMA.receiptDate | date: vm.DefaultDateFormat}}</b>
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr ng-if="vm.supplierRMA.refInvoice">
+                    <th ng-if="vm.supplierRMA.refInvoice">
+                      <a class="cursor-pointer text-underline" ng-click="vm.goToCreditMemoList();">
+                        {{vm.LabelConstant.SupplierInvoice.CreditMemoNumber}}:
+                      </a>
+                    </th>
+                    <td ng-if="vm.supplierRMA.refInvoice">
+                      <span class="cm-data text-underline cursor-pointer" ng-click="vm.goToCreditMemoDetail(vm.supplierRMA.refInvoice.id)">
+                        <md-tooltip ng-if="vm.supplierRMA.refInvoice.creditMemoNumber">{{vm.supplierRMA.refInvoice.creditMemoNumber}}</md-tooltip>
+                        <b>{{vm.supplierRMA.refInvoice.creditMemoNumber}}</b>
+                      </span>
+                      <copy-text label="vm.LabelConstant.SupplierInvoice.CreditMemoNumber" text="vm.supplierRMA.refInvoice.creditMemoNumber"></copy-text>
+                    </td>
+
+                    <th ng-if="vm.supplierRMA.refInvoice">{{vm.LabelConstant.SupplierInvoice.CreditMemoDate}}:</th>
+                    <td ng-if="vm.supplierRMA.refInvoice">
+                      <span class="cm-date">
+                        <b>{{vm.supplierRMA.refInvoice.creditMemoDate | date: vm.DefaultDateFormat}}</b>
+                      </span>
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div layout="row" layout-align="end center" flex>
+        <div layout="row" layout-align="end-center" class="margin-right-10"
+             ng-if="vm.supplierRMA.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked">
+          <span class="label-box label-danger">
+            Locked
+            <md-tooltip md-direction="bottom" class="tt-multiline">
+              Locked By: {{vm.supplierRMA.lockedByUser}} <br />
+              Locked Date: {{vm.supplierRMA.lockedAt}}
+            </md-tooltip>
+          </span>
+        </div>
+        <div layout="row" layout-align="end-center" class="margin-right-10 cm-square-icon-btn">
+          <span class="label-box" ng-if="vm.supplierRMA.statusText"
+                ng-class="{'label-danger': vm.supplierRMA.status === vm.supplierRMAStatusCode.Draft,
+                'label-warning': vm.supplierRMA.status === vm.supplierRMAStatusCode.WaitingForShipment,
+                'label-info': vm.supplierRMA.status === vm.supplierRMAStatusCode.WaitingForCreditMemo,
+                'light-pink-bg': vm.supplierRMA.status === vm.supplierRMAStatusCode.CreditMemoReceived,
+                'label-success': vm.supplierRMA.status === vm.supplierRMAStatusCode.ApprovedToPay,
+                'bg-purple': vm.supplierRMA.status === vm.supplierRMAStatusCode.PartiallyPaid,
+                'label-primary': vm.supplierRMA.status === vm.supplierRMAStatusCode.Paid }">
+            {{vm.supplierRMA.statusText}}
+          </span>
+        </div>
+
+        <div layout="row" class="cm-header-draft-btn" layout-wrap layout-align="center center" ng-if="vm.isSupplierRMATab">
+          <div layout="column">
+            <md-menu-bar id="user-menu" class="padding-left-8 padding-right-8">
+              <md-menu md-position-mode="left bottom">
+                <md-button class="user-button" ng-click="$mdOpenMenu()"
+                           ng-disabled="vm.supplierRMA.status === vm.supplierRMAStatusCode.CreditMemoReceived || vm.supplierRMA.status === vm.supplierRMAStatusCode.ApprovedToPay || vm.supplierRMA.status === vm.supplierRMAStatusCode.Paid || vm.supplierRMA.status === vm.supplierRMAStatusCode.PartiallyPaid || (vm.supplierRMA.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin)">
+                  <div layout="row" layout-align="space-between center">
+                    <span class="username">{{vm.getSupplierRMAModeStatus(vm.supplierRMA.packingSlipModeStatus)}}</span>
+                    <md-icon md-font-icon="icon-chevron-down" class="icon s16"></md-icon>
+                  </div>
+                </md-button>
+                <md-menu-content width="3">
+                  <md-menu-item ng-repeat="status in vm.supplierRMAModeStatus | orderBy:'DisplayOrder'">
+                    <md-button ng-click="vm.changeSupplierRMAModeStatus(status)">{{status.Name}}</md-button>
+                  </md-menu-item>
+                </md-menu-content>
+              </md-menu>
+            </md-menu-bar>
+            <div layout="row" layout-align="center center">
+              <span ng-if="vm.label" class="cm-font-10 padding-bottom-8"><b>{{vm.label}}</b></span>
+            </div>
+          </div>
+        </div>
+
+        <div layout="row" layout-align="end-center" class="margin-right-10" ng-if="!vm.isSupplierRMATab">
+          <span class="label-box" ng-class="vm.getSupplierRMAModeStatusClassName(vm.supplierRMA.packingSlipModeStatus)">{{vm.getSupplierRMAModeStatus(vm.supplierRMA.packingSlipModeStatus)}}</span>
+        </div>
+
+        <div layout="row" ng-if="vm.isSupplierRMATab && vm.supplierRMAParamId" class="cm-square-icon-btn">
+          <div layout="row" flex="100" class="cm-btn-group">
+            <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-click="vm.opencustomerpackingSlipChangesHistoryAuditLog($event)" ng-disabled="vm.isPrintDisable">
+              <md-icon md-font-icon="t-icons-history-text" class="material-icons"></md-icon>
+              <md-tooltip>RMA Packing Slip History</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-click="vm.printRecord(false)" ng-disabled="vm.isPrintDisable">
+              <md-icon md-font-icon="icon-printer" class="material-icons"></md-icon>
+              <md-tooltip>Print</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10 margin-right-10" ng-click="vm.printRecord(true)" ng-disabled="vm.isDownloadDisabled">
+              <md-icon md-font-icon="icon-download" class="material-icons"></md-icon>
+              <md-tooltip>Download</md-tooltip>
+            </md-button>
+          </div>
+        </div>
+        <div layout="row" ng-if="vm.isSupplierRMATab" class="cm-square-icon-btn">
+          <div layout="row" flex="100" class="cm-btn-group">
+            <md-button class="md-primary md-raised margin-left-0 " name="saveRMABtn" ng-class="{'md-formdirty': vm.supplierRMADetailForm.$dirty}" id="saveBtn"
+                       ng-disabled="(vm.supplierRMA.lockStatus === vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin) || vm.supplierRMADisable"
+                       ng-click="vm.checkValidationAndSaveRMADetail()">
+              Save
+            </md-button>
+          </div>
+        </div>
+        <div layout="row" ng-if="vm.isMiscTab" class="cm-square-icon-btn">
+          <div layout="row" flex="100" class="cm-btn-group">
+            <md-button class="md-primary md-raised margin-left-0 " ng-class="{'md-formdirty': vm.supplierRMAMiscForm.$dirty}" id="saveBtn"
+                       ng-disabled="vm.supplierRMA.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin"
+                       ng-click="vm.saveMisc()">
+              Save
+            </md-button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="content-card" ng-class="{'padding-top-95': vm.supplierRMA.refInvoice, 'padding-top-70': !vm.supplierRMA.refInvoice}" layout="column" flex="100">
+      <div layout="row" flex="100">
+        <div flex>
+
+          <md-tabs validate-step="true" is-valid="vm.isStepValid" class="fielddetail manage-customer-tabing padding-bottom-0" md-dynamic-height md-selected="vm.selectedTabIndex" id="manage-customer-tabing">
+
+            <md-tab md-on-select="vm.onTabChanges(vm.supplierRMATab.SupplierRMA, msWizard)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-text">{{vm.supplierRMATabName.SupplierRMA}}</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+
+                <form name="vm.supplierRMADetailForm" layout="row" layout-wrap class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+                  <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+
+                  <div flex="100" flex-gt-md="100" layout="row" ng-if="vm.isSupplierRMATab" flex-md="100" flex-sm="100" class="pb-10">
+
+                    <div flex="33" class="cm-section-main margin-right-10">
+                      <div class="cm-section-inner" flex="100">
+                        <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                          <tbody>
+
+                            <tr>
+                              <th><p class="label-container">{{vm.LabelConstant.COMMON.SystemID}}</p></th>
+                              <td>
+                                <md-input-container flex="100" class="margin-bottom-0">
+                                  <input type="text" name="systemId" id="systemId" ng-model="vm.supplierRMA.systemId" placeholder="{{vm.LabelConstant.COMMON.SystemID}}" disabled>
+                                </md-input-container>
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToSupplierList();" tabindex="-1">{{vm.autoCompleteSupplier.placeholderName}}</a><span ng-if="!vm.supplierRMADisable">&nbsp;*</span></p></th>
+                              <td>
+                                <md-input-container ng-if="vm.autoCompleteSupplier" class="autocompletecustom width-100p" flex="100">
+                                  <custom-auto-complete datalist="vm.supplierList"
+                                                        column-name="vm.autoCompleteSupplier.columnName"
+                                                        controller-name="vm.autoCompleteSupplier.controllerName"
+                                                        view-template-url="vm.autoCompleteSupplier.viewTemplateURL"
+                                                        key-column-name="vm.autoCompleteSupplier.keyColumnName"
+                                                        input-name="vm.autoCompleteSupplier.inputName"
+                                                        placeholder-name="vm.autoCompleteSupplier.placeholderName"
+                                                        key-column-id="vm.autoCompleteSupplier.keyColumnId"
+                                                        is-required="vm.autoCompleteSupplier.isRequired"
+                                                        is-addnew="vm.autoCompleteSupplier.isAddnew"
+                                                        callback-fn="vm.autoCompleteSupplier.callbackFn"
+                                                        add-data="vm.autoCompleteSupplier.addData"
+                                                        on-select-callback-fn="vm.autoCompleteSupplier.onSelectCallbackFn"
+                                                        is-disabled="vm.supplierRMADisable">
+                                  </custom-auto-complete>
+                                </md-input-container>
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToSupplierRMAList();" tabindex="-1">{{vm.LabelConstant.SupplierRMA.RMANumber}}</a><span ng-if="!vm.supplierRMADisable">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                              <td>
+                                <md-input-container flex="100" class="margin-bottom-0">
+                                  <input type="text" name="rmaNumber" id="rmaNumber" ng-model="vm.supplierRMA.poNumber" placeholder="RMA#" required ng-maxlength="50" md-maxlength="50" custom-blur="vm.checkUniqueRMANumber()" ng-disabled="vm.supplierRMADisable" capitalize class="input-text-uppercase">
+                                  <div ng-messages="vm.supplierRMADetailForm.rmaNumber.$error"
+                                       role="alert">
+                                    <div ng-message="required">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                    </div>
+                                    <div ng-message="maxlength">
+                                      <span>{{vm.getMaxLengthValidation(50, vm.supplierRMADetailForm.rmaNumber.$viewValue.length)}}</span>
+                                    </div>
+                                  </div>
+                                </md-input-container>
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <th><p class="label-container">{{vm.LabelConstant.SupplierRMA.RMADate}}<span ng-if="!vm.supplierRMADisable">&nbsp;*</span></p></th>
+                              <td>
+                                <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                                  <input name="rmaDate" type="text" class="float-left"
+                                         id="rmaDate"
+                                         max-value="vm.currentDate"
+                                         max-value-is-today-date="true"
+                                         allow-past-date="true"
+                                         allow-future-date="false"
+                                         datetime-picker="{{$root.dateDisplayFormat}}"
+                                         ng-model="vm.supplierRMA.poDate"
+                                         enable-time="false"
+                                         ui-options="{clearOnBlur: false}"
+                                         ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                         ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                         model-view-value="true"
+                                         datepicker-options="vm.rmaDateOptions"
+                                         ng-change="vm.checkDateValidation()"
+                                         is-open="vm.IsPickerOpen[vm.DATE_PICKER.poDate]"
+                                         required
+                                         ng-disabled="vm.supplierRMADisable || vm.isDisableRMADate" />
+                                  <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.poDate] = (vm.supplierRMADisable || vm.isDisableRMADate ? false : true)">
+                                  </md-icon>
+                                  <div ng-messages="vm.supplierRMADetailForm.rmaDate.$error" role="alert">
+                                    <div ng-message="maxvalue">
+                                      <span>{{vm.getMaxDateValidation('RMA date', 'today date')}}</span>
+                                    </div>
+                                    <div ng-message="required">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                    </div>
+                                    <div ng-message="datetime || mask || parse">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                    </div>
+                                  </div>
+                                </md-input-container>
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <th><p class="label-container">{{vm.LabelConstant.SupplierRMA.ShippedDate}}<span ng-if="!vm.supplierRMADisable">&nbsp;*</span></p></th>
+                              <td>
+                                <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                                  <input name="shippedDate" type="text" class="float-left"
+                                         id="shippedDate"
+                                         allow-past-date="true"
+                                         allow-future-date="true"
+                                         datetime-picker="{{$root.dateDisplayFormat}}"
+                                         ng-model="vm.supplierRMA.receiptDate"
+                                         enable-time="false"
+                                         ui-options="{clearOnBlur: false}"
+                                         ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                         ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                         model-view-value="true"
+                                         datepicker-options="vm.receiptDateOptions"
+                                         ng-change="vm.checkDateValidation()"
+                                         is-open="vm.IsPickerOpen[vm.DATE_PICKER.receiptDate]"
+                                         ng-disabled="vm.supplierRMADisable"
+                                         required />
+                                  <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.receiptDate] = (vm.supplierRMADisable ? false : true)">
+                                  </md-icon>
+                                  <div ng-messages="vm.supplierRMADetailForm.shippedDate.$error" role="alert">
+                                    <div ng-message="required">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                    </div>
+                                    <div ng-message="minvalue">
+                                      <span>{{vm.getMinDateValidation('Shipped to date', 'packing slip date')}}</span>
+                                    </div>
+                                    <div ng-message="datetime || mask || parse">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                    </div>
+                                    <div ng-message="mindate">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.SHIPPED_DATE_GREATER_EQUAL_THAN_PACKING_SLIP_DATE}}</span>
+                                    </div>
+                                  </div>
+                                </md-input-container>
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <th><p class="label-container">{{vm.LabelConstant.SupplierRMA.InternalRMARemark}}</p></th>
+                              <td>
+                                <md-input-container flex="100" class="margin-bottom-0">
+                                  <textarea type="text" max-rows="4" rows="2" name="internalRemark"
+                                            ng-model="vm.supplierRMA.internalRemark" placeholder="Internal RMA Remark"
+                                            ng-maxlength="vm.maxLengthForDescription"
+                                            md-maxlength="vm.maxLengthForDescription"
+                                            ng-disabled="(vm.supplierRMA.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin)"></textarea>
+                                  <div ng-messages="vm.supplierRMADetailForm.internalRemark.$touched && vm.supplierRMADetailForm.internalRemark.$error"
+                                       role="alert">
+                                    <div ng-message="maxlength">
+                                      <span>
+                                        {{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.supplierRMADetailForm.internalRemark.$viewValue.length) }}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <span>Hint: Internal only, Will not print on packing slip</span>
+                                  </div>
+                                </md-input-container>
+                              </td>
+                            </tr>
+
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div flex="33" class="cm-section-main margin-right-10">
+                      <div class="cm-section-inner" flex="100">
+                        <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                          <tbody>
+
+                            <tr>
+                              <th>
+                                <p class="label-container">
+                                  <a class="cm-text-decoration" ng-click="vm.goToSupplierRMAList();" tabindex="-1">{{vm.LabelConstant.SupplierRMA.PackingSlipNumber}}</a>
+                                  <md-icon class="icon-question-mark-circle help-icon">
+                                    <md-tooltip md-direction="top">Packing Slip# generated based on 'RPS' as prefix, packing slip date and incremental number.</md-tooltip>
+                                  </md-icon>
+                                </p>
+                              </th>
+                              <td>
+                                <md-input-container flex="100" class="margin-bottom-0 cm-cust-packingslip-pos">
+                                  <input type="text" name="packingSlipNumber" id="packingSlipNumber" ng-model="vm.supplierRMA.packingSlipNumber" placeholder="Packing Slip#" ng-maxlength="50" disabled>
+                                </md-input-container>
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <th><p class="label-container">{{vm.LabelConstant.SupplierRMA.PackingSlipDate}}<span ng-if="!vm.supplierRMADisable">&nbsp;*</span></p></th>
+                              <td>
+                                <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                                  <input name="packingSlipDate" type="text" class="float-left"
+                                         id="packingSlipDate"
+                                         max-value="vm.currentDate"
+                                         max-value-is-today-date="true"
+                                         allow-past-date="true"
+                                         allow-future-date="false"
+                                         datetime-picker="{{$root.dateDisplayFormat}}"
+                                         ng-model="vm.supplierRMA.packingSlipDate"
+                                         enable-time="false"
+                                         ui-options="{clearOnBlur: false}"
+                                         ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                         ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                         model-view-value="true"
+                                         datepicker-options="vm.packingSlipDateOptions"
+                                         ng-change="vm.checkDateValidation()"
+                                         is-open="vm.IsPickerOpen[vm.DATE_PICKER.packingSlipDate]"
+                                         required
+                                         ng-disabled="vm.supplierRMADisable" />
+                                  <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.packingSlipDate] = (vm.supplierRMADisable ? false : true)">
+                                  </md-icon>
+                                  <div ng-messages="vm.supplierRMADetailForm.packingSlipDate.$error" role="alert">
+                                    <div ng-message="maxvalue">
+                                      <span>{{vm.getMaxDateValidation('Packing slip date', 'today date')}}</span>
+                                    </div>
+                                    <div ng-message="required">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                    </div>
+                                    <div ng-message="datetime || mask || parse">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                    </div>
+                                    <div ng-message="mindate">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.PACKING_SLIP_DATE_GREATER_EQUAL_THAN_RMA_DATE}}</span>
+                                    </div>
+                                  </div>
+                                </md-input-container>
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <th><p class="label-container">{{vm.LabelConstant.SupplierRMA.RMARemark}}</p></th>
+                              <td>
+                                <md-input-container flex="100" class="margin-bottom-0">
+                                  <textarea type="text" max-rows="4" rows="2" name="remark"
+                                            ng-model="vm.supplierRMA.remark"
+                                            ng-maxlength="vm.maxLengthForDescription"
+                                            md-maxlength="vm.maxLengthForDescription"
+                                            placeholder="RMA Remark" ng-disabled="vm.supplierRMADisable"></textarea>
+                                  <div ng-messages="vm.supplierRMADetailForm.remark.$touched && vm.supplierRMADetailForm.remark.$error"
+                                       role="alert">
+                                    <div ng-message="maxlength">
+                                      <span>
+                                        {{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.supplierRMADetailForm.remark.$viewValue.length) }}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <span>Hint: Will print on packing slip</span>
+                                  </div>
+                                </md-input-container>
+                              </td>
+                            </tr>
+
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div flex="33" class="cm-section-main">
+                      <div class="cm-section-inner" flex="100">
+                        <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                          <tbody>
+
+                            <tr>
+                              <th>
+                                <p class="label-container">
+                                  <a class="cm-text-decoration" ng-click="vm.goToShippingMethodList();" tabindex="-1">{{vm.LabelConstant.SupplierRMA.ShippingMethod}}</a><span ng-if="!vm.supplierRMADisable">&nbsp;*</span>
+                                </p>
+                              </th>
+                              <td>
+                                <md-input-container ng-if="vm.autoCompleteShippingMethod" class="autocompletecustom margin-bottom-0" flex>
+                                  <custom-auto-complete datalist="vm.shippingMethodList"
+                                                        column-name="vm.autoCompleteShippingMethod.columnName"
+                                                        controller-name="vm.autoCompleteShippingMethod.controllerName"
+                                                        view-template-url="vm.autoCompleteShippingMethod.viewTemplateURL"
+                                                        key-column-name="vm.autoCompleteShippingMethod.keyColumnName"
+                                                        input-name="vm.autoCompleteShippingMethod.inputName"
+                                                        placeholder-name="vm.autoCompleteShippingMethod.placeholderName"
+                                                        key-column-id="vm.autoCompleteShippingMethod.keyColumnId"
+                                                        is-required="vm.autoCompleteShippingMethod.isRequired"
+                                                        is-disabled="vm.supplierRMADisable"
+                                                        is-addnew="vm.autoCompleteShippingMethod.isAddnew"
+                                                        add-data="vm.autoCompleteShippingMethod.addData"
+                                                        callback-fn="vm.autoCompleteShippingMethod.callbackFn"
+                                                        on-select-callback-fn="vm.autoCompleteShippingMethod.onSelectCallbackFn">
+                                  </custom-auto-complete>
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <th>
+                                <p class="label-container">
+                                  <a class="cm-text-decoration" ng-click="vm.goToCarrierList();" tabindex="-1">{{vm.LabelConstant.SupplierRMA.Carrier}}</a><span ng-if="!vm.supplierRMADisable">&nbsp;*</span>
+                                </p>
+                              </th>
+                              <td>
+                                <md-input-container ng-if="vm.autoCompleteCarrier" class="autocompletecustom margin-bottom-0" flex>
+                                  <custom-auto-complete datalist="vm.carrierList"
+                                                        column-name="vm.autoCompleteCarrier.columnName"
+                                                        controller-name="vm.autoCompleteCarrier.controllerName"
+                                                        view-template-url="vm.autoCompleteCarrier.viewTemplateURL"
+                                                        key-column-name="vm.autoCompleteCarrier.keyColumnName"
+                                                        input-name="vm.autoCompleteCarrier.inputName"
+                                                        placeholder-name="vm.autoCompleteCarrier.placeholderName"
+                                                        key-column-id="vm.autoCompleteCarrier.keyColumnId"
+                                                        is-required="vm.autoCompleteCarrier.isRequired"
+                                                        is-disabled="vm.supplierRMADisable"
+                                                        is-addnew="vm.autoCompleteCarrier.isAddnew"
+                                                        add-data="vm.autoCompleteCarrier.addData"
+                                                        callback-fn="vm.autoCompleteCarrier.callbackFn"
+                                                        on-select-callback-fn="vm.autoCompleteCarrier.onSelectCallbackFn">
+                                  </custom-auto-complete>
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <th><p class="label-container">{{vm.LabelConstant.SupplierRMA.CarrierAccount}}</p></th>
+                              <td>
+                                <md-input-container flex="100" class="margin-bottom-0">
+                                  <input type="text" name="carrierAccountNumber" id="carrierAccountNumber" ng-model="vm.supplierRMA.carrierAccountNumber" placeholder="Carrier Account#" ng-maxlength="50" md-maxlength="50" ng-disabled="vm.supplierRMADisable">
+                                  <div ng-messages="vm.supplierRMADetailForm.carrierAccountNumber.$error" role="alert">
+                                    <div ng-message="maxlength">
+                                      <span>{{vm.getMaxLengthValidation(50, vm.supplierRMADetailForm.carrierAccountNumber.$viewValue.length)}}</span>
+                                    </div>
+                                  </div>
+                                </md-input-container>
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <th></th>
+                              <td>
+                                <div layout="row">
+                                  <md-checkbox name="shippingInsurance" id="shippingInsurance" ng-model="vm.supplierRMA.shippingInsurance" class="margin-0" ng-disabled="vm.supplierRMADisable"></md-checkbox>
+                                  <p class="label-container">{{vm.LabelConstant.SupplierRMA.ShippingInsurance}}</p>
+                                </div>
+                              </td>
+                            </tr>
+
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <div flex="100" flex-gt-md="100" layout="row" ng-if="vm.isSupplierRMATab" flex-md="100" flex-sm="100">
+
+                    <div flex="50" class="cm-section-main margin-right-10">
+                      <div class="cm-normal-header" flex="100">
+                        <h2>Tracking#</h2>
+                      </div>
+                      <div class="cm-section-inner cm-rma-tracking-height-scroll" flex="100" layout="row" layout-wrap>
+                        <div flex="35" layout="row">
+                          <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                            <input type="text" name="trackingNumber" id="trackingNumber" ng-model="vm.trackingNumberDet.trackNumber" placeholder="Enter Tracking#"
+                                   ng-maxlength="100" md-maxlength="100"
+                                   ng-disabled="(vm.supplierRMA.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin) || vm.disableTrackingNumber"
+                                   ng-keypress="vm.addTrackingNumberToList($event);"> <!--ng-change="vm.checkUniqueTrackNumber()"-->
+                            <span class="font-size-10">
+                              <b>Type and press Enter.</b>
+                            </span>
+                            <div ng-messages="vm.supplierRMADetailForm.trackingNumber.$error" role="alert">
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(100, vm.supplierRMADetailForm.trackingNumber.$viewValue.length)}}</span>
+                              </div>
+                              <div ng-message="duplicate">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.DUPLICATE}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </div>
+                        <div ng-repeat="item in vm.supplierRMA.supplierRMATrackNumber" layout="row" layout-align="start center" class="cm-tracking-chip-mian">
+                          <div class="tracking-number-chip" layout="row" layout-align="start center">
+                            <label ng-click="vm.editTrackingNumber(item)">{{item.trackNumber}}</label>
+                            <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeTrackNumber(item, $index)" ng-disabled="(vm.supplierRMA.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin)" tabindex="-1">
+                              <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                              <md-tooltip>Remove Tracking#</md-tooltip>
+                            </md-button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div flex="25">
+                      <div flex="100" class="mt-5">
+                        <div layout="column">
+                          <view-cust-address-contact-det param-address-det="vm.rmaAddress"
+                                                         param-contact-person-det="vm.rmaAddressContactPerson"
+                                                         param-addr-action-btn-det="vm.rmaAddressViewActionBtnDet"
+                                                         param-cont-person-action-btn-det="vm.rmaAddressContPersonViewActionBtnDet"
+                                                         param-add-update-addr-callback-fn="vm.ShipToAddressAddUpdateCallback"
+                                                         param-select-addr-callback-fn="vm.ShipToAddressAddUpdateCallback"
+                                                         param-other-det="vm.rmaAddressViewAddrOtherDet"
+                                                         param-add-update-contact-callback-fn="vm.ShipToContactPersonAddUpdateCallback"
+                                                         param-select-contact-callback-fn="vm.ShipToContactPersonAddUpdateCallback"
+                                                         param-refresh-address-callback-fn="vm.refreshAddress"
+                                                         param-delete-addr-callback-fn="vm.removeAddress"
+                                                         param-delete-cont-person-callback-fn="vm.removeContactPerson">
+                          </view-cust-address-contact-det>
+                        </div>
+                      </div>
+                    </div>
+                    <div flex="25" class="padding-left-10">
+                      <div flex="100" class="mt-5">
+                        <div layout="column">
+                          <view-cust-address-contact-det param-address-det="vm.rmaMarkForAddress"
+                                                         param-contact-person-det="vm.markedForAddressContactPerson"
+                                                         param-addr-action-btn-det="vm.rmaMarkedForAddressViewActionBtnDet"
+                                                         param-cont-person-action-btn-det="vm.rmaMarkedForAddressContPersonViewActionBtnDet"
+                                                         param-add-update-addr-callback-fn="vm.rmaMarkedForAddressAddUpdateCallback"
+                                                         param-select-addr-callback-fn="vm.rmaMarkedForAddressAddUpdateCallback"
+                                                         param-other-det="vm.rmaMarkedAddressViewAddrOtherDet"
+                                                         param-add-update-contact-callback-fn="vm.markedForContactPersonAddUpdateCallback"
+                                                         param-select-contact-callback-fn="vm.markedForContactPersonAddUpdateCallback"
+                                                         param-delete-addr-callback-fn="vm.removeRMAMarkForAddress"
+                                                         param-refresh-address-callback-fn="vm.refreshMarkedForAddress"
+                                                         param-delete-cont-person-callback-fn="vm.removeMarkedForContactPerson">
+                          </view-cust-address-contact-det>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </form>
+
+                <form name="vm.supplierRMALineDetailForm" layout="row" layout-wrap class="md-inline-form padding-left-10 padding-right-10" novalidate>
+                  <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+                  <div layout="row" class="mb-10 layout-row" style="clear: both;" ng-if="!vm.supplierRMAParamId">
+                    <label class="label-danger no-bg padding-0 margin-0 font-size-20">Note: Supplier RMA details not saved yet into Internal Database. Please save it first to add details into any of the following sections.</label>
+                  </div>
+
+                  <div flex="100" layout="row" layout-wrap ng-if="vm.isSupplierRMATab">
+                    <div class="cm-section-main" layout="row" layout-wrap flex="100">
+
+                      <div class="cm-section-header" flex="100">
+                        <h2>{{vm.materialDetTitle}} Material Details</h2>
+                      </div>
+
+                      <div class="cm-section-inner" flex="100" layout-md="column" layout-sm="column" layout="row">
+
+                        <div flex="45" flex-md="100" flex-sm="100" class="material-section-devider cm-material-section-devider-rs">
+                          <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                            <tbody>
+
+                              <tr>
+                                <th><p class="label-container">{{vm.LabelConstant.MFG.MFG}}/{{vm.LabelConstant.MFG.SupplierPN}}/{{vm.LabelConstant.MFG.CPN}}<scan-or-enter></scan-or-enter></p></th>
+                                <td colspan="3">
+                                  <md-input-container flex="100" class="margin-bottom-0">
+                                    <input type="text" name="rmaScanLabel" id="rmaScanLabel" ng-model="vm.supplierRMADet.scanLabel" placeholder="Scan Label" ng-keypress="vm.scanLabel($event)"
+                                           ng-disabled="!vm.supplierRMAParamId || vm.isScanLabel || vm.supplierRMADet.tempID ||vm.supplierRMADisable || vm.RMALineDetailDisable" ng-maxlength="1000" md-maxlength="1000" />
+                                    <span class="font-size-10">
+                                      <b>{{vm.LabelConstant.ScanOREnter.Scan1D2DLabel}}</b>
+                                    </span>
+                                    <div ng-messages="vm.supplierRMALineDetailForm.scanLabel.$error" role="alert">
+                                      <div ng-message="maxlength">
+                                        <span>{{vm.getMaxLengthValidation(1000,vm.supplierRMALineDetailForm.scanLabel.$viewValue.length)}}</span>
+                                      </div>
+                                    </div>
+                                  </md-input-container>
+                                </td>
+                                <!--Hided image from UI a per discussion with DP and YP on standup call 26-04-2021
+                                as supplier credit and debit memo are financial transaction so no need to show part images, we first get confirmation from client then show if required-->
+                                <!--<td ng-if="vm.supplierRMADet.imageURL">
+                                  <div class="part-images" flex-xl="100" flex="100">
+                                    <div flex="100" class="drop-box image purchase-part-image-height">
+                                      <img class="img img-no-drag" ng-src="{{vm.supplierRMADet.imageURL}}" />
+                                    </div>
+                                  </div>
+                                </td>-->
+                              </tr>
+                              <tr>
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">{{vm.LabelConstant.MFG.MFGPN}}/{{vm.LabelConstant.MFG.CPN}}</a><span ng-if="!(!vm.supplierRMAParamId || vm.supplierRMADet.scanLabel || vm.supplierRMADet.tempID||vm.supplierRMADisable)">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td>
+                                  <md-input-container ng-if="vm.autoCompletecomponent" class="autocompletecustom margin-bottom-0" flex="100">
+                                    <custom-auto-complete-search class="min-width-initial"
+                                                                 on-search-fn="vm.autoCompletecomponent.onSearchFn"
+                                                                 column-name="vm.autoCompletecomponent.columnName"
+                                                                 controller-name="vm.autoCompletecomponent.controllerName"
+                                                                 view-template-url="vm.autoCompletecomponent.viewTemplateURL"
+                                                                 key-column-name="vm.autoCompletecomponent.keyColumnName"
+                                                                 input-name="vm.autoCompletecomponent.inputName"
+                                                                 placeholder-name="vm.autoCompletecomponent.placeholderName"
+                                                                 key-column-id="vm.autoCompletecomponent.keyColumnId"
+                                                                 is-required="vm.autoCompletecomponent.isRequired"
+                                                                 is-addnew="vm.autoCompletecomponent.isAddnew"
+                                                                 is-disabled="(!vm.supplierRMAParamId || vm.supplierRMADet.scanLabel || vm.supplierRMADet.tempID||vm.supplierRMADisable || vm.RMALineDetailDisable)"
+                                                                 add-data="vm.autoCompletecomponent.addData"
+                                                                 callback-fn="vm.autoCompletecomponent.callbackFn"
+                                                                 on-select-callback-fn="vm.autoCompletecomponent.onSelectCallbackFn">
+                                    </custom-auto-complete-search>
+                                  </md-input-container>
+                                </td>
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">{{vm.LabelConstant.MFG.PID}}</a><span ng-if="!(!vm.supplierRMAParamId || vm.supplierRMADet.scanLabel || vm.supplierRMADet.tempID||vm.supplierRMADisable)">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td>
+                                  <md-input-container ng-if="vm.autoCompleteMfgPIDCode" class="autocompletecustom" flex="100">
+                                    <custom-auto-complete-search class="min-width-initial"
+                                                                 on-search-fn="vm.autoCompleteMfgPIDCode.onSearchFn"
+                                                                 column-name="vm.autoCompleteMfgPIDCode.columnName"
+                                                                 controller-name="vm.autoCompleteMfgPIDCode.controllerName"
+                                                                 view-template-url="vm.autoCompleteMfgPIDCode.viewTemplateURL"
+                                                                 key-column-name="vm.autoCompleteMfgPIDCode.keyColumnName"
+                                                                 input-name="vm.autoCompleteMfgPIDCode.inputName"
+                                                                 placeholder-name="vm.autoCompleteMfgPIDCode.placeholderName"
+                                                                 key-column-id="vm.autoCompleteMfgPIDCode.keyColumnId"
+                                                                 is-required="vm.autoCompleteMfgPIDCode.isRequired"
+                                                                 is-addnew="vm.autoCompleteMfgPIDCode.isAddnew"
+                                                                 is-disabled="(!vm.supplierRMAParamId || vm.supplierRMADet.scanLabel || vm.supplierRMADet.tempID||vm.supplierRMADisable || vm.RMALineDetailDisable)"
+                                                                 callback-fn="vm.autoCompleteMfgPIDCode.callbackFn"
+                                                                 add-data="vm.autoCompleteMfgPIDCode.addData"
+                                                                 on-select-callback-fn="vm.autoCompleteMfgPIDCode.onSelectCallbackFn">
+                                    </custom-auto-complete-search>
+                                  </md-input-container>
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">{{vm.LabelConstant.MFG.MFGPN}}</a>
+                                  </p>
+                                </th>
+                                <td>
+                                  <div class="data-align-to-label h4 text-bold">
+                                    <common-pid-code-label-link ng-if="vm.supplierRMADet.partID" component-id="vm.supplierRMADet.partID"
+                                                                label="vm.LabelConstant.MFG.MFGPN"
+                                                                value=" vm.supplierRMADet.mfgPN"
+                                                                is-copy="true"
+                                                                is-custom-part="vm.supplierRMADet.isCustom?true:false "
+                                                                rohs-icon="vm.rohsImagePath+vm.supplierRMADet.rohsIcon"
+                                                                rohs-status="vm.supplierRMADet.rohsName"
+                                                                is-search-findchip="vm.supplierRMADet.isCustom?false:true"></common-pid-code-label-link>
+                                    <label ng-if="!vm.supplierRMADet.partID">-</label>
+                                  </div>
+                                </td>
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">{{vm.LabelConstant.MFG.PID}}</a>
+                                  </p>
+                                </th>
+                                <td>
+                                  <div class="data-align-to-label h4 text-bold">
+                                    <common-pid-code-label-link ng-if="vm.supplierRMADet.partID" component-id="vm.supplierRMADet.partID"
+                                                                label="vm.LabelConstant.MFG.PID"
+                                                                value="vm.supplierRMADet.PIDCode"
+                                                                is-copy="true"
+                                                                is-custom-part="true"
+                                                                rohs-icon="vm.rohsImagePath+vm.supplierRMADet.rohsIcon"
+                                                                rohs-status="vm.supplierRMADet.rohsName"
+                                                                is-search-findchip="false"></common-pid-code-label-link>
+                                    <label ng-if="!vm.supplierRMADet.partID">-</label>
+                                  </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGList();">{{vm.LabelConstant.MFG.MFG}}</a>
+                                  </p>
+                                </th>
+                                <td>
+                                  <div class="data-align-to-label h4 text-bold">
+                                    <span ng-class="{'text-underline': vm.supplierRMADet.mfgcodeID, 'cursor-pointer': vm.supplierRMADet.mfgcodeID}" ng-click="vm.supplierRMADet.mfgcodeID ? vm.goToManufacturerDetail(vm.supplierRMADet.mfgcodeID):''">
+                                      <b>{{vm.supplierRMADet.fullMfgName ? vm.supplierRMADet.fullMfgName : '-'}}</b>
+                                    </span>
+                                  </div>
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToSupplierList();">{{vm.LabelConstant.MFG.SupplierCode}}</a>
+                                  </p>
+                                </th>
+                                <td>
+                                  <div class="data-align-to-label h4 text-bold">
+                                    <span ng-class="{'text-underline': vm.supplierRMADet.supplierMfgCodeId, 'cursor-pointer': vm.supplierRMADet.supplierMfgCodeId}" ng-click="vm.supplierRMADet.supplierMfgCodeId ? vm.goToSupplier(vm.supplierRMADet.supplierMfgCodeId):''">
+                                      <b>{{vm.supplierRMADet.supplierCode ? vm.supplierRMADet.supplierCode : '-'}}</b>
+                                    </span>
+                                  </div>
+                                </td>
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToSupplierPartList();">{{vm.LabelConstant.MFG.SupplierPN}}</a>
+                                  </p>
+                                </th>
+                                <td>
+                                  <div class="data-align-to-label h4 text-bold">
+                                    <common-pid-code-label-link ng-if="vm.supplierRMADet.supplierMFGPNID" component-id="vm.supplierRMADet.supplierMFGPNID"
+                                                                label="vm.LabelConstant.MFG.SupplierPN"
+                                                                value=" vm.supplierRMADet.supplierPN"
+                                                                is-supplier="true"
+                                                                is-copy="true"
+                                                                is-custom-part="vm.supplierRMADet.supplierIsCustom?true:false"
+                                                                rohs-icon="vm.rohsImagePath+vm.supplierRMADet.supplierRohsIcon"
+                                                                rohs-status="vm.supplierRMADet.supplierRohsName"
+                                                                is-search-findchip="vm.supplierRMADet.supplierIsCustom?false:true"></common-pid-code-label-link>
+                                    <label ng-if="!vm.supplierRMADet.supplierMFGPNID">-</label>
+                                  </div>
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <th><p class="label-container">{{vm.LabelConstant.SupplierRMA.RMALine}}<span ng-if="!(!vm.supplierRMAParamId || vm.supplierRMADisable)">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                                <td>
+                                  <md-input-container flex="100" class="margin-bottom-0">
+                                    <input type="number" name="rmaSerialNumber" id="rmaSerialNumber"
+                                           custom-blur="vm.checkRMALine($event);"
+                                           ng-model="vm.supplierRMADet.packingSlipSerialNumber" placeholder="RMA Line#" required step="1" min="1" max="99999" onkeypress="return OnlyNumeric(event)" ng-paste="$event.preventDefault()" ng-disabled="!vm.supplierRMAParamId || vm.supplierRMADisable || vm.RMALineDetailDisable">
+                                    <div ng-messages="vm.supplierRMALineDetailForm.rmaSerialNumber.$touched && vm.supplierRMALineDetailForm.rmaSerialNumber.$error" role="alert">
+                                      <div ng-message="required">
+                                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                      </div>
+                                      <div ng-message="number || step">
+                                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                      </div>
+                                      <div ng-message="maxlength">
+                                        <span>{{vm.getMaxLengthValidation(50, vm.supplierRMALineDetailForm.rmaSerialNumber.$viewValue.length)}}</span>
+                                      </div>
+                                    </div>
+                                  </md-input-container>
+                                </td>
+
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToPackaging();">Packaging</a><span ng-if="!(!vm.supplierRMAParamId || vm.supplierRMADisable)">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td>
+                                  <md-input-container flex="100" ng-if="vm.autoPackaging" class="autocompletecustom min-width-initial margin-bottom-0">
+                                    <custom-auto-complete datalist="vm.packagingList"
+                                                          column-name="vm.autoPackaging.columnName"
+                                                          controller-name="vm.autoPackaging.controllerName"
+                                                          view-template-url="vm.autoPackaging.viewTemplateURL"
+                                                          key-column-name="vm.autoPackaging.keyColumnName"
+                                                          input-name="vm.autoPackaging.inputName"
+                                                          placeholder-name="vm.autoPackaging.placeholderName"
+                                                          key-column-id="vm.autoPackaging.keyColumnId"
+                                                          is-required="vm.autoPackaging.isRequired"
+                                                          is-addnew="vm.autoPackaging.isAddnew"
+                                                          add-data="vm.autoPackaging.addData"
+                                                          callback-fn="vm.autoPackaging.callbackFn"
+                                                          on-select-callback-fn="vm.autoPackaging.onSelectCallbackFn"
+                                                          is-disabled="!vm.supplierRMAParamId || vm.supplierRMADisable || vm.RMALineDetailDisable">
+                                    </custom-auto-complete>
+                                  </md-input-container>
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <th><p class="label-container">SPQ</p></th>
+                                <td>
+                                  <md-input-container flex="100" class="margin-bottom-0">
+                                    <input type="number" name="spq" id="spq" ng-model="vm.supplierRMADet.spq" placeholder="SPQ" ng-disabled="true" input-number-decimal-place min="0" step="{{$root.unitInputStep}}" />
+                                  </md-input-container>
+                                </td>
+                                <th><p class="label-container">Unit</p></th>
+                                <td>
+                                  <md-input-container flex="100" class="margin-bottom-0">
+                                    <input type="number" name="unit" id="unit" ng-model="vm.supplierRMADet.unit" placeholder="Unit" disabled step="{{$root.unitInputStep}}" input-number-decimal-place />
+                                  </md-input-container>
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <th>
+                                  <p class="label-container">
+                                    <a class="cm-text-decoration" ng-click="vm.goToUomList();" tabindex="-1">UOM</a>
+                                  </p>
+                                </th>
+                                <td>
+                                  <md-input-container flex="100" class="margin-bottom-0">
+                                    <input type="text" name="uomName" id="uomName" ng-model="vm.supplierRMADet.uomName" placeholder="UOM" disabled />
+                                  </md-input-container>
+                                </td>
+                              </tr>
+
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div flex="25" flex-md="100" flex-sm="100" class="material-section-devider cm-material-section-devider-rs">
+                          <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                            <tbody>
+
+                              <tr>
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToPackingSlipList();">Supplier {{vm.LabelConstant.SupplierRMA.RefPackingSlipNumber}}</a><span ng-if="!(!vm.supplierRMAParamId || vm.supplierRMADisable)">&nbsp;*</span>
+                                  </p>
+                                </th>
+                                <td>
+                                  <div class="cm-cust-packingslip-pos">
+                                    <md-input-container ng-if="vm.autoPackingSlip"
+                                                        flex="{{(!vm.supplierRMADet.refPackingSlipForRma && !vm.autoPackingSlip.keyColumnId) ? 100 : vm.autoPackingSlip.keyColumnId ? 65 : 35}}"
+                                                        class="autocompletecustom min-width-initial margin-bottom-0">
+                                      <custom-auto-complete-search class="min-width-initial"
+                                                                   on-search-fn="vm.autoPackingSlip.onSearchFn"
+                                                                   column-name="vm.autoPackingSlip.columnName"
+                                                                   controller-name="vm.autoPackingSlip.controllerName"
+                                                                   view-template-url="vm.autoPackingSlip.viewTemplateURL"
+                                                                   key-column-name="vm.autoPackingSlip.keyColumnName"
+                                                                   input-name="vm.autoPackingSlip.inputName"
+                                                                   placeholder-name="vm.autoPackingSlip.placeholderName"
+                                                                   key-column-id="vm.autoPackingSlip.keyColumnId"
+                                                                   is-required="vm.autoPackingSlip.isRequired"
+                                                                   parent-column-name="vm.autoPackingSlip.parentColumnName"
+                                                                   is-addnew="vm.autoPackingSlip.isAddnew"
+                                                                   is-disabled="!vm.supplierRMAParamId || vm.supplierRMADisable || vm.RMALineDetailDisable"
+                                                                   add-data="vm.autoPackingSlip.addData"
+                                                                   callback-fn="vm.autoPackingSlip.callbackFn"
+                                                                   on-select-callback-fn="vm.autoPackingSlip.onSelectCallbackFn">
+                                      </custom-auto-complete-search>
+                                    </md-input-container>
+                                    <div class="pt-8">or</div>
+                                    <md-input-container class="margin-bottom-0" ng-class="{'width-auto': vm.autoPackingSlip.keyColumnId}">
+                                      <input type="text" name="refPackingSlipForRma" id="refPackingSlipForRma"
+                                             custom-blur="vm.blurPackingSlip();"
+                                             ng-model="vm.supplierRMADet.refPackingSlipForRma" placeholder="Ref Packing Slip#"
+                                             ng-required="!vm.supplierRMADet.refPackingSlipIdForRma && !vm.supplierRMADet.refPackingSlipForRma"
+                                             ng-maxlength="50" md-maxlength="50" ng-disabled="!vm.supplierRMAParamId || vm.supplierRMADisable || vm.RMALineDetailDisable">
+                                      <div ng-messages="vm.supplierRMALineDetailForm.refPackingSlipForRma.$touched && vm.supplierRMALineDetailForm.refPackingSlipForRma.$error" role="alert">
+                                        <div ng-message="required">
+                                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                        </div>
+                                        <div ng-message="maxlength">
+                                          <span>{{vm.getMaxLengthValidation(50, vm.supplierRMALineDetailForm.refPackingSlipForRma.$viewValue.length)}}</span>
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </div>
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <th>
+                                  <p class="label-container">
+                                    <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToSupplierInvoiceList();">{{vm.LabelConstant.SupplierRMA.RefInvoiceNumber}}</a>
+                                  </p>
+                                </th>
+                                <td>
+                                  <div class="cm-cust-packingslip-pos" layout-align="start start">
+                                    <div class="data-align-to-label h4 text-bold"
+                                         flex="{{(!vm.supplierRMADet.refPackingSlipForRma && !vm.autoPackingSlip.keyColumnId) ? 50 : vm.autoPackingSlip.keyColumnId ? 65 : 35}}">
+                                      <span ng-class="{'text-underline': vm.supplierRMADet.refInvoiceIdForRma, 'cursor-pointer': vm.supplierRMADet.refInvoiceIdForRma}" ng-click="vm.supplierRMADet.refInvoiceIdForRma ? vm.goToSupplierInvoiceDetail(vm.supplierRMADet.refInvoiceIdForRma):''">
+                                        <b>{{vm.supplierRMADet.refInvoiceValue ? vm.supplierRMADet.refInvoiceValue : '-'}}</b>
+                                      </span>
+                                    </div>
+                                    <div class="pt-8">or</div>
+                                    <md-input-container class="margin-bottom-0"
+                                                        ng-class="{'width-auto': vm.autoPackingSlip.keyColumnId}">
+                                      <input type="text" name="refInvoiceForRma" id="refInvoiceForRma"
+                                             custom-blur="vm.blurInvoice();"
+                                             ng-model="vm.supplierRMADet.refInvoiceForRma" placeholder="Ref Packing Slip#"
+                                             ng-maxlength="50" md-maxlength="50" ng-disabled="!vm.supplierRMAParamId || vm.supplierRMADisable || vm.RMALineDetailDisable">
+                                      <div ng-messages="vm.supplierRMALineDetailForm.refInvoiceForRma.$touched && vm.supplierRMALineDetailForm.refInvoiceForRma.$error" role="alert">
+                                        <div ng-message="required">
+                                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                        </div>
+                                        <div ng-message="maxlength">
+                                          <span>{{vm.getMaxLengthValidation(50, vm.supplierRMALineDetailForm.refInvoiceForRma.$viewValue.length)}}</span>
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>
+                                  <p class="label-container cm-white-space-normal">{{vm.LabelConstant.SupplierRMA.InternalRMALineRemark}}</p>
+                                </th>
+                                <td>
+                                  <md-input-container flex="100" class="margin-bottom-0">
+                                    <textarea type="text" id="internalRmaLineRemark" name="internalRmaLineRemark" rows="2" max-rows="4"
+                                              ng-model="vm.supplierRMADet.internalRemark" placeholder="Internal RMA Line Remark"
+                                              ng-maxlength="vm.maxLengthForDescription"
+                                              md-maxlength="vm.maxLengthForDescription"
+                                              ng-disabled="!(vm.supplierRMAParamId && !vm.supplierRMADisable && !vm.RMALineDetailDisable)">
+                                    </textarea>
+                                    <div ng-messages="vm.supplierRMALineDetailForm.internalRmaLineRemark.$touched && vm.supplierRMALineDetailForm.internalRmaLineRemark.$error"
+                                         role="alert">
+                                      <div ng-message="maxlength">
+                                        <span>
+                                          {{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.supplierRMALineDetailForm.internalRmaLineRemark.$viewValue.length) }}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <span>Hint: Internal only, Will not print on packing slip</span>
+                                    </div>
+                                  </md-input-container>
+                                </td>
+                              </tr>
+
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div flex="30" flex-md="100" flex-sm="100">
+                          <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                            <tbody>
+
+                              <tr>
+                                <th>
+                                  <p class="label-container">{{vm.LabelConstant.SupplierRMA.RMAIssueQty}}<span ng-if="!(!vm.supplierRMAParamId || vm.supplierRMADisable)">&nbsp;*</span></p>
+                                </th>
+                                <td>
+                                  <md-input-container flex="100" class="margin-bottom-0">
+                                    <input type="number" name="rmaIssueQty" id="rmaIssueQty" ng-model="vm.supplierRMADet.packingSlipQty" onkeypress="return OnlyNumeric(event)"
+                                           placeholder="Packing Slip Qty" min="1" step="1"
+                                           ng-required="!(!vm.supplierRMAParamId || vm.supplierRMADisable)"
+                                           input-number-decimal-place
+                                           ng-disabled="!vm.supplierRMAParamId || vm.supplierRMADisable || vm.RMALineDetailDisable"
+                                           custom-blur="vm.calculateExtendedPrice('RMAQty')" />
+                                    <div ng-messages="vm.supplierRMALineDetailForm.rmaIssueQty.$touched && vm.supplierRMALineDetailForm.rmaIssueQty.$error" role="alert">
+                                      <div ng-message="required">
+                                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                      </div>
+                                      <div ng-message="min || max || number || step">
+                                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                      </div>
+                                    </div>
+                                  </md-input-container>
+                                </td>
+
+                                <th>
+                                  <p class="label-container rec-qty"><b>{{vm.LabelConstant.SupplierRMA.ShippedQty}}</b><span ng-if="!(!vm.supplierRMAParamId || vm.supplierRMADisable || !vm.supplierRMADet.refPackingSlipForRma)">&nbsp;*</span></p>
+                                </th>
+                                <td>
+                                  <div flex="100" layout>
+                                    <div flex="75">
+                                      <md-input-container flex="100" class="margin-bottom-0 rec-qty cm-rec">
+                                        <input type="number" name="shippedQty" id="shippedQty" ng-model="vm.supplierRMADet.receivedQty" onkeypress="return OnlyNumeric(event)"
+                                               placeholder="Shipped Qty" min="0" step="1"
+                                               ng-required="!(!vm.supplierRMAParamId || vm.supplierRMADisable || !vm.supplierRMADet.refPackingSlipForRma)"
+                                               input-number-decimal-place custom-blur="vm.calculateExtendedPrice('ShippedQty')"
+                                               ng-disabled="!vm.supplierRMAParamId || vm.supplierRMADisable || !vm.supplierRMADet.refPackingSlipForRma || vm.RMALineDetailDisable" />
+                                        <div ng-messages="vm.supplierRMALineDetailForm.shippedQty.$touched && vm.supplierRMALineDetailForm.shippedQty.$error" role="alert">
+                                          <div ng-message="required">
+                                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                          </div>
+                                          <div ng-message="min || max || number || step">
+                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                          </div>
+                                        </div>
+                                      </md-input-container>
+                                    </div>
+                                    <div flex="25">
+                                      <md-button class="md-primary md-icon-button md-raised md-mini"
+                                                 ng-disabled="!vm.supplierRMAParamId || vm.supplierRMADisable || !vm.supplierRMADet.refPackingSlipIdForRma || vm.RMALineDetailDisable || !vm.supplierRMADet.packagingID || !vm.supplierRMADet.partID"
+                                                 ng-click="vm.addSupplierRMAStock();">
+                                        <md-icon md-font-icon="icon-plus"></md-icon>
+                                        <md-tooltip>Add RMA Shipping Qty</md-tooltip>
+                                      </md-button>
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <th>
+                                  <p class="label-container">{{vm.LabelConstant.SupplierRMA.RMAUnitPrice}}&nbsp;($)<span ng-if="!(!vm.supplierRMAParamId || vm.supplierRMADisable)">&nbsp;*</span></p>
+                                </th>
+                                <td>
+                                  <md-input-container flex="100" class="margin-bottom-0 rec-qty cm-rec">
+                                    <input type="number" id="rmaUnitPrice" name="rmaUnitPrice" input-number-decimal-place ng-model="vm.supplierRMADet.invoicePrice" placeholder="{{vm.LabelConstant.SupplierRMA.RMAUnitPrice}}"
+                                           onkeypress="return OnlyNumbersWithDot(event)" min="0" maxlength="18" step="{{$root.unitInputStep}}" required
+                                           ng-disabled="!vm.supplierRMAParamId || vm.supplierRMADisable || vm.RMALineDetailDisable" custom-blur="vm.checkValidationAndCalculateExtendedPrice();">
+                                    <div ng-messages="vm.supplierRMALineDetailForm.rmaUnitPrice.$touched && vm.supplierRMALineDetailForm.rmaUnitPrice.$error" role="alert">
+                                      <div ng-message="required">
+                                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                      </div>
+                                      <div ng-message="min">
+                                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                      </div>
+                                      <div ng-message="maxlength">
+                                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                      </div>
+                                      <div ng-message="number || step">
+                                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                      </div>
+                                      <div ng-message="rmaUnitPriceValidation">
+                                        <span>{{vm.CORE_MESSAGE_CONSTANT.RMA_UNIT_PRICE_GRETER_EQUAL_PO_PRICE}}</span>
+                                      </div>
+                                    </div>
+                                  </md-input-container>
+                                </td>
+
+                                <th>
+                                  <p class="label-container">{{vm.LabelConstant.SupplierRMA.ExtendedRMAPrice}}&nbsp;($)</p>
+                                </th>
+                                <td>
+                                  <md-input-container flex="100" class="margin-bottom-0">
+                                    <input type="number" id="extendedRmaPrice" name="extendedRmaPrice" input-number-decimal-place ng-model="vm.supplierRMADet.extendedPrice" placeholder="Extended RMA Price"
+                                           onkeypress="return OnlyNumbersWithDot(event)" min="0" maxlength="18" step="{{$root.unitInputStep}}"
+                                           ng-disabled="true">
+                                    <span>
+                                      <b>i.e. {{vm.LabelConstant.SupplierRMA.RMAIssueQty}} * {{vm.LabelConstant.SupplierRMA.RMAUnitPrice}}</b>
+                                    </span>
+                                  </md-input-container>
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <th>
+                                  <p class="label-container">{{vm.LabelConstant.SupplierRMA.RMALineRemark}}<span ng-if="vm.supplierRMAParamId && !vm.supplierRMADisable && vm.supplierRMADet.packingSlipQty !== vm.supplierRMADet.receivedQty">&nbsp;*</span></p>
+                                </th>
+                                <td colspan="3">
+                                  <md-input-container flex="100" class="margin-bottom-0">
+                                    <textarea type="text" id="rmaLineRemark" name="rmaLineRemark" rows="2" max-rows="4"
+                                              ng-model="vm.supplierRMADet.remark" placeholder="RMA Line Remark"
+                                              ng-maxlength="vm.maxLengthForDescription"
+                                              md-maxlength="vm.maxLengthForDescription"
+                                              ng-required="vm.supplierRMAParamId && !vm.supplierRMADisable && vm.supplierRMADet.packingSlipQty !== vm.supplierRMADet.receivedQty"
+                                              ng-disabled="!(vm.supplierRMAParamId && !vm.supplierRMADisable && !vm.RMALineDetailDisable)">
+                                    </textarea>
+                                    <div ng-messages="vm.supplierRMALineDetailForm.rmaLineRemark.$touched && vm.supplierRMALineDetailForm.rmaLineRemark.$error"
+                                         role="alert">
+                                      <div ng-message="maxlength">
+                                        <span>
+                                          {{vm.getMaxLengthValidation(vm.maxLengthForDescription,vm.supplierRMALineDetailForm.rmaLineRemark.$viewValue.length) }}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <span>Hint: Will print on packing slip</span>
+                                    </div>
+                                    <div ng-messages="vm.supplierRMALineDetailForm.rmaLineRemark.$error" role="alert">
+                                      <div ng-message="required">
+                                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                      </div>
+                                    </div>
+                                  </md-input-container>
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <td class="text-right" colspan="4">
+                                  <md-button class="md-primary md-raised"
+                                             ng-class="{'md-formdirty': vm.supplierRMALineDetailForm.$dirty}"
+                                             ng-click="vm.saveRMALineDetail()" id="btnAddDet" ng-disabled="!vm.supplierRMAParamId || vm.supplierRMADisable || vm.RMALineDetailDisable">
+                                    {{vm.materialDetTitle}}
+                                  </md-button>
+
+                                  <md-button class="md-raised" aria-label="receive" ng-click="vm.resetRMAMaterialDet()" id="btnResetDet" ng-disabled="!vm.supplierRMAParamId">
+                                    Reset
+                                  </md-button>
+                                </td>
+                              </tr>
+
+                            </tbody>
+                          </table>
+                        </div>
+
+                      </div>
+
+                    </div>
+                  </div>
+
+                </form>
+
+                <div flex="100" layout="row" layout-wrap ng-if="vm.isSupplierRMATab">
+                  <md-card layout="column" flex layout-align="space-between stretch">
+                    <ui-grid-extention grid-id="vm.CORE.gridConfig.gridSupplierRMAMaterilDetail"
+                                       load-data="vm.loadData"
+                                       grid-option="vm.gridOptions"
+                                       header="vm.sourceHeader"
+                                       grid-data="vm.sourceData"
+                                       total-data-count="vm.totalSourceDataCount"
+                                       reset-grid="vm.resetSourceGrid"
+                                       selectted-rows="vm.selectedRowsList"
+                                       paging-info="vm.pagingInfo"
+                                       current-item="vm.currentdata"
+                                       empty-state="vm.emptyState"
+                                       delete-multiple-data="vm.deleteRecord">
+                    </ui-grid-extention>
+                  </md-card>
+                </div>
+
+              </md-tab-body>
+            </md-tab>
+
+            <md-tab md-on-select="vm.onTabChanges(vm.supplierRMATab.Documents, msWizard)" ng-disabled="!vm.supplierRMAParamId">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-text">{{vm.supplierRMATabName.Documents}}&nbsp;<b>({{vm.documentCount || 0}})</b></span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <form name="vm.supplierRMADocumentForm" layout="row" layout-wrap class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+                  <div flex="100" layout="row" class="height-770" layout-wrap ng-if="vm.isDocumentTab">
+                    <div layout="column" flex layout-align="space-between stretch" class="packing-slip-document">
+                      <documents entity="vm.supplierRMAEntity.Name" class="padding-5" ref-trans-id="vm.supplierRMAParamId" is-title="null" is-hide-display-tree="true"
+                                 is-protected="(vm.supplierRMA.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin)"></documents>
+                    </div>
+                  </div>
+                </form>
+              </md-tab-body>
+            </md-tab>
+
+            <md-tab md-on-select="vm.onTabChanges(vm.supplierRMATab.MISC, msWizard)" ng-disabled="!vm.supplierRMAParamId">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-text">{{vm.supplierRMATabName.MISC}}</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <form name="vm.supplierRMAMiscForm" layout="row" layout-wrap class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+                  <div class="cm-section-main" layout="row" layout-wrap flex="100">
+                    <div class="cm-section-header" flex="100">
+                      <h2>Supplier RMA {{vm.otherDetailTitle}}</h2>
+                    </div>
+                    <div class="cm-section-inner" flex="100">
+                      <div layout="column" class="cm-tab-misc" layout-gt-xs="100" ng-if="vm.isMiscTab">
+                        <view-data-element entity="{{vm.entity.SupplierRMA}}" dataelement-list="vm.dataElementList" ref-trans-id="{{vm.supplierRMAParamId}}"
+                                           entity-id="vm.supplierRMAEntity.ID" file-list="vm.fileList"
+                                           curr-active-form="vm.supplierRMAMiscForm"
+                                           is-protected="(vm.supplierRMA.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin)"></view-data-element>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </md-tab-body>
+            </md-tab>
+
+            <div>
+              <md-button class="md-primary md-raised md-ink-ripple cm-assbly-tab-btn margin-right-5" type="button"
+                         ng-click="vm.scanDocument()"
+                         ng-disabled="!vm.supplierRMAParamId || (vm.supplierRMA.lockStatus===vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin)">
+                <span>Scan Document</span>
+              </md-button>
+            </div>
+
+          </md-tabs>
+
+        </div>
+      </div>
+    </div>
+
+  </ms-form-wizard>
+</div>

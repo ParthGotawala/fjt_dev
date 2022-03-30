@@ -1,0 +1,97 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+    <div class="content-card" layout="column" flex>
+        <div flex="{{vm.isShowSideNav==false?100:80}}">
+            <div ng-if="vm.customerwisePOSODetails && vm.customerwisePOSODetails.salesordermst.length">
+                <div layout="row" layout-align="end end">
+                    <div layout="row" flex-xs="50">
+                        <md-input-container class="md-block search-header margin-0 error-none">
+                            <input type="text" ng-model="vm.query.search" ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Search">
+                        </md-input-container>
+                        <md-button class="md-primary md-raised margin-0 margin-right-5-imp" ng-click="vm.query.search = ''" ng-disabled="!vm.query.search">
+                            Clear
+                        </md-button>
+                        <md-button class="md-primary md-raised margin-0" ng-click="vm.query.search = '';vm.refreshPODetails()">
+                            Refresh
+                        </md-button>
+                    </div>
+                </div>
+                <div class="content fullpage-datatable margin-top-20" layout="column" flex>
+                    <md-table-container flex="100" class="cm-po-status-customer">
+                        <table md-table class="md-data-table table-row-select cm-scroll-table" md-row-select ng-model="vm.selectedItems">
+                            <thead md-head md-order="vm.query.order">
+                              <tr md-row>
+                                <th md-column width="50">
+                                  #
+                                </th>
+                                <th md-column width="230">
+                                  Customer Code
+                                </th>
+                                <th md-column width="236">
+                                  Contact Person
+                                </th>
+                                <th md-column md-order-by="" width="216">
+                                  {{vm.allLabelConstant.SalesOrder.SO}}
+                                </th>
+                                <th md-column md-order-by="" width="173">
+                                  {{vm.allLabelConstant.SalesOrder.SODate}}
+                                </th>
+                                <th md-column md-order-by="" width="233">
+                                  {{vm.allLabelConstant.Workorder.PO}}
+                                </th>
+                                <th md-column md-order-by="" width="100">
+                                  {{vm.allLabelConstant.SalesOrder.LegacyPo}}
+                                </th>
+                                <th md-column md-order-by="" width="167">
+                                  {{vm.allLabelConstant.SalesOrder.PODate}}
+                                </th>
+                                <th md-column md-order-by="" width="167">
+                                  Status
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody md-body>
+                              <tr md-row ng-repeat="item in vm.customerwisePOSODetails.salesordermst
+                                                                | filter: vm.query.search
+                                                                | orderBy: vm.query.order">
+                                <td md-cell width="50">{{$index+1}}</td>
+                                <td md-cell width="230">{{vm.customerwisePOSODetails.mfgCode}}</td>
+                                <td md-cell width="236">{{item.contactPerson.fullName}}</td>
+                                <td md-cell width="216">
+                                  <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToManageSalesOrder(item.id);">
+                                    {{item.salesOrderNumber}}
+                                  </a>
+                                </td>
+                                <td md-cell width="173">{{item.soDate | date: vm.DateFormat}}</td>
+                                <td md-cell width="233">
+                                  <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToManageSalesOrder(item.id);">
+                                    {{item.poNumber}}
+                                  </a>
+                                </td>
+                                <td md-cell width="100">
+                                  <span class="label-box" ng-class="{'label-warning':!item.isLegacyPO, 'label-success':item.isLegacyPO}">{{item.isLegacyPOText}}</span>
+                                </td>
+                                <td md-cell width="167">{{item.poDate | date: vm.DateFormat}}</td>
+                                <td md-cell width="167"><span class="label-box" ng-class="vm.getWoStatusClassName(item.status)">{{vm.getWoStatus(item.status)}}</span></td>
+                              </tr>
+                            </tbody>
+                        </table>
+                    </md-table-container>
+                    <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+                         ng-if="(vm.customerwisePOSODetails.salesordermst | filter: vm.query.search).length == 0 && vm.query.search.length > 0 ">
+                        <div class="emty-icon" flex="100">
+                            <img ng-src="{{vm.emptySearch.IMAGEURL}}" />
+                        </div>
+                        <p class="empty-state-title" flex="100">{{vm.emptySearch.MESSAGE}}</p>
+                    </div>
+                </div>
+            </div>
+            <!--<div class="empty-state full-height margin-top-80" layout="row" layout-wrap layout-align="center center"
+                 ng-if="!vm.customerwisePOSODetails || !vm.customerwisePOSODetails.salesordermst.length">
+                <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.CommonEmptyMessage.IMAGEURL}}" />
+                </div>
+                <p class="empty-state-title" flex="100">{{vm.CommonEmptyMessage.MESSAGE}}</p>
+            </div>-->
+        </div>
+    </div>
+</div>

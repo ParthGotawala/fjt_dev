@@ -1,0 +1,734 @@
+<div layout="column" class="cm-packing-alias-popup" cg-busy="{promise:vm.cgBusyLoading}">
+  <split-pane id="splitterDiv" split-pane-properties="splitPaneProperties">
+    <split-pane-component height="25%" class="min-height-100">
+      <div class="cm-section-inner border-0" layout="column">
+        <div layout="column" flex>
+          <p class="font-weight-600">
+            <b>Note: </b>{{vm.VALIDATION_NOTE_ON_ADD_PACKGAGING_PART}}
+            <a class="cm-text-decoration underline" ng-click="vm.goToAliasValidationList();"
+               tabindex="-1">Alias Validations</a>
+          </p>
+          <table class="border cm-data-sub-table" ng-if="vm.validationList.length > 0">
+            <thead>
+              <tr>
+                <th class="vertical-middle-align">
+                  <div layout="row">
+                    <div layout="row" layout-align="start center">
+                      <md-input-container class="mv-0 autocompletecustom margin-bottom-0 w-300" md-no-float flex>
+                        <input name="columnName" ng-model="vm.columnName" placeholder="Click here search attribute(s)" autocomplete="off" />
+                      </md-input-container>
+                      <md-button class="md-primary md-raised md-icon-button " ng-click="vm.clearColumnSearch()" ng-if="vm.columnName">
+                        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close border-0 s22"></md-icon>
+                      </md-button>
+                    </div>
+                    <div layout="row" layout-align="end center" class="margin-left-auto-imp">
+                      <md-button ng-click="vm.getComponentAlternatePnValidations(vm.partDetail.functionalCategoryID)"
+                                 class="md-primary md-icon-button md-raised margin-0 md-link-ripple cm-part-advance-filter-btn">
+                        <md-icon md-font-icon="icon-reload">
+                          <md-tooltip>Refresh</md-tooltip>
+                        </md-icon>
+                      </md-button>
+                    </div>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="item in vm.validationList | filter: { fieldTitle: vm.columnName }" ng-class="{'cm-mismatch-packaging-alias-line-bgcolor' : 1==2}">
+                <td class="vertical-middle-align">
+                  {{item.fieldTitle}}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </split-pane-component>
+    <split-pane-divider height="5px"></split-pane-divider>
+    <split-pane-component class="min-height-100" layout="column">
+      <div class="cm-section-inner border-0" layout="column" flex>
+        <div class="cm-section-inner pt-5 pl-5">
+          <div layout="row">
+            <div layout="row" layout-align="start center">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main middle-align-table cm-table-cell-height-auto">
+                <tbody>
+                  <tr>
+                    <th>
+                      <p class="label-container padding-top-3">
+                        Packaging Alias Part
+                      </p>
+                    </th>
+                    <td>
+                      <div layout="column">
+                        <md-input-container flex="100" ng-if="vm.autoCompletePackagingAlias" md-no-float class="mv-0 autocompletecustom margin-bottom-0 w-300">
+                          <custom-auto-complete-search on-search-fn="vm.autoCompletePackagingAlias.onSearchFn"
+                                                       column-name="vm.autoCompletePackagingAlias.columnName"
+                                                       key-column-name="vm.autoCompletePackagingAlias.keyColumnName"
+                                                       controller-name="vm.autoCompletePackagingAlias.controllerName"
+                                                       view-template-url="vm.autoCompletePackagingAlias.viewTemplateURL"
+                                                       input-name="vm.autoCompletePackagingAlias.inputName"
+                                                       placeholder-name="vm.autoCompletePackagingAlias.placeholderName"
+                                                       key-column-id="vm.autoCompletePackagingAlias.keyColumnId"
+                                                       is-required="vm.autoCompletePackagingAlias.isRequired"
+                                                       is-addnew="vm.autoCompletePackagingAlias.isAddnew"
+                                                       add-data="vm.autoCompletePackagingAlias.addData"
+                                                       callback-fn="vm.autoCompletePackagingAlias.callbackFn"
+                                                       on-select-callback-fn="vm.autoCompletePackagingAlias.onSelectCallbackFn"
+                                                       is-disabled="vm.partDetail.category == vm.PartCategory.SubAssembly|| vm.partDetail.isCPN">
+                          </custom-auto-complete-search>
+                        </md-input-container>
+                      </div>
+                    </td>
+                    <th>
+                    </th>
+                  </tr>
+                  <tr>
+                    <td colspan="2">
+                      <b>Hint: {{vm.addPackgingAliasHint}}</b>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div layout="row" layout-align="end start" class="margin-left-auto-imp">
+              <div layout="column">
+                <md-button ng-disabled="!vm.selectedPackagingPart || vm.selectedPackagingPart.length == 0"
+                           class="md-primary md-raised mb-0" aria-label="Add Alias Part"
+                           ng-click="vm.removeMultiplePart($event)">
+                  Delete
+                </md-button>
+                <span class="font-weight-600 font-size-10 ml-10" ng-if="vm.selectedPackagingPart.length == 0">
+                  {{vm.LabelConstant.SelectRecordsEnableButton}}
+                </span>
+              </div>
+
+              <md-button ng-disabled="!vm.addedPackagingAliasList || vm.addedPackagingAliasList.length == 0"
+                         class="md-primary md-raised mb-0" aria-label="Add Alias Part"
+                         ng-click="vm.refreshAddedAlias($event)">
+                Refresh
+              </md-button>
+              <div layout="column">
+                <md-button ng-disabled="!vm.selectedPackagingPart || vm.selectedPackagingPart.length == 0 || !vm.updatePartsAttributesFeature"
+                           class="md-primary cm-feture-btn-color md-raised mb-0" aria-label="Add Alias Part"
+                           ng-click="vm.updatePartsAttributes($event)">
+                  Update Part(s) Attributes
+                </md-button>
+                <span class="font-weight-600 font-size-10 ml-10" ng-if="(!vm.updatePartsAttributesFeature)">
+                  {{vm.LabelConstant.FeatureEnableText}}
+                </span>
+                <span class="font-weight-600 font-size-10 ml-10" ng-if="vm.selectedPackagingPart.length == 0 && vm.updatePartsAttributesFeature">
+                  {{vm.LabelConstant.SelectRecordsEnableButton}}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cm-overflow-auto" flex>
+          <table class="border-top border-left-0  cm-data-sub-table cm-packaging-alias-table">
+            <thead>
+              <tr>
+                <th rowspan="2" class="vertical-middle-align cm-stick-add-alias-colum-first-cell">
+                  <md-checkbox ng-model="vm.selectAll"
+                               ignore-dirty ng-change="vm.changeSelectAll()" class="cm-margin-5">
+                  </md-checkbox>
+                </th>
+                <th rowspan="2" class="vertical-middle-align text-right cm-stick-add-alias-colum-second-cell">
+                  #
+                </th>
+                <th rowspan="2" class="vertical-middle-align cm-stick-add-alias-colum-third-cell">
+                  <span class="cm-white-space-normal">Select Part</span>                  
+                </th>
+                <th rowspan="2" class="vertical-middle-align cm-stick-add-alias-colum-fourth-cell">Action</th>
+                <th rowspan="2" class="vertical-middle-align cm-stick-add-alias-colum-fifth-cell">{{vm.LabelConstant.MFG.MFG}}</th>
+                <th rowspan="2" class="vertical-middle-align cm-stick-add-alias-colum-sixth-cell">{{vm.LabelConstant.MFG.MFGPN}}</th>
+                <th rowspan="2" class="vertical-middle-align">Part#</th>
+                <th rowspan="2" class="vertical-middle-align">Revision</th>
+                <th rowspan="2" class="vertical-middle-align">PID Code</th>
+                <th rowspan="2" class="vertical-middle-align">Internal Revision</th>
+                <th rowspan="2" class="vertical-middle-align">{{vm.LabelConstant.MFG.MFGPNDescription}}</th>
+                <th rowspan="2" class="vertical-middle-align">Packaging Alias</th>
+                <th colspan="25" class="vertical-middle-align text-align-center">Attibute</th>
+                <th colspan="5" class="vertical-middle-align text-align-center">Setting</th>
+                <th rowspan="2" class="vertical-middle-align">Delete</th>
+              </tr>
+              <!-- put your other two headers from tbody here: -->
+              <tr>
+                <th  class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>{{vm.LabelConstant.PartAttribute.FunctionalType}}</span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer  cm-feture-btn-color  margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.FunctionalType)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>{{vm.LabelConstant.PartAttribute.MountingType}}</span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.MountingType)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>{{vm.LabelConstant.PartAttribute.RoHSStatus}}</span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.RoHSStatus)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>{{vm.LabelConstant.PartAttribute.ConnectorType}}</span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.ConnectorType)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>{{vm.LabelConstant.PartAttribute.Package}}</span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.Package)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>{{vm.LabelConstant.MFG.Packaging}}</span>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>{{vm.LabelConstant.PartAttribute.Feature}}</span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.Feature)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align min-temp-width">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span class="cm-white-space-normal">
+                        {{vm.LabelConstant.PartAttribute.MinOperatingTemp}}
+                      </span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.MinOperatingTemp)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span class="cm-white-space-normal">
+                        {{vm.LabelConstant.PartAttribute.MaxOperatingTemp}}
+                      </span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.MaxOperatingTemp)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span class="cm-white-space-normal">
+                        {{vm.LabelConstant.PartAttribute.TempCoefficient}}
+                      </span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.TempCoefficient)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span class="cm-white-space-normal">
+                        {{vm.LabelConstant.PartAttribute.TempCoefficientUnit}}
+                      </span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.TempCoefficientUnit)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span class="cm-white-space-normal">
+                        {{vm.LabelConstant.PartAttribute.TempCoefficientValue}}
+                      </span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.TempCoefficientValue)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span class="cm-white-space-normal">
+                        {{vm.LabelConstant.PartAttribute.noOfPosition}}
+                      </span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.noOfPosition)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span class="cm-white-space-normal">
+                        {{vm.LabelConstant.PartAttribute.NoOfRows}}
+                      </span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.NoOfRows)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align pitch-mm">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span class="cm-white-space-normal">
+                        {{vm.LabelConstant.PartAttribute.Pitch}}
+                      </span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.Pitch)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align pitch-mm">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span class="cm-white-space-normal">
+                        {{vm.LabelConstant.PartAttribute.PitchMating}}
+                      </span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.PitchMating)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span class="cm-white-space-normal">
+                        {{vm.LabelConstant.PartAttribute.SizeDimensionLength}}
+                      </span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.SizeDimensionLength)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span class="cm-white-space-normal">
+                        {{vm.LabelConstant.PartAttribute.SizeDimensionWidth}}
+                      </span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.SizeDimensionWidth)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>
+                        {{vm.LabelConstant.PartAttribute.Height}}
+                      </span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.Height)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>{{vm.LabelConstant.PartAttribute.Tolerance}}</span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.Tolerance)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>{{vm.LabelConstant.PartAttribute.Voltage}}</span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.Voltage)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>{{vm.LabelConstant.PartAttribute.Value}}</span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.Value)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>{{vm.LabelConstant.PartAttribute.PowerWatts}}</span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.PowerWatts)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>{{vm.LabelConstant.PartAttribute.Weight}}</span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.Weight)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>{{vm.LabelConstant.PartAttribute.Color}}</span>
+                      <br />
+                      <md-icon role="img" md-font-icon="icons-copy-to-all-vertical"
+                               ng-class="{'item-disabled': !vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1}"
+                               ng-disabled="!vm.updatePartsAttributesFeature || vm.addedPackagingAliasList.length === 1"
+                               class="material-icons mat-icon icons-copy-to-all-vertical cursor-pointer margin-right-5 margin-left-5"
+                               ng-click="vm.updatePartsSingleAttributes(vm.LabelConstant.PartAttribute.Color)">
+                        <md-tooltip md-direction="top" ng-if="(vm.updatePartsAttributesFeature)">Copy First to All (And Update)</md-tooltip>
+                      </md-icon>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>Require Programming</span>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>Drive Tools</span>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>Require Mating Parts</span>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>Require Functional Testing</span>
+                    </span>
+                  </div>
+                </th>
+                <th class="vertical-middle-align">
+                  <div class="text-center">
+                    <span class="text-center pb-2">
+                      <span>Part Restriction Settings</span>
+                    </span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <!--<tr ng-repeat="item in vm.addedPackagingAliasList | orderBy : '-isBase' track by $index" ng-class="{'cm-base-part-packaging-alias-line-bgcolor' : item.isBase}">-->
+              <tr ng-repeat="item in vm.addedPackagingAliasList | orderBy : '-isBase' track by $index" ng-class="{'' : item.isBase}">
+                <td class="vertical-middle-align cm-stick-add-alias-colum-first-cell bg-white">
+                  <md-checkbox ng-model="item.isChecked"
+                               ignore-dirty ng-change="vm.selectionChanges(item)" class="cm-margin-5">
+                  </md-checkbox>
+                </td>
+                <td class="vertical-middle-align text-right cm-stick-add-alias-colum-second-cell bg-white">
+                  {{$index + 1}}
+                </td>
+                <td class="vertical-middle-align cm-stick-add-alias-colum-third-cell bg-white">
+                  <md-checkbox ng-model="item.isBase"
+                               ignore-dirty ng-change="vm.setBasePart(item)" class="cm-margin-5">
+                  </md-checkbox>
+                </td>
+                <td class="vertical-middle-align cm-stick-add-alias-colum-fourth-cell bg-white">
+                  <md-button class="md-primary cm-feture-btn-color grid-button md-icon-button bdrbtn change-icon"
+                             ng-disabled="!vm.updatePartsAttributesFeature"
+                             ng-click="vm.updateAttributeDet(item)">
+                    <md-icon md-font-icon="t-icons-part-attribute" class="s16"></md-icon>
+                    <md-tooltip>Update Part Attributes</md-tooltip>
+                  </md-button>
+                </td>
+                <td class="vertical-middle-align cm-stick-add-alias-colum-fifth-cell bg-white">
+                  <a class="cm-text-decoration underline cm-white-space-normal" ng-click="vm.editManufacturer(item.mfgType,item.mfgcodeID);"
+                     tabindex="-1">{{item.mfgCode}}</a>
+                </td>
+                <td class="vertical-middle-align cm-stick-add-alias-colum-sixth-cell bg-white">
+                  <common-pid-code-label-link component-id="item.componentID"
+                                              label="vm.LabelConstant.MFG.PID"
+                                              value="item.displayMfgPN"
+                                              is-mfg="true"
+                                              mfg-label="vm.LabelConstant.MFG.MFGPN"
+                                              mfg-value="item.mfgPN"
+                                              is-custom-part="item.isCustom"
+                                              is-copy="true"
+                                              rohs-icon="item.rohsImagePath"
+                                              rohs-status="item.rohName"
+                                              is-copy-ahead-label="true"
+                                              redirection-disable="false"
+                                              is-search-digi-key="true"
+                                              is-search-findchip="true"
+                                              is-hide-copy-pid-code="true">
+                  </common-pid-code-label-link>
+                </td>
+                <td class="vertical-middle-align">
+                  <common-pid-code-label-link component-id="item.componentID"
+                                              value="item.custAssyPN"
+                                              rohs-icon="item.rohsImagePath"
+                                              rohs-status="item.rohName"
+                                              is-copy="true"
+                                              is-supplier="false"
+                                              is-assembly="true">
+                  </common-pid-code-label-link>
+                </td>
+                <td class="vertical-middle-align">
+                  {{item.rev}}
+                </td>
+                <td class="vertical-middle-align">
+                  <common-pid-code-label-link component-id="item.componentID"
+                                              label="vm.LabelConstant.MFG.PID"
+                                              value="item.PIDCode"
+                                              is-good-part="item.isGoodPart"
+                                              is-search-findchip="false"
+                                              is-search-digi-key="false"
+                                              is-custom-part="item.isCustom"
+                                              restrict-use-permanently="item.restrictUsePermanently"
+                                              restrict-use-with-permission="item.restrictUSEwithpermission"
+                                              restrict-packaging-use-permanently="item.restrictPackagingUsePermanently"
+                                              redirection-disable="false"
+                                              is-copy="true"
+                                              is-supplier="false"
+                                              is-assembly="true">
+                  </common-pid-code-label-link>
+                </td>
+                <td class="vertical-middle-align">
+                  <a class="cm-text-decoration underline" ng-click="vm.showVersionHistory(item,item.id, $event);"
+                     tabindex="-1">{{item.liveVersion}}</a>
+                </td>
+                <td class="vertical-middle-align">
+                  {{item.mfgPNDescription}}
+                </td>
+                <td class="vertical-middle-align">
+                  <span ng-repeat="packgingPart in item.packagingAliasParts">
+                    <common-pid-code-label-link component-id="packgingPart.componentID"
+                                                label="vm.LabelConstant.MFG.PID"
+                                                value="packgingPart.displayMfgPN"
+                                                is-mfg="true"
+                                                mfg-label="vm.LabelConstant.MFG.MFGPN"
+                                                mfg-value="packgingPart.mfgPN"
+                                                is-custom-part="packgingPart.isCustom"
+                                                is-copy="true"
+                                                is-copy-ahead-label="true"
+                                                redirection-disable="false"
+                                                is-search-digi-key="true"
+                                                is-search-findchip="true"
+                                                is-hide-copy-pid-code="true">
+                    </common-pid-code-label-link>
+                  </span>
+                </td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.functionalMisMatchValue}">{{item.displayFunctionalType}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.mountingMisMatchValue}">{{item.displayMountingType}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.rohsStatusMisMatchValue}">{{item.displayRoHSStatus}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.connectorTypeMisMatchValue}">{{item.displayConnectorType}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.packageCaseMisMatchValue}">{{item.displayPackage}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.packagingMisMatchValue}">{{item.displayPackaging}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.featureMisMatchValue}">{{item.feature}}</td>
+                <td class="vertical-middle-align text-right" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.miniOpTempMisMatchValue}">{{item.minOperatingTemp}}</td>
+                <td class="vertical-middle-align text-right" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.maxiOpTempMisMatchValue}">{{item.maxOperatingTemp}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.tempCoefficMisMatchValue}">{{item.temperatureCoefficient}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.tempCoefficValMisMatchValue}">{{item.temperatureCoefficientUnit}}</td>
+                <td class="vertical-middle-align text-right" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.tempCoefficUnitMisMatchValue}">{{item.temperatureCoefficientValue}}</td>
+                <td class="vertical-middle-align text-right" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.pinCountMisMatchValue}">{{item.noOfPosition}}</td>
+                <td class="vertical-middle-align text-right" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.noOfRowsMisMatchValue}">{{item.noOfRows}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.pitchUnitMisMatchValue}">{{item.pitch}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.pitchMatingMisMatchValue}">{{item.pitchMating}}</td>
+                <td class="vertical-middle-align text-right" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.sizeLengthMisMatchValue}">{{item.length}}</td>
+                <td class="vertical-middle-align text-right" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.sizeWidthMisMatchValue}">{{item.width}}</td>
+                <td class="vertical-middle-align text-right" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.heightMisMatchValue}">{{item.height}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.toleranceMisMatchValue}">{{item.tolerance}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.voltageMisMatchValue}">{{item.voltage}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.valueMisMatchValue}">{{item.value}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.powerMisMatchValue}">{{item.powerRating}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.weightMisMatchValue}">{{item.weight}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.colorMisMatchValue}">{{item.color}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.programMisMatchValue}">{{item.programingRequired}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.driveToolsMisMatchValue}">{{item.driverToolRequired}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.requireMatingMisMatchValue}">{{item.matingPartRquired}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.requirFunctinalTestingValue}">{{item.functionalTestingRequired}}</td>
+                <td class="vertical-middle-align" ng-class="{'cm-mismatch-packaging-alias-bgcolor' : item.restrictionSettingsValue}">{{item.restrictionSettings}}</td>
+
+                <td class="vertical-middle-align">
+                  <md-button class="md-primary grid-button md-icon-button bdrbtn"
+                             ng-click="vm.removeRow(item)">
+                    <md-icon md-font-icon="icon-trash" class="s16"></md-icon>
+                    <md-tooltip>Delete</md-tooltip>
+                  </md-button>
+                </td>
+              </tr>
+              <tr ng-if="vm.addedPackagingAliasList.length === 0">
+                <td colspan="11" class="text-align-center vertical-middle-align">No Parts Added Yet</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </split-pane-component>
+  </split-pane>
+</div>

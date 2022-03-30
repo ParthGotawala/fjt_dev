@@ -1,0 +1,305 @@
+<div id="UMIDForm" class="page-layout simple fullwidth tabbed doc-page breadcrumb-fixed cm-custom-label-common" ng-class="{'cm-umid-header': vm.isUMIDDataCount > 0}"
+     layout="column">
+
+  <div class="header md-accent-bg cm-receiving-header" layout="row" layout-sm="column" layout-align="space-between">
+
+    <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" ng-click="vm.goBack()" ng-if="!vm.isListScreen" ng-disabled="vm.isReadOnly">
+      <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+      </md-icon>
+    </md-button>
+
+    <div layout="row" flex="100" layout-wrap flex-sm="100">
+
+      <div flex="20" layout="row" ng-class="{'mt-10': vm.isUMIDDataCount > 0, 'mt-5': vm.isUMIDDataCount <= 0}" flex-sm="100">
+        <div class="white-fg" layout="column" layout-align="start start">
+          <div class="h2" layout="row" layout-align="start center">
+            <pagetitle is-list="true" is-display-menu-name="true"></pagetitle>
+
+            <span class="header-title margin-left-3" ng-if="vm.uidCode">
+              :
+              <label class="mb-0" ng-class="{'underline': vm.currentState !== vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE,
+                                            'cm-umid-header-label': vm.currentState === vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE}">
+                <a class="color-white" ng-class="{ 'cursor-pointer': vm.currentState !== vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE }"
+                   ng-click="vm.goToUIDManage(vm.umidId);">{{vm.uidCode}}</a>
+                <copy-text label="vm.CORE.LabelConstant.UMIDManagement.UMID" text="vm.uidCode"></copy-text>
+              </label>
+              <md-tooltip md-direction="top" ng-if="vm.currentState !== vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE">{{vm.uidCode}}</md-tooltip>
+            </span>
+
+          </div>
+          <div layout="row" layout-align="start center">
+            <breadcrumbs></breadcrumbs>
+          </div>
+        </div>
+      </div>
+
+      <div flex="80" layout="row" layout-align="end center">
+
+        <div layout="row" flex="25" layout-align="start start" ng-if="vm.component && vm.currentState !== vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE && vm.currentState !== vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE"
+             class="ml-10 padding-horizontal-15 separator">
+          <label ng-if="vm.rohsName">
+            <common-pid-code-label-link component-id="vm.mfgId" label="vm.CORE.LabelConstant.MFG.PID" value="vm.pid" is-copy="true" is-mfg="true"
+                                        is-custom-part="vm.isCustom" mfg-label="vm.CORE.LabelConstant.MFG.MFGPN" mfg-value="vm.mfgpn" rohs-icon="vm.rohsIcon"
+                                        rohs-status="vm.rohsName" is-copy-ahead-label="true"></common-pid-code-label-link>
+          </label>
+        </div>
+
+        <div layout="row" flex="45" layout-align="end center" class="mr-10 cm-header-input-field" ng-if="vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE || vm.currentState === vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE">
+
+          <div layout="row" flex ng-if="vm.verification.showVideoURL" class="configure-ipwebcam">
+            <configure-webcam-url verification-det="vm.verification" class=""></configure-webcam-url>
+          </div>
+          <md-button class="md-primary md-raised md-ink-ripple ml-0 mb-15 mr-0" ng-if="!vm.verification.showVideoURL" ng-click="vm.configureLiveStreamURL()" ng-disabled="vm.isReadOnly">
+            Configure IP Webcam URL
+          </md-button>
+        </div>
+
+        <div layout="row" flex="{{vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE || vm.currentState === vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE ? 55 : 75}}"
+             layout-align="end center" class="mt-5 cm-header-input-field">
+
+          <div class="input-wrapper" layout="row" flex ng-if="vm.currentState !== vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE && vm.currentState !== vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE">
+            <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToUIDList();">
+              <p class="label-container pr-5-imp">Scan UMID</p>
+            </a>
+            <scan-or-enter></scan-or-enter>
+            <md-input-container flex="100" class="margin-bottom-0">
+              <input type="text" name="searchScanUMID" id="searchScanUMID" capitalize ng-model="vm.searchUMID" placeholder="Scan UMID"
+                     ng-keypress="vm.scanUMID($event)" class="cm-scan-umid-text-white">
+              <span flex="100" class="font-size-10" md-autofocus>
+                <b>{{vm.LabelConstant.ScanOREnter.ScanUMID}}</b>
+              </span>
+            </md-input-container>
+          </div>
+
+          <div class="input-wrapper" layout="row" ng-if="vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE || vm.currentState === vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE">
+            <div layout="column">
+              <md-button class="md-primary md-raised md-ink-ripple ml-0 cm-feture-btn-color" ng-click="vm.changeInitialQty($event)" ng-disabled="vm.isReadOnly || !vm.enableChangeInitialQty || vm.isSplitUID">
+                Change Initial Qty
+              </md-button>
+              <span class="font-weight-600 font-size-12" ng-style="{'visibility': vm.enableChangeInitialQty ? 'hidden' : 'visible' }">
+                Allow features to enable
+              </span>
+            </div>
+          </div>
+
+          <div class="input-wrapper" layout="row" flex>
+            <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToPrinterList();" return false;>
+              <p class="label-container">{{vm.autoCompletePrinter.placeholderName}}</p>
+            </a>
+            <md-input-container ng-if="vm.autoCompletePrinter" class="autocompletecustom margin-0 widget-dashboard-search-area" flex="100"
+                                md-no-float>
+              <custom-auto-complete class="min-width-initial" datalist="vm.PrinterList" column-name="vm.autoCompletePrinter.columnName"
+                                    controller-name="vm.autoCompletePrinter.controllerName" view-template-url="vm.autoCompletePrinter.viewTemplateURL"
+                                    key-column-name="vm.autoCompletePrinter.keyColumnName" input-name="vm.autoCompletePrinter.inputName" placeholder-name="vm.autoCompletePrinter.placeholderName"
+                                    key-column-id="vm.autoCompletePrinter.keyColumnId" is-required="vm.autoCompletePrinter.isRequired" is-addnew="vm.autoCompletePrinter.isAddnew"
+                                    add-data="vm.autoCompletePrinter.addData" callback-fn="vm.autoCompletePrinter.callbackFn" on-select-callback-fn="vm.autoCompletePrinter.onSelectCallbackFn">
+              </custom-auto-complete>
+            </md-input-container>
+          </div>
+
+          <div class="input-wrapper" layout="row" flex>
+            <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToPrinterLabelList();" return false;>
+              <p class="label-container">{{vm.autoCompleteLabelTemplate.placeholderName}}</p>
+            </a>
+            <md-input-container ng-if="vm.autoCompleteLabelTemplate" class="autocompletecustom margin-0 widget-dashboard-search-area"
+                                flex="100" md-no-float>
+              <custom-auto-complete class="min-width-initial" datalist="vm.LabelTemplateList" column-name="vm.autoCompleteLabelTemplate.columnName"
+                                    controller-name="vm.autoCompleteLabelTemplate.controllerName" view-template-url="vm.autoCompleteLabelTemplate.viewTemplateURL"
+                                    key-column-name="vm.autoCompleteLabelTemplate.keyColumnName" input-name="vm.autoCompleteLabelTemplate.inputName"
+                                    placeholder-name="vm.autoCompleteLabelTemplate.placeholderName" key-column-id="vm.autoCompleteLabelTemplate.keyColumnId"
+                                    is-required="vm.autoCompleteLabelTemplate.isRequired" is-addnew="vm.autoCompleteLabelTemplate.isAddnew" callback-fn="vm.autoCompleteLabelTemplate.callbackFn"
+                                    on-select-callback-fn="vm.autoCompleteLabelTemplate.onSelectCallbackFn">
+              </custom-auto-complete>
+            </md-input-container>
+          </div>
+
+        </div>
+        <div layout="row" layout-align="end center" class="mb-10 cm-square-icon-btn" ng-if="vm.isListScreen || (vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE && vm.isUMIDDataCount > 0) || vm.currentState !== vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE">
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-disabled="vm.isReadOnly" ng-click="vm.addRecord(true, $event)">
+            <md-icon md-font-icon="t-icons-umid add-icon" class="material-icons"></md-icon>
+            <md-tooltip>Add UMID</md-tooltip>
+          </md-button>
+        </div>
+      </div>
+
+      <div flex="100" layout="row" layout-align="end start" ng-if="vm.isUMIDDataCount > 0">
+
+        <div layout="row" flex="20" layout-align="start start" ng-if="vm.component" class="mt-10 separator">
+          <label ng-if="vm.rohsName">
+            <common-pid-code-label-link component-id="vm.mfgId" label="vm.CORE.LabelConstant.MFG.PID" value="vm.pid" is-copy="true" is-mfg="true"
+                                        is-custom-part="vm.isCustom" mfg-label="vm.CORE.LabelConstant.MFG.MFGPN" mfg-value="vm.mfgpn" rohs-icon="vm.rohsIcon"
+                                        rohs-status="vm.rohsName" is-copy-ahead-label="true"></common-pid-code-label-link>
+          </label>
+        </div>
+
+        <div class="input-wrapper layout-align-end-center" layout="row" ng-if="vm.currentState !== vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE"
+             flex="15">
+          <a tabindex="-1" ng-click="vm.goToUIDList();">
+            <p class="cm-text-decoration-white label-container pr-5-imp">Scan UMID</p>
+          </a>
+          <scan-or-enter></scan-or-enter>
+          <md-input-container flex="100" class="margin-bottom-0">
+            <input type="text" name="searchScanUMID" id="searchScanUMID" capitalize ng-model="vm.searchUMID" placeholder="Scan UMID"
+                   ng-keypress="vm.scanUMID($event)" class="cm-scan-umid-text-white">
+            <span flex="100" class="font-size-10" md-autofocus>
+              <b>{{vm.LabelConstant.ScanOREnter.ScanUMID}}</b>
+            </span>
+          </md-input-container>
+        </div>
+
+        <div class="input-wrapper layout-wrap-rs-1600 cm-square-icon-btn" layout-align="end start" layout="row" flex="70">
+          <div layout="row" class="pr-5" ng-if="vm.fromUID || vm.parentUID">
+            <div layout="row" flex="100" layout-wrap>
+              <div flex layout="row" layout-wrap>
+                <div flex="100" layout-wrap>
+                  <table cellspacing="0" cellpadding="0" class="cm-header-data-table relative">
+                    <tbody>
+                      <tr>
+                        <th>
+                          {{vm.CORE.LabelConstant.UMIDManagement.FromUMID}}:
+                        </th>
+                        <td>
+                          <a class="cursor-pointer color-black text-underline text-bold"
+                             ng-click="vm.goToUIDManage(vm.fromUIDId);">{{vm.fromUID}}</a>
+                          <copy-text text="vm.fromUID"></copy-text>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          {{vm.CORE.LabelConstant.UMIDManagement.ParentUMID}}:
+                        </th>
+                        <td>
+                          <a class="cursor-pointer color-black text-underline text-bold"
+                             ng-click="vm.goToUIDManage(vm.parentUIDId);">{{vm.parentUID}}</a>
+                          <copy-text text="vm.parentUID"></copy-text>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div layout="column" ng-if="vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE">
+            <div layout="row" class="mr-10">
+              <md-button class="md-primary md-raised md-ink-ripple margin-0 flex-100 mv-0-imp" ng-click="vm.PrintDocument()" ng-disabled="vm.isReadOnly || (vm.selectedRowsItem && vm.selectedRowsItem.length === 0)">Print Label</md-button>
+            </div>
+            <span class="font-weight-600 font-size-12">
+              Select UMID to Print
+            </span>
+          </div>
+          <md-button class="md-primary md-raised md-ink-ripple ml-0 mv-0-imp" ng-class="{'mb-20': vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE }"
+                     ng-click="vm.restrictUMID($event)" ng-disabled="vm.isReadOnly">Restrict/Unrestrict UMID</md-button>
+          <div layout="column">
+            <div layout="row">
+              <md-button class="md-primary md-raised md-ink-ripple ml-0 mv-0-imp"
+                         ng-if="(vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE || (vm.currentState === vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE && vm.refUMIDId))"
+                         ng-disabled="vm.isReadOnly || ((vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE && vm.selectedRowsItem && vm.selectedRowsItem.length === 0) || ((vm.isReservedStock || vm.customerConsign) && vm.currentState === vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE) || (vm.currentState === vm.TRANSACTION.TRANSACTION_VERIFICATIONHISTORY_STATE))"
+                         ng-click="vm.addInReserve()">Reserve STK</md-button>
+              <md-button class="md-primary md-raised md-ink-ripple ml-0 mv-0-imp"
+                         ng-if="(vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE || (vm.currentState === vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE && vm.refUMIDId))"
+                         ng-disabled="vm.isReadOnly || ((vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE && vm.selectedRowsItem && vm.selectedRowsItem.length === 0) || (!vm.isReservedStock && vm.currentState === vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE) || (vm.currentState === vm.TRANSACTION.TRANSACTION_VERIFICATIONHISTORY_STATE))"
+                         ng-click="vm.removeFromReserve()">Unreserve STK</md-button>
+            </div>
+            <span class="font-weight-600 font-size-12" ng-if="vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE">
+              Select UMID to Reserve/Unreserve STK
+            </span>
+          </div>
+          <md-button class="md-primary md-raised md-ink-ripple mv-0-imp" ng-disabled="vm.isReadOnly"
+                     ng-click="vm.verifyBarcodeLabel($event, { Title : 'Label Verification', PageType : vm.TRANSACTION.VerifyPictureType.TakePicture})">{{vm.LabelConstant.UMIDManagement.VerifyLabelAndTakePicture}}</md-button>
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-right-10" ng-click="vm.addRecord(null, $event)" ng-if="!vm.isExpire && !vm.checkScanLabel && vm.currentState === vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE" ng-disabled="!vm.isEdit || vm.isReadOnly">
+            <md-icon md-font-icon="t-icons-umid add-icon" class="material-icons"></md-icon>
+            <md-tooltip>Add UMID</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini" ng-click="vm.CreateIdenticalDetailUID(null, $event)" ng-disabled="vm.isReadOnly || (vm.isEdit && vm.isSplitUID)">
+            <md-icon md-font-icon="t-icons-umid-identical add-icon" class="material-icons"></md-icon>
+            <md-tooltip>{{vm.LabelConstant.UMIDManagement.IdenticalUMID}}</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-click="vm.SplitUID(null, $event)"
+                     ng-if="!vm.isExpire && !vm.checkScanLabel" ng-disabled="vm.isReadOnly">
+            <md-icon md-font-icon="t-icons-split-umid" class="material-icons"></md-icon>
+            <md-tooltip>{{vm.LabelConstant.UMIDManagement.SplitUMID}}</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-class="{'mb-20': vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE }"
+                     ng-disabled="vm.isReadOnly" ng-click="vm.goToTransferMaterial()">
+            <md-icon md-font-icon="t-icons-transfer-bulk5" class="material-icons"></md-icon>
+            <md-tooltip>{{vm.LabelConstant.UMIDManagement.TransferBulkMaterial}}</md-tooltip>
+          </md-button>
+
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-class="{'mb-20': vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE }"
+                     ng-disabled="vm.isReadOnly" ng-click="vm.binTransfer()" ng-if="vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE">
+            <md-icon md-font-icon="t-icons-xfer-bin" class="material-icons"></md-icon>
+            <md-tooltip>{{vm.LabelConstant.UMIDManagement.TransferBin}}</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-class="{'mb-20': vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE }"
+                     ng-disabled="vm.isReadOnly" ng-click="vm.uidTranfer($event, {updateStock:false})">
+            <md-icon md-font-icon="t-icons-transfer-material" class="material-icons"></md-icon>
+            <md-tooltip>{{vm.LabelConstant.UMIDManagement.TransferMaterial}}</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-class="{'mb-20': vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE }"
+                     ng-disabled="vm.isReadOnly" ng-click="vm.uidTranfer($event, {updateStock:true})">
+            <md-icon md-font-icon="t-icons-count111" class="material-icons"></md-icon>
+            <md-tooltip>{{vm.LabelConstant.UMIDManagement.CountMaterial}}</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-disabled="vm.isReadOnly" ng-if="vm.refUMIDId" ng-click="vm.umidHistory($event)">
+            <md-icon md-font-icon="t-icons-history-text" class="material-icons"></md-icon>
+            <md-tooltip>{{vm.LabelConstant.UMIDManagement.History}}</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-if="vm.currentState === vm.TRANSACTION.TRANSACTION_RECEIVINGMATERIAL_LIST_STATE" ng-click="vm.showColorLengend($event)">
+            <md-icon md-font-icon class="icon-palette"></md-icon>
+            <md-tooltip md-direction="top">Legend</md-tooltip>
+          </md-button>
+        </div>
+          </div>
+        </div>
+  </div>
+
+  <div class="content-card padding-top-side cm-receiving-content" layout="row" flex="100">
+    <div class="content cm-receiving-material-navbar cm-material-screen" flex="100" layout="column">
+      <md-nav-bar md-selected-nav-item="vm.selectedNavItem" class="cm-nav-bar-tab" nav-bar-aria-label="ReceiveMaterial">
+
+        <div class="cm-custom-navbar" layout="row" flex>
+          <md-nav-item ng-repeat="item in vm.tabList" md-nav-click="vm.checkSaveChanges(item.src);" name="{{item.name}}" ng-disabled="{{item.isDisabled}}">
+            {{item.title}}&nbsp;
+            <span ng-if="!vm.isListScreen && item.tab_id === vm.ReceivingMatirialTab.COFCDocument.id">
+              <b>({{vm.documentCofCCount}})</b>
+            </span><span ng-if="!vm.isListScreen && item.tab_id === vm.ReceivingMatirialTab.UMIDDocument.id">
+              <b>({{vm.documentCount}})</b>
+            </span>
+            <span ng-if="!vm.isListScreen && item.tab_id === vm.ReceivingMatirialTab.SplitUMIDList.id"><b>({{vm.splitUIDCount || 0}})</b></span>
+            <span ng-if="!vm.isListScreen && item.tab_id === vm.ReceivingMatirialTab.ParentUMIDDocument.id"><b>({{vm.parentDocumentCount}})</b></span>
+            <span ng-if="vm.isListScreen && item.src === vm.TRANSACTION.TRANSACTION_NONUMIDSTOCK_STATE"><b>({{vm.nonUMIDCount}})</b></span>
+          </md-nav-item>
+        </div>
+
+        <div layout="row" class="mr-35" ng-if="vm.currentState === vm.TRANSACTION.TRANSACTION_MANAGERECEIVINGMATERIAL_STATE && vm.refUMIDId">
+          <md-button class="md-primary grid-button md-icon-button cm-grid-action-view-icon bdrbtn bdrrcvbtn cm-umid-light-btn" ng-disabled="vm.currentWarehouseType !== vm.warehouseType.SmartCart.key"
+                     ng-class="vm.innoAutoLightStatus.ledColorCssClass">
+            <md-icon role="img" md-font-icon="icon-lightbulb-outline"></md-icon>
+            <md-tooltip md-direction="top" ng-if="vm.innoAutoLightStatus.ledColorName">{{vm.innoAutoLightStatus.ledColorName}}</md-tooltip>
+          </md-button>
+          <md-checkbox ng-model="vm.isComapnyLevel" name="vm.isComapnyLevel" class="mt-5 margin-left-10 margin-right-5-imp" ng-disabled="vm.checkPartForSearch() || vm.showStatus">
+            Search Company Level
+            <md-icon class="icon-question-mark-circle help-icon h-16">
+              <md-tooltip md-direction="top">
+                {{vm.CORE_MESSAGE_CONSTANT.SEARCH_COMPANY_LEVEL}}
+              </md-tooltip>
+            </md-icon>
+          </md-checkbox>
+          <div class="cm-switch-light cm-switch-new height-34">
+            <md-input-container flex="100" class="md-input-has-value mid">
+              <md-radio-group class="rocker" ng-class="{'cm-show-btn':vm.clickButton,'cm-cancel-btn':(!vm.clickButton && !(vm.checkPartForSearch())),'cm-button-disable':vm.checkPartForSearch() }"
+                              ng-change="vm.changeEvent(vm.clickButton,$event)" ng-model="vm.clickButton">
+                <md-radio-button ng-value="true" class="cm-show md-button switch-left" ng-disabled="vm.checkPartForSearch() || vm.showStatus">
+                  Show Light
+                </md-radio-button>
+                <md-radio-button ng-value="false" class="cm-cancel md-button switch-right" ng-disabled="vm.checkPartForSearch() || !vm.showStatus">Cancel</md-radio-button>
+              </md-radio-group>
+            </md-input-container>
+          </div>
+        </div>
+      </md-nav-bar>
+      <md-content ui-view="tabContent" flex class="card padding-top-5 padding-8"></md-content>
+    </div>
+  </div>
+</div>

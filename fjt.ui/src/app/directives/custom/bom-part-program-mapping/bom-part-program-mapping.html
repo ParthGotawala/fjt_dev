@@ -1,0 +1,184 @@
+<form name="vm.PartProgramMappingForm" cg-busy="{promise:vm.cgBusyLoading}">
+  <div layout="row" flex>
+    <md-content flex class="padding-10">
+      <div flex="100" class="cm-custom-label-common margin-top-5">
+        <div flex="100">
+          <table class="cm-table-input-main width-100p" border="1" ng-if="vm.partProgrammingMapping.length > 0">
+            <tbody>
+              <tr>
+                <th colspan="3" class="text-align-center">
+                  Part Detail
+                </th>
+                <th></th>
+                <th colspan="3" class="text-align-center">
+                  Program Detail
+                </th>
+              </tr>
+              <tr>
+                <th class="width-5p p-5">
+                  <span>
+                    {{vm.LabelConstant.BOM.BOM_LineID}}
+                  </span>
+                </th>
+                <th class="width-10p p-5">
+                  <span>
+                    Part {{vm.LabelConstant.BOM.REF_DES}}
+                  </span>
+                </th>
+                <th class="width-35p p-5">
+                  <span><a class="cm-text-decoration" ng-click="vm.GotoPartList()">{{vm.LabelConstant.MFG.MFGPN}}</a> Detail</span>
+                </th>
+                <th class="p-5">
+
+                </th>
+                <th class="width-10p p-5">
+                  <span>Program {{vm.LabelConstant.BOM.REF_DES}}</span>
+                </th>
+                <th class="width-5p p-5">
+                  <span>Program {{vm.LabelConstant.BOM.BOM_LineID}}</span>
+                </th>
+                <th class="width-35p p-5">
+                  <span>Program <a class="cm-text-decoration" ng-click="vm.GotoPartList()">{{vm.LabelConstant.MFG.MFGPN}}</a> Detail</span>
+                </th>
+              </tr>
+              <tr ng-repeat="item in vm.partProgrammingMapping">
+                <td class="width-5p p-5">
+                  <md-input-container class="margin-0" flex="100">
+                    <span>{{item.lineID}}</span>
+                  </md-input-container>
+                </td>
+                <td class="width-10p p-5">
+                  <md-input-container class="margin-0" flex="100">
+                    <span>{{item.partRefDesg}}</span>
+                  </md-input-container>
+                </td>
+                <td class="width-35p p-5">
+                  <div class="cm-auto-scroll" ng-if="item.selectedLinePartDetail.length>0">
+                    <div class="cm-section-inner cm-auto-scroll">
+                      <table class="width-100p" border="1">
+                        <tbody>
+                          <tr>
+                            <th class="p-5">
+                              <span><a class="cm-text-decoration" ng-click="vm.GotoMFRList()">{{vm.LabelConstant.MFG.MFG}}</a></span>
+                            </th>
+                            <th class="p-5">
+                              <span><a class="cm-text-decoration" ng-click="vm.GotoPartList()">{{vm.LabelConstant.MFG.MFGPN}}</a></span>
+                            </th>
+                            <th class="p-5">
+                              <span>Part {{vm.LabelConstant.MFG.MFGPNDescription}}</span>
+                            </th>
+                          </tr>
+                          <tr ng-repeat="objPart in item.selectedLinePartDetail">
+                            <td class="p-5" style="background-color:{{objPart.mfgErrorColor}}">
+                              <span><a class="cm-text-decoration" ng-click="vm.GotoMFR(objPart)">{{objPart.mfrCode}}</a></span>
+                            </td>
+                            <td class="p-5" style="background-color:{{objPart.mfgPNErrorColor}}">
+                              <md-input-container class="margin-0">
+                                <common-pid-code-label-link component-id="objPart.mfgPNID"
+                                                            label="vm.LebelConstant.MFG.MFGPN"
+                                                            value="objPart.mfgPN"
+                                                            is-copy="true"
+                                                            rohs-icon="vm.rohsBasePath+objPart.rohsIcon"
+                                                            rohs-status="objPart.name"
+                                                            is-custom-part="objPart.isCustom"
+                                                            cust-part-number="objPart.custAssyPN">
+                                </common-pid-code-label-link>
+                              </md-input-container>
+                              <md-icon ng-if="objPart.mfgPNID !== vm.TBDMFRPNID && objPart.mfgPNID !== vm.NOTAVAILABLEMFRPNID && !objPart.isInValid && !objPart.isUnlockApprovedPart" class="font-size-20 material-icons icon icon-lock color-black" role="img" aria-hidden="true" title="Locked & Engineering Approved"></md-icon>
+                              <md-icon ng-if="objPart.mfgPNID !== vm.TBDMFRPNID && objPart.mfgPNID !== vm.NOTAVAILABLEMFRPNID && !objPart.isInValid && objPart.isUnlockApprovedPart" class="font-size-20 icon icon-lock-unlocked material-icons color-black" role="img" aria-hidden="true" title="Unlocked (Can edit) & Engineering Approved"></md-icon>
+                            </td>
+                            <td class="p-5">
+                              <md-input-container class="margin-0">
+                                <span>{{objPart.mfgPNDescription}}</span>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-5">
+                  <md-icon md-font-icon="icon-chevron-double-right" class="md-cyan-theme material-icons cm-custom-icon-big"></md-icon>
+                </td>
+                <td class="width-10p p-5">
+                  <md-input-container ng-if="item.autoCompleteProgramRefDesg" class="autocompletecustom width-100p cm-rfq-ac-zindex margin-0" flex="100" custom-auto-focus="$index === 0?true:false">
+                    <custom-auto-complete datalist="vm.ProgramPartRefDesg"
+                                          column-name="item.autoCompleteProgramRefDesg.columnName"
+                                          key-column-name="item.autoCompleteProgramRefDesg.keyColumnName"
+                                          input-name="item.autoCompleteProgramRefDesg.inputName"
+                                          placeholder-name="item.autoCompleteProgramRefDesg.placeholderName"
+                                          key-column-id="item.autoCompleteProgramRefDesg.keyColumnId"
+                                          is-required="item.autoCompleteProgramRefDesg.isRequired"
+                                          is-addnew="item.autoCompleteProgramRefDesg.isAddnew"
+                                          callback-fn="item.autoCompleteProgramRefDesg.callbackFn"
+                                          callback-fn-param="item"
+                                          on-select-callback-fn="item.autoCompleteProgramRefDesg.onSelectCallbackFn">
+                    </custom-auto-complete>
+                  </md-input-container>
+                </td>
+                <td class="width-5p p-5">
+                  <md-input-container class="margin-0" flex="100">
+                    <span>{{item.softwareLineID}}</span>
+                  </md-input-container>
+                </td>
+                <td class="width-35p p-5">
+                  <div class="cm-auto-scroll" ng-if="item.softwarePartList.length>0">
+                    <div class="cm-section-inner cm-auto-scroll">
+                      <table class="width-100p" border="1">
+                        <tbody>
+                          <tr>
+                            <th class="p-5">
+                              <span><a class="cm-text-decoration" ng-click="vm.GotoMFRList()">{{vm.LabelConstant.MFG.MFG}}</a></span>
+                            </th>
+                            <th class="p-5">
+                              <span><a class="cm-text-decoration" ng-click="vm.GotoPartList()">{{vm.LabelConstant.MFG.MFGPN}}</a></span>
+                            </th>
+                            <th class="p-5">
+                              <span>Program Part {{vm.LabelConstant.MFG.MFGPNDescription}}</span>
+                            </th>
+                          </tr>
+                          <tr ng-repeat="objPart in item.softwarePartList">
+                            <td class="p-5" style="background-color:{{objPart.mfgErrorColor}}">
+                              <span><a class="cm-text-decoration" ng-click="vm.GotoMFR(objPart)">{{objPart.mfrCode}}</a></span>
+                            </td>
+                            <td class="p-5" style="background-color:{{objPart.mfgPNErrorColor}}">
+                              <md-input-container class="margin-0">
+                                <common-pid-code-label-link component-id="objPart.mfgPNID"
+                                                            label="vm.LebelConstant.MFG.MFGPN"
+                                                            value="objPart.mfgPN"
+                                                            is-copy="true"
+                                                            rohs-icon="vm.rohsBasePath+objPart.rohsIcon"
+                                                            rohs-status="objPart.name"
+                                                            is-custom-part="objPart.isCustom"
+                                                            cust-part-number="objPart.custAssyPN">
+                                </common-pid-code-label-link>
+                              </md-input-container>
+                              <md-icon ng-if="objPart.mfgPNID !== vm.TBDMFRPNID && objPart.mfgPNID !== vm.NOTAVAILABLEMFRPNID && !objPart.isInValid && !objPart.isUnlockApprovedPart" class="font-size-20 material-icons icon icon-lock color-black" role="img" aria-hidden="true" title="Locked & Engineering Approved"></md-icon>
+                              <md-icon ng-if="objPart.mfgPNID !== vm.TBDMFRPNID && objPart.mfgPNID !== vm.NOTAVAILABLEMFRPNID && !objPart.isInValid && objPart.isUnlockApprovedPart" class="font-size-20 icon icon-lock-unlocked material-icons color-black" role="img" aria-hidden="true" title="Unlocked (Can edit) & Engineering Approved"></md-icon>
+                            </td>
+                            <td class="p-5">
+                              <md-input-container class="margin-0">
+                                <span>{{objPart.mfgPNDescription}}</span>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="empty-state text-center full-height" layout="row" layout-align="center center" flex="100" layout-wrap ng-if="vm.partProgrammingMapping.length === 0">
+            <div class="emty-icon" flex="100">
+              <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+            </div>
+            <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+          </div>
+        </div>
+      </div>
+    </md-content>
+  </div>
+</form>

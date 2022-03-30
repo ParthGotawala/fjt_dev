@@ -1,0 +1,92 @@
+<md-dialog aria-label="coustomer-confirmation" class="receiving-pop-main" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <!--flex="80"-->
+  <form name="vm.CustomerConfirmationForm">
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>BOM Issues & Add Additional Comments</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding" layout="column">
+      <md-content class="md-padding custom-scroll mh-10">
+        <div class="pt-10 pb-5" ng-if="!vm.isHideNote">
+          <!--pl-10-->
+          Note: Refresh BOM to view additional comments for the customer.
+        </div>
+        <table class="simple no-padding cm-customer-conf-popup cm-bom-issues" ms-responsive-table="" ng-if="vm.isNoDataFound == false">
+          <thead>
+            <tr>
+              <th class="cm-assy-no">{{vm.LabelConstant.Assembly.MFGPN}}</th>
+              <th class="cm-item">Item</th>
+              <th class="cm-cust-bom-line">Cust BOM Line#</th>
+              <th class="cm-cpn">{{vm.LabelConstant.MFG.CPN}}</th>
+              <th class="cm-rev">Rev</th>
+              <th class="cm-ref-des">{{vm.LabelConstant.BOM.REF_DES}}</th>
+              <th class="cm-issues-pro">Issues & Proposed Resolutions</th>
+              <th class="cm-addition">Additional Comment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="lineItem in vm.lineitemsDescriptionList">
+              <td class="font-size-12 pl-8 cm-assy-no">
+                {{lineItem.assyID}}
+              </td>
+              <td class="cm-item text-right font-size-12 padding-10-imp">
+                {{lineItem.lineID}}
+              </td>
+              <td class="cm-cust-bom-line text-right font-size-12 padding-10-imp">
+                {{lineItem.cust_lineID}}
+              </td>
+              <td class="cm-cpn font-size-12 pl-8">
+                {{lineItem.custPN}}
+              </td>
+              <td class="cm-rev font-size-12 pl-8">
+                {{lineItem.customerRev != null ? lineItem.customerRev : "-"}}
+              </td>
+              <td class="cm-ref-des font-size-12 pl-8">
+                {{lineItem.refDesig}}
+              </td>
+              <td class="pl-8 cm-issues-pro">
+                <p class="font-size-12" ng-repeat="alternatePart in lineItem.displayDescription track by $index">{{alternatePart}}</p>
+              </td>
+              <td class="cm-addition width-35p pl-8 cm-additional-comment">
+                <md-input-container class="md-block rfq-add-comm no-margin font-size-12">
+                  <textarea type="text" name="comment{{$index}}" ng-model="lineItem.rfqLineitemsAddtionalComment[0].description"
+                            ng-maxlength="1000" custom-auto-focus="{{$index == 0}}" ng-disabled="lineItem.id == 0 || vm.isBOMReadOnly"></textarea>
+                  <div ng-messages="vm.CustomerConfirmationForm['comment'+$index].$error"
+                       role="alert">
+                    <div ng-message="maxlength">
+                      <span>{{vm.getMaxLengthValidation(1000, vm.CustomerConfirmationForm['comment'+$index].$viewValue.length)}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="empty-state text-center full-height" layout="row" layout-align="center center" flex="100" layout-wrap ng-if="vm.isNoDataFound == true">
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+          </div>
+          <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row" layout-align="space-between center">
+      <div layout="row">
+        <md-button class="md-primary md-raised ml-0" ng-click="vm.copyDescription(false)" ng-disabled="vm.isNoDataFound == true || vm.isCopyDisabled();">Copy All  issues & Proposed Resolutions to clip board</md-button>
+        <md-button class="md-primary md-raised" ng-click="vm.copyDescription(true)" ng-disabled="vm.isNoDataFound == true || vm.isCopyDisabled();">Copy Customer issues & Proposed Resolutions to clip board</md-button>
+      </div>
+      <div layout="row">
+        <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+        <md-button class="md-primary md-raised" ng-click="vm.save()"
+                   ng-class="{'md-formdirty': vm.CustomerConfirmationForm.$dirty}"
+                   ng-disabled="vm.isBOMReadOnly || vm.saveDisable"
+                   aria-label="Save">Save</md-button>
+      </div>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

@@ -1,0 +1,1887 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common cm-manage-supplier-invoice-slip" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+
+  <div class="content-card" layout="column" flex="100">
+    <div layout="row" flex="100">
+      <div flex="100">
+        <form name="vm.frmCustomerInvoice" layout="row" layout-wrap class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+          <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+          <div flex flex-sm="100" flex-md="100" flex-lg="50" layout="row" layout-wrap>
+            <div class="cm-section-main margin-right-5 margin-rs-right-0 margin-pro-rs-right-0" flex="100">
+              <div class="cm-section-inner" flex="100">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr ng-if="!vm.isCreditNote">
+                      <th></th>
+                      <td class="ml-10" colspan="4">
+                        <div flex="100" layout="row"
+                             ng-class="{'switch-disable': vm.radioButtonHeaderGroup.invoiceType.checkDisable()}">
+                          <md-input-container flex="100">
+                            <md-radio-group class="margin-0" layout="row" layout-align="start start" layout-wrap id="InvoiceType"
+                                            name="InvoiceType" ng-model="vm.packingSlip.invoiceType"
+                                            ng-disabled="vm.radioButtonHeaderGroup.invoiceType.checkDisable()"
+                                            ng-change="vm.radioButtonHeaderGroup.invoiceType.onChange()">
+                              <md-radio-button class="margin-top-0" ng-repeat="item in vm.radioButtonHeaderGroup.invoiceType.array"
+                                               name="{{item.Key}}" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                            </md-radio-group>
+                          </md-input-container>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr ng-if="!vm.isCreditNote">
+                      <th class="w-85 text-right pr-5">
+                        <a class="cm-text-decoration" ng-click="vm.goToCustomerPackingSlipList();" tabindex="-1">
+                          PS#
+                        </a>
+                        <span ng-if="!vm.custInvoiceID && vm.packingSlip.invoiceType" class="red">&nbsp;*<check-unique-on-blur></check-unique-on-blur><scan-or-enter></scan-or-enter></span>
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                          <md-tooltip md-direction="top">Packing Slip#</md-tooltip>
+                        </md-icon>
+                      </th>
+                      <td>
+                        <div layout="row">
+                          <md-input-container flex="100" class="margin-bottom-0 cm-auto-complete-w-auto">
+                            <input type="text" name="customerpackingSlipNumber" id="customerpackingSlipNumber" ng-model="vm.packingSlip.packingSlipNumber" placeholder="Customer Packing Slip#"
+                                   ng-required="!vm.custInvoiceID && vm.packingSlip.invoiceType" ng-maxlength="50"
+                                   ng-disabled="vm.custInvoiceID || vm.isDisableInvEntry || (!vm.packingSlip.invoiceType)"
+                                   ng-keypress="vm.getPSDetail($event, true)" custom-blur="vm.getPSDetail($event, false)">
+                            <span flex="100" class="font-size-10" ng-if="vm.packingSlip.invoiceType">
+                              <b>{{vm.LabelConstant.ScanOREnter.ScanCustomerPSNum}}</b>
+                            </span>
+                            <div ng-messages="vm.frmCustomerInvoice.customerpackingSlipNumber.$error"
+                                 role="alert" ng-if="vm.packingSlip.invoiceType">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(50, vm.frmCustomerInvoice.customerpackingSlipNumber.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                          <md-button class="md-primary md-raised md-ink-ripple margin-0" tabindex="-1" id="resetDetail"
+                                     ng-disabled="!vm.isGetPSDetail || vm.custInvoiceID || vm.isDisableInvEntry "
+                                     ng-click="vm.resetPackingSlip()" ng-if="(!vm.InvoiceID) && vm.packingSlip.invoiceType">
+                            Reset
+                          </md-button>
+                        </div>
+                      </td>
+                      <th><p class="label-container">PS {{vm.LabelConstant.COMMON.Version}}</p></th>
+                      <td class="w-50">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="psRevision" id="psRevision" ng-maxlength="8" ng-model="vm.packingSlip.packingSlipVersion"
+                                 placeholder="PS Revision" ng-disabled="true" />
+                        </md-input-container>
+                      </td>
+                      <th><p class="label-container">PS Date</p></th>
+                      <td class="w-110">
+                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                          <input type="text" class="float-left"
+                                 id="packingSlipDate"
+                                 name="packingSlipDate"
+                                 min-value="vm.packingSlip.poDate"
+                                 max-value="vm.packingSlip.invoiceDate"
+                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                 ng-model="vm.packingSlip.packingSlipDate"
+                                 enable-time="false"
+                                 ui-options="{clearOnBlur  : true}"
+                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                 model-view-value="true"
+                                 ng-change="vm.onChangePackingSlipDate()"
+                                 ng-disabled="true"
+                                 datepicker-options="vm.packingDateOptions"
+                                 is-open="false"
+                                 close-text="Close" />
+                          <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.packingSlipDate]= ((!vm.isDisableInvEntry) && (!vm.packingSlip.invoiceType) ) ? true:false">
+                          </md-icon>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr ng-if="vm.isCreditNote">
+                      <th>
+                        <p class="label-container cm-white-space-normanl-1281">
+                          CM#
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Credit Memo#</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td class="width-auto" layout="row">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="creditMemoNumber" id="creditMemoNumber" ng-model="vm.packingSlip.creditMemoNumber" placeholder="Credit Memo#" disabled />
+                        </md-input-container>
+                        <copy-text label="vm.LabelConstant.CustomerCreditMemo.CustomerCreditMemoNumer" text="vm.packingSlip.creditMemoNumber"></copy-text>
+                      </td>
+                      <th ng-if="vm.transType === vm.transactionType.CREDITNOTE"><p class="label-container">{{vm.LabelConstant.COMMON.Version}}</p></th>
+                      <td ng-if="vm.transType === vm.transactionType.CREDITNOTE">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="revisionCN" id="revisionCN" ng-model="vm.packingSlip.revision"
+                                 placeholder="Revision" ng-maxlength="10" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">
+                          CM Date
+                          <span ng-if="!vm.isDisableInvEntry && vm.isCreditNote">&nbsp;*</span>
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Credit Memo Date</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td class="w-110">
+                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                          <input type="text" class="float-left"
+                                 id="creditMemoDate"
+                                 name="creditMemoDate"
+                                 min-value=" vm.packingSlip.invoiceDate"
+                                 max-value="vm.packingSlip.refDebitMemoDate ? vm.packingSlip.refDebitMemoDate :vm.todayDate"
+                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                 ng-model="vm.packingSlip.creditMemoDate"
+                                 enable-time="false"
+                                 ui-options="{clearOnBlur  : true}"
+                                 ng-change="vm.onChangeCreditMemoDate()"
+                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                 model-view-value="true"
+                                 ng-disabled="vm.isDisableInvEntry || vm.custInvoiceID"
+                                 ng-required="!(vm.isDisableInvEntry || vm.custInvoiceID)"
+                                 datepicker-options="vm.creditMemoDateOption"
+                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.creditMemoDate]"
+                                 close-text="Close" />
+                          <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.creditMemoDate]= ((!vm.isDisableInvEntry) && vm.isCreditNote ) ? true:false">
+                          </md-icon>
+                          <div ng-messages="vm.frmCustomerInvoice.creditMemoDate.$error" role="alert">
+                            <div ng-message="minvalue">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_CREDITNOTE_DATE_INVOICE_DATE}}</span>
+                            </div>
+                            <div ng-message="maxvalue">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.MAX_CREDITNOTE_DATE_DBN_DATE}}</span>
+                            </div>
+                            <div ng-message="valid">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="datetime">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr ng-if="vm.isCreditNote">
+                      <th>
+                        <p class="label-container">
+                          Ref. DM#
+                          <span class="red" ng-if="(!vm.isDisableInvEntry) || (!vm.custInvoiceID)">&nbsp;<check-unique-on-blur></check-unique-on-blur></span>
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Ref. Debit Memo#</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td class="width-auto">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="refDebitMemoNumber" id="refDebitMemoNumber" ng-model="vm.packingSlip.refDebitMemoNumber"
+                                 placeholder="Ref. Debit Memo#" ng-maxlength="50" ng-disabled="vm.isDisableInvEntry" capitalize class="input-text-uppercase">
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">
+                          Ref. DM Date
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Ref. Debit Memo Date</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td class="w-110">
+                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                          <input type="text" class="float-left"
+                                 id="refDebitMemoDate"
+                                 name="refDebitMemoDate"
+                                 min-value="vm.packingSlip.invoiceDate"
+                                 max-value="vm.packingSlip.creditMemoDate"
+                                 ng-required="false"
+                                 allow-past-date="true"
+                                 allow-future-date="false"
+                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                 ng-model="vm.packingSlip.refDebitMemoDate"
+                                 enable-time="false"
+                                 ng-change="vm.onChangeDebitMemoDate()"
+                                 ui-options="{clearOnBlur  : true}"
+                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                 model-view-value="true"
+                                 datepicker-options="vm.refDebitMemoDateOption"
+                                 ng-disabled="vm.isDisableInvEntry"
+                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.refDebitMemoDate]"
+                                 close-text="Close" />
+                          <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.refDebitMemoDate]= (!vm.isDisableInvEntry) ? true:false">
+                          </md-icon>
+                          <div ng-messages="vm.frmCustomerInvoice.refDebitMemoDate.$error" role="alert">
+                            <div ng-message="minvalue">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_DEBITNOTE_DATE_CRN_DATE}}</span>
+                            </div>
+                            <div ng-message="maxvalue">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.MAX_DEBITNOTE_DATE_CRN_DATE}}</span>
+                            </div>
+                            <div ng-message="valid">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="datetime">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th ng-if="vm.isCreditNote"><p class="label-container">RMA#</p></th>
+                      <td ng-if="vm.isCreditNote">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="rmaNumber" id="rmaNumber" ng-model="vm.packingSlip.rmaNumber"
+                                 placeholder="RMA#" ng-maxlength="50" ng-disabled="vm.isDisableInvEntry">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <a class="cm-text-decoration" ng-click="vm.goToCustomerInvoiceList();" tabindex="-1">
+                          <p class="label-container">Invoice#</p>
+                        </a>
+                      </th>
+                      <td class="width-auto" layout="row" ng-if="vm.transType === vm.transactionType.INVOICE">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="invoiceNumber" id="invoiceNumber" ng-model="vm.packingSlip.invoiceNumber"
+                                 placeholder="Invoice#" ng-maxlength="50" ng-disabled="!vm.isCreditNote || vm.isDisableInvEntry">
+                        </md-input-container>
+                        <copy-text label="vm.LabelConstant.CustomerPackingInvoice.CustomerInvoiceNumber" text="vm.packingSlip.invoiceNumber"></copy-text>
+                      </td>
+                      <td class="width-auto" ng-if="vm.transType === vm.transactionType.CREDITNOTE" colspan="3">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="invoiceNumber" id="invoiceNumber" ng-model="vm.packingSlip.invoiceNumber"
+                                 placeholder="Invoice#" ng-maxlength="50" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th ng-if="vm.transType === vm.transactionType.INVOICE"><p class="label-container">{{vm.LabelConstant.COMMON.Version}}</p></th>
+                      <td ng-if="vm.transType === vm.transactionType.INVOICE">
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="revisionInv" id="revisionInv" ng-model="vm.packingSlip.revision"
+                                 placeholder="Revision" ng-maxlength="10" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th><p class="label-container">Invoice Date<span ng-if="!vm.isDisableInvEntry && !vm.isCreditNote">&nbsp;*</span></p></th>
+                      <td>
+                        <!--<p>{{ vm.isDisableInvEntry }} || {{vm.custInvoiceID}} || {{(!vm.isCreditNote)}} && {{(vm.packingSlip.invoiceType )}}</p>-->
+                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                          <input type="text" class="float-left"
+                                 min-value="vm.packingSlip.invoiceType ?  vm.packingSlip.packingSlipDate: vm.packingSlip.poDate "
+                                 max-value="vm.isCreditNote ? (vm.packingSlip.refDebitMemoDate || vm.packingSlip.creditMemoDate) : null"
+                                 id="invoiceDate"
+                                 name="invoiceDate"
+                                 ng-required="(!vm.isDisableInvEntry) && (!vm.isCreditNote)"
+                                 allow-past-date="true"
+                                 allow-future-date="false"
+                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                 ng-model="vm.packingSlip.invoiceDate"
+                                 ng-change="vm.onChangeInvoiceDate()"
+                                 enable-time="false"
+                                 ui-options="{clearOnBlur  : true}"
+                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                 model-view-value="true"
+                                 datepicker-options="vm.invoiceDateOptions"
+                                 ng-disabled="vm.isDisableInvEntry || (!vm.isCreditNote && vm.custInvoiceID) || (!vm.isCreditNote && vm.packingSlip.invoiceType)"
+                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.invoiceDate]"
+                                 close-text="Close" />
+                          <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.invoiceDate]= (!vm.isDisableInvEntry && (!vm.packingSlip.invoiceType || vm.isCreditNote)) ? true:false">
+                          </md-icon>
+                          <div ng-messages="vm.frmCustomerInvoice.invoiceDate.$error" role="alert">
+                            <div ng-message="minvalue">
+                              <span>{{vm.packingSlip.invoiceType ? vm.CORE_MESSAGE_CONSTANT.MIN_INVOICE_DATE_PS_DATE : vm.CORE_MESSAGE_CONSTANT.MIN_INVOICE_DATE_PO_DATE}}</span>
+                            </div>
+                            <div ng-message="maxvalue">
+                              <span>{{vm.isCreditNote ? vm.CORE_MESSAGE_CONSTANT.MAX_INVOICE_DATE_DBN_DATE : vm.CORE_MESSAGE_CONSTANT.MAX_INVOICE_DATE}}</span>
+                            </div>
+                            <div ng-message="valid">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="datetime">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration" ng-click="vm.goToCustomerType();" tabindex="-1">Customer</a><span ng-if="!vm.isDisableInvEntry && !vm.custInvoiceID && ((!vm.packingSlip.invoiceType) || vm.isCreditNote)">&nbsp;*</span>
+                        </p>
+                      </th>
+                      <td colspan="3" class="padding-top-4">
+                        <md-input-container flex="100" class="margin-bottom-0 cm-auto-complete-w-auto" ng-if="(!vm.custInvoiceID) && vm.packingSlip.invoiceType && (!vm.isCreditNote)">
+                          <input type="text" name="customer" id="customer" ng-model="vm.packingSlip.customerName" placeholder="customer" ng-disabled="true" />
+                        </md-input-container>
+                        <a tabindex="-1" class="cm-text-decoration underline h4 text-bold" ng-click="vm.goToManageCustomer();" ng-if="vm.custInvoiceID && vm.packingSlip.invoiceType">
+                          {{vm.packingSlip.customerName}}
+                        </a>
+                        <md-input-container ng-if="vm.autoCompleteCustomer && ((!vm.packingSlip.invoiceType)|| (vm.isCreditNote && !vm.custInvoiceID) ) " class="md-block autocompletecustom cm-auto-complete-w-auto" flex="100">
+                          <custom-auto-complete-search class="min-width-initial"
+                                                       on-search-fn="vm.autoCompleteCustomer.onSearchFn"
+                                                       column-name="vm.autoCompleteCustomer.columnName"
+                                                       controller-name="vm.autoCompleteCustomer.controllerName"
+                                                       view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                                       key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                                       input-name="vm.autoCompleteCustomer.inputName"
+                                                       placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                                       key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                                       is-required="vm.autoCompleteCustomer.isRequired"
+                                                       parent-column-name="vm.autoCompleteCustomer.parentColumnName"
+                                                       is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                                       custom-auto-focus="{{vm.setfocus}}"
+                                                       add-data="vm.autoCompleteCustomer.addData"
+                                                       is-disabled="vm.isDisableInvEntry ||  vm.custInvoiceID"
+                                                       callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                                       on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn">
+                          </custom-auto-complete-search>
+                        </md-input-container>
+                      </td>
+                      <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToTermsList(); " tabindex="-1">{{vm.LabelConstant.COMMON.PaymentTerms}}</a><span ng-if="(!vm.isDisableInvEntry) && vm.autoCompleteTerm">&nbsp;*</span></p></th>
+                      <td>
+                        <md-input-container class="margin-bottom-0 cm-auto-complete-w-auto" ng-if="vm.packingSlip.invoiceType && (!vm.isCreditNote || vm.custInvoiceID)">
+                          <!--  && (!vm.isCreditNote) -->
+                          <input type="text" name="termsId" id="termsId" ng-model="vm.packingSlip.terms" ng-maxlength="100"
+                                 placeholder="Payment Terms" ng-disabled="true" />
+                        </md-input-container>
+                        <md-input-container flex="100" class="margin-bottom-0 cm-auto-complete-w-auto" ng-if="(!vm.autoCompleteTerm) && ((!vm.packingSlip.invoiceType) || vm.isCreditNote) && (!vm.custInvoiceID)">
+                          <input type="text" name="termsId" id="termsId" disabled />
+                        </md-input-container>
+                        <md-input-container ng-if="vm.autoCompleteTerm && ((!vm.packingSlip.invoiceType) || (vm.isCreditNote && !vm.custInvoiceID))" class="autocompletecustom margin-bottom-0 cm-auto-complete-w-auto">
+                          <custom-auto-complete datalist="vm.TermsList"
+                                                column-name="vm.autoCompleteTerm.columnName"
+                                                controller-name="vm.autoCompleteTerm.controllerName"
+                                                view-template-url="vm.autoCompleteTerm.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteTerm.keyColumnName"
+                                                input-name="vm.autoCompleteTerm.inputName"
+                                                placeholder-name="vm.autoCompleteTerm.placeholderName"
+                                                key-column-id="vm.autoCompleteTerm.keyColumnId"
+                                                is-disabled="vm.isDisableInvEntry"
+                                                is-required="vm.autoCompleteTerm.isRequired"
+                                                is-addnew="vm.autoCompleteTerm.isAddnew"
+                                                add-data="vm.autoCompleteTerm.addData"
+                                                callback-fn="vm.autoCompleteTerm.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr ng-if="!vm.isCreditNote">
+                      <th>
+                        <p class="label-container mb-0">Sales&nbsp;</p>
+                        <p class="label-container">Commission&nbsp;<a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToEmployeeList();">To</a>&nbsp;</p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0 cm-auto-complete-w-auto" ng-if="vm.packingSlip.invoiceType">
+                          <input type="text" name="salesCommisionTo" id="salesCommisionTo" ng-model="vm.packingSlip.salesCommName"
+                                 ng-maxlength="100" placeholder="Sales Commission" ng-disabled="true" />
+                        </md-input-container>
+                        <md-input-container flex="100" class="margin-bottom-0 cm-auto-complete-w-auto" ng-if="(!vm.autoCompleteSalesCommosssionTo) && (!vm.packingSlip.invoiceType)">
+                          <input type="text" name="salesCommisionTo" id="salesCommisionTo" disabled />
+                        </md-input-container>
+                        <md-input-container ng-if="vm.autoCompleteSalesCommosssionTo && (!vm.packingSlip.invoiceType)" class="md-block autocompletecustom cm-auto-complete-w-auto" flex="100">
+                          <custom-auto-complete datalist="vm.SalesCommissionEmployeeList"
+                                                column-name="vm.autoCompleteSalesCommosssionTo.columnName"
+                                                controller-name="vm.autoCompleteSalesCommosssionTo.controllerName"
+                                                view-template-url="vm.autoCompleteSalesCommosssionTo.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteSalesCommosssionTo.keyColumnName"
+                                                input-name="vm.autoCompleteSalesCommosssionTo.inputName"
+                                                placeholder-name="vm.autoCompleteSalesCommosssionTo.placeholderName"
+                                                key-column-id="vm.autoCompleteSalesCommosssionTo.keyColumnId"
+                                                is-required="vm.autoCompleteSalesCommosssionTo.isRequired"
+                                                is-addnew="vm.autoCompleteSalesCommosssionTo.isAddnew"
+                                                is-disabled="vm.packingSlip.invoiceType || vm.isDisableInvEntry"
+                                                callback-fn="vm.autoCompleteSalesCommosssionTo.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration" ng-click="vm.goToFOBList();">FOB</a>
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Free On Board</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td colspan="3">
+                        <md-input-container flex="100" class="margin-bottom-0 cm-auto-complete-w-auto" ng-if="vm.packingSlip.invoiceType">
+                          <input type="text" name="FreeOnBoard" id="FreeOnBoard" ng-model="vm.packingSlip.FOBName"
+                                 ng-maxlength="100" placeholder="FOB" ng-disabled="true" />
+                        </md-input-container>
+                        <md-input-container flex="100" class="margin-bottom-0 cm-auto-complete-w-auto" ng-if="(!vm.autoCompleteFOB) && (!vm.packingSlip.invoiceType)">
+                          <input type="text" name="FreeOnBoard" id="FreeOnBoard" disabled />
+                        </md-input-container>
+                        <md-input-container ng-if="vm.autoCompleteFOB && (!vm.packingSlip.invoiceType)" class="autocompletecustom margin-bottom-0 cm-auto-complete-w-auto" flex="100">
+                          <custom-auto-complete datalist="vm.FOBList"
+                                                column-name="vm.autoCompleteFOB.columnName"
+                                                controller-name="vm.autoCompleteFOB.controllerName"
+                                                view-template-url="vm.autoCompleteFOB.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteFOB.keyColumnName"
+                                                input-name="vm.autoCompleteFOB.inputName"
+                                                placeholder-name="vm.autoCompleteFOB.placeholderName"
+                                                key-column-id="vm.autoCompleteFOB.keyColumnId"
+                                                is-disabled="vm.packingSlip.invoiceType || vm.isDisableInvEntry"
+                                                is-addnew="vm.autoCompleteFOB.isAddnew"
+                                                callback-fn="vm.autoCompleteFOB.callbackFn"
+                                                data-focusButton="saveBtn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">{{vm.LabelConstant.COMMON.SystemID}}</p></th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="systemID" id="systemID" ng-model="vm.packingSlip.systemID"
+                                 placeholder="SystemID" ng-maxlength="50" ng-disabled="true">
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">{{vm.LabelConstant.COMMON.GRIDHEADER_MODYFYBY}}</p>
+                      </th>
+                      <td>
+                        <a tabindex="-1" class="cm-text-decoration underline h4 text-bold" ng-click="vm.goToManagePersonal(vm.packingSlip.updatedByEmp);">
+                          {{vm.packingSlip.updatedByInitial}}
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-5" ng-if="vm.packingSlip.updatedAt">
+                            <md-tooltip class="cm-tooltip-table-data tooltip-height-auto pv-3" md-direction="top">
+                              <div>
+                                <table cellspacing="0" cellpadding="0" border="1">
+                                  <tr>
+                                    <th>
+                                      {{vm.LabelConstant.COMMON.GRIDHEADER_MODIFY_DATE}}
+                                    </th>
+                                    <td>
+                                      {{vm.packingSlip.updatedAt || '-'}}
+                                    </td>
+                                  </tr>
+                                </table>
+                              </div>
+                            </md-tooltip>
+                          </md-icon>
+                        </a>
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="!(vm.packingSlip && vm.packingSlip.updatedByInitial)">
+                          <input type="text" name="createdBy" id="createdBy" placeholder="Created By" disabled />
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">{{vm.LabelConstant.COMMON.GRIDHEADER_CREATEDBY}}</p>
+                      </th>
+                      <td class="padding-top-3">
+                        <a tabindex="-1" class="cm-text-decoration underline h4 text-bold" ng-click="vm.goToManagePersonal(vm.packingSlip.createdByEmp);">
+                          {{vm.packingSlip.createdByInitial}}
+                        </a>
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="!(vm.packingSlip && vm.packingSlip.createdByInitial)">
+                          <input type="text" name="createdBy" id="createdBy" placeholder="Created By" disabled />
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <!--<tr>
+                      <th>
+                        <p class="label-container">{{vm.LabelConstant.COMMON.GRIDHEADER_MODYFYBY}}</p>
+                      </th>
+                      <td class="pt-5">
+                        <a tabindex="-1" class="cm-text-decoration underline h4 text-bold" ng-click="vm.goToManagePersonal(vm.packingSlip.updatedByEmp);">
+                          {{vm.packingSlip.updatedByInitial}}
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-5" ng-if="vm.packingSlip.updatedAt">
+                            <md-tooltip class="cm-tooltip-table-data tooltip-height-auto pv-3" md-direction="top">
+                              <div>
+                                <table cellspacing="0" cellpadding="0" border="1">
+                                  <tr>
+                                    <th>
+                                      {{vm.LabelConstant.COMMON.GRIDHEADER_MODIFY_DATE}}
+                                    </th>
+                                    <td>
+                                      {{vm.packingSlip.updatedAt || '-'}}
+                                    </td>
+                                  </tr>
+                                </table>
+                              </div>
+                            </md-tooltip>
+                          </md-icon>
+                        </a>
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="!(vm.packingSlip && vm.packingSlip.updatedByInitial)">
+                          <input type="text" name="createdBy" id="createdBy" placeholder="Created By" disabled />
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">{{vm.LabelConstant.COMMON.GRIDHEADER_CREATEDBY}}</p>
+                      </th>
+                      <td class="pt-5" colspan="3">
+                        <a tabindex="-1" class="cm-text-decoration underline h4 text-bold" ng-click="vm.goToManagePersonal(vm.packingSlip.createdByEmp);">
+                          {{vm.packingSlip.createdByInitial}}
+                        </a>
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="!(vm.packingSlip && vm.packingSlip.createdByInitial)">
+                          <input type="text" name="createdBy" id="createdBy" placeholder="Created By" disabled />
+                        </md-input-container>
+                      </td>
+                    </tr>-->
+                    <tr ng-if="!vm.packingSlip.invoiceType">
+                      <td colspan="6">Note: For MISC Invoice, Packing Slip# will be auto-generated and Packing Slip Date will be same as Invoice Date. </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div flex="25" flex-md="100" flex-sm="100" flex-lg="50" layout="row" layout-wrap>
+            <div class="cm-section-main margin-right-5 margin-rs-right-0 mt-rs-10 margin-pro-rs-right-0" flex="100">
+              <div class="cm-section-inner" flex="100">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <!--<tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration" ng-click="vm.goToCustomerType();" tabindex="-1">Customer</a><span ng-if="!vm.isDisableInvEntry && !vm.custInvoiceID && ((!vm.packingSlip.invoiceType) || vm.isCreditNote)">&nbsp;*</span>
+                        </p>
+                      </th>
+                      <td colspan="5" class="padding-top-4">
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="(!vm.custInvoiceID) && vm.packingSlip.invoiceType && (!vm.isCreditNote)">
+                          <input type="text" name="customer" id="customer" ng-model="vm.packingSlip.customerName" placeholder="customer" ng-disabled="true" />
+                        </md-input-container>
+                        <a tabindex="-1" class="cm-text-decoration underline h4 text-bold" ng-click="vm.goToManageCustomer();" ng-if="vm.custInvoiceID && vm.packingSlip.invoiceType">
+                          {{vm.packingSlip.customerName}}
+                        </a>
+                        <md-input-container ng-if="vm.autoCompleteCustomer && ((!vm.packingSlip.invoiceType)|| (vm.isCreditNote && !vm.custInvoiceID) ) " class="md-block autocompletecustom" flex="100">
+                          <custom-auto-complete-search class="min-width-initial"
+                                                       on-search-fn="vm.autoCompleteCustomer.onSearchFn"
+                                                       column-name="vm.autoCompleteCustomer.columnName"
+                                                       controller-name="vm.autoCompleteCustomer.controllerName"
+                                                       view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                                       key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                                       input-name="vm.autoCompleteCustomer.inputName"
+                                                       placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                                       key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                                       is-required="vm.autoCompleteCustomer.isRequired"
+                                                       parent-column-name="vm.autoCompleteCustomer.parentColumnName"
+                                                       is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                                       custom-auto-focus="{{vm.setfocus}}"
+                                                       add-data="vm.autoCompleteCustomer.addData"
+                                                       is-disabled="vm.isDisableInvEntry ||  vm.custInvoiceID"
+                                                       callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                                       on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn">
+                          </custom-auto-complete-search>
+                        </md-input-container>
+                      </td>
+                    </tr>-->
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration" ng-click="vm.goToSalesorder();" tabindex="-1">{{vm.LabelConstant.SalesOrder.PO}}</a>
+                          <span ng-if="!vm.packingSli.invoiceType"><check-unique-on-blur></check-unique-on-blur></span>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0 word-break" ng-if="vm.packingSlip.invoiceType && (!vm.isCreditNote)">
+                          <a tabindex="-1" class="cm-text-decoration underline h4 text-bold"
+                             ng-click="vm.goToManageSalesOrder();"
+                             ng-if="vm.packingSlip.refSalesOrderId && vm.packingSlip.invoiceType && vm.packingSlip.poNumber">
+                            {{vm.packingSlip.poNumber}}
+                            <copy-text label="vm.LabelConstant.SalesOrder.PO" text="vm.packingSlip.poNumber" ng-if="vm.packingSlip.invoiceType && vm.packingSlip.poNumber"></copy-text>
+                          </a>
+                          <p ng-if="(!vm.packingSlip.refSalesOrderId) && vm.packingSlip.invoiceType && vm.packingSlip.poNumber" class="margin-top-0 h4 text-bold">
+                            {{vm.packingSlip.poNumber}}
+                            <copy-text label="vm.LabelConstant.SalesOrder.PO" text="vm.packingSlip.poNumber" ng-if="vm.packingSlip.invoiceType && vm.packingSlip.poNumber"></copy-text>
+                          </p>
+                          <!-- Following tag to  show empty input for new entry in regular invoice-->
+                          <input type="text" name="poNumber" id="poNumber" placeholder="PO Number" ng-if="vm.packingSlip.invoiceType && (!vm.packingSlip.poNumber)" ng-disabled="true" />
+                        </md-input-container>
+                        <md-input-container ng-if="(!vm.packingSlip.invoiceType) || vm.isCreditNote">
+                          <input type="text" name="poNumber" id="poNumber" ng-model="vm.packingSlip.poNumber" capitalize class="input-text-uppercase"
+                                 placeholder="PO Number" ng-if="(!vm.packingSlip.invoiceType) || vm.isCreditNote" ng-disabled="vm.isDisableInvEntry" ng-blur="vm.checkMiscPackingSlipForSOPONumberOnBlur('poDate')" />
+                        </md-input-container>
+                      </td>
+                      <th class="pl-5"><p class="label-container">PO {{vm.LabelConstant.COMMON.RevisionShort}}</p></th>
+                      <td class="w-70">
+                        <md-input-container flex="100" class="margin-bottom-0 ">
+                          <input type="text" name="poRevision" id="poRevision" ng-maxlength="8" ng-model="vm.packingSlip.poRevision" md-maxlength="8"
+                                 placeholder="PO Revision" ng-disabled="(vm.packingSlip.invoiceType && (!vm.isCreditNote)) || vm.isDisableInvEntry"
+                                 capitalize class="input-text-uppercase" />
+                          <div ng-messages="vm.frmCustomerInvoice.poRevision.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(8, vm.frmCustomerInvoice.poRevision.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">{{vm.LabelConstant.SalesOrder.PODate}}</p></th>
+                      <td>
+                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                          <input type="text" class="float-left"
+                                 name="poDate" id=" poDate"
+                                 allow-past-date="true"
+                                 allow-future-date="false"
+                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                 ng-model="vm.packingSlip.poDate"
+                                 max-value="vm.packingSlip.packingSlipDate ? vm.packingSlip.packingSlipDate : vm.packingSlip.invoiceDate"
+                                 enable-time="false"
+                                 ng-disabled="((!vm.isCreditNote) && vm.packingSlip.invoiceType) || vm.isDisableInvEntry"
+                                 ui-options="{clearOnBlur  : true}"
+                                 ng-change="vm.onChangePODate()"
+                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                 model-view-value="true"
+                                 datepicker-options="vm.poDateOptions"
+                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.poDate]" />
+                          <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.poDate]= (!vm.isDisableInvEntry && (!vm.packingSlip.invoiceType || vm.isCreditNote) ) ? true:false">
+                          </md-icon>
+                          <div ng-messages="vm.frmCustomerInvoice.poDate.$error" role="alert">
+                            <div ng-message="maxvalue">
+                              <span ng-if="!vm.isCreditNote">{{vm.packingSlip.invoiceType ? vm.CORE_MESSAGE_CONSTANT.INVALID_MAX_PS_PURCHASE_ORDER_DATE : vm.CORE_MESSAGE_CONSTANT.MAX_PURCHASE_DATE_INVOICE_DATE}}</span>
+                              <span ng-if="vm.isCreditNote">{{vm.CORE_MESSAGE_CONSTANT.MAX_PURCHASE_DATE_INVOICE_DATE}}</span>
+                            </div>
+                            <div ng-message="valid">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="datetime">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <!--<tr>
+                      <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToTermsList(); " tabindex="-1">{{vm.LabelConstant.COMMON.PaymentTerms}}</a><span ng-if="(!vm.isDisableInvEntry) && vm.autoCompleteTerm">&nbsp;*</span></p></th>
+                      <td colspan="5">
+                        <md-input-container class="margin-bottom-0" ng-if="vm.packingSlip.invoiceType && (!vm.isCreditNote || vm.custInvoiceID)">-->
+                    <!--  && (!vm.isCreditNote) -->
+                    <!--<input type="text" name="termsId" id="termsId" ng-model="vm.packingSlip.terms" ng-maxlength="100"
+                                 placeholder="Payment Terms" ng-disabled="true" />
+                        </md-input-container>
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="(!vm.autoCompleteTerm) && ((!vm.packingSlip.invoiceType) || vm.isCreditNote) && (!vm.custInvoiceID)">
+                          <input type="text" name="termsId" id="termsId" disabled />
+                        </md-input-container>
+                        <md-input-container ng-if="vm.autoCompleteTerm && ((!vm.packingSlip.invoiceType) || vm.isCreditNote)" class="autocompletecustom margin-bottom-0">
+                          <custom-auto-complete datalist="vm.TermsList"
+                                                column-name="vm.autoCompleteTerm.columnName"
+                                                controller-name="vm.autoCompleteTerm.controllerName"
+                                                view-template-url="vm.autoCompleteTerm.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteTerm.keyColumnName"
+                                                input-name="vm.autoCompleteTerm.inputName"
+                                                placeholder-name="vm.autoCompleteTerm.placeholderName"
+                                                key-column-id="vm.autoCompleteTerm.keyColumnId"
+                                                is-disabled="vm.isDisableInvEntry"
+                                                is-required="vm.autoCompleteTerm.isRequired"
+                                                is-addnew="vm.autoCompleteTerm.isAddnew"
+                                                add-data="vm.autoCompleteTerm.addData"
+                                                callback-fn="vm.autoCompleteTerm.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>-->
+                    <tr>
+                      <th>
+                        <p class="label-container cm-white-space-normal"><a class="cm-text-decoration" ng-click="vm.goShippingMethodList();" tabindex="-1">{{vm.categoryTypeObjList.ShippingType.Name}}</a></p>
+                      </th>
+                      <td colspan="5">
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="vm.packingSlip.invoiceType  && !vm.isCreditNote">
+                          <input type="text" name="shippingMethod" id="shippingMethod" ng-model="vm.packingSlip.shippingMethod" ng-maxlength="100"
+                                 placeholder="Shipping Method" ng-disabled="true" />
+                        </md-input-container>
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="(!vm.autoCompleteShipping) && !(vm.packingSlip.invoiceType  || vm.isCreditNote)">
+                          <input type="text" name="shippingMethod" id="shippingMethod" disabled />
+                        </md-input-container>
+                        <md-input-container ng-if="vm.autoCompleteShipping && (!vm.packingSlip.invoiceType || vm.isCreditNote)" class="autocompletecustom margin-bottom-0" flex>
+                          <custom-auto-complete datalist="vm.ShippingTypeList"
+                                                column-name="vm.autoCompleteShipping.columnName"
+                                                controller-name="vm.autoCompleteShipping.controllerName"
+                                                view-template-url="vm.autoCompleteShipping.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteShipping.keyColumnName"
+                                                input-name="vm.autoCompleteShipping.inputName"
+                                                placeholder-name="vm.autoCompleteShipping.placeholderName"
+                                                key-column-id="vm.autoCompleteShipping.keyColumnId"
+                                                is-required="vm.autoCompleteShipping.isRequired"
+                                                is-addnew="vm.autoCompleteShipping.isAddnew"
+                                                is-disabled="(vm.packingSlip.invoiceType && !vm.isCreditNote) || vm.isDisableInvEntry"
+                                                add-data="vm.autoCompleteShipping.addData"
+                                                on-select-callback-fn="vm.autoCompleteShipping.onSelectCallbackFn"
+                                                callback-fn="vm.autoCompleteShipping.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration" ng-click="vm.goTocarrierList();" tabindex="-1">{{vm.categoryTypeObjList.Carriers.Name}}</a><span ng-if="vm.autoCompleteCarriers && !vm.isDisable">&nbsp;*</span>
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip ng-if="vm.transType === vm.transactionType.CREDITNOTE || !vm.packingSlip.invoiceType" md-direction="top">Auto derived from selected Customer / Shipping Address</md-tooltip>
+                            <md-tooltip ng-if="vm.packingSlip.invoiceType" md-direction="top">Auto derived from selected Packing Slip</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="vm.packingSlip.invoiceType && !vm.isCreditNote">
+                          <input type="text" name="carrier" id="carrier" ng-model="vm.packingSlip.carrier" ng-maxlength="100"
+                                 placeholder="Carrier" ng-disabled="true" />
+                        </md-input-container>
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="(!vm.autoCompleteCarriers) && (!vm.packingSlip.invoiceType || vm.isCreditNote)">
+                          <input type="text" name="carrier" id="carrier" disabled />
+                        </md-input-container>
+                        <md-input-container ng-if="vm.autoCompleteCarriers" class="autocompletecustom margin-bottom-0" flex="100">
+                          <custom-auto-complete datalist="vm.carrierList"
+                                                column-name="vm.autoCompleteCarriers.columnName"
+                                                controller-name="vm.autoCompleteCarriers.controllerName"
+                                                view-template-url="vm.autoCompleteCarriers.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteCarriers.keyColumnName"
+                                                input-name="vm.autoCompleteCarriers.inputName"
+                                                placeholder-name="vm.autoCompleteCarriers.placeholderName"
+                                                key-column-id="vm.autoCompleteCarriers.keyColumnId"
+                                                is-addnew="vm.autoCompleteCarriers.isAddnew"
+                                                is-required="vm.autoCompleteCarriers.isRequired"
+                                                is-disabled="(vm.packingSlip.invoiceType && !vm.isCreditNote) || vm.isDisableInvEntry"
+                                                add-data="vm.autoCompleteCarriers.addData"
+                                                callback-fn="vm.autoCompleteCarriers.callbackFn"
+                                                on-select-callback-fn="vm.autoCompleteCarriers.onSelectCallbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          Carrier Account#
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip ng-if="vm.transType === vm.transactionType.CREDITNOTE || !vm.packingSlip.invoiceType" md-direction="top">Auto derived from selected Customer / Shipping Address</md-tooltip>
+                            <md-tooltip ng-if="vm.packingSlip.invoiceType" md-direction="top">Auto derived from selected Packing Slip</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input name="carrierAccountNumber" ng-model="vm.packingSlip.carrierAccountNumber" placeholder="Carrier Account#" ng-maxlength="50" md-maxlength="50" ng-disabled="vm.isDisableInvEntry || (vm.packingSlip.invoiceType && !vm.isCreditNote)" />
+                          <div ng-messages="vm.frmCustomerInvoice.carrierAccountNumber.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(50, vm.frmCustomerInvoice.carrierAccountNumber.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <!--<tr ng-if="!vm.isCreditNote">
+                      <th>
+                        <p class="label-container mb-0">Sales&nbsp;</p>
+                        <p class="label-container">Commission&nbsp;<a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToEmployeeList();">To</a>&nbsp;</p>
+                      </th>
+                      <td colspan="5">
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="vm.packingSlip.invoiceType">
+                          <input type="text" name="salesCommisionTo" id="salesCommisionTo" ng-model="vm.packingSlip.salesCommName"
+                                 ng-maxlength="100" placeholder="Sales Commission" ng-disabled="true" />
+                        </md-input-container>
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="(!vm.autoCompleteSalesCommosssionTo) && (!vm.packingSlip.invoiceType)">
+                          <input type="text" name="salesCommisionTo" id="salesCommisionTo" disabled />
+                        </md-input-container>
+                        <md-input-container ng-if="vm.autoCompleteSalesCommosssionTo && (!vm.packingSlip.invoiceType)" class="md-block autocompletecustom" flex="100">
+                          <custom-auto-complete datalist="vm.SalesCommissionEmployeeList"
+                                                column-name="vm.autoCompleteSalesCommosssionTo.columnName"
+                                                controller-name="vm.autoCompleteSalesCommosssionTo.controllerName"
+                                                view-template-url="vm.autoCompleteSalesCommosssionTo.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteSalesCommosssionTo.keyColumnName"
+                                                input-name="vm.autoCompleteSalesCommosssionTo.inputName"
+                                                placeholder-name="vm.autoCompleteSalesCommosssionTo.placeholderName"
+                                                key-column-id="vm.autoCompleteSalesCommosssionTo.keyColumnId"
+                                                is-required="vm.autoCompleteSalesCommosssionTo.isRequired"
+                                                is-addnew="vm.autoCompleteSalesCommosssionTo.isAddnew"
+                                                is-disabled="vm.packingSlip.invoiceType || vm.isDisableInvEntry"
+                                                callback-fn="vm.autoCompleteSalesCommosssionTo.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>-->
+                    <!--<tr ng-if="!vm.isCreditNote">
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration" ng-click="vm.goToFOBList();">FOB</a>
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">Free On Board</md-tooltip>
+                          </md-icon>
+                        </p>
+                      </th>
+                      <td colspan="5">
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="vm.packingSlip.invoiceType">
+                          <input type="text" name="FreeOnBoard" id="FreeOnBoard" ng-model="vm.packingSlip.FOBName"
+                                 ng-maxlength="100" placeholder="FOB" ng-disabled="true" />
+                        </md-input-container>
+                        <md-input-container flex="100" class="margin-bottom-0" ng-if="(!vm.autoCompleteFOB) && (!vm.packingSlip.invoiceType)">
+                          <input type="text" name="FreeOnBoard" id="FreeOnBoard" disabled />
+                        </md-input-container>
+                        <md-input-container ng-if="vm.autoCompleteFOB && (!vm.packingSlip.invoiceType)" class="autocompletecustom margin-bottom-0" flex="100">
+                          <custom-auto-complete datalist="vm.FOBList"
+                                                column-name="vm.autoCompleteFOB.columnName"
+                                                controller-name="vm.autoCompleteFOB.controllerName"
+                                                view-template-url="vm.autoCompleteFOB.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteFOB.keyColumnName"
+                                                input-name="vm.autoCompleteFOB.inputName"
+                                                placeholder-name="vm.autoCompleteFOB.placeholderName"
+                                                key-column-id="vm.autoCompleteFOB.keyColumnId"
+                                                is-disabled="vm.packingSlip.invoiceType || vm.isDisableInvEntry"
+                                                is-addnew="vm.autoCompleteFOB.isAddnew"
+                                                callback-fn="vm.autoCompleteFOB.callbackFn"
+                                                data-focusButton="saveBtn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>-->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div flex="20" flex-md="100" flex-sm="100" layout="row" layout-wrap>
+            <div class="cm-section-main margin-rs-right-0 mt-rs-10 margin-pro-rs-right-0 mr-5" flex="100">
+              <div class="cm-section-inner" flex="100">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th>
+                        <p class="label-container" ng-if="!vm.isCreditNote">Invoice Line Charges</p>
+                        <p class="label-container" ng-if="vm.isCreditNote">CM Line Charges</p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="otherCharges" id="otherCharges" ng-model="vm.packingSlip.sumExtendedPriceDisplay" placeholder="Other Charges" class="text-right"
+                                 ng-disabled="true" />
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container cm-white-space-normal">
+                          Total Line Other Charges
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="totalOtherCharges" id="totalOtherCharges" ng-model="vm.packingSlip.sumOtherPriceDisplay" placeholder="Total Other Charges" class="text-right"
+                                 ng-disabled="true" />
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <!--<tr>
+                      <th>
+                        <p class="label-container cm-white-space-normal">
+                          Material Extended Charges
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="materialExtCharges" id="materialExtCharges" ng-model="vm.packingSlip.sumExtendedPriceDisplay" placeholder="Material Extended Charges" class="text-right"
+                                 ng-disabled="true" />
+                        </md-input-container>
+                      </td>
+                    </tr>-->
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          Total Amount
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0 cm-invoice-amt-diff-font">
+                          <input type="text" name="totalAmount" id="totalAmount" ng-model="vm.packingSlip.totalExtendedPriceDisplay" placeholder="Total Amount"
+                                 class="text-right "
+                                 ng-disabled="true" />
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container" ng-if="vm.transType === vm.transactionType.INVOICE">{{vm.LabelConstant.CustomerPackingInvoice.ReceivedAmount}}</p>
+                        <p class="label-container" ng-if="vm.transType === vm.transactionType.CREDITNOTE">{{vm.LabelConstant.CustomerPackingInvoice.CMAppliedAmount}}</p>
+                      </th>
+                      <td class="text-right">
+                        <a tabindex="-1" ng-if="vm.packingSlip.receivedAmount" class="cm-text-decoration underline text-bold cm-invoice-amt-diff-font font-size-24" ng-click="vm.showPaymentTransactions();">
+                          {{vm.packingSlip.receivedAmountDisplay}}
+                        </a>
+                        <span tabindex="-1" ng-if="!vm.packingSlip.receivedAmount" class="color-black text-bold cm-invoice-amt-diff-font font-size-24">
+                          {{vm.packingSlip.receivedAmountDisplay}}
+                        </span>
+                        <!-- <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="text" name="receivedAmount" id="receivedAmount" ng-model="vm.packingSlip.receivedAmountDisplay" placeholder="Total Amount"
+                                 class="text-right " ng-disabled="true" ng-click="vm.showPaymentTransactions();"/>
+                        </md-input-container> -->
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container" ng-if="vm.transType === vm.transactionType.INVOICE">{{vm.LabelConstant.CustomerPackingInvoice.BalanceAmount}}</p>
+                        <p class="label-container" ng-if="vm.transType === vm.transactionType.CREDITNOTE">{{vm.LabelConstant.CustomerPackingInvoice.CMBalanceAmount}}</p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0 cm-invoice-amt-diff-font">
+                          <input type="text" name="balanceAmount" id="balanceAmount" ng-model="vm.packingSlip.balanceAmountDisplay" placeholder="Total Amount"
+                                 class="text-right " ng-disabled="true" />
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr ng-if="vm.transType === vm.transactionType.INVOICE">
+                      <th></th>
+                      <td>
+                        <md-checkbox ng-model="vm.packingSlip.isZeroValue" ng-change="vm.changeZeroValueFlagHeader()" class="mv-8-imp" name="zeroValue" id="zeroValue"
+                                     ng-disabled="vm.isDisableInvEntry || vm.packingSlip.totalExtendedPrice || vm.isDisableHeaderZeroValue ||  (!vm.custInvoiceID)">
+                          <span class="color-black">{{vm.ConfirmingZeroValueHeaderLable}}</span>
+                          <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                            <md-tooltip md-direction="top">{{vm.LabelConstant.CustomerPackingSlip.ConfirmingZeroValueHint}}</md-tooltip>
+                          </md-icon>
+                        </md-checkbox>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div flex="20" flex-md="100" flex-sm="100" layout="row" layout-wrap ng-if="vm.isCreditNote">
+            <div class="cm-section-main mt-rs-10" flex="100">
+              <div class="cm-section-inner" flex="100">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th>
+                        <md-checkbox ng-model="vm.packingSlip.isMarkForRefund" ng-change="vm.changeMarkForRefund()" class="mv-8-imp" name="markForRefund" id="markForRefund"
+                                     ng-disabled="(!vm.packingSlip.totalExtendedPrice) ||  (!vm.custInvoiceID) || (vm.packingSlip.isLocked) || (vm.packingSlip.subStatus === vm.CustCreditNoteSubStatusConst.DRAFT)">
+                          <span>Mark For Refund</span>
+                        </md-checkbox>
+                      </th>
+                      <td>
+                        <md-button class="md-primary md-raised mb-0" ng-disabled="!vm.packingSlip.isMarkForRefund || !vm.packingSlip.totalExtendedPrice || !vm.custInvoiceID || (vm.packingSlip.isLocked)"
+                                   ng-click="vm.addCustomerRefundWithFilter()">
+                          Refund to Customer
+                        </md-button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th ng-if="vm.isCreditNote">
+                        <p class="label-container">
+                          Agreed Refund Amt.&nbsp;($)
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input type="number" id="agreedRefundAmt" name="agreedRefundAmt" input-number-decimal-place
+                                 ng-model="vm.packingSlip.agreedRefundAmtDisplay" placeholder="Agreed Refund Amt"
+                                 max="{{vm.totalRefundAmt}}"
+                                 step="{{$root.amountInputStep}}"
+                                 ng-required="vm.packingSlip.isMarkForRefund"
+                                 min="{{vm.packingSlip.totRefundIssuedAgainstCreditMemo ? vm.packingSlip.totRefundIssuedAgainstCreditMemo : 0.01}}"
+                                 ng-disabled="(!vm.packingSlip.isMarkForRefund) || (!vm.packingSlip.totalExtendedPrice) || vm.isDisableHeaderZeroValue || (!vm.custInvoiceID) || (vm.packingSlip.isLocked) || (vm.packingSlip.subStatus === vm.CustCreditNoteSubStatusConst.DRAFT)"
+                                 onkeypress="return OnlyNumbersWithDot(event)"
+                                 oninput="validateTwoDecimalOnly(this.value)"
+                                 ng-model-options="{ debounce: vm.debounceTimeIntervalConst }"
+                                 ng-change="vm.refundAmtChanged();">
+                          <div ng-messages="vm.frmCustomerInvoice.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="min">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_LENGTH}}</span>
+                            </div>
+                            <div ng-message="max">
+                              <span>{{vm.MESSAGE_CONSTANT_GLOBAL_AGREED_REFUND.AGREED_AMT_LESS_REMAINING.message}}</span>
+                            </div>
+                            <div ng-message="step">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr ng-if="vm.transType === vm.transactionType.CREDITNOTE">
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration underline" ng-click="vm.goToCustomerRefundList()">
+                            {{vm.LabelConstant.CustomerCreditMemo.TotalRefundIssued}}
+                          </a>
+                        </p>
+                      </th>
+                      <td class="text-right">
+                        <span tabindex="-1" class="color-black text-bold cm-invoice-amt-diff-font font-size-24">
+                          <a class="cm-text-decoration underline" ng-click="vm.showTotRefundIssueDetAgainstPayment(false)">
+                            {{vm.packingSlip.totRefundIssuedAgainstCreditMemo | amount}}
+                          </a>
+                        </span>
+                      </td>
+                    </tr>
+                    <tr ng-if="vm.transType === vm.transactionType.CREDITNOTE">
+                      <th>
+                        <p class="label-container">{{vm.LabelConstant.CustomerCreditMemo.LeftOverAmtToBeRefunded}}</p>
+                      </th>
+                      <td class="text-right">
+                        <span tabindex="-1" class="color-black text-bold cm-invoice-amt-diff-font font-size-24">
+                          {{vm.packingSlip.leftOverCMAmtToBeRefunded | amount}}
+                        </span>
+                      </td>
+                    </tr>
+                    <tr ng-if="vm.transType === vm.transactionType.CREDITNOTE">
+                      <th>
+                        <p class="label-container">Applied CM + Refunded Amt.</p>
+                      </th>
+                      <td class="text-right">
+                        <span tabindex="-1" class="color-black text-bold cm-invoice-amt-diff-font font-size-24">
+                          <a class="cm-text-decoration underline" ng-click="vm.showTotRefundIssueDetAgainstPayment(true)">
+                            {{vm.packingSlip.sumOfAppliedCMRefundedAmt | amount}}
+                          </a>
+                        </span>
+                      </td>
+                    </tr>
+                    <tr ng-if="vm.transType === vm.transactionType.CREDITNOTE">
+                      <th>
+                        <p class="label-container">Remaining Amt.<br /> (Incl. Amt. to be Refunded)</p>
+                      </th>
+                      <td class="text-right">
+                        <span tabindex="-1" class="color-black text-bold cm-invoice-amt-diff-font font-size-24">
+                          {{vm.packingSlip.remainingCMAmtInclAmtToBeRefunded | amount}}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-350" flex-md="100" flex-sm="100" layout="row" layout-wrap ng-if="!vm.isCreditNote">
+            <div class="cm-section-main mt-rs-10" flex="100">
+              <div class="cm-section-inner" flex="100">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div flex="100" layout="row" layout-align="start start" layout-wrap>
+                          <div class="cm-section-main" layout="row" layout-wrap flex="100">
+                            <div class="cm-normal-header" flex="100">
+                              <h2>Tracking#</h2>
+                            </div>
+                            <div class="cm-section-inner" flex="100" layout="row" layout-wrap>
+                              <div flex="100" layout="row">
+                                <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                                  <input type="text" name="trackingNumber" id="trackingNumber"
+                                         ng-model="vm.trackingNumberDet.trackNumber"
+                                         placeholder="Enter Tracking Number"
+                                         custom-blur="vm.onBlurTrackNumber()"
+                                         ng-maxlength="100"
+                                         ng-disabled="(vm.packingSlip.isLocked)|| vm.isDisableTrackNumber"
+                                         ng-change="vm.checkUniqueTrackNumber()"
+                                         ng-keypress="vm.addTrackingNumberToList($event);"
+                                         capitalize
+                                         class="input-text-uppercase">
+                                  <span class="font-size-10">
+                                    <b>Type and press Enter.</b>
+                                  </span>
+                                  <div ng-messages="vm.frmCustomerInvoice.trackingNumber.$error"
+                                       role="alert">
+                                    <div ng-message="maxlength">
+                                      <span>{{vm.getMaxLengthValidation(100, vm.frmCustomerInvoice.trackingNumber.$viewValue.length)}}</span>
+                                    </div>
+                                    <!--<div ng-message="duplicate">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.DUPLICATE}}</span>
+                                    </div>-->
+                                  </div>
+                                </md-input-container>
+                                <md-button class="md-primary md-raised ml-10 m-0"
+                                           ng-click="vm.resetCustInvTrackingNumberObj()"
+                                           ng-disabled="vm.isDisableInvEntry">
+                                  Clear
+                                  <md-tooltip>Clear</md-tooltip>
+                                </md-button>
+                              </div>
+                              <div class="cm-tracking-chip-container max-height-200">
+                                <div ng-repeat="trackItem in vm.packingSlip.customerInvTrackNumber" layout="row" layout-align="start center"
+                                     class="cm-tracking-chip-mian">
+                                  <div class="tracking-number-chip tracking-number-copy-chip pv-3" layout="row" layout-align="start center">
+                                    <label>{{trackItem.trackNumber}}</label>
+                                    <div class="md-icon-button md-primary m-5 md-mini border-radius-0"
+                                         ng-mouseover="vm.checkCopyStatus()"
+                                         ng-click="vm.copyTrackinNumber($event,trackItem.trackNumber);">
+                                      <md-icon md-font-icon="icon-content-copy s18" class="material-icons mat-icon"></md-icon>
+                                      <md-tooltip md-direction="top" ng-show="!vm.copystatus">Copy Tracking#</md-tooltip>
+                                      <md-tooltip md-direction="top" ng-show="vm.copystatus">Copied</md-tooltip>
+                                    </div>
+                                    <md-button class="md-icon-button md-primary md-mini margin-0"
+                                               ng-click="vm.editTrackingNumber(trackItem)"
+                                               ng-disabled="(vm.packingSlip.isLocked)|| vm.isDisableTrackNumber">
+                                      <md-icon md-font-icon="icon-pencil" class="material-icons mat-icon"></md-icon>
+                                      <md-tooltip>Update Tracking Number</md-tooltip>
+                                    </md-button>
+                                    <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeTrackNumber(trackItem, $index)"
+                                               ng-disabled="(vm.packingSlip.isLocked)|| vm.isDisableTrackNumber">
+                                      <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                                      <md-tooltip>Remove Tracking Number</md-tooltip>
+                                    </md-button>
+                                  </div>
+                                </div>
+                                <!--for checking tracking number changed or not-->
+                                <input type="text" name="trackNumberChanged" ng-model="vm.packingSlip.trackingNumberChanged" disabled ng-hide="true" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- Comment Section-->
+          <div layout="row" layout-sm="column" class="margin-top-5" flex="100">
+            <div flex="50" flex-md="100" flex-sm="100" layout="row" layout-wrap>
+              <div class="cm-section-main mt-rs-10 mr-5" flex="100">
+                <div class="padding-10 layout-row">
+                  <p class=" flex-noshrink text-right">
+                    Header Internal Notes<span ng-if="(!vm.isDisableInvEntry) && vm.packingSlip.isZeroValue" class="red">&nbsp;*</span>
+                    <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                      <md-tooltip ng-if="vm.packingSlip.invoiceType && !vm.isCreditNote" md-direction="top">Auto derived from packing slip</md-tooltip>
+                      <md-tooltip ng-if="!vm.packingSlip.invoiceType || vm.isCreditNote" md-direction="top">Auto derived from Customer Internal Comments</md-tooltip>
+                    </md-icon>
+                  </p>
+                  <!-- For header internal note we need to allow add/edit in any status other than locked document as per client suggestion on 03/05/2021 -->
+                  <md-input-container flex="100">
+                    <textarea name="headerinternalComment" ng-maxlength="vm.maxLengthForDescription" ng-model="vm.packingSlip.headerComment"
+                              rows="2" max-rows="3" placeholder="Internal Comment" ng-disabled="vm.packingSlip.isLocked" class="blue"
+                              md-maxlength="{{vm.maxLengthForDescription}}" ng-required="(!vm.isDisableInvEntry) && vm.packingSlip.isZeroValue"></textarea>
+                    <div>
+                      <span>Hint: Internal only, Will not print on customer <span ng-if="!vm.isCreditNote">invoice.</span><span ng-if="vm.isCreditNote">credit memo.</span></span>
+                    </div>
+                    <div ng-messages="vm.frmCustomerInvoice.headerinternalComment.$error" role="alert">
+                      <div ng-message="maxlength">
+                        <span>
+                          {{vm.getMaxLengthValidation(vm.maxLengthForDescription, vm.frmCustomerInvoice.headerinternalComment.$viewValue.length)}}
+                        </span>
+                      </div>
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </div>
+              </div>
+            </div>
+            <div flex="50" flex-md="100" flex-sm="100" layout="row" layout-wrap>
+              <div class="cm-section-main mt-rs-10" flex="100">
+                <div class="padding-10 layout-row">
+                  <p class="flex-noshrink text-right">
+                    Header Shipping Comments
+                    <md-icon class="icon-question-mark-circle help-icon margin-right-0" ng-if="!vm.isCreditNote && vm.packingSlip.invoiceType">
+                      <md-tooltip ng-if="vm.packingSlip.invoiceType && !vm.isCreditNote" md-direction="top">Auto derived from packing slip</md-tooltip>
+                    </md-icon>
+                  </p>
+                  <md-input-container flex="100" class="margin-bottom-0">
+                    <textarea type="text" cols="300" max-rows="3" rows="2" name="headerpackingSlipComment" ng-model="vm.packingSlip.packingSlipComment"
+                              placeholder="Shipping Comments" ng-maxlength="vm.maxLengthForDescription" ng-disabled="vm.isDisableInvEntry"
+                              data-focusButton="saveBtn" last-element elementcondition="{{vm.frmCustomerInvoice.$dirty ? true : false}}" md-maxlength="{{vm.maxLengthForDescription}}"></textarea>
+                    <!--custom-blur="vm.frmCustomerInvoice.$dirty ? vm.setFocusById('saveBtn') : vm.setFocusById('materialType')"></textarea>-->
+                    <div>
+                      <span>Hint: Will Print on customer <span ng-if="!vm.isCreditNote">invoice.</span><span ng-if="vm.isCreditNote">credit memo.</span></span>
+                    </div>
+                    <div ng-messages="vm.frmCustomerInvoice.headerpackingSlipComment.$error" role="alert">
+                      <div ng-message="maxlength">
+                        <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription, vm.frmCustomerInvoice.headerpackingSlipComment.$viewValue.length)}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--Address Section -->
+          <div layout="row" layout-sm="column" class="margin-top-5" flex="100">
+            <div flex="25" flex-md="100" flex-sm="100" layout="row" layout-wrap>              
+              <div class="address-detail-section customerbox row-main margin-bottom-0 margin-right-5" ng-if="(!vm.packingSlip.customerID)" layout="row" flex="100">
+                <div class="empty-state border border-radius-4 padding-10-imp" layout="row" layout-align="center center" flex="100">
+                  <md-icon md-font-icon="t-icons-contact-person" class="material-icons md-accent-fg ml-0 mr-10"></md-icon>
+                  <p class="empty-state-title font-size-20-imp">{{vm.CORE_MESSAGE_CONSTANT.SALES_ORDER_CONTACT_CUSTOMER}}</p>
+                </div>
+              </div>              
+              <div flex layout ng-if="vm.packingSlip.customerID">
+                <view-contact-person-det layout
+                                         param-contact-person-det="vm.contactpersondetail"
+                                         param-other-det="vm.ContactPersonOtherDet"
+                                         param-cont-person-action-btn-det="vm.custPersonViewActionBtnDet"
+                                         param-select-contact-callback-fn="vm.selectContactPerson"
+                                         param-refresh-contact-person-callback-fn="vm.refreshContactPerson"
+                                         param-add-update-contact-callback-fn="vm.EditPerson"></view-contact-person-det>
+              </div>
+            </div>
+            <div flex="25" flex-md="100" flex-sm="100" layout="row">
+              <view-cust-address-contact-det layout flex param-address-det="vm.packingSlip.billingAddressObj"
+                                             param-contact-person-det="vm.packingSlip.billingContactPersonObj"
+                                             param-addr-action-btn-det="vm.billToActionBtn" param-cont-person-action-btn-det="vm.billToContactActionBtn"
+                                             param-add-update-addr-callback-fn="vm.addEditAddressCallBack"
+                                             param-select-addr-callback-fn="vm.selectAddressCallBack"
+                                             param-delete-addr-callback-fn="vm.deleteAddressCallBack"
+                                             param-add-update-contact-callback-fn="vm.addEditAddressContactPersonCallBack"
+                                             param-select-contact-callback-fn="vm.selectAddressContactPersonCallBack"
+                                             param-delete-cont-person-callback-fn="vm.deleteAddrContanctPersonCallBack"
+                                             param-other-det="vm.billToOtherDet"
+                                             param-refresh-address-callback-fn="vm.refreshAddressCallBack">
+              </view-cust-address-contact-det>
+            </div>
+            <div flex="25" flex-md="100" flex-sm="100" layout="row">
+              <view-cust-address-contact-det layout flex param-address-det="vm.packingSlip.shippingAddressObj"
+                                             param-contact-person-det="vm.packingSlip.shippingContactPersonObj"
+                                             param-addr-action-btn-det="vm.shipToActionBtn" param-cont-person-action-btn-det="vm.shipToContactActionBtn"
+                                             param-add-update-addr-callback-fn="vm.addEditAddressCallBack"
+                                             param-select-addr-callback-fn="vm.selectAddressCallBack"
+                                             param-delete-addr-callback-fn="vm.deleteAddressCallBack"
+                                             param-add-update-contact-callback-fn="vm.addEditAddressContactPersonCallBack"
+                                             param-select-contact-callback-fn="vm.selectAddressContactPersonCallBack"
+                                             param-delete-cont-person-callback-fn="vm.deleteAddrContanctPersonCallBack"
+                                             param-other-det="vm.shipToOtherDet"
+                                             param-refresh-address-callback-fn="vm.refreshAddressCallBack">
+              </view-cust-address-contact-det>
+            </div>
+            <div flex="25" flex-md="100" flex-sm="100" layout="row">
+              <view-cust-address-contact-det layout flex param-address-det="vm.packingSlip.intermediateAddressObj"
+                                             param-contact-person-det="vm.packingSlip.intermediateContactPersonObj"
+                                             param-addr-action-btn-det="vm.intermediateToActionBtn" param-cont-person-action-btn-det="vm.intermediateToContactActionBtn"
+                                             param-add-update-addr-callback-fn="vm.addEditInterAddressCallBack"
+                                             param-select-addr-callback-fn="vm.selectInterAddressCallBack"
+                                             param-delete-addr-callback-fn="vm.deleteInterAddressCallBack"
+                                             param-add-update-contact-callback-fn="vm.addEditInterAddressContactPersonCallBack"
+                                             param-select-contact-callback-fn="vm.selectInterAddressContactPersonCallBack"
+                                             param-delete-cont-person-callback-fn="vm.deleteInterAddrContanctPersonCallBack"
+                                             param-other-det="vm.intermediateToOtherDet"
+                                             param-refresh-address-callback-fn="vm.refreshAddressCallBack">
+              </view-cust-address-contact-det>
+            </div>
+          </div>
+        </form>
+        <form name="vm.invoiceDetailForm" layout="row" layout-wrap class="md-inline-form padding-10-imp" novalidate>
+          <div layout="row" class="mb-10 layout-row" style="clear: both;" ng-if="(!vm.custInvoiceID)">
+            <label class="label-danger no-bg padding-0 margin-0 margin-left-4 font-size-20" ng-if="!vm.isCreditNote">
+              Note:Invoice# and Invoice Date must be saved in order to add Invoice Details.
+            </label>
+            <label class="label-danger no-bg padding-0 margin-0 margin-left-4 font-size-20" ng-if="vm.isCreditNote">
+              Note:Credit Memo# and Credit Memo Date must be saved in order to add Credit Memo Details.
+            </label>
+          </div>
+          <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+          <div class="cm-section-main" layout="row" layout-wrap flex="100">
+            <div class="cm-section-header" flex="100">
+              <h2 ng-if="!vm.isCreditNote">Invoice Details</h2>
+              <h2 ng-if="vm.isCreditNote">Credit Memo Details</h2>
+            </div>
+            <div class="cm-section-inner overflow-auto-rs" flex="100">
+              <div layout="row" layout-wrap>
+                <div layout="row" flex="40" class="border-bottom-gray" flex-sm="100">
+                  <div layout="row" flex="100" class="material-section-devider">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-packing-slip-detail">
+                      <tbody>
+                        <tr>
+                          <th></th>
+                          <td ng-if="!(vm.recordUpdate || vm.recordView)">
+                            <!--Show Radio Button only in case  of add-->
+                            <md-radio-group layout="row" layout-align="start start" ng-change="vm.RadioGroup.type.onChange()"
+                                            name="materialType" id="materialType" ng-model="vm.invoiceDetail.materialType" class="margin-0" ng-disabled="vm.RadioGroup.type.checkDisable()">
+                              <md-radio-button class="margin-top-0 cm-white-space-nowrap" ng-repeat="item in vm.RadioGroup.type.array" name="{{item.Value}}" ng-value="{{item.Value}}" ng-disabled="item.isDisabled || vm.packingSlip.isLocked">
+                                {{item.Key}}
+                              </md-radio-button>
+                            </md-radio-group>
+                          </td>
+                        </tr>
+                        <!--AssyId Auto Complete / Other charge Auto Complete-->
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              <a class="cm-text-decoration" ng-click="vm.goToMFGPartList();" tabindex="-1" ng-if="(!vm.invoiceDetail.materialType)">{{vm.LabelConstant.MFG.MFGPN}}</a>
+                              <a class="cm-text-decoration" ng-click="vm.goToMFGPartList();" tabindex="-1" ng-if="vm.invoiceDetail.materialType">
+                                {{vm.LabelConstant.Assembly.PIDCode}}/{{vm.LabelConstant.MFG.PID}}
+                              </a><span ng-if="vm.custInvoiceID && (!vm.isDisableInvEntry) && ( (vm.packingSlip.packingSlipType === 1 && vm.packingSlip.materialType && (!vm.invoiceDetail.id) ) || vm.packingSlip.packingSlipType === 2)">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container ng-if="vm.autocompleteOtherCharges && (!vm.invoiceDetail.materialType)" class="autocompletecustom width-100p" flex="100" custom-auto-focus="vm.recordUpdate && !vm.invoiceDetail.materialType">
+                              <custom-auto-complete datalist="vm.ChargeList"
+                                                    column-name="vm.autocompleteOtherCharges.columnName"
+                                                    controller-name="vm.autocompleteOtherCharges.controllerName"
+                                                    view-template-url="vm.autocompleteOtherCharges.viewTemplateURL"
+                                                    key-column-name="vm.autocompleteOtherCharges.keyColumnName"
+                                                    input-name="vm.autocompleteOtherCharges.inputName"
+                                                    placeholder-name="vm.autocompleteOtherCharges.placeholderName"
+                                                    key-column-id="vm.autocompleteOtherCharges.keyColumnId"
+                                                    is-required="!vm.invoiceDetail.materialType"
+                                                    is-addnew="vm.autocompleteOtherCharges.isAddnew"
+                                                    add-data="vm.autocompleteOtherCharges.addData"
+                                                    custom-auto-focus="{{vm.isFocus}}"
+                                                    callback-fn="vm.autocompleteOtherCharges.callbackFn"
+                                                    is-disabled="!vm.custInvoiceID || vm.invoiceDetail.materialType || vm.isDisableInvEntry || (vm.invoiceDetail.id && vm.packingSlip.packingSlipType==2)"
+                                                    on-select-callback-fn="vm.autocompleteOtherCharges.onSelectCallbackFn">
+                              </custom-auto-complete>
+                            </md-input-container>
+                            <md-input-container ng-if="vm.autocompleteAssy && vm.invoiceDetail.materialType" class="autocompletecustom margin-bottom-0" flex="100" custom-auto-focus="vm.recordUpdate && !vm.invoiceDetail.materialType">
+                              <custom-auto-complete-search class="min-width-initial"
+                                                           on-search-fn="vm.autocompleteAssy.onSearchFn"
+                                                           column-name="vm.autocompleteAssy.columnName"
+                                                           controller-name="vm.autocompleteAssy.controllerName"
+                                                           view-template-url="vm.autocompleteAssy.viewTemplateURL"
+                                                           key-column-name="vm.autocompleteAssy.keyColumnName"
+                                                           input-name="vm.autocompleteAssy.inputName"
+                                                           placeholder-name="vm.autocompleteAssy.placeholderName"
+                                                           key-column-id="vm.autocompleteAssy.keyColumnId"
+                                                           is-required="vm.invoiceDetail.materialtype || (vm.packingSlip.invoiceType && vm.isCreditNote) || (!vm.packingSlip.invoiceType)"
+                                                           parent-column-name="vm.autocompleteAssy.parentColumnName"
+                                                           is-addnew="vm.autocompleteAssy.isAddnew"
+                                                           custom-auto-focus="{{vm.isFocus}}"
+                                                           add-data="vm.autocompleteAssy.addData"
+                                                           is-disabled="(!vm.custInvoiceID) || vm.isDisableInvEntry || vm.invoiceDetail.materialtype ||  ( vm.packingSlip.invoiceType && !vm.isCreditNote)"
+                                                           callback-fn="vm.autocompleteAssy.callbackFn"
+                                                           on-select-callback-fn="vm.autocompleteAssy.onSelectCallbackFn">
+                            </md-input-container>
+                            <md-input-container flex="100" class="margin-bottom-0" ng-if="!vm.autocompleteAssy && vm.packingSlip.invoiceType">
+                              <input type="text" name="autocompleteAssy" id="autocompleteAssy" disabled />
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              <a tabindex="-1" class="cm-text-decoration underline" ng-if="vm.invoiceDetail.materialType" ng-click="vm.goToMFGPartList();">
+                                {{vm.LabelConstant.MFG.MFGPN}}
+                              </a> <span ng-if="vm.invoiceDetail.materialType && !vm.isDisableInvEntry && vm.custInvoiceID && !(vm.packingSlip.invoiceType && !vm.isCreditNote)">&nbsp;*</span>
+                              <a tabindex="-1" class="cm-text-decoration underline" ng-if="!vm.invoiceDetail.materialType" ng-click="vm.goToMFGPartList();">
+                                {{vm.LabelConstant.MFG.PID}}
+                              </a>
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container ng-if="vm.invoiceDetail.materialType && vm.autocompleteMfgPN" class="autocompletecustom margin-bottom-0" flex="100">
+                              <custom-auto-complete-search class="min-width-initial"
+                                                           on-search-fn="vm.autocompleteMfgPN.onSearchFn"
+                                                           column-name="vm.autocompleteMfgPN.columnName"
+                                                           controller-name="vm.autocompleteMfgPN.controllerName"
+                                                           view-template-url="vm.autocompleteMfgPN.viewTemplateURL"
+                                                           key-column-name="vm.autocompleteMfgPN.keyColumnName"
+                                                           input-name="vm.autocompleteMfgPN.inputName"
+                                                           placeholder-name="vm.autocompleteMfgPN.placeholderName"
+                                                           key-column-id="vm.autocompleteMfgPN.keyColumnId"
+                                                           is-required="vm.invoiceDetail.materialtype || (vm.packingSlip.invoiceType && vm.isCreditNote) || (!vm.packingSlip.invoiceType)"
+                                                           parent-column-name="vm.autocompleteMfgPN.parentColumnName"
+                                                           is-addnew="vm.autocompleteMfgPN.isAddnew"
+                                                           add-data="vm.autocompleteMfgPN.addData"
+                                                           is-disabled="(!vm.custInvoiceID) || vm.isDisableInvEntry || vm.invoiceDetail.materialtype ||  ( vm.packingSlip.invoiceType && !vm.isCreditNote)"
+                                                           callback-fn="vm.autocompleteMfgPN.callbackFn"
+                                                           on-select-callback-fn="vm.autocompleteMfgPN.onSelectCallbackFn">
+                            </md-input-container>
+
+                            <!--<md-input-container flex="100" class="margin-bottom-0" ng-if="(!vm.autocompleteAssy.keyColumnId) && (!vm.autocompleteOtherCharges.keyColumnId)">
+                              <input type="text" name="autocompleteAssy" id="autocompleteAssy" disabled />
+                            </md-input-container>-->
+                            <!--<p>1.{{ vm.invoiceDetail.partID }}</p>
+                            <p>2.{{ vm.invoiceDetail.partId }}</p>-->
+                            <common-pid-code-label-link class="margin-top-4"
+                                                        ng-if="!vm.invoiceDetail.materialType"
+                                                        component-id="vm.invoiceDetail.partId"
+                                                        label="vm.LabelConstant.MFG.PID"
+                                                        value="vm.invoiceDetail.PIDCode"
+                                                        is-copy="true"
+                                                        rohs-icon="vm.rohsImagePath+vm.invoiceDetail.rohsIcon"
+                                                        rohs-status="vm.invoiceDetail.rohsName"
+                                                        is-formated="true"
+                                                        is-assembly="true"></common-pid-code-label-link>
+                            <div class="text-left" ng-if="!vm.invoiceDetail.materialType && !vm.autocompleteOtherCharges.keyColumnId">
+                              <label class="padding-top-5">-</label>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr ng-if="vm.invoiceDetail.materialType">
+                          <th>
+                            <p class="label-container">
+                              <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">{{vm.LabelConstant.MFG.MFGPN}}</a>
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0" ng-if="!vm.invoiceDetail.partId">
+                              <input type="text" name="assyid" id="assyid"
+                                     ng-model="vm.invoiceDetail.partId" placeholder="Assy ID" disabled />
+                            </md-input-container>
+                            <div ng-if="vm.invoiceDetail.partId" class="margin-vertical-5 h4 text-bold">
+                              <common-pid-code-label-link component-id="vm.invoiceDetail.partId"
+                                                          label="vm.LabelConstant.MFG.MFGPN"
+                                                          value="vm.invoiceDetail.assyNumber"
+                                                          is-copy="true"
+                                                          is-custom-part="true"
+                                                          rohs-icon="vm.rohsImagePath+vm.invoiceDetail.rohsIcon"
+                                                          rohs-status="vm.invoiceDetail.rohsName"
+                                                          is-search-findchip="false"></common-pid-code-label-link>
+                            </div>
+                          </td>
+                        </tr>
+                        <!--Show MFR Name-->
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.gotoManufacturerList();">
+                                {{vm.LabelConstant.MFG.MFG }}
+                              </a>
+                            </p>
+                          </th>
+                          <td>
+                            <div ng-if="vm.invoiceDetail.mfgName" class="margin-vertical-5 h4 text-bold">
+                              <span ng-class="{'text-underline': vm.invoiceDetail.mfgName, 'cursor-pointer': vm.invoiceDetail.mfgName}" ng-click="vm.invoiceDetail.mfgName ? vm.goToManufacturerDetail() : ''">
+                                <b>{{vm.invoiceDetail.mfgName}}</b>
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr ng-if="vm.invoiceDetail.materialType">
+                          <th><p class="label-container"> {{vm.LabelConstant.Assembly.NickName}}</p></th>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0"
+                                                ng-if="!vm.invoiceDetail.nickName">
+                              <input type="text" name="nickName" id="nickName" ng-model="vm.invoiceDetail.nickName" placeholder="Nick Name" disabled />
+                            </md-input-container>
+                            <div ng-if="vm.invoiceDetail.nickName" class="margin-vertical-5 h4 text-bold">
+                              <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToManagePartDetails();">
+                                {{vm.invoiceDetail.nickName}}
+                              </a>
+                            </div>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              {{vm.invoiceDetail.isShipForAssembly ? vm.LabelConstant.Assembly.Description : vm.LabelConstant.MFG.MFGPNDescription}}
+                              <span ng-if="vm.invoiceDetail.partId">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td colspan="2">
+                            <div layout="row">
+                              <md-input-container flex="100" class="margin-bottom-0">
+                                <textarea type="text" name="description" id="description" rows="1" cols="50"
+                                          ng-model="vm.invoiceDetail.assyDescription"
+                                          ng-required="(!vm.packingSlip.invoiceType) && vm.invoiceDetail.materialType && vm.invoiceDetail.partId"
+                                          placeholder="Assy Description" ng-maxlength="vm.maxLengthForDescription" md-maxlength="vm.maxLengthForDescription"
+                                          ng-disabled="!vm.invoiceDetail.partId || vm.recordView || vm.packingSlip.isLocked"></textarea>
+                                <md-tooltip class="cm-white-space-normal word-break cm-height-auto w-350" ng-if="vm.invoiceDetail && vm.invoiceDetail.assyDescription">{{vm.invoiceDetail.assyDescription}}</md-tooltip>
+                                <div ng-messages="vm.invoiceDetailForm.description.$error" role="alert">
+                                  <div ng-message="required">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                  </div>
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription, vm.invoiceDetailForm.description.$viewValue.length)}}</span>
+                                  </div>
+                                </div>
+                                <md-button class="margin-0 md-icon-button md-ink-ripple cm-refresh-button cm-refresh-button-w-input" tabindex="-1" ng-disabled="vm.recordView || vm.packingSlip.isLocked"
+                                           ng-click="vm.invoiceDetail.partId ? vm.getLatestPartDescription(): ''"><md-icon class="mdi mdi-refresh padding-top-2"></md-icon></md-button>
+                              </md-input-container>
+
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div layout="row" flex="30" class="border-bottom-gray" flex-sm="50">
+                  <div layout="row" flex="100" class="material-section-devider">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-packing-slip-detail">
+                      <tbody>
+
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              Cust PO Line#<check-unique-on-blur></check-unique-on-blur>
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="text" id="custPOLine" name="custPOLine" ng-model="vm.invoiceDetail.custPOLineID" placeholder="Customer PO Line#" md-maxlength="10"
+                                     ng-disabled="vm.isDisableInvEntry || (!vm.custInvoiceID) || vm.packingSlip.invoiceType || vm.recordView" ng-maxlength="10" ng-paste="$event.preventDefault()"
+                                     ng-change="vm.checkCustomerPOLine()">
+                              <div ng-messages="vm.invoiceDetailForm.custPOLine.$touched && vm.invoiceDetailForm.custPOLine.$error" role="alert">
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(10,vm.invoiceDetailForm.custPOLine.$viewValue.length)}}</span>
+                                </div>
+                                <div ng-message="valid">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr ng-if="vm.transType === vm.invoiceTypeTransaction">
+                          <th>
+                            <p class="label-container">
+                              Release Line#
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="text" id="releaseNumber" name="releaseNumber" ng-model="vm.invoiceDetail.releaseNumber" placeholder="Customer PO Line#"
+                                     ng-disabled="true" ng-maxlength="10" ng-paste="$event.preventDefault()">
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              SO Line#<span ng-if="vm.packingSlip.packingSlipType === 2 && (!vm.isDisableInvEntry) && !(vm.invoiceDetail.id && vm.packingSlip.packingSlipType==2)">&nbsp;*</span><check-unique-on-blur></check-unique-on-blur>
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="number" id="slipLine" name="slipLine" ng-model="vm.invoiceDetail.packingSlipSerialNumber" placeholder="Invoice Line#" ng-disabled="vm.isDisableInvEntry || (!vm.custInvoiceID) ||(vm.invoiceDetail.id && vm.packingSlip.packingSlipType==2) || vm.recordView"
+                                     min="0.001" ng-max="9999999.999" step="0.001"
+                                     ng-maxlength="50" ng-required="(vm.invoiceDetail.materialType || vm.recordUpdate) && vm.packingSlip.packingSlipType === 2" ng-paste="$event.preventDefault()"
+                                     custom-blur="vm.checkPackingLine()">
+                              <div ng-messages="vm.invoiceDetailForm.slipLine.$touched && vm.invoiceDetailForm.slipLine.$error" role="alert">
+                                <div ng-message="step || max">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="required">
+                                  <span>
+                                    {{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}
+                                  </span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(50,vm.invoiceDetailForm.slipLine.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th></th>
+                          <td ng-if=" vm.invoiceDetail.materialType && !vm.isCreditNote">
+                            <md-input-container flex="100">
+                              <md-radio-group layout-align="start center" layout-wrap name="quoteFrom" id="quoteFrom"
+                                              ng-model="vm.invoiceDetail.quoteFrom" flex="100" ng-disabled="vm.isDisableInvEntry || (!vm.custInvoiceID) || vm.recordView"
+                                              ng-change="vm.onChangeQuoteFrom(null)" class="ml-0">
+                                <md-radio-button id="fromNA" flex class="margin-top-0 margin-right-0 pr-5-imp"
+                                                 ng-value="vm.salesCommissionFrom.NA.id">{{vm.salesCommissionFrom.NA.value}}</md-radio-button>
+                                <md-radio-button id="fromRfq" flex class="margin-top-0 margin-left-0 margin-right-0 pr-5-imp"
+                                                 ng-disabled="!vm.invoiceDetail.isMISCAssemblyType"
+                                                 ng-value="vm.salesCommissionFrom.FromRFQ.id">{{vm.salesCommissionFrom.FromRFQ.value}}</md-radio-button>
+                                <md-radio-button id="fromPartMaster" release flex class="margin-top-0 margin-left-0 pr-5-imp"
+                                                 ng-disabled="(vm.invoiceDetail.isComponent && !(vm.invoiceDetail.isCPN || vm.invoiceDetail.isCustom) ) "
+                                                 ng-value="vm.salesCommissionFrom.FromPartMaster.id">{{vm.salesCommissionFrom.FromPartMaster.value}}</md-radio-button>
+                              </md-radio-group>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr ng-if="vm.invoiceDetail.materialType && !vm.isCreditNote">
+                          <th class="width-100px">
+                            <p class="label-container cm-white-space-normal">
+                              <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToRfqListPage();">Quote Group</a>
+                            </p>
+                          </th>
+                          <td class="cm-1601-sale-width-120">
+                            <!--&& (!vm.packingSlip.invoiceType)-->
+                            <md-input-container ng-if="vm.autoCompleteQuoteGroup " class="autocompletecustom margin-bottom-0 cm-min-width-100" flex="100">
+                              <custom-auto-complete datalist="vm.quoteGroupDetails"
+                                                    column-name="vm.autoCompleteQuoteGroup.columnName"
+                                                    key-column-name="vm.autoCompleteQuoteGroup.keyColumnName"
+                                                    input-name="vm.autoCompleteQuoteGroup.inputName"
+                                                    placeholder-name="vm.autoCompleteQuoteGroup.placeholderName"
+                                                    key-column-id="vm.autoCompleteQuoteGroup.keyColumnId"
+                                                    is-required="vm.autoCompleteQuoteGroup.isRequired"
+                                                    is-addnew="vm.autoCompleteQuoteGroup.isAddnew"
+                                                    callback-fn="vm.autoCompleteQuoteGroup.callbackFn"
+                                                    is-disabled="(!vm.invoiceDetail.partId) || vm.isDisableInvEntry || (!vm.custInvoiceID) || (vm.invoiceDetail.quoteFrom !== vm.salesCommissionFrom.FromRFQ.id) || vm.recordView"
+                                                    on-select-callback-fn="vm.autoCompleteQuoteGroup.onSelectCallbackFn">
+                              </custom-auto-complete>
+                            </md-input-container>
+                            <!--<md-input-container flex="100" class="margin-bottom-0" ng-if="vm.packingSlip.invoiceType">
+                              <input type="text" ng-model="vm.invoiceDetail.refRFQGroupID" placeholder="Quote Group"
+                                     ng-disabled="true" ng-paste="$event.preventDefault()">
+                            </md-input-container>-->
+                          </td>
+                        </tr>
+                        <tr ng-if="(!vm.isCreditNote) && vm.invoiceDetail.materialType">
+                          <th>
+                            <p class="label-container">Quote#&nbsp;<check-unique-on-blur ng-if="!((vm.autoCompleteQuoteGroup.keyColumnId && vm.invoiceDetail.quoteNumber) || (vm.invoiceDetail.quoteFrom !== vm.salesCommissionFrom.FromRFQ.id))"></check-unique-on-blur></p>
+                          </th>
+                          <td colspan="3">
+                            <div class="text-left" ng-if="(vm.autoCompleteQuoteGroup.keyColumnId && vm.invoiceDetail.quoteNumber && vm.invoiceDetail.quoteFrom === vm.salesCommissionFrom.FromRFQ.id)">
+                              <label class="margin-top-5 text-decoration-underline cursor-pointer"
+                                     ng-click="vm.goToRFQUpdate(vm.invoiceDetail.refRFQGroupID,vm.invoiceDetail.partId)">{{vm.invoiceDetail.quoteNumber}}</label>
+                            </div>
+                            <div class="text-left" layout="row" layout-align="space-between center"
+                                 ng-if="(vm.invoiceDetail.quoteFrom === vm.salesCommissionFrom.FromPartMaster.id || vm.invoiceDetail.quoteFrom === vm.salesCommissionFrom.NA.id)">
+
+                              <label class="margin-top-5" ng-if="!vm.invoiceDetail.quoteNumber">-</label>
+                              <label class="margin-top-5 text-decoration-underline cursor-pointer color-black text-bold"
+                                     ng-click="vm.goToComponentSalesPriceMatrixTab(vm.invoiceDetail.partId)">{{vm.invoiceDetail.quoteNumber}}</label>
+                              <md-button class="margin-0 md-icon-button md-ink-ripple cm-refresh-button" tabindex="-1" ng-disabled="vm.recordView || vm.packingSlip.isLocked"
+                                         ng-click="vm.onChangeQuoteFrom()"><md-icon class="mdi mdi-refresh padding-top-2"></md-icon></md-button>
+                            </div>
+                            <md-input-container flex="100" class="margin-bottom-0" ng-if="!vm.autoCompleteQuoteGroup.keyColumnId && (vm.invoiceDetail.quoteFrom === vm.salesCommissionFrom.FromRFQ.id)">
+                              <input type="text" class="md-truncate" name="quoteNumber" id="quoteNumber" ng-model="vm.invoiceDetail.quoteNumber"
+                                     custom-blur="vm.checkRFQQuoteNumberUnique()"
+                                     placeholder="Quote#" ng-maxlength="15" maxlength="15"
+                                     ng-disabled="vm.autoCompleteQuoteGroup.keyColumnId || vm.isDisableInvEntry || (!vm.custInvoiceID) ||  (vm.invoiceDetail.quoteFrom === vm.salesCommissionFrom.FromPartMaster.id) || vm.recordView" />
+                              <div ng-messages="vm.invoiceDetailForm.quoteNumber.$touched && vm.invoiceDetailForm.quoteNumber.$error" role="alert">
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(15,vm.invoiceDetailForm.quoteNumber.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div layout="row" flex="30" class="border-bottom-gray" flex-sm="50">
+                  <div layout="row" flex="100">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-packing-slip-detail">
+                      <tbody>
+                        <tr>
+                          <th><p class="label-container">Qty</p></th>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="number" id="shipQty" name="shipQty" ng-model="vm.invoiceDetail.shipQty" placeholder="Shipping Qty"
+                                     ng-disabled="vm.isDisableInvEntry || (!vm.custInvoiceID) || vm.recordView" max="999999.99"
+                                     custom-blur="vm.calculateExtendedPrice();"
+                                     onkeypress="return OnlyNumbersWithDot(event)" min="0" step="1"> <!--currency-mask-->
+                              <div ng-messages="vm.invoiceDetailForm.shipQty.$error" role="alert">
+                                <div ng-message="min">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="max">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="number || step">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr ng-if=" vm.invoiceDetail.materialType &&  !vm.isCreditNote">
+                          <th class="width-100px">
+                            <p class="label-container cm-white-space-normal">
+                              Quote Qty Turn Time <span ng-if="(vm.autoCompleteQuoteGroup.keyColumnId || vm.invoiceDetail.quoteFrom === vm.salesCommissionFrom.FromPartMaster.id) && !vm.isDisable">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td>
+                            <!--class="cm-1601-sale-width-120"-->
+                            <!--&& (!vm.packingSlip.invoiceType)-->
+                            <md-input-container ng-if="vm.autocompleteQtyTurnTime" class="autocompletecustom margin-bottom-0 cm-min-width-100" flex="100">
+                              <custom-auto-complete datalist="vm.quoteQtyTurnTimeDetails"
+                                                    column-name="vm.autocompleteQtyTurnTime.columnName"
+                                                    key-column-name="vm.autocompleteQtyTurnTime.keyColumnName"
+                                                    input-name="vm.autocompleteQtyTurnTime.inputName"
+                                                    placeholder-name="vm.autocompleteQtyTurnTime.placeholderName"
+                                                    key-column-id="vm.autocompleteQtyTurnTime.keyColumnId"
+                                                    is-required="(vm.autoCompleteQuoteGroup.keyColumnId || vm.invoiceDetail.quoteFrom === vm.salesCommissionFrom.FromPartMaster.id) ? true : false"
+                                                    is-addnew="vm.autocompleteQtyTurnTime.isAddnew"
+                                                    callback-fn="vm.autocompleteQtyTurnTime.callbackFn"
+                                                    is-disabled="(!vm.autoCompleteQuoteGroup.keyColumnId && vm.invoiceDetail.quoteFrom === vm.salesCommissionFrom.FromRFQ.id) || (!vm.invoiceDetail.partId) || vm.isDisable|| (vm.invoiceDetail.quoteFrom === vm.salesCommissionFrom.NA.id) || vm.recordView || vm.packingSlip.isLocked"
+                                                    on-select-callback-fn="vm.autocompleteQtyTurnTime.onSelectCallbackFn">
+                              </custom-auto-complete>
+                            </md-input-container>
+                            <md-input-container flex="100" class="margin-bottom-0" ng-if="!vm.autocompleteQtyTurnTime && (!vm.packingSlip.invoiceType)">
+                              <input type="text" ng-disabled="true" name="autocompleteQtyTurnTime">
+                            </md-input-container>
+                            <!--<md-input-container flex="100" class="margin-bottom-0" ng-if="vm.packingSlip.invoiceType">
+                              <input type="text" ng-disabled="true" name="autocompleteQtyTurnTime" ng-model="vm.invoiceDetail.assyQtyTurnTimeText">
+                            </md-input-container>-->
+                          </td>
+                        </tr>
+                        <tr>
+                          <th><p class="label-container">Unit Price&nbsp;($)<span ng-if="(!vm.isDisableInvEntry)">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                          <td>
+                            <!-- onkeypress="return OnlyNumbersWithDot(event)" -->
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="number" id="unitPrice" name="unitPrice" input-number-decimal-place ng-model="vm.invoiceDetail.unitPrice" placeholder="Unit Price" max="999999.99"
+                                     step="{{$root.unitInputStep}}"
+                                     ng-required="(!vm.isDisableInvEntry) ||  vm.custInvoiceID"
+                                     min="{{vm.invoiceDetail.materialType ? 0 : -999999.99}}"
+                                     ng-disabled="vm.isDisableInvEntry ||  (!vm.custInvoiceID) || vm.recordView"
+                                     onkeypress="OnlyNumbersWithDot(event)" custom-blur="vm.calculateExtendedPrice(true);">
+                              <div ng-messages="vm.invoiceDetailForm.unitPrice.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="min">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="max">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="number || step || valid">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th><p class="label-container">Ext. Price&nbsp;($)</p></th>
+                          <td>
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="number" id="extendedPrice" name="extendedPrice" ng-model="vm.invoiceDetail.extendedPrice"
+                                     placeholder="Extended Price" ng-disabled="true"> <!--currency-mask-->
+                              <span class="font-size-10">
+                                <b>i.e. Unit Price&nbsp;($) * Qty</b>
+                              </span>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr ng-if="vm.transType === vm.transactionType.INVOICE">
+                          <th></th>
+                          <td>
+                            <md-checkbox ng-model="vm.invoiceDetail.isZeroValue" ng-change="vm.changeZeroValueFlag()" class="mv-8-imp" name="zeroValue" id="zeroValue"
+                                         ng-disabled="vm.isDisableInvEntry || vm.invoiceDetail.unitPrice || vm.recordView">
+                              <p class="label-container">{{vm.LabelConstant.CustomerPackingSlip.ConfirmingZeroValueLine }}</p>
+                            </md-checkbox>
+                            <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                              <md-tooltip md-direction="top">{{vm.LabelConstant.CustomerPackingSlip.ConfirmingZeroValueLineHint}}</md-tooltip>
+                            </md-icon>
+                          </td>
+                        </tr>
+                        <tr ng-if="!vm.isCreditNote">
+                          <th></th>
+                          <td>
+                            <md-button name="btnSalesCommisson"
+                                       class="md-primary md-raised"
+                                       aria-label="Sales Commission" ng-click="vm.goToSalesCommission(vm.invoiceDetail,$event,true)"
+                                       ng-disabled="!(vm.invoiceDetail.quoteFrom !== vm.salesCommissionFrom.NA.id &&
+                                          vm.invoiceDetail.partId && vm.invoiceDetail.shipQty && vm.autocompleteQtyTurnTime.keyColumnId &&  vm.invoiceDetail.unitPrice) || vm.isDisableInvEntry ">
+                              Sales Commission ({{(vm.invoiceDetail && vm.invoiceDetail.salesCommissionList) ? vm.invoiceDetail.salesCommissionList.length : 0}})
+                            </md-button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="layout-row" layout-wrap>
+                <div class="mt-5 pr-5" flex="30" flex-sm="100">
+                  <div class="cm-section-main">
+                    <div class="cm-section-inner" layout>
+                      <p class=" flex-noshrink text-right">
+                        Line Internal Notes <span ng-if="(!vm.isDisableInvEntry) && vm.invoiceDetail.isZeroValue" class="red">&nbsp;*</span>
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                          <md-tooltip ng-if="vm.packingSlip.invoiceType && !vm.isCreditNote" md-direction="top">Auto derived from packing slip</md-tooltip>
+                          <md-tooltip ng-if="!vm.packingSlip.invoiceType || vm.isCreditNote" md-direction="top">Auto derived from Part Master's Comments</md-tooltip>
+                        </md-icon>
+                      </p>
+                      <md-input-container flex="100">
+                        <textarea name="internalComment" id="internalComment" ng-maxlength="vm.maxLengthForDescription" ng-model="vm.invoiceDetail.internalComment"
+                                  rows="2" max-rows="3" placeholder="Internal Comment" ng-disabled="vm.isDisableInvEntry || (!vm.custInvoiceID) || vm.recordView" md-maxlength="{{vm.maxLengthForDescription}}"
+                                  class="blue" ng-required="(!vm.isDisableInvEntry) && vm.invoiceDetail.isZeroValue">
+                        </textarea>
+                        <div>
+                          <span>Hint: Internal only, Will not print on customer <span ng-if="!vm.isCreditNote">invoice.</span><span ng-if="vm.isCreditNote">credit memo.</span></span>
+                        </div>
+                        <div ng-messages="vm.invoiceDetailForm.internalComment.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>
+                              {{vm.getMaxLengthValidation(vm.maxLengthForDescription, vm.invoiceDetailForm.internalComment.$viewValue.length)}}
+                            </span>
+                          </div>
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-5 pr-5" flex="30" flex-sm="100">
+                  <div class="cm-section-main">
+                    <div class="cm-section-inner" layout>
+                      <p class="flex-noshrink text-right">
+                        Line Shipping Comments
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                          <md-tooltip ng-if="vm.packingSlip.invoiceType && !vm.isCreditNote" md-direction="top">Auto derived from packing slip</md-tooltip>
+                          <md-tooltip ng-if="!vm.packingSlip.invoiceType || vm.isCreditNote" md-direction="top">Auto derived from Part Master's Shipping Comments</md-tooltip>
+                        </md-icon>
+                      </p>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <textarea type="text" cols="300" max-rows="3" rows="2" name="ShippingComment" id="ShippingComment" ng-model="vm.invoiceDetail.shippingNotes"
+                                  placeholder="Shipping Comments" ng-maxlength="vm.maxLengthForDescription" ng-disabled="vm.isDisableInvEntry || (!vm.custInvoiceID) || vm.recordView" md-maxlength="{{vm.maxLengthForDescription}}"></textarea>
+                        <div>
+                          <span>Hint: Will Print on customer <span ng-if="!vm.isCreditNote">invoice.</span><span ng-if="vm.isCreditNote">credit memo.</span></span>
+                        </div>
+                        <div ng-messages="vm.invoiceDetailForm.ShippingComment.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription, vm.invoiceDetailForm.ShippingComment.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-5 pr-5" flex="30" flex-sm="100">
+                  <div class="cm-section-main">
+                    <div class="cm-section-inner" layout>
+                      <p class="flex-noshrink text-right">
+                        {{vm.LabelConstant.CustomerPackingSlip.ReleaseNotes}}
+                        <md-icon class="icon-question-mark-circle help-icon margin-right-0" ng-if="vm.packingSlip.invoiceType && !vm.isCreditNote">
+                          <md-tooltip md-direction="top">Auto derived from packing slip</md-tooltip>
+                          <!--<md-tooltip ng-if="!vm.packingSlip.invoiceType || vm.isCreditNote" md-direction="top">Auto derived from Part Master's Shipping Comments</md-tooltip>-->
+                        </md-icon>
+                      </p>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <textarea type="text" cols="300" max-rows="3" rows="2" name="releaseNotes" id="releaseNotes" ng-model="vm.invoiceDetail.releaseNotes"
+                                  placeholder="{{vm.LabelConstant.CustomerPackingSlip.ReleaseNotes}}" ng-maxlength="vm.maxLengthForDescription" ng-disabled="vm.isDisableInvEntry || (!vm.custInvoiceID) || vm.recordView" md-maxlength="{{vm.maxLengthForDescription}}"></textarea>
+                        <div>
+                          <span>Hint: Will Print on customer <span ng-if="!vm.isCreditNote">invoice.</span><span ng-if="vm.isCreditNote">credit memo.</span></span>
+                        </div>
+                        <div ng-messages="vm.invoiceDetailForm.releaseNotes.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(vm.maxLengthForDescription, vm.invoiceDetailForm.releaseNotes.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </div>
+                  </div>
+                </div>
+                <div flex="10" layout="row" layout-align="end center" flex-sm="100">
+                  <md-button class="md-primary md-raised margin-right-0 mt-0"
+                             ng-class="{'md-formdirty': vm.invoiceDetailForm.$dirty}"
+                             aria-label="receive" ng-click="vm.updatePackingDetail()" id="btnAddDet"
+                             ng-disabled="(!vm.custInvoiceID) ||vm.isDisableInvEntry || vm.recordView">
+                    Save
+                  </md-button>
+                  <md-button class="md-raised margin-right-0 mt-0" id="btnResetDet" aria-label="receive" ng-disabled="!vm.custInvoiceID || vm.packingSlip.isLocked" ng-click="vm.resetInvoiceDetail()">
+                    Reset
+                  </md-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div flex="100" layout="row" layout-wrap>
+          <md-card layout="column" flex layout-align="space-between stretch">
+            <ui-grid-extention grid-id="vm.CORE.gridConfig.gridCustomerPackingSlipDetails"
+                               load-data="vm.loadData"
+                               grid-option="vm.gridOptions"
+                               header="vm.sourceHeader"
+                               grid-data="vm.sourceData"
+                               total-data-count="vm.totalSourceDataCount"
+                               reset-grid="vm.resetSourceGrid"
+                               selectted-rows="vm.selectedRowsList"
+                               paging-info="vm.pagingInfo"
+                               current-item="vm.currentdata"
+                               get-data-down="vm.getDataDown"
+                               empty-state="vm.emptyState"
+                               scroll-class="vm.setScrollClass"
+                               delete-multiple-data="vm.deleteRecord">
+          </md-card>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+

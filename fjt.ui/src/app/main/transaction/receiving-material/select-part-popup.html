@@ -1,0 +1,101 @@
+<md-dialog aria-label="SelectPart" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="70">
+
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>{{vm.objPart.isPartMaster?'Select Part View':'Select Manufacturer'}}</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-dialog-content class="customer-modal no-padding custom-scroll cm-select-mfg-part-popup" layout="column">
+    <md-content class="md-padding">
+      <md-input-container class="m-5" flex="20">
+        <input type="text" id="searchPart" name="searchPart" ng-model="vm.searchText" ng-disabled="vm.isSearchDisable" ignore-dirty ng-keypress="vm.selectScanPart($event)">
+        <span flex="100" class="font-size-10">
+          <b>Scan MFR or Type & Enter</b>
+        </span>
+      </md-input-container>
+      <md-button class="md-primary md-raised" ng-click="vm.reset();" id="restBtn" ng-disabled="(!vm.searchText)">Reset</md-button>
+      <div class="content fullpage-datatable" layout="column" flex ng-if="vm.partList && vm.partList.length > 0">
+        <md-table-container layout="row" flex="100">
+          <table md-table class="md-data-table table-row-select">
+            <thead md-head md-order="vm.query.order">
+              <tr md-row>
+                <th></th>
+                <th md-column width="50">
+                  #
+                </th>
+                <th md-column>
+                  Image
+                </th>
+                <th md-column md-order-by="mfgFullName">
+                  {{vm.CORE.LabelConstant.MFG.MFG}}
+                </th>
+                <th md-column md-order-by="mfgPN">
+                  {{vm.CORE.LabelConstant.MFG.MFGPN}}
+                </th>
+                <th md-column md-order-by="otherPartName">
+                  Other Part
+                </th>
+                <th md-column md-order-by="labelGoodPart">
+                  Correct Part
+                </th>
+                <th md-column md-order-by="supplier" ng-if="vm.objPart.isPartMaster">
+                  Source
+                </th>
+                <th md-column md-order-by="mfgPNDescription">
+                  Description
+                </th>
+              </tr>
+            </thead>
+            <tbody md-body>
+              <tr md-row ng-repeat="item in vm.partList | orderBy: vm.query.order">
+                <td md-cell>
+                  <md-checkbox ng-model="item.isSelect" id="part-checkbox" ng-change="vm.selectPart(item);" ng-disabled="item.isGoodPart != 1 && !vm.objPart.isAutoSelect"></md-checkbox>
+                </td>
+                <td md-cell>{{$index+1}}</td>
+                <td md-cell><img ng-src="{{item.imageURL}}" width="50" height="50" /></td>
+                <td md-cell>{{item.mfgFullName}}</td>
+                <td md-cell>
+                  <common-pid-code-label-link component-id="item.id"
+                                              label="vm.CORE.LabelConstant.MFG.MFGPN"
+                                              value="item.mfgPN"
+                                              is-copy="true"
+                                              rohs-icon="vm.rohsImagePath + item.rfq_rohsmst.rohsIcon"
+                                              rohs-status="item.rfq_rohsmst.name"
+                                              is-search-digi-key="vm.objPart.supplierName || item.isGoodPart != vm.CORE.PartCorrectList.CorrectPart ? false : true"
+                                              supplier-name="vm.objPart && vm.objPart.supplierName ? vm.objPart.supplierName : null"
+                                              is-search-findchip="true"
+                                              is-good-part="item.isGoodPart">
+
+                  </common-pid-code-label-link>
+                </td>
+                <td md-cell>{{item.otherPartName}}</td>
+                <td md-cell>
+                  <span class="label-box"
+                        ng-class="{ 'label-success': item.isGoodPart == vm.CORE.PartCorrectList.CorrectPart,
+                                                      'label-warning' : item.isGoodPart == vm.CORE.PartCorrectList.IncorrectPart,
+                                                      'label-danger' : item.isGoodPart == vm.CORE.PartCorrectList.UnknownPart }">
+                    {{item.labelGoodPart}}
+                  </span>
+                </td>
+                <td md-cell ng-if="vm.objPart.isPartMaster">{{item.supplier}}</td>
+                <td md-cell>{{item.mfgPNDescription}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </md-table-container>
+      </div>
+    </md-content>
+  </md-dialog-content>
+
+  <md-dialog-actions layout="row">
+    <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+    <md-button class="md-primary md-raised" ng-click="vm.confirmSelect();" id="saveBtn" ng-disabled="vm.isDisable" ng-class="{'md-formdirty': !vm.isDisable}"
+               aria-label="Submit">Select</md-button>
+  </md-dialog-actions>
+
+</md-dialog>

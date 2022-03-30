@@ -1,0 +1,183 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-warehouse-bin-navbar cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="header md-accent-bg applied-credit-memo-header" layout="row" layout-align="space-between center">
+    <div class="white-fg" flex layout="row" layout-align="start start">
+      <div>
+        <md-button class="goto-rfq-button md-icon-button cm-back-btn-p-m" type="button" aria-label="Go to Apply Credit Memo List" ng-click="vm.goBack()">
+          <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+          </md-icon>
+          <md-tooltip>Back to Apply Customer Credit Memo List</md-tooltip>
+        </md-button>
+      </div>
+      <div layout="row" flex>
+        <div layout="column">
+          <div>
+            <pagetitle is-list="false"
+                       is-display-menu-name="true"
+                       prefix-content=""
+                       suffix-content="vm.custCreditMemoPayDetParent.paymentNumber ? (': ' + vm.custCreditMemoPayDetParent.paymentNumber) : ''"
+                       prefix-page-title=""></pagetitle>
+            <md-tooltip md-direction="top" ng-if="vm.custCreditMemoPayDetParent.paymentNumber">{{vm.custCreditMemoPayDetParent.paymentNumber}}</md-tooltip>
+          </div>
+          <div layout="row">
+            <breadcrumbs></breadcrumbs>
+          </div>
+        </div>
+        <div flex="25" layout="column" class="margin-left-20 cm-header-search-add-container">
+          <div>
+            <md-input-container ng-if="vm.autoCompleteCustPaymentCheckNumber" class="width-100p autocompletecustom margin-0 widget-dashboard-search-area" flex="100" flex-gt-xs="100">
+              <custom-auto-complete-search on-search-fn="vm.autoCompleteCustPaymentCheckNumber.onSearchFn"
+                                           column-name="vm.autoCompleteCustPaymentCheckNumber.columnName"
+                                           key-column-name="vm.autoCompleteCustPaymentCheckNumber.keyColumnName"
+                                           input-name="vm.autoCompleteCustPaymentCheckNumber.inputName"
+                                           placeholder-name="vm.autoCompleteCustPaymentCheckNumber.placeholderName"
+                                           key-column-id="vm.autoCompleteCustPaymentCheckNumber.keyColumnId"
+                                           is-required="vm.autoCompleteCustPaymentCheckNumber.isRequired"
+                                           is-addnew="vm.autoCompleteCustPaymentCheckNumber.isAddnew"
+                                           callback-fn="vm.autoCompleteCustPaymentCheckNumber.callbackFn"
+                                           on-select-callback-fn="vm.autoCompleteCustPaymentCheckNumber.onSelectCallbackFn">
+            </md-input-container>
+          </div>
+          <div class="cm-square-icon-btn pt-2">
+            <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised"
+                       ng-if="vm.custCreditMemoPayDetParent.custPaymentMstID"
+                       ng-click="vm.applyCustCreditMemo(true)">
+              <md-icon md-font-icon="t-icons-apply-credit-memo add-icon" class="material-icons"></md-icon>
+              <md-tooltip>Apply Credit Memo to Invoice In New Tab</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised"
+                       ng-if="vm.custCreditMemoPayDetParent.custPaymentMstID"
+                       ng-click="vm.applyCustCreditMemo(false)">
+              <md-icon md-font-icon="t-icons-apply-credit-memo add-icon same-tab-icon" class="material-icons"></md-icon>
+              <md-tooltip>Apply Credit Memo to Invoice</md-tooltip>
+            </md-button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div layout="row" flex layout-align="start end" class="pl-10">
+      <table cellspacing="0" cellpadding="0" class="cm-header-data-table">
+        <tbody>
+          <tr>
+            <th ng-if="vm.selectedCustomerDet">
+              <a class="cursor-pointer text-underline" ng-click="vm.goToCustomerList();">Customer</a>:
+            </th>
+            <td class="color-black" ng-if="vm.selectedCustomerDet">
+              <span class="cm-name text-underline cursor-pointer"
+                    ng-click="vm.selectedCustomerDet.id ? vm.goToCustomerDetail() : ''">
+                <md-tooltip ng-if="vm.selectedCustomerDet.mfgFullName">{{vm.selectedCustomerDet.mfgFullName || '-'}}</md-tooltip>
+                <b>{{vm.selectedCustomerDet.mfgFullName || '-'}}</b>
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <th ng-if="vm.custCreditMemoPayDetParent.custPaymentMstID">
+              <span>
+                <a class="cursor-pointer text-underline" ng-click="vm.goToAppliedCustCreditMemoList();">Transaction#</a>:
+              </span>
+            </th>
+            <td ng-if="vm.custCreditMemoPayDetParent.custPaymentMstID">
+              <span class="cm-data">
+                <md-tooltip ng-if="vm.custCreditMemoPayDetParent.paymentNumber">{{vm.custCreditMemoPayDetParent.paymentNumber}}</md-tooltip>
+                <b>{{vm.custCreditMemoPayDetParent.paymentNumber || '-'}}</b>
+              </span>
+              <copy-text label="'Transaction#'" text="vm.custCreditMemoPayDetParent.paymentNumber"></copy-text>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ml-25 mr-5">
+      <span class="label-box padding-5-imp" ng-if="vm.custCreditMemoPayDetParent.custPaymentMstID && vm.custCreditMemoPayDetParent.creditAppliedStatus"
+            ng-class="vm.getClassNameForApplyCreditMemo(vm.custCreditMemoPayDetParent.CMPaymentStatus)">
+        {{vm.custCreditMemoPayDetParent.creditAppliedStatus}}
+        <md-tooltip>Credit Applied Status</md-tooltip>
+      </span>
+      <span class="label-box padding-5-imp" ng-if="vm.custCreditMemoPayDetParent && vm.custCreditMemoPayDetParent.isPaymentVoidedConvertedValue"
+            ng-class="vm.getCustPaymentStatusClassName(vm.custCreditMemoPayDetParent.isPaymentVoidedConvertedValue)">
+        {{vm.custCreditMemoPayDetParent.isPaymentVoidedConvertedValue}}
+      </span>
+    </div>
+    <div class="mr-10" layout>
+      <span class="label-box padding-5-imp width-75 label-danger ml-5"
+            ng-if="vm.custCreditMemoPayDetParent.isCustPaymentLocked">
+        Locked
+        <md-tooltip md-direction="bottom" class="tt-multiline"
+                    ng-if="vm.custCreditMemoPayDetParent.isCustPaymentLocked">
+          Locked By: {{vm.custCreditMemoPayDetParent.lockedByUserFullName}} <br />
+          Locked Date: {{vm.custCreditMemoPayDetParent.lockedAt}}
+        </md-tooltip>
+      </span>
+    </div>
+    <div layout="row" layout-wrap layout-align="start center">
+      <div layout="row" layout-align="center center" class="cm-square-icon-btn cm-btn-group">
+        <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10"
+                   ng-click="vm.viewAppliedCustCMHistory()"
+                   ng-if="vm.custPaymentMstID && vm.custCreditMemoPayDetParent">
+          <md-icon md-font-icon="t-icons-history-text" class="material-icons"></md-icon>
+          <md-tooltip>View Applied Customer Credit Memo History</md-tooltip>
+        </md-button>
+        <md-button class="md-primary md-raised"
+                   ng-disabled="vm.saveBtnDisableFlag || vm.custCreditMemoPayDetParent.isPaymentVoided || vm.custCreditMemoPayDetParent.isCustPaymentLocked"
+                   ng-class="{'md-formdirty': vm.custInvPayFromCreditMemoForm.$dirty}"
+                   id="saveBtn" ng-click="vm.saveCustomerPayment();"
+                   ng-if="vm.activeTab==vm.applyCustCreditMemoManageTabIDsConst.Detail">
+          Save
+        </md-button>
+        <md-menu-bar id="user-menu" class="" layout-align="start-center" layout="row"
+                     ng-if="vm.activeTab==vm.applyCustCreditMemoManageTabIDsConst.Detail">
+          <md-menu md-position-mode="left bottom">
+            <md-button class="" ng-click="$mdOpenMenu()"
+                       aria-label="User settings">
+              <div layout="row" layout-align="space-between center">
+                <span class="color-white font-size-13 font-weight-normal">Menu Items</span>
+                <md-icon md-font-icon="icon-chevron-down"
+                         class="icon s16 color-white" hide-sm></md-icon>
+              </div>
+            </md-button>
+            <md-menu-content width="3">
+              <md-menu-item>
+                <md-button class=""
+                           ng-click="vm.goToCustomerInvoiceList();">
+                  Customer Invoices
+                </md-button>
+              </md-menu-item>
+
+              <md-menu-item ng-if="!vm.custCreditMemoPayDetParent.isPaymentVoided">
+                <md-button class="cm-feture-btn-color"
+                           ng-click="vm.voidAndReleaseInvoiceGroup($event);"
+                           ng-disabled="!vm.allowToVoidCMFeature || vm.custCreditMemoPayDetParent.isPaymentVoided"
+                           ng-class="{'item-disabled': !vm.allowToVoidCMFeature || vm.custCreditMemoPayDetParent.isPaymentVoided}">
+                  Void Applied CM & Release Invoice Group
+                </md-button>
+              </md-menu-item>
+            </md-menu-content>
+          </md-menu>
+        </md-menu-bar>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-card padding-top-side" layout="row" flex="100">
+    <md-content flex="100" layout="column">
+      <ms-form-wizard flex>
+        <md-tabs validate-step="true" is-valid="vm.isStepValid" md-dynamic-height md-border-bottom md-selected="vm.activeTab" class="cm-fullheight manage-customer-tabing padding-0">
+          <md-tab ng-repeat="item in vm.tabList" ng-disabled="item.isDisabled"
+                  md-on-select="vm.onTabChanges(item)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-text">
+                  {{item.title}}<span ng-if="item.id==vm.applyCustCreditMemoManageTabIDsConst.Document">&nbsp;({{vm.documentCountOfAppliedCM}})</span>
+                </span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div class="" ui-view="{{item.viewsrc}}"></div>
+            </md-tab-body>
+          </md-tab>
+        </md-tabs>
+      </ms-form-wizard>
+    </md-content>
+  </div>
+</div>
+
+

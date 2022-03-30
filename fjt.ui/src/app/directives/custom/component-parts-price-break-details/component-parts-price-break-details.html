@@ -1,0 +1,155 @@
+<!-- Component price =====================================================-->
+<div flex="100" layout-wrap=""
+     class="buy-purchase-detail part-attribute-detail-wrapper margin-top-10 layout-wrap flex-100">
+  <div class="part-attribute-header flex-100" flex="100" layout="row">
+    <a class="cm-text-decoration underline" ng-click="vm.goToPartPriceBreakDetails();" tabindex="-1">Sales Price Matrix</a>
+    <div class="icon-question-mark-circle help-icon padding-left-10-imp">
+      <md-tooltip md-direction="top">
+        <span ng-bind-html="vm.COMPONENT_PRICE_BREAK_TOOLTIP"></span>
+      </md-tooltip>
+    </div>
+    <md-progress-circular ng-disabled="vm.hlSalesPriceMatrix" class="md-hue-2 margin-left-auto-imp" md-diameter="20px"></md-progress-circular>
+  </div>
+  <div class="padding-5">
+    <form name="vm.priceBreakForm" novalidate isolate-form>
+      <div flex="100" layout="row">
+        <div flex="20" layout="row" class="input-wrapper">
+          <md-input-container flex="100" md-no-float class="priceBreakTablepedding">
+            <input type="number" id="priceBreak" name="priceBreak" input-number-decimal-place
+                   ng-model="vm.pricebreakdetails.priceBreak" placeholder="Price Break" min="1" maxlength="10"
+                   required ng-change="vm.priceBreakCalculation()" step="{{$root.priceBreak}}"
+                   onkeypress="return OnlyNumeric(event)" onblur="return OnlyNumeric(event)"
+                   ng-disabled="vm.isInCorrectPart || !partId || partCategory === vm.Core_PartCategory.SubAssembly  || vm.isCustom || vm.isCPN">
+            <div ng-messages="vm.priceBreakForm.priceBreak.$error" role="alert">
+              <div ng-message="required">
+                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+              </div>
+              <div ng-message="min">
+                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+              </div>
+              <div ng-message="maxlength">
+                <span>{{vm.getMaxLengthValidation(10,vm.priceBreakForm.priceBreak.$viewValue.length)}}</span>
+              </div>
+              <div ng-message="number || step || max">
+                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+              </div>
+            </div>
+          </md-input-container>
+        </div>
+        <div flex="25" layout="row" class="input-wrapper">
+          <md-input-container flex="100" md-no-float>
+            <input type="number" id="unitPrice" name="unitPrice" ng-model="vm.pricebreakdetails.unitPrice"
+                   input-number-decimal-place placeholder="Unit Price($)"
+                   onkeypress="return OnlyNumbersWithDot(event)" min="{{$root.unitInputStep}}"
+                   step="{{$root.unitInputStep}}" maxlength="16" required ng-required="vm.pricebreakdetails.priceBreak"
+                   ng-disabled="vm.isInCorrectPart || (!partId || partCategory === vm.Core_PartCategory.SubAssembly)  || vm.isCustom || vm.isCPN">
+            <div ng-messages="vm.priceBreakForm.unitPrice.$error" role="alert">
+              <div ng-message="required">
+                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+              </div>
+              <div ng-message="min">
+                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+              </div>
+              <div ng-message="maxlength">
+                <span>{{vm.getMaxLengthValidation(16,vm.priceBreakForm.unitPrice.$viewValue.length)}}</span>
+              </div>
+              <div ng-message="number || step || max">
+                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+              </div>
+            </div>
+          </md-input-container>
+        </div>
+        <div flex="55" layout="row" class="input-wrapper btnSavePriceBreak">
+          <md-input-container flex flex-sm="30" flex-md="20">
+            <md-button class="md-primary md-raised" ng-click="vm.SavePartPriceBreakDetails()"
+                       aria-label="Submit"
+                       ng-class="{'md-formdirty': vm.priceBreakForm.$dirty}"
+                       ng-disabled="vm.isReadOnly || vm.isInCorrectPart || !vm.priceBreakForm.$valid || !vm.checkFormDirty(vm.priceBreakForm,vm.checkFormDirty) || !partId || partCategory === vm.Core_PartCategory.SubAssembly">
+              Save
+            </md-button>
+          </md-input-container>
+          <md-input-container flex flex-sm="25" flex-md="20">
+            <md-button class="md-default md-raised md-button md-ink-ripple md-default-theme margin-left-2" ng-click="vm.Cancel()"
+                       ng-disabled="vm.isInCorrectPart || (!partId || partCategory === vm.Core_PartCategory.SubAssembly)  || vm.isCustom || vm.isCPN"              
+              aria-label="Submit">
+              Cancel
+            </md-button>
+          </md-input-container>
+        </div>
+      </div>
+    </form>
+    <div flex="100" layout="column" class="buy-purchase-detail-wrapper layout-column flex-100" ng-if="vm.PartPriceBreakDetailsData.length > 0">
+      <p class="LastUpdatedOnPriceBreak" ng-show="vm.PartPriceBreakDetailsData[0].updatedOn!=null">
+        Last Updated On :
+        {{vm.PartPriceBreakDetailsData[0].updatedOn | date : $root.dateDisplayFormat }}
+      </p>
+      <div layout="row" flex="100" class="layout-row flex-100">
+        <table class="tbl-buy-purchase-detail cm-fixed-table-header cm-com-parts-price-table margin-0">
+          <thead>
+            <tr>
+              <th class="w-60">Action</th>
+              <th class="cm-action-sell-price">Price Break</th>
+              <th class="cm-action-sell-unit-price">Unit Price($)</th>
+              <th class="cm-action-sell-extened-price">Extended Price($)</th>
+              <th class="cm-action-sell-price">Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="ng-scope" ng-repeat="item in vm.PartPriceBreakDetailsData">
+              <td class="w-60 nowrap">
+                <button class="md-primary grid-button md-icon-button bdrbtn md-button md-default-theme md-ink-ripple ml-0"
+                        type="button" aria-label="Edit" md-labeled-by-tooltip="Edit"
+                        ng-click="vm.EditRecord(item)"
+                        ng-disabled="vm.isReadOnly || partCategory === vm.Core_PartCategory.SubAssembly  || vm.isCustom || vm.isCPN"
+                        ng-class="{'item-disabled': partCategory === vm.Core_PartCategory.SubAssembly  || vm.isCustom || vm.isCPN}">                  
+                  <md-icon role="img" md-font-icon="icon-pencil"
+                           class="ng-scope md-default-theme md-font material-icons icon-pencil"
+                           aria-label="icon-pencil">
+                    <md-tooltip md-direction="top">Edit</md-tooltip>
+                  </md-icon>
+                  <div class="md-ripple-container">
+                  </div>
+                </button>
+                <md-button class="md-mini md-icon-button margin-0 bdrbtn">
+                  <md-icon md-font-icon="icon-eye"></md-icon>
+                  <md-tooltip md-direction="top" class="tt-multiline">
+                    Created By: {{item.createdBy}} <br />Created At: {{item.createdAt | date:vm.DefaultDateFormat}}<br />
+                    Last Modified By: {{item.updatedBy}} <br />Last Modified At: {{item.updatedAt | date:vm.DefaultDateFormat}}
+                  </md-tooltip>
+                </md-button>
+              </td>
+              <td class="cm-action-sell-price text-right">{{item.priceBreak | numberWithoutDecimal}}</td>
+              <td class="cm-action-sell-unit-price text-right">{{item.unitPrice | unitPrice}}</td>
+              <td class="cm-action-sell-extened-price text-right">
+                {{item.ExtPrice | amount}}
+              </td>
+              <td class="cm-action-sell-price text-align-center">
+                <span class="ng-scope">
+                  <button class="md-primary grid-button md-icon-button bdrbtn md-button md-default-theme md-ink-ripple"
+                          type="button" aria-label="Delete" md-labeled-by-tooltip="Delete"
+                          ng-click="vm.deleteRecord(item)"
+                          ng-class="{'item-disabled': (vm.IsDeleteDisable ? true : false)|| partCategory === vm.Core_PartCategory.SubAssembly  || vm.isCustom || vm.isCPN}"
+                          ng-disabled="vm.isReadOnly || vm.IsDeleteDisable || partCategory === vm.Core_PartCategory.SubAssembly || vm.isCustom || vm.isCPN">
+                    <md-icon role="img" md-font-icon="icon-trash"
+                             class="ng-scope md-default-theme md-font material-icons icon-trash"
+                             aria-label="icon-trash">
+                      <md-tooltip md-direction="top">Delete</md-tooltip>
+                    </md-icon>
+                    <div class="md-ripple-container">
+                    </div>
+                  </button>
+                </span>
+              </td>
+            </tr>
+            <!--<tr ng-if="vm.PartPriceBreakDetailsData == null">
+                <td colspan="5" class="NoRecordFound">
+                    <p><b>No price break details found!</b></p>
+                </td>
+            </tr>-->
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+</div>

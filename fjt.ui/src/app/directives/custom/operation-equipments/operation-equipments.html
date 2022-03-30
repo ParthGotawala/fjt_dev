@@ -1,0 +1,172 @@
+<form name="operationEquipments" class="padding-10-imp cm-search-tab-operation-list" cg-busy="{promise:vm.cgBusyLoading}" ms-form-wizard-form novalidate>
+  <div flex="100" layout="row" layout-wrap ng-if="vm.isContainOpMasterequipment">
+    <div flex flex-xs="100" flex-sm="100">
+      <div flex="100" flex-xs="100" layout="row" layout-align="space-between end"
+           class="mobilesearch employee-workstaion-search-box userpermissionhead">
+        <md-input-container class="md-block error-none no-label " md-no-float flex flex-xs="75"
+                            ng-class="{'clickedsearch':isButtonEquipmentClicked}">
+          <input id="SearchNoAddedListEquipment" type="text"
+                 placeholder="Type here to search equipments"
+                 ng-model="vm.SearchNoAddedListEquipment"
+                 ng-keyup="vm.SearchEquipment(vm.SearchNoAddedListEquipment, false)"
+                 custom-blur="vm.SearchEquipment(vm.SearchNoAddedListEquipment, false)">
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-disabled="!vm.SearchNoAddedListEquipment"
+                   ng-click="vm.SearchNoAddedListEquipment='';vm.SearchEquipment(vm.SearchNoAddedListEquipment, false);">
+          Clear
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.refreshDataEquipment()">
+          Refresh
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.addDataEquipment(null,$event)">
+          Add New
+        </md-button>
+      </div>
+      <md-list flex="100" class="permissiontab custom-scroll dragbox" ng-class="{'layout-column': vm.equipmentNoAddedList.length == 0}">
+        <md-list-item id="equipmentNoAddedList" class="padding-0 items-container" layout="row" flex="100" layout-wrap
+                      ui-sortable="sortableOptionsEquipment"
+                      ng-model="vm.equipmentNoAddedList"
+                      haveadded="false">
+          <div flex="100" class="md-1-line margin-0 dragsortable"
+               ng-repeat="equipment in vm.equipmentNoAddedList"
+               ui-sortable-selectable
+               ng-model="equipment"
+               layout="row" layout-align="start center">
+            <div class="avatar-wrapper">
+              <img class="md-avatar avatar margin-top-0 margin-bottom-0" ng-src="{{equipment.ProfilePic}}" />
+            </div>
+            <div class="md-list-item-text" layout="row" flex="100" layout-align="space-between center">
+              <div>
+                <h3 class="name margin-0 md-primary-fg underline inline-block" flex="100"
+                    ng-click="vm.goToManageEquipmentWorkstation(equipment)"><b>{{equipment.assetName}}</b></h3>
+                <p class="last-message text-truncate margin-0">{{equipment.eqpMake != "null" ? equipment.eqpMake : '-'}} {{equipment.eqpModel != "null" ? "| " + equipment.eqpModel : '-'}} <span> {{equipment.eqpYear ? "| " + equipment.eqpYear : ''}}</span></p>
+              </div>
+            </div>
+          </div>
+          <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+               ng-if="vm.equipmentNoAddedList.length == 0"
+               ui-sortable-selectable>
+            <div class="empty-state text-center">
+              <div class="emty-icon">
+                <img ng-src="{{vm.EmptyMesssageForOpEquipment.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="vm.SearchNoAddedListEquipment == null && vm.equipmentNoAddedList.length == 0">
+                {{vm.EmptyMesssageForOpEquipment.ALL_ASSIGNED}}
+              </p>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="vm.SearchNoAddedListEquipment != null && vm.FilterEquipmentNotAdded != true">
+                {{vm.EmptyMesssageForOpEquipment.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+    <div layout-align="space-between center" layout="row" class="cm-data-fields-buttons" flex-xs="100" flex-sm="100">
+      <div flex="100" layout-xs="row" layout-sm="row" layout="column" layout-align="space-between center">
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="selectedEquipmentListAdded.length > 0?false:true"
+                   ng-click="vm.ModifyPageAddedEquipment('Remove')">
+          <i class="icon-chevron-left icondrag"></i>
+          <md-tooltip>Remove</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="vm.equipmentAddedList.length == 0"
+                   ng-click="vm.ModifyPageAddedEquipment('RemoveAll')">
+          <i class="icon-chevron-double-left icondrag"></i>
+          <md-tooltip>Remove All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="vm.equipmentNoAddedList.length == 0"
+                   ng-click="vm.ModifyPageAddedEquipment('AddAll')">
+          <i class="icon-chevron-double-right icondrag"></i>
+          <md-tooltip>Add All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="selectedEquipmentListNoAdded.length > 0?false:true"
+                   ng-click="vm.ModifyPageAddedEquipment('Add')">
+          <i class="icon-chevron-right icondrag"></i>
+          <md-tooltip>Add</md-tooltip>
+        </md-button>
+      </div>
+    </div>
+    <div flex flex-xs="100" flex-sm="100">
+      <div flex="100" flex-xs="100" layout="row" class="mobilesearch userpermissionhead" layout-align="space-between end">
+        <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75"
+                            ng-class="{'clickedsearch':isButtonEquipmentAddedClicked}">
+          <input id="SearchAddedListEquipment" type="text"
+                 placeholder="Type here to search added equipments"
+                 ng-model="vm.SearchAddedListEquipment"
+                 ng-keyup="vm.SearchEquipment(vm.SearchAddedListEquipment, true)"
+                 custom-blur="vm.SearchEquipment(vm.SearchAddedListEquipment, true)">
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-disabled="!vm.SearchAddedListEquipment"
+                   ng-click="vm.SearchAddedListEquipment='';vm.SearchEquipment(vm.SearchAddedListEquipment, true);">
+          Clear
+        </md-button>
+      </div>
+      <md-list flex="100" class="permissiontab custom-scroll dragbox" ng-class="{'layout-column': vm.equipmentAddedList.length == 0}">
+        <md-list-item id="equipmentAddedList" class="padding-0 items-container" layout="row" flex="100" layout-wrap
+                      ui-sortable="sortableOptionsEquipment"
+                      ng-model="vm.equipmentAddedList">
+          <div flex="100" class="md-1-line margin-0 dragsortable"
+               ng-repeat="equipment in vm.equipmentAddedList"
+               ui-sortable-selectable ng-model="equipment"
+               layout="row" layout-align="start center">
+            <div class="avatar-wrapper">
+              <img class="md-avatar avatar margin-top-0 margin-bottom-0" ng-src="{{equipment.ProfilePic}}" />
+            </div>
+            <div class="md-list-item-text" layout="row" flex="100" layout-align="space-between center">
+              <div>
+                <h3 class="name margin-0 md-primary-fg underline inline-block" flex="100"
+                    ng-click="vm.goToManageEquipmentWorkstation(equipment)"><b>{{equipment.assetName}}</b></h3>
+                <p class="last-message text-truncate margin-0">{{equipment.eqpMake != "null" ? equipment.eqpMake : '-'}} {{equipment.eqpModel != "null" ? "| " + equipment.eqpModel : '-'}} <span> {{equipment.eqpYear ? "| " + equipment.eqpYear : ''}}</span></p>
+              </div>
+            </div>
+          </div>
+          <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+               ng-if="vm.equipmentAddedList.length == 0"
+               ui-sortable-selectable>
+            <div class="empty-state text-center">
+              <div class="emty-icon">
+                <img ng-src="{{vm.EmptyMesssageForOpEquipment.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="vm.SearchAddedListEquipment == null && vm.equipmentAddedList.length == 0">
+                {{vm.EmptyMesssageForOpEquipment.MESSAGE}}
+              </p>
+              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                 ng-if="vm.SearchAddedListEquipment != null && vm.FilterEquipmentAdded != true">
+                {{vm.EmptyMesssageForOpEquipment.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+  </div>
+  <div flex="100" class="md-1-line margin-0 cursor-not-allow" ng-if="!vm.isContainOpMasterequipment">
+    <div class="empty-state text-center full-height">
+      <div class="emty-icon">
+        <img ng-src="{{vm.EmptyMesssageForOpEquipment.IMAGEURL}}" />
+      </div>
+      <p class="empty-state-title font-size-2 useadded-emptytxt">
+        {{vm.EmptyMesssageForOpEquipment.MESSAGE}}
+      </p>
+      <p flex="100">
+        {{vm.EmptyMesssageForOpEquipment.ADDNEWMESSAGE}}
+      </p>
+      <p flex="100">
+        <md-button class="md-fab md-mini" aria-label="Add DataField" ng-click="vm.addDataEquipment(null,$event)">
+          <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+        </md-button>
+        <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.refreshDataEquipment()">
+          <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-refresh"></md-icon>
+        </md-button>
+      </p>
+    </div>
+  </div>
+</form>

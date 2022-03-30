@@ -1,0 +1,77 @@
+<md-dialog aria-label="Supplier RMA Duplicate Confirmation Popup" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+
+  <md-dialog-content class="padding-25">
+    <md-content>
+      <h2 class="md-title ng-binding">{{vm.messageContent ? vm.messageContent.messageType : ''}}: {{vm.messageContent ? vm.messageContent.messageCode : ''}}</h2>
+
+      <div class="dynamic-msg-content">
+        <div class="dynamic-msg-body">
+          <ng-bind-html ng-if="vm.messageContent && vm.messageContent.message" ng-bind-html="vm.messageContent.message"></ng-bind-html>
+        </div>
+        <div flex="100" ng-if="vm.messageData && vm.messageData.rmaList.length > 0" class="mt-15">
+          <div flex>
+            <div class="cm-section-inner">
+              <table class="table-umid-allocated-kit width-100p">
+                <thead>
+                  <tr class="bgcolor-summary">
+                    <th></th>
+                    <th>#</th>
+                    <th>{{vm.LabelConstant.COMMON.SystemID}}</th>
+                    <th>{{vm.LabelConstant.SupplierRMA.RMANumber}}</th>
+                    <th class="width-100px">{{vm.LabelConstant.SupplierRMA.RMADate}}</th>
+                    <th class="width-100px">{{vm.LabelConstant.SupplierRMA.ShippedDate}}</th>
+                    <th>{{vm.LabelConstant.SupplierRMA.PackingSlipNumber}}</th>
+                    <th>{{vm.LabelConstant.SupplierRMA.PackingSlipDate}}</th>
+                  </tr>
+                </thead>
+                <tbody ng-repeat="item in vm.messageData.rmaList">
+                  <tr class="text-center">
+                    <td class="w-60">
+                      <md-checkbox ng-model="item.isSelect" ng-change="vm.selectRecord(item)" class="margin-left-10"></md-checkbox>
+                    </td>
+                    <td>{{($index+1)}}</td>
+                    <td>{{item.systemId}}</td>
+                    <td>
+                      <a class="cursor-pointer text-underline color-black" ng-click="vm.goToSupplierRMADetail(item.id);">
+                        {{item.poNumber}}
+                      </a>
+                      <copy-text label="vm.LabelConstant.SupplierRMA.RMANumber" text="item.poNumber"></copy-text>
+                    </td>
+                    <td>{{item.poDate | date: vm.DefaultDateFormat}}</td>
+                    <td>{{item.receiptDate | date: vm.DefaultDateFormat}}</td>
+                    <td>
+                      <a class="cursor-pointer text-underline color-black" ng-click="vm.goToSupplierRMADetail(item.id);">
+                        {{item.packingSlipNumber}}
+                      </a>
+                      <copy-text label="vm.LabelConstant.SupplierRMA.PackingSlipNumber" text="item.packingSlipNumber"></copy-text>
+                    </td>
+                    <td>{{item.packingSlipDate | date: vm.DefaultDateFormat}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="dynamic-msg-body">
+          <b>a)</b> Press <b>CANCEL</b> to cancel the transaction.<br />
+          <b>b)</b> Press <b>UPDATE RMA</b> to add material in selected RMA.<br />
+          <b>c)</b> Press <b>ADD RMA PACKING SLIP</b> to create RMA packing slip with same RMA#.<br />
+          <b>d)</b> Press <b>RESET RMA#</b> to re-enter RMA#.
+        </div>
+      </div>
+
+    </md-content>
+  </md-dialog-content>
+
+  <md-dialog-actions layout="row">
+    
+    <md-button id="btn_{{$index}}" class="md-raised"
+               ng-click="vm.cancel(item.name)"
+               ng-repeat="item in vm.buttonsList"
+               custom-auto-focus="{{vm.buttonIndexForFocus == $index ? true : false}}"
+               ng-disabled="(item.isDisabled || (item.name === 'UPDATE RMA' && (!vm.selectedRow || !vm.selectedRow.id)))">
+      {{item.name}}
+    </md-button>
+  </md-dialog-actions>
+
+</md-dialog>

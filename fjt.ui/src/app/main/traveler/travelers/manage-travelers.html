@@ -1,0 +1,1170 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-work-order-header cm-custom-label-common md-inline-form cm-travelers-workorder-rs" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="header md-accent-bg layout-wrap-pro-rs" layout="row" layout-wrap layout-align="start center">
+    <div flex="100" layout="row" class="layout-wrap-rs">
+      <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" aria-label="Go to products" ng-click="vm.goBack()">
+        <!--<md-icon md-font-icon="icon-arrow-left" class="material-icons icon-arrow-left">
+        </md-icon>-->
+        <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+        </md-icon>
+      </md-button>
+      <div class="flex-sm-90 white-fg" layout="column" layout-align="start start">
+        <div class="h2" layout="row" layout-align="start center">
+          <pagetitle is-list="false"
+                     is-display-menu-name="true"
+                     prefix-content=""
+                     suffix-content="'- ' + vm.operationFullName"
+                     prefix-page-title="vm.operationFullName"></pagetitle>
+          <md-tooltip md-direction="top" ng-if="vm.operationFullName">{{vm.operationFullName}}</md-tooltip>
+        </div>
+        <div class="product-count">
+          <span>
+            <breadcrumbs></breadcrumbs>
+          </span>
+        </div>
+      </div>
+      <div layout="row" layout-wrap layout-align="end center" flex flex-xs="100" class="cm-task-team-buttons flex-sm-100">
+        <div layout="row" class="margin-left-5" flex flex-xs="100">
+          <md-menu-bar id="user-menu" class="profilemenu cm-operations-activity margin-right-5">
+            <md-menu md-position-mode="left bottom">
+              <md-button class="md-raised md-primary md-ink-ripple text-center margin-0" ng-disabled="vm.woOpEmployeeDetails.woActiveOperationList && vm.woOpEmployeeDetails.woActiveOperationList.length == 0"
+                         ng-click="$mdOpenMenu()"
+                         aria-label="User settings">
+                <div layout="row" layout-align="space-between center">
+                  Active Operations
+                </div>
+              </md-button>
+              <md-menu-content class="addusermain cm-active-operation custom-scroll cm-custom-label-common" layout-wrap layout="row" flex="100" width="3">
+                <md-menu-item class="cm-workorder-section" layout="row" flex="100" ng-repeat="item in vm.woOpEmployeeDetails.woActiveOperationList">
+                  <task-list-section-view item="item"
+                                          on-click-select="vm.setItemActive(item, null)" is-from-traveler="true"></task-list-section-view>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </md-menu-bar>
+          <md-menu-bar id="user-menu" class="profilemenu cm-operations-activity margin-right-5">
+            <md-menu md-position-mode="left bottom">
+              <md-button class="md-raised md-primary md-ink-ripple text-center margin-0" ng-disabled="vm.woOpEmployeeDetails.woPausedOperationList && vm.woOpEmployeeDetails.woPausedOperationList.length == 0"
+                         ng-click="$mdOpenMenu()"
+                         aria-label="User settings">
+                <div layout="row" layout-align="space-between center">
+                  Paused Operations
+                </div>
+              </md-button>
+              <md-menu-content class="addusermain cm-active-operation custom-scroll cm-custom-label-common" layout-wrap layout="row" flex="100" width="3">
+                <md-menu-item class="cm-workorder-section" layout="row" flex="100" ng-repeat="item in vm.woOpEmployeeDetails.woPausedOperationList">
+                  <task-list-section-view item="item"
+                                          on-click-select="vm.setItemActive(item, null)" is-from-traveler="true"></task-list-section-view>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </md-menu-bar>
+        </div>
+        <md-button ng-if="vm.woOPID != vm.homeOPID" class="md-raised md-primary shortcut-key-btn"
+                   ng-click="vm.goToHomeOperationDetails($event);">
+          <span class="inline-block">Home Operation</span>
+        </md-button>
+        <div ng-if="vm.IsCheckInOperation && vm.isWorkorderOperationAssigned">
+          <div class="margin-0 maintimer">
+            <div layout="row" flex="50" flex-lg="90" layout-align="space-between center" flex-xs="100" class="cm-pv-10-mob">
+              <div layout="column">
+              </div>
+              <div class="margin-right-5">
+                <md-button ng-if="vm.IsCheckInOperation" class="md-raised md-primary shortcut-key-btn margin-0 cm-nowrap-rs"
+                           ng-click="vm.woOpEmployeeDetails.workorderOperation.isTeamOperation ? vm.CheckOutOperation(true, vm.woOpEmployeeDetails.employee, $event) : vm.CheckOutOperation(false, null, $event);">
+                  St<span class="shortcut-key-symbol">o</span>p {{(vm.isSetup) ? vm.LabelConstant.Traveler.Setup : vm.LabelConstant.Traveler.Production}}
+                </md-button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Single Employee Pause/Resume Activity -->
+        <md-button class="md-raised md-primary margin-0 shortcut-key-btn" ng-if="vm.IsCheckInOperation
+                           && vm.isWorkorderOperationAssigned
+                           && !vm.woOpEmployeeDetails.workorderOperation.isTeamOperation"
+                   ng-click="vm.woOpEmployeeDetails.employee.isPaused ? vm.resumeEmployeeOperation(false, vm.woOpEmployeeDetails.employee, $event) : vm.pauseEmployeeOperation(vm.woOpEmployeeDetails.employee, $event)">
+          <span ng-if="vm.woOpEmployeeDetails.employee.isPaused"><span class="shortcut-key-symbol">R</span>esume Activity</span>
+          <span ng-if="!vm.woOpEmployeeDetails.employee.isPaused"><span class="shortcut-key-symbol">P</span>ause Activity</span>
+        </md-button>
+        <!-- Single Employee Pause/Resume Activity -->
+        <!-- Employee Pause/Resume Activity in Team Operation for current login employee-->
+        <md-button ng-if="vm.IsCheckInOperation
+                           && vm.isWorkorderOperationAssigned
+                           && vm.woOpEmployeeDetails.workorderOperation.isTeamOperation"
+                   ng-click="vm.woOpEmployeeDetails.employee.isPaused ? vm.resumeEmployeeOperation(true, vm.woOpEmployeeDetails.employee, $event) : vm.pauseEmployeeOperation(vm.woOpEmployeeDetails.employee, $event)"
+                   class="md-raised md-primary margin-0 shortcut-key-btn">
+          <span ng-if="vm.woOpEmployeeDetails.employee.isPaused"><span class="shortcut-key-symbol">R</span>esume Activity</span>
+          <span ng-if="!vm.woOpEmployeeDetails.employee.isPaused"><span class="shortcut-key-symbol">P</span>ause Activity</span>
+        </md-button>
+        <!-- Employee Pause/Resume Activity in Team Operation for current login employee -->
+        <!-- Single Employee Start Activity -->
+        <!--Removed Condition due to allow in terminate and other status too-->
+        <!--&& vm.woOpEmployeeDetails.workorderOperation.woStatus == vm.woStatus.PUBLISHED-->
+        <md-button ng-if="!vm.IsCheckInOperation && vm.isWorkorderOperationAssigned
+                       && vm.woOpEmployeeDetails.workorderOperation.opStatus == vm.opStatus.PUBLISHED"
+                   class="md-raised md-primary margin-0 shortcut-key-btn"
+                   ng-click="vm.CheckInOperation(false, null, $event);">
+          <span class="inline-block">Start Act<span class="shortcut-key-symbol">i</span>vity</span>
+        </md-button>
+        <!-- Single Employee Start Activity -->
+        <div layout="row" ng-if="vm.IsCheckInOperation && vm.isWorkorderOperationAssigned && vm.woOpEmployeeDetails.workorderOperation.isTeamOperation"
+             layout-align="space-between center" class="margin-left-5">
+          <md-menu-bar id="user-menu" class="profilemenu">
+            <md-menu md-position-mode="left bottom">
+              <md-button class="md-icon-button md-raised md-primary" ng-click="$mdOpenMenu()"
+                         aria-label="User settings">
+                <div layout="row" layout-align="space-between center">
+                  <div class="avatar-wrapper">
+                    <md-icon md-font-icon="icon icon-account-switch"> </md-icon>
+                  </div>
+                </div>
+              </md-button>
+              <md-menu-content class="addusermain custom-scroll cm-custom-label-common cm-manage-travelers-menu" layout-wrap layout="row" flex="100" width="3">
+                <div layout="row" class="padding-horizontal-10">
+                  <md-button class="md-raised md-primary md-ink-ripple text-center mv-0 ml-0"
+                             ng-if="vm.IsCheckInOperation && vm.isWorkorderOperationAssigned && vm.woOpEmployeeDetails.workorderOperation.isTeamOperation"
+                             ng-click="vm.isTeamOPAllEmpPauseMode ? '' : vm.teamOPAllEmpPause()"
+                             ng-disabled="vm.isTeamOPAllEmpPauseMode">
+                    Pause Team Activity
+                  </md-button>
+                  <md-button class="md-raised md-primary md-ink-ripple text-center mv-0 ml-0"
+                             ng-click="vm.CheckOutOperation(false, null, $event);">
+                    Stop Team Activity
+                  </md-button>
+                </div>
+                <div class="cm-team-activity" flex="100" layout="row" layout-wrap>
+                  <md-menu-item layout="row" flex="100" ng-class="{'cm-operation-team-active-list' : employee.currentlyActive}" ng-repeat="employee in vm.woOpEmployeeDetails.woOperationEmployeeList">
+                    <div layout="row" flex="100" layout-align="space-between center" class="addusericon" layout-wrap>
+                      <div layout="row" flex layout-wrap>
+                        <p class="margin-0" flex="100">{{employee.name}}</p>
+                        <span flex="100" ng-if="employee.checkinTime">started date : {{employee.checkinTime}}</span>
+                      </div>
+                      <div layout="row">
+                        <md-button class="md-primary md-raised md-ink-ripple text-center mv-0 margin-right-0"
+                                   ng-if="employee.checkinTime"
+                                   ng-click="employee.isPaused ? vm.resumeEmployeeOperation(true, employee, $event) : vm.pauseEmployeeOperation(employee, $event)">
+                          {{employee.isPaused ? 'Resume' : 'Pause'}}
+                        </md-button>
+                        <md-button class="md-primary md-raised md-ink-ripple text-center mv-0 margin-right-0"
+                                   ng-click="employee.checkinTime ? vm.CheckOutOperation(true, employee, $event): vm.CheckInOperation(true, employee, $event);">
+                          {{employee.checkinTime ? 'Stop' : 'Start'}}
+                        </md-button>
+                      </div>
+                    </div>
+                  </md-menu-item>
+                </div>
+              </md-menu-content>
+            </md-menu>
+          </md-menu-bar>
+          <md-tooltip>Add/Remove Team member</md-tooltip>
+        </div>
+        <div layout="row" layout-align="space-between center">
+          <md-menu-bar id="user-menu" class="profilemenu">
+            <md-menu md-position-mode="left bottom">
+              <md-button class="user-button margin-0" ng-click="$mdOpenMenu()"
+                         ng-disabled="true" style="background-color:transparent; color:white; margin-top:0; margin-bottom:0; height:60px;"
+                         aria-label="User settings">
+                <div layout="row" layout-align="space-between center">
+                  <div class="avatar-wrapper">
+                    <img md-menu-align-target class="avatar" ng-src="{{vm.woOpEmployeeDetails.employee.ProfilePic}}">
+                    <md-icon md-font-icon ng-class="vm.userStatus.icon"
+                             ng-style="{'color': vm.userStatus.color }"
+                             class="icon status s16">
+                    </md-icon>
+                  </div>
+                  <span class="username" hide-sm>
+                    <!-- {{(vm.woOpEmployeeDetails.employee.firstName ? vm.woOpEmployeeDetails.employee.firstName : "") + " " +  (vm.woOpEmployeeDetails.employee.lastName ? vm.woOpEmployeeDetails.employee.lastName : "")}} {{vm.woOpEmployeeDetails.employee.employeeDepartment.genericCategory ? "| " + vm.woOpEmployeeDetails.employee.employeeDepartment.genericCategory.gencCategoryName : ""}} -->
+                    {{vm.woOpEmployeeDetails.employee.initialName}} {{vm.woOpEmployeeDetails.employee.employeeDepartment.genericCategory ? "| " + vm.woOpEmployeeDetails.employee.employeeDepartment.genericCategory.gencCategoryName : ""}}
+                  </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <div layout-align="space-between center" layout="row">
+                    <md-button class="md-raised md-primary md-icon-button" ng-click="vm.PrintWorkOrderTag($event);">
+                      <md-icon class="cursor-pointer" md-font-icon="icon-printer"></md-icon>
+                      <md-tooltip class="inline-block">Print</md-tooltip>
+                    </md-button>
+                    <md-button class="md-raised md-primary md-icon-button" ng-click="vm.showColorLengend($event)">
+                      <md-tooltip md-direction="top">Legend</md-tooltip>
+                      <md-icon md-font-icon class="icon-palette"></md-icon>
+                    </md-button>
+                  </div>
+                </div>
+              </md-button>
+              <md-menu-content width="3">
+                <md-menu-item>
+                  <md-button><b>Target Time:</b> 10 Hours</md-button>
+                </md-menu-item>
+                <md-menu-item>
+                  <md-button><b>Actual Time:</b> 4 Hours / 2 Qty</md-button>
+                </md-menu-item>
+                <md-menu-item>
+                  <md-button><b>Your Avg.:</b> 1 Hour/ 1 Qty</md-button>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </md-menu-bar>
+        </div>
+      </div>
+    </div>
+    <div class="divider-horizontal"></div>
+    <div layout="row" flex="100" ng-if="vm.woID && vm.woOpEmployeeDetails.workorderOperation.woOPID && vm.woOpEmployeeDetails.workorderOperation.partID">
+      <workorder-header-details wo-id="vm.woID" flex="100"
+                                wo-op-id="vm.woOpEmployeeDetails.workorderOperation.woOPID"
+                                is-woheaderdetails-changed="vm.isWOHeaderDetailsChanged"
+                                wo-trans-id="vm.woTransID"
+                                is-traveler="true" wo-assy-id="vm.woOpEmployeeDetails.workorderOperation.partID"
+                                employee-id-of-woop="vm.employeeID"></workorder-header-details>
+    </div>
+  </div>
+  <!-- / CONTENT HEADER -->
+  <!-- CONTENT CARD -->
+  <div layout="row" class="padding-10 padding-top-side cm-manage-travelers-page-main" layout-wrap>
+    <div class="cm-manage-travelers-page-main-scroll-data" flex="100">
+      <div flex="100">
+      <div class="traveler-operation-main">
+        <div class="traveler-operation">
+          <div layout="row" ng-if="vm.IsCheckInOperation && vm.woOpEmployeeDetails.workorderOperation.isTeamOperation" flex="100" layout-wrap class="main-chips-travel">
+            <div class="workorderdetail-main traveler-page-chips customchipsmain" layout="row" layout-align="end end" layout-wrap flex="100">
+              <p class="customchips" ng-if="employee.checkinTime" ng-repeat="employee in vm.woOpEmployeeDetails.woOperationEmployeeList">
+                {{employee.name}}
+                <md-icon class="md-accent-fg" md-font-icon="icon icon-close"
+                         ng-click="vm.CheckOutOperation(true, employee, $event)"></md-icon>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <md-tabs id="traveler-tabs" ng-if="!vm.ShowFirstArticle" class="opration-tabing cm-form-wizard-tab" flex="100" md-dynamic-height md-border-bottom md-no-select-click="true" md-selected="vm.activeTab">
+        <md-tab ui-sref="{{item.src}}" ng-disabled="!item.isActive" ng-repeat="item in vm.tabList" md-tab-class="{{item.tabClass}} {{item.tabColorCodeClassName}}">
+          <md-tab-label class="white-500-bg">
+            <span class="tab-span-title">
+              <img class="stop-icon-image small-stop md-raised md-warn md-icon-button"
+                   ng-if="item.isStopOperation"
+                   src="../../../../../assets/images/logos/stop.png" />&nbsp;{{item.title}}
+            </span>
+          </md-tab-label>
+          <md-tab-body>
+            <md-content class="md-padding" ng-class="{'margin-bottom-65':!vm.Show.Document }" ng-if="item.id == vm.activeTab">
+              <div class="headerEmp" layout="row" flex="100"
+                   layout-align="space-between start" layout-wrap>
+                <div flex="100" flex-xs="100" layout-align="space-between start" class="content dodontmain mv-5" layout="row">
+                  <div flex="80" class="height-120 cm-overflow-auto ml-5" ng-if="vm.isKitHaltStatus">
+                    <div ng-if="vm.isKitHaltStatus" ng-repeat="haltData in vm.haltList" layout-wrap flex="100" layout="row">
+                      <div flex="100" ng-if="haltData.poHaltStatus">
+                        <div class="reason-text">
+                          {{vm.haltResumePopUp.POHaltLabel}} {{vm.LabelConstant.Workorder.PO}}{{haltData.poHaltStatus.poNumber}} {{vm.LabelConstant.Workorder.KitNumber}}{{haltData.poHaltStatus.kitNumber}}: {{haltData.poHaltStatus.reason}}
+                        </div>
+                        <small>
+                          by {{haltData.poHaltStatus.empInitialName}}
+                        </small>
+                        <small>
+                          on {{haltData.poHaltStatus.startDate}}
+                        </small>
+                      </div>
+                      <div flex="100" ng-if="haltData.kaHaltStatus">
+                        <div class="reason-text">
+                          {{vm.haltResumePopUp.KitAllocationHaltLabel}} {{vm.LabelConstant.Workorder.PO}}{{haltData.kaHaltStatus.poNumber}} {{vm.LabelConstant.Workorder.KitNumber}}{{haltData.kaHaltStatus.kitNumber}}: {{haltData.kaHaltStatus.reason}}
+                        </div>
+                        <small>
+                          by {{haltData.kaHaltStatus.empInitialName}}
+                        </small>
+                        <small>
+                          on {{haltData.kaHaltStatus.startDate}}
+                        </small>
+                      </div>
+                      <div flex="100" ng-if="haltData.krHaltStatus">
+                        <div class="reason-text">
+                          {{vm.haltResumePopUp.kitReleaseHaltLabel}} {{vm.LabelConstant.Workorder.PO}}{{haltData.krHaltStatus.poNumber}} {{vm.LabelConstant.Workorder.KitNumber}}{{haltData.krHaltStatus.kitNumber}}: {{haltData.krHaltStatus.reason}}
+                        </div>
+                        <small>
+                          by {{haltData.krHaltStatus.empInitialName}}
+                        </small>
+                        <small>
+                          on {{haltData.krHaltStatus.startDate}}
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                  <div flex="55" layout="row" ng-if="vm.woOpEmployeeDetails.workorderOperation.isStopOperation || vm.woOpEmployeeDetails.workorderOperation.isStopWorkorder || vm.isKitHaltStatus">
+                    <div layout="row" flex="20" class="ml-10">
+                      <img class="stop-icon-image md-raised md-warn md-icon-button"
+                           src="../../../../../assets/images/logos/stop.png" />
+                    </div>
+                    <div layout="row" flex="80" layout-wrap>
+                      <div flex="100" ng-if="vm.woOpEmployeeDetails.workorderOperation.isStopOperation">
+                        <div class="reason-text" ng-if="vm.woOpEmployeeDetails.workorderOperation.woOPHoldDetails.reason">
+                          OP: {{vm.woOpEmployeeDetails.workorderOperation.woOPHoldDetails.reason}}
+                        </div>
+                        <small flex ng-if="vm.woOpEmployeeDetails.workorderOperation.woOPHoldDetails.opHoldBy">
+                          by {{vm.woOpEmployeeDetails.workorderOperation.woOPHoldDetails.opHoldBy}}
+                        </small>
+                        <small flex ng-if="vm.woOpEmployeeDetails.workorderOperation.woOPHoldDetails.opStartDate">
+                          on {{vm.woOpEmployeeDetails.workorderOperation.woOPHoldDetails.opStartDate}}
+                        </small>
+                      </div>
+                      <div flex="100" ng-if="vm.woOpEmployeeDetails.workorderOperation.isStopWorkorder">
+                        <div class="reason-text" flex ng-if="vm.woOpEmployeeDetails.workorderOperation.woHoldDetails.reason">
+                          WO: {{vm.woOpEmployeeDetails.workorderOperation.woHoldDetails.reason}}
+                        </div>
+                        <small flex ng-if="vm.woOpEmployeeDetails.workorderOperation.woHoldDetails.woHoldBy">
+                          by {{vm.woOpEmployeeDetails.workorderOperation.woHoldDetails.woHoldBy}}
+                        </small>
+                        <small flex ng-if="vm.woOpEmployeeDetails.workorderOperation.woHoldDetails.woStartDate">
+                          on {{vm.woOpEmployeeDetails.workorderOperation.woHoldDetails.woStartDate}}
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div layout="row" flex="100" layout-wrap class="padding-0" ng-if="vm.Show.Widgets && vm.isDisplayWidget">
+                  <div class="content dodontmain" layout="row" flex="100" layout-wrap>
+                    <div layout="row" layout-wrap class="blog cm-section-main equipmenmain margin-right-5-imp margin-left-5-imp" ng-if="true" flex="100">
+                      <div class="cm-section-header" layout="row" flex="100" layout-align="space-between center">
+                        <h2>Widgets</h2>
+                        <div>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.Widgets = !vm.Show.Widgets">
+                            <md-icon md-font-icon="icon-window-minimize"></md-icon><md-tooltip>Update Document</md-tooltip>
+                          </md-button>
+                          <!--<md-button class="md-mini md-icon-button md-primary margin-0">
+                              <md-icon md-font-icon="icon-fullscreen"></md-icon><md-tooltip>Preview</md-tooltip>
+                          </md-button>-->
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.refreshOPPinnedWidgets()">
+                              <md-icon md-font-icon="icon-refresh"></md-icon><md-tooltip>Refresh</md-tooltip>
+                          </md-button>
+                        </div>
+                      </div>
+                      <div layout="row" flex="100" layout-wrap class="detail dossection cm-section-inner">
+                        <div flex="100" layout="row" layout-wrap layout-align="start start">
+                          <div flex="33" flex-xs="100" ng-repeat="chartModel in vm.analyticsList">
+                            <md-card flex="100" class="analytics-card">
+                              <md-card-content>
+                                <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.BAR">
+                                  <bar-chart class="traveler-card" chart-template-id="chartModel.chartTemplateID" filter="vm.widgetFilter"></bar-chart>
+                                </div>
+                                <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.LINE">
+                                  <line-chart class="traveler-card" chart-template-id="chartModel.chartTemplateID" filter="vm.widgetFilter"></line-chart>
+                                </div>
+                                <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.PIE">
+                                  <pie-chart class="traveler-card" chart-template-id="chartModel.chartTemplateID" filter="vm.widgetFilter"></pie-chart>
+                                </div>
+                                <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.DOTPLOT">
+                                  <dot-plot-chart class="traveler-card" chart-template-id="chartModel.chartTemplateID" filter="vm.widgetFilter"></dot-plot-chart>
+                                </div>
+                                <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.DONUT">
+                                  <donut-chart class="traveler-card" chart-template-id="chartModel.chartTemplateID" filter="vm.widgetFilter"></donut-chart>
+                                </div>
+                                <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.PARETO">
+                                  <pareto-chart class="traveler-card" chart-template-id="chartModel.chartTemplateID" filter="vm.widgetFilter"></pareto-chart>
+                                </div>
+                              </md-card-content>
+                            </md-card>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="dodontmain twosec" flex-xs="100" layout="row" flex="100" layout-wrap>
+                  <div flex="100" layout="row">
+                    <div flex flex-xs="100" layout="row" ng-if="vm.Show.Do">
+                      <div flex="100" class="cm-section-main margin-right-5-imp margin-left-5-imp" layout-wrap layout="row">
+                        <div class="cm-section-header" layout="row" flex="100" layout-align="space-between center" style="color:green">
+                          <h2 class="underline" ng-click="vm.goToWorkorderOperationDoDonts()">Do's</h2>
+                          <div>
+                            <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.Do = !vm.Show.Do">
+                              <md-icon md-font-icon="icon-window-minimize"></md-icon><md-tooltip>Minimize</md-tooltip>
+                            </md-button>
+                            <md-button class="md-mini md-icon-button margin-0 cm-feture-btn-color" ng-disabled="!vm.enableEditOperation" ng-click="(!vm.enableEditOperation) || vm.EditOperation(vm.MainTitle.Does, vm.woOpEmployeeDetails.workorderOperation,$event)">
+                              <md-icon md-font-icon="icon-pencil"></md-icon><md-tooltip>Update Do's</md-tooltip>
+                            </md-button>
+                            <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.ShowDescription(vm.MainTitle.Does, vm.woOpEmployeeDetails.workorderOperation.opDoes, vm.woOpEmployeeDetails.workorderOperation.opName,$event)">
+                              <md-icon md-font-icon="icon-fullscreen"></md-icon><md-tooltip>Preview</md-tooltip>
+                            </md-button>
+                            <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.refreshWOOPBasicDetails(vm.MainTitle.Does)">
+                              <md-icon md-font-icon="icon-refresh"></md-icon><md-tooltip>Refresh</md-tooltip>
+                            </md-button>
+                          </div>
+                        </div>
+                        <div class="detail dossection cm-section-inner" layout="row" flex="100">
+                          <div ng-bind-html="vm.woOpEmployeeDetails.workorderOperation.opDoes"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div flex flex-xs="100" layout="row" ng-if="vm.Show.Dont">
+                      <div class="cm-section-main  margin-right-5-imp margin-left-5-imp" flex="100" layout="row" layout-wrap>
+                        <div class="cm-section-header" layout="row" flex="100" layout-align="space-between center" style="color:red">
+                          <h2 class="underline" ng-click="vm.goToWorkorderOperationDoDonts()">Don'ts</h2>
+                          <div>
+                            <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.Dont = !vm.Show.Dont">
+                              <md-icon md-font-icon="icon-window-minimize"></md-icon><md-tooltip>Minimize</md-tooltip>
+                            </md-button>
+                            <md-button class="md-mini md-icon-button margin-0 cm-feture-btn-color" ng-disabled="!vm.enableEditOperation" ng-click="(!vm.enableEditOperation) || vm.EditOperation(vm.MainTitle.Donts, vm.woOpEmployeeDetails.workorderOperation,$event)">
+                              <md-icon md-font-icon="icon-pencil"></md-icon><md-tooltip>Update Don'ts</md-tooltip>
+                            </md-button>
+                            <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.ShowDescription(vm.MainTitle.Donts, vm.woOpEmployeeDetails.workorderOperation.opDonts, vm.woOpEmployeeDetails.workorderOperation.opName,$event)">
+                              <md-icon md-font-icon="icon-fullscreen"></md-icon><md-tooltip>Preview</md-tooltip>
+                            </md-button>
+                            <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.refreshWOOPBasicDetails(vm.MainTitle.Donts)">
+                              <md-icon md-font-icon="icon-refresh"></md-icon><md-tooltip>Refresh</md-tooltip>
+                            </md-button>
+                          </div>
+                        </div>
+                        <div class="detail dossection cm-section-inner" layout="row" flex="100">
+                          <div ng-bind-html="vm.woOpEmployeeDetails.workorderOperation.opDonts"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div flex="100" flex-xs="100" class="content dodontmain" layout="row" layout-wrap>
+                  <div flex flex-xs="100" layout="row" ng-if="vm.Show.Instruction">
+                    <div class="cm-section-main margin-right-5-imp margin-left-5-imp" layout="row" flex="100" layout-wrap layout-align="start-start">
+                      <div class="cm-section-header" layout="row" flex="100" layout-align="space-between center">
+                        <h2 class="underline" ng-click="vm.goToWorkorderOperationDetails()">Instruction/Process Detail</h2>
+                        <div>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.Instruction = !vm.Show.Instruction">
+                            <md-icon md-font-icon="icon-window-minimize"></md-icon><md-tooltip>Minimize</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button margin-0 cm-feture-btn-color" ng-disabled="!vm.enableEditOperation" ng-click="(!vm.enableEditOperation) || vm.EditOperation(vm.MainTitle.Instruction, vm.woOpEmployeeDetails.workorderOperation,$event)">
+                            <md-icon md-font-icon="icon-pencil"></md-icon><md-tooltip>Update Instruction/Process</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.ShowDescription(vm.MainTitle.Instruction, vm.woOpEmployeeDetails.workorderOperation.opDescription, vm.woOpEmployeeDetails.workorderOperation.opName,$event)">
+                            <md-icon md-font-icon="icon-fullscreen"></md-icon><md-tooltip>Preview</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.refreshWOOPBasicDetails(vm.MainTitle.Instruction)">
+                            <md-icon md-font-icon="icon-refresh"></md-icon><md-tooltip>Refresh</md-tooltip>
+                          </md-button>
+                        </div>
+                      </div>
+                      <div class="detail dossection datacontent cm-section-inner" layout="row" flex="100" ng-bind-html="vm.woOpEmployeeDetails.workorderOperation.opDescription"></div>
+                    </div>
+                  </div>
+                  <div layout="row" flex ng-if="vm.Show.Part" flex-xs="100" cg-busy="{promise:vm.cgBusyLoadingParts}">
+                    <div class="cm-section-main margin-right-5-imp margin-left-5-imp" layout-align="start start" layout-wrap layout="row" flex="100">
+                      <div class="cm-section-header" layout="row" flex="100" layout-align="space-between center" ng-if="vm.woPartDetails.length > 0">
+                        <h2 class="underline" ng-click="vm.goToWorkorderOperationParts()">{{vm.LabelConstant.SuppliesMaterialsAndTools.PageName}}</h2>
+                        <div>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.Part = !vm.Show.Part">
+                            <md-icon md-font-icon="icon-window-minimize"></md-icon><md-tooltip>Minimize</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.ShowAll(vm.MainTitle.SupplyAndMaterial, vm.woPartDetails, vm.woOpEmployeeDetails.workorderOperation,$event)">
+                            <md-icon md-font-icon="icon-fullscreen"></md-icon><md-tooltip>Preview</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.showPartsData()">
+                            <md-icon md-font-icon="icon-refresh"></md-icon><md-tooltip>Refresh</md-tooltip>
+                          </md-button>
+                        </div>
+                      </div>
+                      <div layout="row" flex="100" layout-wrap class="detail dossection padding-10 cm-section-inner" ng-if="vm.woPartDetails.length > 0">
+                        <md-list flex="100" class="permissiontab badgeequipment dragbox cm-overflow-auto height-240">
+                          <md-list-item id="employeeAddedList" class="padding-0 items-container" layout="row" flex="100" layout-wrap>
+                            <div flex="100" class="md-1-line margin-0 cursor-default border-bottom-gray pv-3"
+                                 ng-repeat="part in vm.woPartDetails"
+                                 ng-model="part"
+                                 layout="row" layout-align="start center">
+                              <div class="avatar-wrapper">
+                                <img class="md-avatar avatar margin-top-0 margin-bottom-0" ng-src="{{part.imageURL}}" />
+                              </div>
+                              <h3 class="name margin-0 md-primary-fg" flex="100"
+                                  ng-class="{'text-line-through': part.restrictUSEwithpermission || part.restrictUsePermanently
+                                                                || part.restrictPackagingUseWithpermission || part.restrictPackagingUsePermanently
+                                                                || part.restrictUseInBOMStep ,
+                                                                'text-double-line-through': part.restrictUseInBOMWithPermissionStep}">
+                                <common-pid-code-label-link component-id="part.id"
+                                                            label="vm.LabelConstant.MFG.PID"
+                                                            value="part.PIDCode"
+                                                            is-copy="true"
+                                                            is-mfg="true"
+                                                            mfg-label="vm.LabelConstant.MFG.MFGPN"
+                                                            mfg-value="part.mfgPN"
+                                                            rohs-icon="part.rohsIcon"
+                                                            rohs-status="part.rohsStatus"
+                                                            is-formated="true"
+                                                            is-copy-ahead-label="true"
+                                                            is-search-digi-key="true"
+                                                            is-search-findchip="true"
+                                                            is-custom-part="part.isCustom"></common-pid-code-label-link>
+                              </h3>
+                            </div>
+                          </md-list-item>
+                        </md-list>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div flex="100" flex-xs="100" class="content dodontmain" layout="row" layout-wrap>
+                  <div layout="row" flex flex-xs="100" ng-if="vm.woOpEmployeeDetails.workorderOperation.opWorkingCondition && vm.Show.Working">
+                    <div layout="row" class="cm-section-main margin-right-5 margin-left-5-imp" flex="100" layout-wrap>
+                      <div class="cm-section-header" flex="100" layout="row" layout-align="space-between center">
+                        <h2 class="underline" ng-click="vm.goToWorkorderOperationDetails()">Job Specific Requirement</h2>
+                        <div>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.Working = !vm.Show.Working">
+                            <md-icon md-font-icon="icon-window-minimize"></md-icon><md-tooltip>Minimize</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button margin-0 cm-feture-btn-color" ng-disabled="!vm.enableEditOperation" ng-click="(!vm.enableEditOperation) || vm.EditOperation(vm.MainTitle.WorkingCondition, vm.woOpEmployeeDetails.workorderOperation,$event)">
+                            <md-icon md-font-icon="icon-pencil"></md-icon><md-tooltip>Update Job Specific Requirement</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.ShowDescription(vm.MainTitle.WorkingCondition, vm.woOpEmployeeDetails.workorderOperation.opWorkingCondition, vm.woOpEmployeeDetails.workorderOperation.opName,$event)">
+                            <md-icon md-font-icon="icon-fullscreen"></md-icon><md-tooltip>Preview</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.refreshWOOPBasicDetails(vm.MainTitle.WorkingCondition)">
+                            <md-icon md-font-icon="icon-refresh"></md-icon><md-tooltip>Refresh</md-tooltip>
+                          </md-button>
+                        </div>
+                      </div>
+                      <div layout="row" flex="100" layout-wrap class="detail dossection cm-section-inner">
+                        <div class="equisec" layout="row" flex="100" layout-wrap>
+                          <div ng-bind-html="vm.woOpEmployeeDetails.workorderOperation.opWorkingCondition"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div layout="row" flex ng-if="vm.Show.Equipment" flex-xs="100" cg-busy="{promise:vm.cgBusyLoadingEquipment}">
+                    <div class="cm-section-main margin-right-5-imp margin-left-5-imp" layout-align="start start" layout-wrap layout="row" flex="100">
+                      <div class="cm-section-header" layout="row" flex="100" layout-align="space-between center" ng-if="vm.woEquipmentDetails.length > 0">
+                        <h2 class="underline" ng-click="vm.goToWorkorderOperationEquipments()">Equipments</h2>
+                        <div>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.Equipment = !vm.Show.Equipment">
+                            <md-icon md-font-icon="icon-window-minimize"></md-icon><md-tooltip>Minimize</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.ShowAll(vm.MainTitle.Equipment, vm.woEquipmentDetails, vm.woOpEmployeeDetails.workorderOperation,$event)">
+                            <md-icon md-font-icon="icon-fullscreen"></md-icon><md-tooltip>Preview</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.showEquipmentsData()">
+                            <md-icon md-font-icon="icon-refresh"></md-icon><md-tooltip>Refresh</md-tooltip>
+                          </md-button>
+                        </div>
+                      </div>
+                      <div layout="row" flex="100" layout-wrap class="detail dossection datacontent cm-section-inner cm-equipment-list" ng-if="vm.woEquipmentDetails.length > 0">
+                        <md-list flex="100" class="permissiontab badgeequipment dragbox cm-overflow-auto height-240">
+                          <md-list-item id="employeeAddedList" class="padding-0 items-container"
+                                        layout="row" flex="100" layout-wrap>
+                            <div flex="100" class="md-1-line margin-0 border-bottom-gray pv-3"
+                                 ng-repeat="equipment in vm.woEquipmentDetails"
+                                 ng-model="equipment"
+                                 ng-class="{'cursor-not-allow': !vm.woTransID}"
+                                 layout="row" layout-align="start center"
+                                 ng-click="vm.woTransID ? vm.ShowAllForDataElement(vm.MainTitle.EquipmentDataFields, [], equipment.equipment,$event):''">
+                              <div class="avatar-wrapper" ng-if="equipment.equipment.ProfilePic">
+                                <img class="md-avatar avatar margin-top-0 margin-bottom-0" ng-src="{{equipment.equipment.ProfilePic}}" />
+                              </div>
+                              <div class="avatar-wrapper" ng-if="!equipment.equipment.ProfilePic">
+                                <img class="md-avatar avatar margin-top-0 margin-bottom-0" />
+                              </div>
+                              <div class="md-list-item-text" layout="column" layout-wrap flex layout-align="center-start">
+                                <h3 class="name margin-0 md-primary-fg underline inline-block width-fit-content" ng-click="vm.goToManageEquipmentWorkstation(equipment.equipment);$event.stopPropagation();">
+                                  <b>{{equipment.equipment.assetName}}</b>
+                                </h3>
+                                <!--<span ng-if="equipment.qty">(Qty:{{equipment.qty}})</span>-->
+                                <p class="last-message margin-0">
+                                  <!--text-truncate-->
+                                  {{equipment.equipment.eqpMake + " | " + equipment.equipment.eqpModel + " | " + equipment.equipment.eqpYear}}
+                                </p>
+                              </div>
+                              <div flex="60" layout="row" layout-align="end-center">
+                                <span ng-if="equipment.equipment.equipmentSetupMethod == vm.equipmentSetupMethods" class="label-box margin-2 font-size-13" ng-class="{'label-success':equipment.isOnline, 'label-danger':!equipment.isOnline}">
+                                  {{ equipment.isOnline ? "Online" : "Offline" }}
+                                </span>
+                                <md-button class="md-primary md-raised min-width-initial margin-2"
+                                           ng-if="!vm.isUserOperator"
+                                           ng-click="vm.ViewOperationEquipmentFieldsHistory(vm.MainTitle.EquipmentDataFields,equipment.equipment,$event);$event.preventDefault();">
+                                  <!--<md-icon md-font-icon="icon-library-books"></md-icon>-->
+                                  History
+                                  <!--<md-tooltip>History</md-tooltip>-->
+                                </md-button>
+                                <md-button class="md-primary md-raised min-width-initial margin-2" ng-disabled="equipment.equipment.equipmentSetupMethod != vm.equipmentSetupMethods"
+                                           ng-click="vm.ViewFeederDetails(equipment,$event, false);$event.preventDefault();">
+                                  <!--<md-icon ng-if="equipment.feederCount > 0" md-font-icon="icon-cog" class="material-icons mat-icon mdi-file-import" role="img"></md-icon>
+    <md-icon ng-if="equipment.feederCount == 0" md-font-icon="mdi mdi-file-import" class="material-icons mat-icon mdi-file-import" role="img"></md-icon>-->
+                                  Feeder Load Setup
+                                  <!--<md-tooltip>{{equipment.feederCount > 0 ? "Setup Feeder" : "Import Feeder"}}</md-tooltip>-->
+                                </md-button>                                
+                                <md-button ng-disabled="equipment.feederCount == 0 || equipment.equipment.equipmentSetupMethod != vm.equipmentSetupMethods" class="md-raised min-width-initial margin-2"
+                                           ng-click="equipment.feederCount > 0 ? (vm.ViewFeederDetails(equipment,$event, true)) : (angular.noop)"
+                                           ng-class="{'md-purple-300-bg color-white': equipment.pendingCount > 0 , 'md-primary': equipment.pendingCount === 0 || (!equipment.pendingCount) }">
+                                  Feeder Load Verification {{ equipment.pendingCountText}}
+                                  <!--<md-tooltip>Verify Feeder</md-tooltip>-->
+                                </md-button>
+                              </div>
+                            </div>
+                          </md-list-item>
+                        </md-list>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div flex="100" flex-xs="100" class="content dodontmain" layout="row" layout-wrap>
+                  <div layout="row" flex ng-if="vm.Show.Workorderfields" flex-xs="100">
+                    <div class="cm-section-main margin-right-5-imp margin-left-5-imp " layout-align="start start" layout-wrap layout="row" flex="100">
+                      <div class="cm-section-header" layout="row" flex="100" layout-align="space-between center">
+                        <h2 class="underline" ng-click="vm.goToWorkorderDataFields()">Work Order Fields</h2>
+                        <div>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.Workorderfields = !vm.Show.Workorderfields">
+                            <md-icon md-font-icon="icon-window-minimize"></md-icon><md-tooltip>Minimize</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0"
+                                     ng-click="vm.ShowAllForDataElement(vm.MainTitle.WorkorderDataFields, [], vm.woOpEmployeeDetails.workorderOperation,$event)">
+                            <md-icon md-font-icon="icon-fullscreen"></md-icon><md-tooltip>Preview</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.refreshWorkOrderDataFields()">
+                            <md-icon md-font-icon="icon-refresh"></md-icon><md-tooltip>Refresh</md-tooltip>
+                          </md-button>
+                        </div>
+                      </div>
+                      <div class="detail dossection datacontent cm-section-inner" flex="100" ng-if="vm.woID && vm.showWorkOrderDataFields">
+                        <form id="workorderTravelerDetails" name="vm.workorderDetailsForm" novalidate layout="row" flex="100">
+                          <view-data-element entity="{{vm.Entity.Workorder}}"
+                                             dataelement-list="vm.woDataElementList"
+                                             ref-trans-id="{{vm.woID}}"
+                                             entity-id="vm.woEntityID"
+                                             file-list="vm.fileList"
+                                             apply-traveler-filter="true"
+                                             curr-active-form="vm.workorderDetailsForm"></view-data-element>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  <div flex flex-xs="100"
+                       layout="row" ng-if="vm.Show.Operationfields">
+                    <div class="cm-section-main margin-right-5-imp margin-left-5-imp" layout-align="start start" layout-wrap layout="row" flex="100">
+                      <div class="cm-section-header" layout="row" flex="100" layout-align="space-between center">
+                        <h2 class="underline" ng-click="vm.goToWorkorderOperationDatafields()">Operation Fields</h2>
+                        <div>
+                          <md-button class="md-mini md-icon-button md-primary margin-0"
+                                     ng-if="!vm.isUserOperator"
+                                     ng-click="vm.ViewOperationFieldsHistory(vm.MainTitle.Operation,vm.woOpEmployeeDetails.workorderOperation,$event)">
+                            <md-icon md-font-icon="icon-library-books"></md-icon><md-tooltip>History</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0"
+                                     ng-if="vm.dataElementList.length > 0 && vm.IsCheckInOperation"
+                                     ng-disabled="vm.dataElementList.length == 0 || vm.operationOtherDetailForm.$invalid"
+                                     ng-click="vm.SaveDetailsForWoTransOperation()">
+                            <md-icon md-font-icon="icon-content-save"></md-icon><md-tooltip>Save</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.Operationfields = !vm.Show.Operationfields">
+                            <md-icon md-font-icon="icon-window-minimize"></md-icon><md-tooltip>Minimize</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0"
+                                     ng-class="{'cursor-not-allow': !vm.woTransID}"
+                                     ng-click="vm.woTransID ? vm.ShowAllForDataElement(vm.MainTitle.OperationDataFields, [], vm.woOpEmployeeDetails.workorderOperation,$event):''">
+                            <md-icon md-font-icon="icon-fullscreen"></md-icon><md-tooltip>Preview</md-tooltip>
+                          </md-button>
+                          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.refreshWorkOrderOperationDataFields()">
+                            <md-icon md-font-icon="icon-refresh"></md-icon><md-tooltip>Refresh</md-tooltip>
+                          </md-button>
+                        </div>
+                      </div>
+                      <div class="detail dossection datacontent cm-section-inner" flex="100" ng-if="vm.woOPID && vm.showOperationFields">
+                        <form name="vm.operationOtherDetailForm" novalidate layout="row" flex="100">
+                          <workorder-trans-data-element flex="100" entity="{{vm.Entity.Operation}}"
+                                                        dataelement-list="vm.dataElementList"
+                                                        wo-trans-id="{{vm.woTransID}}"
+                                                        wo-op-id="{{vm.woOPID}}"
+                                                        wo-id="{{vm.woID}}"
+                                                        entity-id="vm.entityID"
+                                                        file-list="vm.fileList"
+                                                        called-from-page="'manage-travelers'"></workorder-trans-data-element>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div layout="row" flex="100" layout-wrap class="content dodontmain" ng-if="vm.woOpEmployeeDetails.workorderOperation.opManagementInstruction || vm.woOpEmployeeDetails.workorderOperation.opDeferredInstruction">
+                <div layout="row" flex flex-xs="100" ng-if="vm.woOpEmployeeDetails.workorderOperation.opManagementInstruction && vm.Show.Management">
+                  <div layout="row" class="cm-section-main margin-right-5 margin-left-5-imp" layout-wrap flex="100">
+                    <div class="cm-section-header" flex="100" layout="row" layout-align="space-between center">
+                      <h2 class="underline" ng-click="vm.goToWorkorderOperationDetails()">Management Communication</h2>
+                      <div>
+                        <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.Management = !vm.Show.Management">
+                          <md-icon md-font-icon="icon-window-minimize"></md-icon><md-tooltip>Minimize</md-tooltip>
+                        </md-button>
+                        <md-button class="md-mini md-icon-button margin-0 cm-feture-btn-color" ng-disabled="!vm.enableEditOperation" ng-click="(!vm.enableEditOperation) || vm.EditOperation(vm.MainTitle.ManagementInstruction, vm.woOpEmployeeDetails.workorderOperation,$event)">
+                          <md-icon md-font-icon="icon-pencil"></md-icon><md-tooltip>Update Management Communication</md-tooltip>
+                        </md-button>
+                        <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.ShowDescription(vm.MainTitle.ManagementInstruction, vm.woOpEmployeeDetails.workorderOperation.opManagementInstruction, vm.woOpEmployeeDetails.workorderOperation.opName,$event)">
+                          <md-icon md-font-icon="icon-fullscreen"></md-icon><md-tooltip>Preview</md-tooltip>
+                        </md-button>
+                        <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.refreshWOOPBasicDetails(vm.MainTitle.ManagementInstruction)">
+                          <md-icon md-font-icon="icon-refresh"></md-icon><md-tooltip>Refresh</md-tooltip>
+                        </md-button>
+                      </div>
+                    </div>
+                    <div layout="row" flex="100" layout-wrap class="detail dossection padding-10 cm-section-inner">
+                      <div class="equisec" layout="row" flex="100" layout-wrap>
+                        <div ng-bind-html="vm.woOpEmployeeDetails.workorderOperation.opManagementInstruction"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div layout="row" flex flex-xs="100" ng-if="vm.woOpEmployeeDetails.workorderOperation.opDeferredInstruction && vm.Show.Deferred">
+                  <div layout="row" layout-wrap class="cm-section-main margin-right-5 margin-left-5-imp" flex="100">
+                    <div class="cm-section-header" layout="row" flex="100" layout-align="space-between center">
+                      <h2 class="underline" ng-click="vm.goToWorkorderOperationDetails()">Deferred Instruction</h2>
+                      <div>
+                        <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.Deferred = !vm.Show.Deferred">
+                          <md-icon md-font-icon="icon-window-minimize"></md-icon><md-tooltip>Minimize</md-tooltip>
+                        </md-button>
+                        <md-button class="md-mini md-icon-button margin-0 cm-feture-btn-color" ng-disabled="!vm.enableEditOperation" ng-click="(!vm.enableEditOperation) || vm.EditOperation(vm.MainTitle.DeferredInstruction, vm.woOpEmployeeDetails.workorderOperation,$event)">
+                          <md-icon md-font-icon="icon-pencil"></md-icon><md-tooltip>Update Deferred Instruction</md-tooltip>
+                        </md-button>
+                        <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.ShowDescription(vm.MainTitle.DeferredInstruction, vm.woOpEmployeeDetails.workorderOperation.opDeferredInstruction, vm.woOpEmployeeDetails.workorderOperation.opName,$event)">
+                          <md-icon md-font-icon="icon-fullscreen"></md-icon><md-tooltip>Preview</md-tooltip>
+                        </md-button>
+                        <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.refreshWOOPBasicDetails(vm.MainTitle.DeferredInstruction)">
+                          <md-icon md-font-icon="icon-refresh"></md-icon><md-tooltip>Refresh</md-tooltip>
+                        </md-button>
+                      </div>
+                    </div>
+                    <div layout="row" flex="100" layout-wrap class="detail dossection cm-section-inner">
+                      <div class="equisec" layout="row" flex="100" layout-wrap>
+                        <div ng-bind-html="vm.woOpEmployeeDetails.workorderOperation.opDeferredInstruction"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </md-content>
+          </md-tab-body>
+        </md-tab>
+      </md-tabs>
+      <div ng-if="vm.ShowFirstArticle" class="margin-top-15" ng-include="'app/main/traveler/travelers/first-article/first-article.html'"></div>
+      <div layout="row" flex="100" layout-wrap class="margin-bottom-100 white-500-bg margin-top-1 md-padding margin-right-5-imp margin-left-5-imp" ng-if="vm.woOpEmployeeDetails.workorderOperation.opID">
+        <div class="content dodontmain" layout="row" flex="100" layout-wrap>
+          <div layout="row" layout-wrap class="cm-section-main" ng-if="vm.Show.Document" flex="100">
+            <div class="cm-section-header" layout="row" flex="100" layout-align="space-between center">
+              <h2 class="underline" ng-click="vm.goToWorkorderOperationDocuments()">Documents</h2>
+              <div>
+                <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.Show.Document = !vm.Show.Document">
+                  <md-icon md-font-icon="icon-window-minimize"></md-icon><md-tooltip>Minimize</md-tooltip>
+                </md-button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div layout="row" flex="100" layout-wrap class="sidebar-btn cm-travel-document" ng-if="vm.Show.Document && vm.isdocuments">
+          <documents class="documetnupload" entity="vm.entity" ref-trans-id="vm.id" is-protected="true" is-profile="false"
+                     is-traveler="true" is-merge="true" doc-inside-folder-name="vm.woOpEmployeeDetails.workorderOperation.woNumber"></documents>
+        </div>
+      </div>
+      </div>
+    </div>
+    <div layout="row" flex="100" layout-wrap class="footerfixedbutton travelsection" ng-if="!vm.Show.Do || !vm.Show.Dont || !vm.Show.Instruction || !vm.Show.Operationfields || !vm.Show.Workorderfields || !vm.Show.Equipment || !vm.Show.Part || !vm.Show.Document || !vm.Show.Widget || !vm.Show.Working || !vm.Show.Management || !vm.Show.Deferred">
+      <div class="actionbtns" layout="row" layout-align="space-between center">
+        <div class="sectionlable layout-wrap-rs" layout="row">
+          <div class="chiplable cursor-pointer" ng-click="vm.Show.Do = !vm.Show.Do" ng-class="{'chiplableclose' : !vm.Show.Do}"
+               ng-if="!vm.Show.Do">
+            Do's
+            <md-icon ng-if="!vm.Show.Do" md-font-icon="icon-plus"></md-icon>
+            <md-icon ng-if="vm.Show.Do" md-font-icon="icon-minus"></md-icon>
+          </div>
+          <div class="chiplable cursor-pointer hidesec" ng-click="vm.Show.Dont = !vm.Show.Dont" ng-class="{'chiplableclose' : !vm.Show.Dont}"
+               ng-if="!vm.Show.Dont">
+            Don'ts
+            <md-icon ng-if="!vm.Show.Dont" md-font-icon="icon-plus"></md-icon>
+            <md-icon ng-if="vm.Show.Dont" md-font-icon="icon-minus"></md-icon>
+          </div>
+          <div class="chiplable cursor-pointer" ng-click="vm.Show.Instruction = !vm.Show.Instruction" ng-class="{'chiplableclose' : !vm.Show.Instruction}" ng-if="!vm.Show.Instruction">
+            Instruction/Process Detail
+            <md-icon ng-if="!vm.Show.Instruction" md-font-icon="icon-plus"></md-icon>
+            <md-icon ng-if="vm.Show.Instruction" md-font-icon="icon-minus"></md-icon>
+          </div>
+          <div class="chiplable cursor-pointer" ng-click="vm.Show.Working = !vm.Show.Working" ng-if="!vm.Show.Working" ng-class="{'chiplableclose' : !vm.Show.Working}">
+            Job Specific Requirement
+            <md-icon ng-if="!vm.Show.Working" md-font-icon="icon-plus"></md-icon>
+            <md-icon ng-if="vm.Show.Working" md-font-icon="icon-minus"></md-icon>
+          </div>
+          <div class="chiplable cursor-pointer" ng-click="vm.Show.Management = !vm.Show.Management" ng-class="{'chiplableclose' : !vm.Show.Management}"
+               ng-if="!vm.Show.Management">
+            Management Communication
+            <md-icon ng-if="!vm.Show.Management" md-font-icon="icon-plus"></md-icon>
+            <md-icon ng-if="vm.Show.Management" md-font-icon="icon-minus"></md-icon>
+          </div>
+          <div class="chiplable cursor-pointer" ng-click="vm.Show.Deferred = !vm.Show.Deferred" ng-class="{'chiplableclose' : !vm.Show.Deferred}"
+               ng-if="!vm.Show.Deferred">
+            Deferred Instruction
+            <md-icon ng-if="!vm.Show.Deferred" md-font-icon="icon-plus"></md-icon>
+            <md-icon ng-if="vm.Show.Deferred" md-font-icon="icon-minus"></md-icon>
+          </div>
+          <div class="chiplable cursor-pointer" ng-if="!vm.Show.Operationfields" ng-click="vm.Show.Operationfields = !vm.Show.Operationfields" ng-class="{'chiplableclose' : !vm.Show.Operationfields}">
+            Operation Fields
+            <md-icon ng-if="!vm.Show.Operationfields" md-font-icon="icon-plus"></md-icon>
+            <md-icon ng-if="vm.Show.Operationfields" md-font-icon="icon-minus"></md-icon>
+          </div>
+          <div class="chiplable cursor-pointer" ng-if="!vm.Show.Workorderfields" ng-click="vm.Show.Workorderfields = !vm.Show.Workorderfields" ng-class="{'chiplableclose' : !vm.Show.Workorderfields}">
+            Work Order Fields
+            <md-icon ng-if="!vm.Show.Workorderfields" md-font-icon="icon-plus"></md-icon>
+            <md-icon ng-if="vm.Show.Workorderfields" md-font-icon="icon-minus"></md-icon>
+          </div>
+          <div class="chiplable cursor-pointer" ng-click="vm.Show.Equipment = !vm.Show.Equipment" ng-if="vm.woEquipmentDetails.length > 0 && !vm.Show.Equipment" ng-class="{'chiplableclose' : !vm.Show.Equipment}">
+            {{vm.LabelConstant.Equipment.PageName}}
+            <md-icon ng-if="!vm.Show.Equipment" md-font-icon="icon-plus"></md-icon>
+            <md-icon ng-if="vm.Show.Equipment" md-font-icon="icon-minus"></md-icon>
+          </div>
+          <div class="chiplable cursor-pointer" ng-click="vm.Show.Part = !vm.Show.Part" ng-if="vm.woPartDetails.length > 0 && !vm.Show.Part" ng-class="{'chiplableclose' : !vm.Show.Part}">
+            {{vm.LabelConstant.SuppliesMaterialsAndTools.PageName}}
+            <md-icon ng-if="!vm.Show.Part" md-font-icon="icon-plus"></md-icon>
+            <md-icon ng-if="vm.Show.Part" md-font-icon="icon-minus"></md-icon>
+          </div>
+          <div class="chiplable cursor-pointer" ng-click="vm.Show.Document = !vm.Show.Document" ng-class="{'chiplableclose' : !vm.Show.Document}" ng-if="!vm.Show.Document">
+            Document
+            <md-icon ng-if="!vm.Show.Document" md-font-icon="icon-plus"></md-icon>
+            <md-icon ng-if="vm.Show.Document" md-font-icon="icon-minus"></md-icon>
+          </div>
+          <div class="chiplable cursor-pointer" ng-click="vm.Show.Widgets = !vm.Show.Widgets" ng-class="{'chiplableclose' : !vm.Show.Widgets}" ng-if="!vm.Show.Widgets">
+            Widget
+            <md-icon ng-if="!vm.Show.Widgets" md-font-icon="icon-plus"></md-icon>
+            <md-icon ng-if="vm.Show.Widgets" md-font-icon="icon-minus"></md-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div layout="row" flex="100" layout-wrap class="footerfixedbutton" layout-align="space-between center">
+      <div layout="row" layout-wrap flex flex-sm="100" flex-md="100" flex-xs="100" layout-align="start center">
+        <div ng-if="vm.genericCategoryList" layout="row" layout-align="start center">
+
+          <md-fab-speed-dial md-open="demo.isOpen" md-direction="up"
+                             ng-class="demo.selectedMode">
+            <md-fab-trigger>
+              <md-button aria-label="menu" class="md-fab md-mini md-primary mv-4">
+                <md-icon md-font-icon="icon icon-hangouts"></md-icon>
+              </md-button>
+            </md-fab-trigger>
+            <md-fab-actions class="chaticonlist">
+              <md-button class="md-raised md-primary" ng-repeat="item in ::vm.genericCategoryList" ng-click="vm.openChat($event, item.gencCategoryID);">
+                {{::item.gencCategoryName}}
+              </md-button>
+            </md-fab-actions>
+          </md-fab-speed-dial>
+          <!--<md-button class="md-raised md-primary">
+              View Sample
+          </md-button>-->
+          <md-button ng-if="vm.woOpEmployeeDetails.workorderOperation.qtyControl && !vm.ShowFirstArticle"
+                     class="md-raised md-primary shortcut-key-btn cm-justify-content-center" ng-click="vm.OpenFirstArticle(vm.MainTitle.FirstArticle, vm.woOpEmployeeDetails.workorderOperation, vm.woOpEmployeeDetails.workorderOperation, $event)">
+            <span><span class="shortcut-key-symbol">1</span><small class="custom-small">st</small>&nbsp;Article</span>
+          </md-button>
+          <md-button ng-if="vm.ShowFirstArticle" class="md-raised md-primary shortcut-key-btn" ng-click="vm.OpenFirstArticle(vm.MainTitle.FirstArticle, vm.woOpEmployeeDetails.workorderOperation, vm.woOpEmployeeDetails.workorderOperation, $event)">
+            <span class="shortcut-key-symbol">B</span>ack to Operation
+          </md-button>
+          <md-fab-speed-dial md-open="umidScan.isOpen" md-direction="up"
+                             ng-class="changeRequrest.selectedMode">
+            <md-fab-trigger>
+              <md-button aria-label="menu" class="md-raised md-primary">
+                Enter Material to be Used
+              </md-button>
+            </md-fab-trigger>
+            <md-fab-actions class="chaticonlist">
+              <md-button class="md-raised md-primary" ng-click="item.callback($event, item.isVerify);" ng-disabled="item.isDisable" ng-repeat="item in ::vm.umidScanList">
+                {{item.menuName}}
+              </md-button>
+            </md-fab-actions>
+          </md-fab-speed-dial>
+
+          <!--<md-button ng-if="vm.woOpEmployeeDetails.workorderOperation.qtyControl
+                           && vm.woOpEmployeeDetails.workorderOperation.isOperationTrackBySerialNo"
+                     class="md-raised md-primary shortcut-key-btn" ng-click="vm.OpenSerialNoPopUp($event);">
+            <span ng-if="vm.IsCheckInOperation && !vm.woOpEmployeeDetails.wo_transaction.isSetup"><span class="shortcut-key-symbol">A</span>dd</span> <span ng-if="!vm.IsCheckInOperation">View</span>&nbsp;Serial#
+          </md-button>-->
+          <md-fab-speed-dial ng-if="vm.woOpEmployeeDetails.workorderOperation.qtyControl
+                           && (vm.woOpEmployeeDetails.workorderOperation.isOperationTrackBySerialNo || vm.woOpEmployeeDetails.workorderOperation.isTrackBySerialNo)" md-open="transSerial.isOpen" md-direction="up"
+                             ng-class="changeRequrest.selectedMode">
+            <md-fab-trigger>
+              <md-button aria-label="menu" class="md-raised md-primary">
+                Add Processed Serial#
+              </md-button>
+            </md-fab-trigger>
+            <md-fab-actions class="chaticonlist">
+              <md-button class="md-raised md-primary" ng-click="item.callback($event, item.isAdd);" ng-disabled="item.isDisable" ng-repeat="item in vm.transSerailMenuList">
+                {{item.menuName}}
+              </md-button>
+            </md-fab-actions>
+          </md-fab-speed-dial>
+          <!--<md-button class="md-raised md-primary shortcut-key-btn"
+                     ng-click="vm.ViewUMIDDetails($event);">
+              <span></span>
+          </md-button>-->
+        </div>
+      </div>
+      <div layout="row" layout-wrap flex-xs="100" layout-align="end center" flex-sm="100" flex-md="100">
+        <md-fab-speed-dial md-open="racktrack.isOpen" md-direction="up"
+                           ng-class="changeRequrest.selectedMode" ng-if="vm.isShowRackDeatil">
+          <md-fab-trigger>
+            <md-button aria-label="menu" class="md-raised md-primary">
+              {{vm.LabelConstant.RACK_MST.ScanRack}}
+            </md-button>
+          </md-fab-trigger>
+          <md-fab-actions class="chaticonlist">
+            <md-button class="md-raised md-primary" ng-click="vm.openAvailableRack($event)">
+              {{vm.LabelConstant.RACK_MST.AvailableRack}}
+            </md-button>
+            <md-button class="md-raised md-primary" ng-click="vm.inoutRackDet($event,'O');" ng-disabled="vm.checkDisable()">
+              {{vm.LabelConstant.RACK_MST.OutgoingRack}}
+            </md-button>
+            <md-button class="md-raised md-primary" ng-click="vm.inoutRackDet($event,'I');" ng-disabled="vm.checkDisable()">
+              {{vm.LabelConstant.RACK_MST.IncomingRack}}
+            </md-button>
+            <md-button class="md-raised md-primary" ng-disabled="vm.checkDisable()" ng-click="vm.clearRack($event)">
+              {{vm.LabelConstant.RACK_MST.ClearRack}}
+            </md-button>
+            <md-button class="md-raised md-primary" ng-click=" vm.rackHistory($event)">
+              {{vm.LabelConstant.RACK_MST.RackHistory}}
+            </md-button>
+            <md-button class="md-raised md-primary" ng-click="vm.openEmptyRackDet($event)">
+              {{vm.LabelConstant.RACK_MST.EmptyRack}}
+            </md-button>
+          </md-fab-actions>
+        </md-fab-speed-dial>
+        <!--<md-button class="md-raised md-primary shortcut-key-btn cm-feture-btn-color"
+             ng-disabled="!vm.IsCheckInOperation || !vm.enableNarrativeDetails"
+             ng-click="(!vm.IsCheckInOperation || !vm.enableNarrativeDetails) || vm.addNarrativeDetails($event);">
+    <span>Add R&D <span class="shortcut-key-symbol">N</span>arrative</span>
+  </md-button>
+  <md-button class="md-raised md-primary shortcut-key-btn cm-feture-btn-color"
+             ng-disabled="!vm.enableTerminateWorkorder"
+             ng-click="!vm.enableTerminateWorkorder || vm.terminateOperation($event);">
+    <span class="shortcut-key-symbol">T</span>erminate & Transfer WO
+  </md-button>
+  <md-button ng-if="vm.IsCheckInOperation && !vm.isSetup
+                     && vm.woOpEmployeeDetails.workorderOperation.qtyControl
+                     && !(vm.woOpEmployeeDetails.workorderOperation.isOperationTrackBySerialNo || vm.woOpEmployeeDetails.workorderOperation.isTrackBySerialNo)
+                     && !vm.woOpEmployeeDetails.workorderOperation.isRework" class="md-raised md-primary shortcut-key-btn"
+             ng-click="vm.OpenReprocessQtyModel();">
+    <span>Add Reprocess Required Qty</span>
+  </md-button>
+  <md-fab-speed-dial md-open="packingSerial.isOpen" md-direction="up"
+                     ng-class="changeRequrest.selectedMode">
+    <md-fab-trigger>
+      <md-button aria-label="menu" class="md-raised md-primary">
+        Final Product Serial#
+      </md-button>
+    </md-fab-trigger>
+    <md-fab-actions class="chaticonlist">
+      <md-button class="md-raised md-primary" ng-click="item.callback($event);" ng-disabled="item.isDisable" ng-repeat="item in ::vm.packingMenuList">
+        {{item.menuName}}
+      </md-button>
+    </md-fab-actions>
+  </md-fab-speed-dial>
+  <md-fab-speed-dial md-open="changeRequrest.isOpen" md-direction="up"
+                     ng-class="changeRequrest.selectedMode">
+    <md-fab-trigger>
+      <md-button aria-label="menu" class="md-raised md-primary">
+        User Change Request
+      </md-button>
+    </md-fab-trigger>
+    <md-fab-actions class="chaticonlist">
+      <md-button class="md-raised md-primary" ng-repeat="item in vm.requestMenuList" ng-disabled="item.isDisable" ng-click="vm.manageRequest($event, item.isAddNew);">
+        {{::item.menuName}}
+      </md-button>
+    </md-fab-actions>
+  </md-fab-speed-dial>
+  <md-button class="md-raised md-primary shortcut-key-btn" ng-click="vm.ViewLogHistory(vm.MainTitle.History, vm.woOpEmployeeDetails.workorderOperation, $event);">
+    Production Acti<span class="shortcut-key-symbol">v</span>ity Log
+  </md-button>
+  <md-button ng-if="!vm.woOpEmployeeDetails.workorderOperation.isStopOperation && vm.woOpEmployeeDetails.workorderOperation.woOPID && !vm.woOpEmployeeDetails.workorderOperation.isStopWorkorder" ng-disabled="!vm.enableToggleOperation"
+             class="md-raised md-primary shortcut-key-btn cm-feture-btn-color"
+             ng-click="!vm.enableToggleOperation || vm.toggleWorkorderOperation(vm.woOpEmployeeDetails.workorderOperation, $event);">
+    <span class="shortcut-key-symbol">H</span>alt Operation
+  </md-button>
+  <md-button ng-if="vm.woOpEmployeeDetails.workorderOperation.isStopOperation && vm.woOpEmployeeDetails.workorderOperation.woOPID && !vm.woOpEmployeeDetails.workorderOperation.isStopWorkorder" ng-disabled="!vm.enableToggleOperation"
+             class="md-raised md-primary shortcut-key-btn cm-feture-btn-color"
+             ng-click="!vm.enableToggleOperation || vm.toggleWorkorderOperation(vm.woOpEmployeeDetails.workorderOperation, $event);">
+    <span class="shortcut-key-symbol">R</span>esume Operation
+  </md-button>
+  <md-button class="md-raised md-primary shortcut-key-btn cm-justify-content-center" ng-if="(vm.inspectionProcess || vm.woOpEmployeeDetails.workorderOperation.isRework)"
+             ng-click="vm.openLogDefectModel($event);">
+    Log <span class="shortcut-key-symbol">&nbsp;D</span>efects
+  </md-button>
+  <md-button class="md-raised md-primary shortcut-key-btn" ng-if="vm.IsCheckInOperation && vm.woOpEmployeeDetails.workorderOperation.isPreProgrammingComponent"
+             ng-click="vm.openPreProgComponentModel($event);">
+    <span class="shortcut-key-symbol">P</span>re-Programming Part
+  </md-button>-->
+        <div class="cm-desktop-bom" flex layout>
+          <md-button class="md-raised md-primary shortcut-key-btn cm-feture-btn-color"
+                     ng-disabled="!vm.IsCheckInOperation || !vm.enableNarrativeDetails"
+                     ng-click="(!vm.IsCheckInOperation || !vm.enableNarrativeDetails) || vm.addNarrativeDetails($event);">
+            <span>Add R&D <span class="shortcut-key-symbol">N</span>arrative</span>
+          </md-button>
+          <md-button class="md-raised md-primary shortcut-key-btn cm-feture-btn-color"
+                     ng-disabled="!vm.enableTerminateWorkorder"
+                     ng-click="!vm.enableTerminateWorkorder || vm.terminateOperation($event);">
+            <span class="shortcut-key-symbol">T</span>erminate & Transfer WO
+          </md-button>
+          <md-button ng-if="vm.IsCheckInOperation && !vm.isSetup
+                           && vm.woOpEmployeeDetails.workorderOperation.qtyControl
+                           && !(vm.woOpEmployeeDetails.workorderOperation.isOperationTrackBySerialNo || vm.woOpEmployeeDetails.workorderOperation.isTrackBySerialNo)
+                           && !vm.woOpEmployeeDetails.workorderOperation.isRework" class="md-raised md-primary shortcut-key-btn"
+                     ng-click="vm.OpenReprocessQtyModel();">
+            <span>Add Reprocess Required Qty</span>
+          </md-button>
+          <!-- ng-if="vm.isPackagingProcess" -->
+          <md-fab-speed-dial md-open="packingSerial.isOpen" md-direction="up"
+                             ng-class="changeRequrest.selectedMode">
+            <md-fab-trigger>
+              <md-button aria-label="menu" class="md-raised md-primary">
+                Final Product Serial#
+              </md-button>
+            </md-fab-trigger>
+            <md-fab-actions class="chaticonlist">
+              <md-button class="md-raised md-primary" ng-click="item.callback($event);" ng-disabled="item.isDisable" ng-repeat="item in ::vm.packingMenuList">
+                {{item.menuName}}
+              </md-button>
+            </md-fab-actions>
+          </md-fab-speed-dial>
+          <md-fab-speed-dial md-open="changeRequrest.isOpen" md-direction="up"
+                             ng-class="changeRequrest.selectedMode">
+            <md-fab-trigger>
+              <md-button aria-label="menu" class="md-raised md-primary">
+                User Change Request
+              </md-button>
+            </md-fab-trigger>
+            <md-fab-actions class="chaticonlist">
+              <md-button class="md-raised md-primary" ng-repeat="item in vm.requestMenuList" ng-disabled="item.isDisable" ng-click="vm.manageRequest($event, item.isAddNew);">
+                {{::item.menuName}}
+              </md-button>
+            </md-fab-actions>
+          </md-fab-speed-dial>
+          <md-button class="md-raised md-primary shortcut-key-btn" ng-click="vm.ViewLogHistory(vm.MainTitle.History, vm.woOpEmployeeDetails.workorderOperation, $event);">
+            Production Acti<span class="shortcut-key-symbol">v</span>ity Log
+          </md-button>
+          <md-button ng-if="!vm.woOpEmployeeDetails.workorderOperation.isStopOperation && vm.woOpEmployeeDetails.workorderOperation.woOPID && !vm.woOpEmployeeDetails.workorderOperation.isStopWorkorder" ng-disabled="!vm.enableToggleOperation"
+                     class="md-raised md-primary shortcut-key-btn cm-feture-btn-color"
+                     ng-click="!vm.enableToggleOperation || vm.toggleWorkorderOperation(vm.woOpEmployeeDetails.workorderOperation, $event);">
+            <span class="shortcut-key-symbol">H</span>alt Operation
+          </md-button>
+          <md-button ng-if="vm.woOpEmployeeDetails.workorderOperation.isStopOperation && vm.woOpEmployeeDetails.workorderOperation.woOPID && !vm.woOpEmployeeDetails.workorderOperation.isStopWorkorder" ng-disabled="!vm.enableToggleOperation"
+                     class="md-raised md-primary shortcut-key-btn cm-feture-btn-color"
+                     ng-click="!vm.enableToggleOperation || vm.toggleWorkorderOperation(vm.woOpEmployeeDetails.workorderOperation, $event);">
+            <span class="shortcut-key-symbol">R</span>esume Operation
+          </md-button>
+          <md-button class="md-raised md-primary shortcut-key-btn cm-justify-content-center" ng-if="(vm.inspectionProcess || vm.woOpEmployeeDetails.workorderOperation.isRework)"
+                     ng-click="vm.openLogDefectModel($event);">
+            Log <span class="shortcut-key-symbol">&nbsp;D</span>efects
+          </md-button>
+          <md-button class="md-raised md-primary shortcut-key-btn" ng-if="vm.IsCheckInOperation && vm.woOpEmployeeDetails.workorderOperation.isPreProgrammingComponent"
+                     ng-click="vm.openPreProgComponentModel($event);">
+            <span class="shortcut-key-symbol">P</span>re-Programming Part
+          </md-button>
+        </div>
+        <div class="cm-rs-bom">
+          
+            <md-fab-speed-dial md-open="packingSerial.isOpen" md-direction="up"
+                               ng-class="changeRequrest.selectedMode">
+              <md-fab-trigger>
+                <md-button aria-label="menu" class="md-raised md-primary">
+                  Final Product Serial#
+                </md-button>
+              </md-fab-trigger>
+              <md-fab-actions class="chaticonlist">
+                <md-button class="md-raised md-primary" ng-click="item.callback($event);" ng-disabled="item.isDisable" ng-repeat="item in ::vm.packingMenuList">
+                  {{item.menuName}}
+                </md-button>
+              </md-fab-actions>
+            </md-fab-speed-dial>
+          
+            <md-fab-speed-dial md-open="changeRequrest.isOpen" md-direction="up"
+                               ng-class="changeRequrest.selectedMode">
+              <md-fab-trigger>
+                <md-button aria-label="menu" class="md-raised md-primary">
+                  User Change Request
+                </md-button>
+              </md-fab-trigger>
+              <md-fab-actions class="chaticonlist">
+                <md-button class="md-raised md-primary" ng-repeat="item in vm.requestMenuList" ng-disabled="item.isDisable" ng-click="vm.manageRequest($event, item.isAddNew);">
+                  {{::item.menuName}}
+                </md-button>
+              </md-fab-actions>
+            </md-fab-speed-dial>
+          
+          <md-menu class="mt-5">
+            <md-button class="margin-0 width-25 md-primary smt-drag-drop-action-btn" ng-click="$mdOpenMenu()" md-menu-origin
+                       md-menu-align-target aria-label="Options">
+              <md-icon md-font-icon="icon-dots-vertical" class="icon"></md-icon>
+            </md-button>
+            <md-menu-content class="padding-0" width="3">
+              <md-menu-item layout="row" flex="100" class="cursor-pointer">
+                <md-button class="md-raised md-primary shortcut-key-btn cm-feture-btn-color"
+                           ng-disabled="!vm.IsCheckInOperation || !vm.enableNarrativeDetails"
+                           ng-click="(!vm.IsCheckInOperation || !vm.enableNarrativeDetails) || vm.addNarrativeDetails($event);">
+                  <span>Add R&D <span class="shortcut-key-symbol">N</span>arrative</span>
+                </md-button>
+              </md-menu-item>
+              <md-menu-item layout="row" flex="100" class="cursor-pointer">
+                <md-button class="md-raised md-primary shortcut-key-btn cm-feture-btn-color"
+                           ng-disabled="!vm.enableTerminateWorkorder"
+                           ng-click="!vm.enableTerminateWorkorder || vm.terminateOperation($event);">
+                  <span class="shortcut-key-symbol">T</span>erminate & Transfer WO
+                </md-button>
+              </md-menu-item>
+              <md-menu-item layout="row" flex="100" class="cursor-pointer" ng-if="vm.IsCheckInOperation && !vm.isSetup
+                           && vm.woOpEmployeeDetails.workorderOperation.qtyControl
+                           && !(vm.woOpEmployeeDetails.workorderOperation.isOperationTrackBySerialNo || vm.woOpEmployeeDetails.workorderOperation.isTrackBySerialNo)
+                           && !vm.woOpEmployeeDetails.workorderOperation.isRework" >
+                <md-button ng-if="vm.IsCheckInOperation && !vm.isSetup
+                           && vm.woOpEmployeeDetails.workorderOperation.qtyControl
+                           && !(vm.woOpEmployeeDetails.workorderOperation.isOperationTrackBySerialNo || vm.woOpEmployeeDetails.workorderOperation.isTrackBySerialNo)
+                           && !vm.woOpEmployeeDetails.workorderOperation.isRework" class="md-raised md-primary shortcut-key-btn"
+                           ng-click="vm.OpenReprocessQtyModel();">
+                  <span>Add Reprocess Required Qty</span>
+                </md-button>
+              </md-menu-item>
+              <md-menu-item layout="row" flex="100" class="cursor-pointer">
+                <md-button class="md-raised md-primary shortcut-key-btn" ng-click="vm.ViewLogHistory(vm.MainTitle.History, vm.woOpEmployeeDetails.workorderOperation, $event);">
+                  Production Acti<span class="shortcut-key-symbol">v</span>ity Log
+                </md-button>
+              </md-menu-item>
+              <md-menu-item layout="row" flex="100" class="cursor-pointer"  ng-if="!vm.woOpEmployeeDetails.workorderOperation.isStopOperation && vm.woOpEmployeeDetails.workorderOperation.woOPID && !vm.woOpEmployeeDetails.workorderOperation.isStopWorkorder">
+                <md-button ng-if="!vm.woOpEmployeeDetails.workorderOperation.isStopOperation && vm.woOpEmployeeDetails.workorderOperation.woOPID && !vm.woOpEmployeeDetails.workorderOperation.isStopWorkorder" ng-disabled="!vm.enableToggleOperation"
+                           class="md-raised md-primary shortcut-key-btn cm-feture-btn-color"
+                           ng-click="!vm.enableToggleOperation || vm.toggleWorkorderOperation(vm.woOpEmployeeDetails.workorderOperation, $event);">
+                  <span class="shortcut-key-symbol">H</span>alt Operation
+                </md-button>
+              </md-menu-item>
+              <md-menu-item layout="row" flex="100" class="cursor-pointer" ng-if="vm.woOpEmployeeDetails.workorderOperation.isStopOperation && vm.woOpEmployeeDetails.workorderOperation.woOPID && !vm.woOpEmployeeDetails.workorderOperation.isStopWorkorder">
+                <md-button ng-if="vm.woOpEmployeeDetails.workorderOperation.isStopOperation && vm.woOpEmployeeDetails.workorderOperation.woOPID && !vm.woOpEmployeeDetails.workorderOperation.isStopWorkorder" ng-disabled="!vm.enableToggleOperation"
+                           class="md-raised md-primary shortcut-key-btn cm-feture-btn-color"
+                           ng-click="!vm.enableToggleOperation || vm.toggleWorkorderOperation(vm.woOpEmployeeDetails.workorderOperation, $event);">
+                  <span class="shortcut-key-symbol">R</span>esume Operation
+                </md-button>
+              </md-menu-item>
+              <md-menu-item layout="row" flex="100" class="cursor-pointer" ng-if="(vm.inspectionProcess || vm.woOpEmployeeDetails.workorderOperation.isRework)">
+                <md-button class="md-raised md-primary shortcut-key-btn" ng-if="(vm.inspectionProcess || vm.woOpEmployeeDetails.workorderOperation.isRework)"
+                           ng-click="vm.openLogDefectModel($event);">
+                  Log <span class="shortcut-key-symbol">&nbsp;D</span>efects
+                </md-button>
+              </md-menu-item>
+              <md-menu-item layout="row" flex="100" class="cursor-pointer" ng-if="vm.IsCheckInOperation && vm.woOpEmployeeDetails.workorderOperation.isPreProgrammingComponent">
+                <md-button class="md-raised md-primary shortcut-key-btn" ng-if="vm.IsCheckInOperation && vm.woOpEmployeeDetails.workorderOperation.isPreProgrammingComponent"
+                           ng-click="vm.openPreProgComponentModel($event);">
+                  <span class="shortcut-key-symbol">P</span>re-Programming Part
+                </md-button>
+              </md-menu-item>
+            </md-menu-content>
+          </md-menu>
+        </div>
+      </div>
+    </div>
+    <md-sidenav class="md-sidenav-right md-whiteframe-4dp imagepreview preprogram-component" md-component-id="log-defect" style="position:fixed;">
+      <log-defect ng-if="vm.isLogDefectOpen" log-defect-data="vm.logDefectData"></log-defect>
+    </md-sidenav>
+    <md-sidenav class="md-sidenav-right md-whiteframe-4dp preprogram-component" md-component-id="preprogram-component" style="position:fixed;">
+      <preprogram-component ng-if="vm.isPreprogCompOpen" pre-prog-component-data="vm.preprogComponent"></preprogram-component>
+    </md-sidenav>
+    <md-sidenav class="md-sidenav-right md-whiteframe-4dp workorder-review cm-travel" md-component-id="workorder-review" style="position:fixed;overflow:hidden">
+      <workorder-review ng-if="vm.isWorkorderReviewSideNavOpen" wo-id="vm.woID" op-id="vm.woOpEmployeeDetails.workorderOperation.opID" wo-rev-req-id="vm.woRevReqForReview.woRevReqID"
+                        wo-number="vm.woOpEmployeeDetails.workorderOperation.woNumber"
+                        wo-review-other-details="vm.woReviewOtherDetails"></workorder-review>
+    </md-sidenav>
+    <md-sidenav class="md-sidenav-right cm-reprocess-qty-sidebar md-whiteframe-4dp imagepreview" md-component-id="operation-reprocess-qty" style="position:fixed;">
+      <operation-reprocess-qty ng-if="vm.isOpReprocessQtyOpen" op-reprocess-qty-data="vm.operationReprocessQtyData"></operation-reprocess-qty>
+    </md-sidenav>
+    <!-- / CONTENT CARD -->
+  </div>
+  <!-- / CENTER -->
+  <!--</div>-->
+  <div ng-if="vm.woOpEmployeeDetails && vm.woOpEmployeeDetails.workorderOperation.woOPID && vm.isShowExpirePart">
+    <traveler-wo-op-expire-part wo-op-id="vm.woOpEmployeeDetails.workorderOperation.woOPID"
+                                configuration-options="vm.expirePartConfigurationOptions"></traveler-wo-op-expire-part>
+  </div>
+</div>
+<style type="text/css">
+  #file-manager-form {
+    margin-bottom: 5px !important; /*75*/
+  }
+</style>

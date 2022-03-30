@@ -1,0 +1,447 @@
+<md-dialog aria-label="AddUOM" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="90">
+  <md-toolbar>
+    <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+      <h2>{{ vm.UnitOfMeasurementModel.id? 'Update':'Add'}} Unit of Measurement<span ng-if="vm.UnitOfMeasurementModel.unitName">:&nbsp;{{vm.UnitOfMeasurementModel.unitName}}</span></h2>
+      <span flex></span>
+      <popup-header-label label-data="vm.headerdata"></popup-header-label>
+      <md-button class="md-primary md-raised" id="headerAddBtn" ng-click="vm.saveAndProceed(vm.BUTTON_TYPE.ADDNEW)">Add Unit of Measurement</md-button>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-dialog-content class="customer-modal no-padding custom-scroll">
+    <md-content class="padding-10">
+      <div flex="100" layout="row" class="md-padding" layout-md="column" layout-sm="column">
+        <div flex="50" layout-wrap class="cm-custom-label-common cm-section-main mr-5 border-black">
+          <div class="cm-section-inner" flex layout="column">
+            <form name="vm.ManageUOMForm" flex="100" layout-wrap class="md-inline-form padding-bottom-0" novalidate>
+              <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+              <div layout="row">
+                <div class="cm-section-main border-0" flex="100">
+                  <div class="cm-section-inner" flex="100">
+                    <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                      <tbody>
+
+                        <tr>
+                          <th>
+                            <p class="label-container">Name<span ng-if="!vm.disableOnFormula && !vm.isSystemDefault">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p>
+                          </th>
+                          <td>
+                            <md-input-container class="md-block">
+                              <input type="text" name="unitName" id="unitName" ng-model="vm.UnitOfMeasurementModel.unitName" placeholder="Name" required ng-maxlength="255" md-maxlength="255" md-autofocus ng-disabled="vm.disableOnFormula || vm.isSystemDefault" custom-blur="vm.checkDuplicateName(true)">
+                              <div ng-messages="vm.ManageUOMForm.unitName.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(255,vm.ManageUOMForm.unitName.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToUnitList();" tabindex="-1">{{vm.autoCompleteBaseUnit.placeholderName}}</a>
+                              <span ng-hide="vm.UnitOfMeasurementModel.isFormula || (vm.baseUnitList && vm.baseUnitList.length > 1) || vm.isSystemDefault">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container ng-if="vm.autoCompleteBaseUnit" class="autocompletecustom cm-custom-autocomplete margin-0">
+                              <custom-auto-complete datalist="vm.baseUnitList"
+                                                    column-name="vm.autoCompleteBaseUnit.columnName"
+                                                    controller-name="vm.autoCompleteBaseUnit.controllerName"
+                                                    view-template-url="vm.autoCompleteBaseUnit.viewTemplateURL"
+                                                    key-column-name="vm.autoCompleteBaseUnit.keyColumnName"
+                                                    input-name="vm.autoCompleteBaseUnit.inputName"
+                                                    placeholder-name="vm.autoCompleteBaseUnit.placeholderName"
+                                                    key-column-id="vm.autoCompleteBaseUnit.keyColumnId"
+                                                    is-required="vm.UnitOfMeasurementModel.isFormula == false ? true : false"
+                                                    is-addnew="vm.autoCompleteBaseUnit.isAddnew"
+                                                    callback-fn="vm.autoCompleteBaseUnit.callbackFn"
+                                                    is-refresh-disabled="!vm.autoCompleteMeasurementType.keyColumnId"
+                                                    on-select-callback-fn="vm.autoCompleteMeasurementType.onSelectCallbackFn"
+                                                    is-disabled="vm.UnitOfMeasurementModel.isFormula || (vm.baseUnitList && vm.baseUnitList.length > 1) || vm.isSystemDefault">
+                              </custom-auto-complete>
+                            </md-input-container>
+                          </td>
+                          <th>
+                            <p class="label-container">UOM Code<span ng-if="!vm.disableOnFormula && !vm.isSystemDefault">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p>
+                          </th>
+                          <td>
+                            <md-input-container class="md-block">
+                              <input type="text" name="abbreviation" ng-model="vm.UnitOfMeasurementModel.abbreviation" placeholder="Abbreviation" required ng-maxlength="10" md-maxlength="10" ng-disabled="vm.disableOnFormula || vm.isSystemDefault" custom-blur="vm.checkDuplicateName(false)">
+                              <div ng-messages="vm.ManageUOMForm.abbreviation.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(10,vm.ManageUOMForm.abbreviation.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th></th>
+                          <td>
+                            <div layout="row" class="input-wrapper layout-align-end-start">
+                              <md-input-container flex="100" class="md-input-has-value">
+                                <md-radio-group name="isFormula" ng-model="vm.UnitOfMeasurementModel.isFormula" layout="column" layout-gt-xs="row" flex layout-align="start start" class="margin-0" ng-change="vm.equationTypeChange()">
+                                  <md-radio-button flex ng-repeat="item in vm.radioButtonGroup.isFormula.array" name="{{item.Key}}" ng-value="{{item.Value}}" ng-disabled="vm.disableOnFormula || vm.listUOM.length == 0 || vm.isSystemDefault || vm.UnitOfMeasurementModel.id">{{item.Key}}</md-radio-button>
+                                  <md-icon class="icon-question-mark-circle help-icon mt-5" ng-if="vm.UnitOfMeasurementModel.isFormula==vm.radioButtonGroup.isFormula.array[1].Value">
+                                    <md-tooltip md-direction="top">
+                                      Save UOM details to add the formula for this UOM.
+                                    </md-tooltip>
+                                  </md-icon>
+                                </md-radio-group>
+                              </md-input-container>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr ng-if="!vm.UnitOfMeasurementModel.isFormula && vm.UnitOfMeasurementModel.unitName">
+                          <th>
+                            <p class="label-container">Conversion Factor<span ng-if="!vm.UnitOfMeasurementModel.isFormula && !vm.disableOnFormula && !vm.isSystemDefault">&nbsp;*</span></p>
+                          </th>
+                          <td colspan="4">
+                            <div layout="row">
+                              <div layout="row">
+                                <p class="label-container mt-5 mr-15"><b>1&nbsp;{{vm.UnitOfMeasurementModel.unitName}}&nbsp;=</b></p>
+                              </div>
+                              <div class="row margin-left-5">
+                                <p class="label-container mt-5 mr-5"><b class="mr-5">1&nbsp;{{vm.showUnitName.copyUnitName}}&nbsp;</b></p>
+                              </div>
+                              <div class="row margin-left-10">
+                                <md-input-container>
+                                  <md-select name="operator" ng-model="vm.UnitOfMeasurementModel.operator" ng-required="true" md-container-class="containerClass cm-md-select" ng-disabled="vm.UnitOfMeasurementModel.isFormula || vm.disableOnFormula || vm.isSystemDefault">
+                                    <md-option ng-repeat="option in vm.UOMOperator" ng-value="option.id">{{option.value}}</md-option>
+                                  </md-select>
+                                  <div ng-messages="vm.ManageUOMForm.operator.$error" role="alert">
+                                    <div ng-message="required">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                    </div>
+                                  </div>
+                                </md-input-container>
+                              </div>
+                              <div layout="row" class="margin-left-15">
+                                <md-input-container>
+                                  <input type="number" name="orgBaseUnitValue" ng-model="vm.UnitOfMeasurementModel.orgBaseUnitValue" placeholder="Value" ng-required="!vm.UnitOfMeasurementModel.isFormula" onkeypress="return OnlyNumbersWithDot(event)" ng-disabled="vm.UnitOfMeasurementModel.isFormula || vm.disableOnFormula || vm.isSystemDefault" ng-maxlength="50">
+                                  <div ng-messages="vm.ManageUOMForm.orgBaseUnitValue.$error" role="alert">
+                                    <div ng-message="required">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                    </div>
+                                    <div ng-message="number">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                    </div>
+                                    <div ng-message="maxlength">
+                                      <span>
+                                        {{vm.getMaxLengthValidation(50,vm.ManageUOMForm.orgBaseUnitValue.$viewValue.length)}}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </md-input-container>
+                              </div>
+
+                            </div>
+                          </td>
+                        </tr>
+                        <tr ng-if="!vm.UnitOfMeasurementModel.isFormula && vm.UnitOfMeasurementModel.unitName">
+                          <th>
+                          </th>
+                          <td colspan="2">
+                            <div layout="row">
+                              <div layout="row">
+                                <p class="label-container mt-5 mr-5"><b>1&nbsp;{{vm.UnitOfMeasurementModel.unitName}}</b></p>
+                              </div>
+                              <div layout="row">
+                                <p class="label-container mt-5 mr-5"><b>=</b></p>
+                              </div>
+                              <div class="row margin-left-5">
+                                <p class="label-container mt-5"><b>{{vm.getActualConversionValue()}}&nbsp;{{vm.showUnitName.copyUnitName}}</b></p>
+                              </div>
+                            </div>
+                          </td>
+                          <td colspan="2">
+                            <md-input-container>
+                              <md-checkbox name="isBaseUnit" id="isBaseUnit" ng-model="vm.UnitOfMeasurementModel.isBaseUnit" class="margin-0 cm-feature-checkbox" ng-disabled="vm.listUOM.length == 0 || !vm.UnitOfMeasurementModel.baseUnitID || !vm.UnitOfMeasurementModel.id || !vm.enableDisableBaseUOM" layout layout-align="start center">
+                                Set As Base UOM
+                                <!--<md-icon class="icon-question-mark-circle help-icon">
+                                  <md-tooltip md-direction="top">
+                                    {{vm.DefaultUOMMessage}}
+                                  </md-tooltip>
+                                </md-icon>-->
+                              </md-checkbox>
+                              <p class="font-weight-600 font-size-10" ng-if="!vm.enableDisableBaseUOM && vm.UnitOfMeasurementModel.baseUnitID">
+                                {{vm.LabelConstant.SHOW_USER_STATUS.FeatureEnableText}}
+                              </p>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th></th>
+                          <td>
+                            <md-input-container>
+                              <md-checkbox name="defaultUOM" id="defaultUOM" ng-model="vm.UnitOfMeasurementModel.defaultUOM" class="margin-0" ng-disabled="vm.listUOM.length == 0 || vm.isSetDefaultUOM">
+                                Default UOM
+                                <md-icon class="icon-question-mark-circle help-icon">
+                                  <md-tooltip md-direction="top">
+                                    {{vm.DefaultUOMMessage}}
+                                  </md-tooltip>
+                                </md-icon>
+                              </md-checkbox>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container">Description</p>
+                          </th>
+                          <td colspan="6">
+                            <md-input-container flex="100" class="md-block">
+                              <textarea name="description" ng-model="vm.UnitOfMeasurementModel.description" rows="2" placeholder="Description" ng-maxlength="255" md-maxlength="255"></textarea> <!--ng-disabled="vm.isSystemDefault"-->
+                              <div ng-messages="vm.ManageUOMForm.description.$error"
+                                   role="alert">
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(255, vm.ManageUOMForm.description.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th><p class="label-container">Alias</p></th>
+                          <td colspan="5">
+                            <div layout="row" flex>
+                              <md-input-container class="margin-bottom-0 md-block margin-top-0" flex="100" md-no-float>
+                                <input type="text" name="uomalias" ng-model="vm.alias" my-enter="vm.updateAliasList($event,vm.alias)" class="blue"
+                                       placeholder="Alias" ng-maxlength="255" md-maxlength="255" data-focusButton="saveUOMBtn"
+                                       last-element elementcondition="{{(!vm.alias && (vm.UnitOfMeasurementModel.alias.length <= 0) ? true : false)}}">
+                                <div ng-messages="vm.ManageUOMForm.uomalias.$error"
+                                     role="alert">
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(255, vm.ManageUOMForm.uomalias.$viewValue.length)}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                              <div>
+                                <md-button class="md-primary md-raised margin-0" ng-disabled="!vm.alias" ng-click="vm.updateAliasList($event,vm.alias);"
+                                           aria-label="Add" data-focusButton="saveUOMBtn"
+                                           last-element elementcondition="{{(vm.alias && (vm.UnitOfMeasurementModel.alias.length <= 0) ? true : false)}}">Add Alias</md-button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <div flex="100" layout="row">
+              <div layout="row" flex>
+                <div layout="column" flex>
+                  <div layout="column" class="cm-common-line common-alias-list-main cm-manage-mounting cm-add-cus cm-manufacture-alias-list" flex>
+                    <div class="mobilesearch title alias-list-title userpermissionhead" layout="row" flex="100" layout-align="space-between center">
+                      <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75">
+                        <input type="text" class="font-weight-400" placeholder="Type here to search alias" ng-model="vm.Search">
+                      </md-input-container>
+                      <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                                 ng-disabled="vm.Search =='' || vm.Search ==null"
+                                 ng-click="vm.Search=''">
+                        Clear
+                      </md-button>
+                    </div>
+                    <div layout="row" flex="100" layout-wrap class="permissiontab detail dossection padding-5 custom-scroll" ng-if="vm.UnitOfMeasurementModel.alias.length > 0">
+                      <table class="simple no-padding" ms-responsive-table="">
+                        <thead>
+                          <tr>
+                            <th width="120">Alias</th>
+                            <th class="text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr ng-repeat="alias in vm.UnitOfMeasurementModel.alias | filter:vm.Search | orderBy:'index'" class="height-40 border-bottom-gray">
+                            <td width="280" class="font-size-14 border-0 mt-10 ng-binding word-break" layout="row">
+                              {{alias.alias}}
+                              <div layout="row" class="cm-custom-chips">
+                                <md-chips ng-repeat="source in alias.mfgCodeList">
+                                  <md-chip>{{source}}</md-chip>
+                                </md-chips>
+                              </div>
+                            </td>
+                            <td width="70" class="text-center font-size-14">
+                              <md-button class="md-mini md-icon-button margin-0" data-focusButton="saveMountingTypeBtn" ng-disabled="!alias.id"
+                                         last-element elementcondition="{{(alias.isDefaultAlias && ((vm.UnitOfMeasurementModel.alias.length - 1) == $index) ? true : false)}}">
+                                <md-icon md-font-icon="icon-eye"></md-icon>
+                                <md-tooltip md-direction="top" class="tt-multiline" ng-if="alias.id">
+                                  Created By: {{alias.fullName}} <br />
+                                  Created At: {{alias.createdAt | date:vm.DefaultDateFormat}}
+                                </md-tooltip>
+                              </md-button>
+                              <md-button class="md-mini md-icon-button margin-0" ng-if="alias.id"
+                                         ng-disabled="alias.isDefaultAlias"
+                                         ng-click="vm.setAliasAsDefault(alias)" data-focusButton="saveMountingTypeBtn" last-element
+                                         elementcondition="{{(((alias.id) || alias.isDefaultAlias) && ((vm.UnitOfMeasurementModel.alias.length - 1) == $index) ? true : false)}}">
+                                <md-icon md-font-icon="{{alias.isDefaultAlias ? 'icons-pin' : 'icons-unpin'}}"></md-icon><md-tooltip>Set as Default</md-tooltip>
+                              </md-button>
+                              <button class="md-mini md-icon-button margin-0" ng-class="{'cursor-not-allow opecity-5':alias.isDefaultAlias || alias.systemGenerated}"
+                                      ng-disabled="alias.isDefaultAlias || alias.systemGenerated" ng-click="vm.removeAliasFromList(alias)" data-focusButton="saveUOMBtn"
+                                      last-element elementcondition="{{((vm.UnitOfMeasurementModel.alias.length - 1) == $index ? true : false)}}">
+                                <md-icon md-font-icon="icon-trash"></md-icon><md-tooltip>Delete</md-tooltip>
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div flex="100" class="md-1-line margin-0 dragsortable" layout="row" layout-align="start center"
+                           ng-if="(vm.UnitOfMeasurementModel.alias | filter:vm.Search).length==0 && vm.UnitOfMeasurementModel.alias.length > 0">
+                        <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap flex="100">
+                          <div class="emty-icon" flex="100">
+                            <img ng-src="{{vm.EmptyMesssageAliaslist.SEARCH_IMAGE_URL}}" />
+                          </div>
+                          <p flex="100" class="empty-state-title">{{vm.EmptyMesssageAliaslist.EMPTY_SEARCH_MESSAGE}}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div flex="100" class="md-1-line margin-0 dragsortable" layout="row" layout-align="start center" ng-if="!vm.UnitOfMeasurementModel.alias || vm.UnitOfMeasurementModel.alias.length == 0">
+                      <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap flex="100">
+                        <p flex="100" class="empty-state-title">{{vm.EmptyMesssageAliaslist.MESSAGE}}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div flex layout="row" class="cm-custom-label-common cm-section-main border-black" layout-wrap>
+          <div class="cm-section-inner" flex layout="row">
+            <div data-split-pane data-split-pane-properties="splitPaneFirstProperties" ng-if="vm.isFormulaShow">
+              <div flex="100" data-split-pane-component data-height="80%">
+                <div class="cm-section-inner">
+                  <form name="vm.ManageUDFForm" flex="100" class="md-padding cm-unit-inner-form">
+                    <fieldset class="container-box mb-5">
+                      <legend>Unit Conversion Formula</legend>
+                      <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                        <tbody>
+                          <tr>
+                            <th>
+                              <p class="label-container">From Unit</p>
+                            </th>
+                            <td>
+                              <md-input-container class="md-block margin-bottom-0 padding-bottom-0">
+                                <input type="text" name="unitName" ng-model="vm.unitName" placeholder="From Unit" disabled ng-maxlength="255" md-autofocus>
+                              </md-input-container>
+                            </td>
+                            <th>
+                              <p class="label-container">
+                                <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToUnitList();">{{vm.autoCompleteToUnit.placeholderName}}</a>
+                                <span>&nbsp;*</span>
+                              </p>
+                            </th>
+                            <td>
+                              <md-input-container ng-if="vm.autoCompleteToUnit" class="autocompletecustom cm-custom-autocomplete margin-0">
+                                <custom-auto-complete datalist="vm.toUnitList"
+                                                      column-name="vm.autoCompleteToUnit.columnName"
+                                                      controller-name="vm.autoCompleteToUnit.controllerName"
+                                                      view-template-url="vm.autoCompleteToUnit.viewTemplateURL"
+                                                      key-column-name="vm.autoCompleteToUnit.keyColumnName"
+                                                      input-name="vm.autoCompleteToUnit.inputName"
+                                                      placeholder-name="vm.autoCompleteToUnit.placeholderName"
+                                                      key-column-id="vm.autoCompleteToUnit.keyColumnId"
+                                                      is-required="vm.autoCompleteToUnit.isRequired"
+                                                      is-addnew="vm.autoCompleteToUnit.isAddnew"
+                                                      callback-fn="vm.autoCompleteToUnit.callbackFn">
+                                </custom-auto-complete>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container">Formula<span>&nbsp;*</span></p>
+                            </th>
+                            <td colspan="3">
+                              <div layout="row">
+                                <md-input-container flex class="md-block">
+                                  <input type="text" name="formula" ng-model="vm.UnitDetailFormulaModel.formula" placeholder="Formula" required ng-maxlength="100">
+                                  <div ng-messages="vm.ManageUDFForm.formula.$error" role="alert">
+                                    <div ng-message="required">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                    </div>
+                                  </div>
+                                </md-input-container>
+                                <div class="margin-left-5">
+                                  <md-button class="md-primary md-raised margin-0"
+                                             layout="center center"
+                                             ng-class="{'md-formdirty': vm.ManageUDFForm.$dirty}"
+                                             ng-click="vm.saveUnitDetailFormula()" aria-label="Submit" ng-disabled="!vm.ManageUDFForm.$valid">{{vm.UnitDetailFormulaModel.id?'Update':'Save'}} Formula</md-button>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+
+                      <div flex="100" layout="row" layout-wrap>
+                        <div layout="row" flex="100">
+                          <div flex="100" layout="row">
+                            <label class="padding-bottom-10 cm-fs-smaller">{{vm.CORE_MESSAGE_CONSTANT.UNIT_FORMULA_EXAMPLE}}</label>
+                          </div>
+                        </div>
+                      </div>
+                    </fieldset>
+
+
+                    <div flex="100" layout="row" layout-wrap>
+                      <div layout="row" flex="100">
+                        <md-card layout="column" class="margin-0" flex layout-align="space-between stretch" ng-show="!vm.isNoDataFound">
+                          <ui-grid-extention class="cm-formula-grid-uom"
+                                             load-data="vm.loadData"
+                                             grid-option="vm.gridOptions"
+                                             header="vm.sourceHeader"
+                                             grid-data="vm.sourceData"
+                                             total-data-count="vm.totalSourceDataCount"
+                                             reset-grid="vm.resetSourceGrid"
+                                             selectted-rows="vm.selectedRowsList"
+                                             paging-info="vm.pagingInfo"
+                                             current-item="vm.currentdata"
+                                             get-data-down="vm.getDataDown"
+                                             empty-state="vm.emptyState"
+                                             delete-multiple-data="vm.deleteMultipleData"
+                                             scroll-class="vm.setScrollClass">
+                        </md-card>
+
+                        <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound == true">
+                          <div class="emty-icon" flex="100">
+                            <img ng-src="{{vm.EmptyMessageUDF.IMAGEURL}}" />
+                          </div>
+                          <p flex="100" class="empty-state-title">{{vm.EmptyMessageUDF.MESSAGE}}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div data-split-pane-divider data-height="5px"></div>
+              <div layout="row" class="cm-manage-mt-uom-type cm-manage-grid" flex="100" data-split-pane-component data-height="20%">
+                <common-type-list table-name="vm.tables" module-name="vm.searchType" is-disable="(vm.UnitOfMeasurementModel.id)?false:true" apply-as-common-callback-fn="vm.selectedPart" is-change-from-popup="true"></common-type-list>
+              </div>
+            </div>
+            <div layout="row" class="cm-manage-mt-part-type cm-manage-grid min-height-100" flex="100" ng-if="!vm.isFormulaShow">
+              <common-type-list table-name="vm.tables" module-name="vm.searchType" is-disable="(vm.UnitOfMeasurementModel.id)?false:true" apply-as-common-callback-fn="vm.selectedPart" is-change-from-popup="true"></common-type-list>
+            </div>
+          </div>
+        </div>
+      </div>
+    </md-content>
+  </md-dialog-content>
+
+  <md-dialog-actions layout="row">
+    <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+    <md-button class="md-primary md-raised" ng-class="{'md-formdirty': vm.checkFormDirty(vm.ManageUOMForm)}" ng-click="vm.saveUnitOfMeasurement(vm.BUTTON_TYPE.SAVE)" id="saveUOMBtn">Save</md-button>
+    <md-button class="md-primary md-raised" ng-click="vm.saveUnitOfMeasurement(vm.BUTTON_TYPE.SAVEANDEXIT)" aria-label="Submit" ng-class="{'md-formdirty': vm.checkFormDirty(vm.ManageUOMForm)}" data-focusButton="headerAddBtn" last-element elementcondition="true">{{vm.CORE_MESSAGE_CONSTANT.SAVE_AND_EXIT}}</md-button>
+  </md-dialog-actions>
+
+</md-dialog>

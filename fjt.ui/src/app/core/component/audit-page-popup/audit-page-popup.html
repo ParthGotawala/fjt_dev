@@ -1,0 +1,295 @@
+<md-dialog aria-label="Warehouse Audit" draggable cg-busy="{promise:vm.cgBusyLoading}" class="cm-component-detail" flex="90">
+    <form name="vm.WarehouseAudit" novalidate>
+        <md-toolbar ng-class="vm.themeClass">
+            <div class="md-toolbar-tools">
+                <h2>Audit Smart Cart</h2>
+                <smart-cart-user></smart-cart-user>
+                <span class="lableheader cm-header-label" ng-if="vm.rowCount && vm.ScanWH">
+                    <span>
+                        {{vm.slotName}}&nbsp;{{vm.LabelConstant.Audit_Page.TotalRow}}<md-tooltip>{{vm.slotName}}&nbsp;{{vm.LabelConstant.Audit_Page.TotalRow}}</md-tooltip>:
+                    </span>
+                    <b class="cm-assbly-header-label">{{vm.rowCount}}<md-tooltip>{{vm.rowCount}}</md-tooltip></b>
+                </span>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="vm.cancel()">
+                    <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content class="customer-modal no-padding" layout="column">
+            <md-content class="md-padding">
+                <div layout="row" flex="100" class="margin-vertical-5" layout-wrap>
+                    <div flex="100" layout="row">
+                        <div class="cm-section-main margin-right-5" flex="100" layout="row">
+                            <div class="cm-section-inner" flex="100" layout="row">
+                                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                    <tbody>
+                                        <tr>
+                                            <th><p class="label-container">Scan Warehouse<span>&nbsp;*</span></p></th>
+                                            <td class="padding-right-10 width-300">
+                                                <md-input-container class="m-0">
+                                                    <input type="text" name="ScanWH" capitalize ng-disabled="vm.showStatus || vm.isScanningWarehouse" ng-model="vm.ScanWH" ng-keypress="vm.scanWareHouse($event);" id="ScanWH" required ng-maxlength="50" md-maxlength="50">
+
+                                                    <div ng-messages="vm.WarehouseAudit.ScanWH.$touched && vm.WarehouseAudit.ScanWH.$error" role="alert">
+                                                        <div ng-message="required">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                        </div>
+                                                        <div ng-message="maxlength">
+                                                            <span>{{vm.getMaxLengthValidation(50,vm.WarehouseAudit.ScanWH.$viewValue.length)}}</span>
+                                                        </div>
+                                                    </div>
+                                                    <span flex="100" class="font-size-10">
+                                                        <b>{{vm.LabelConstant.Audit_Page.Hint}}</b>
+                                                    </span>
+                                                </md-input-container>
+                                            </td>
+                                            <th>
+                                                <p class="label-container">
+                                                    Show Light On (Per Row) for
+                                                    <md-icon class="icon-question-mark-circle help-icon margin-top-2">
+                                                        <md-tooltip md-direction="top">Formula:&nbsp; (Audit Request Timeout-{{vm.additionalTime}})/{{vm.LabelConstant.Audit_Page.TotalRow}}</md-tooltip>
+                                                    </md-icon>
+                                                </p>
+                                            </th>
+                                            <td class="display-flex padding-right-10">
+                                                <md-input-container class="m-0">
+                                                    <input type="number" ng-disabled="!vm.rowCount || !vm.ScanWH" min="0.01" max="9999.99" step="0.01" name="perslotTime" ng-model="vm.perslotTime" id="perslotTime" ng-blur="vm.changeperslotTime()" required>
+                                                    <div ng-messages="vm.WarehouseAudit.perslotTime.$touched && vm.WarehouseAudit.perslotTime.$error" role="alert">
+                                                        <div ng-message="required">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                        </div>
+                                                        <div ng-message="min">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                        <div ng-message="max">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                        <div ng-message="step">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                    </div>
+                                                </md-input-container>
+                                                <span class="height-25  mr-10 padding-top-5">
+                                                    {{vm.LabelConstant.Audit_Page.Seconds}}
+                                                </span>
+                                            </td>
+                                            <th>
+                                                <p class="label-container">
+                                                    Audit Request Timeout
+                                                    <md-icon class="icon-question-mark-circle help-icon margin-top-2">
+                                                        <md-tooltip md-direction="top">Formula:&nbsp;({{vm.LabelConstant.Audit_Page.TotalRow}}*Show Light On (Per Row))+{{vm.additionalTime}}</md-tooltip>
+                                                    </md-icon>
+                                                </p>
+                                            </th>
+                                            <td class="display-flex padding-right-10">
+                                                <md-input-container class="m-0">
+                                                    <input type="number" min="1" ng-disabled="!vm.rowCount || !vm.ScanWH" max="9999999" step="1" name="timeout" ng-model="vm.timeout" id="timeout" ng-blur="vm.changeauditTime()" required>
+                                                    <div ng-messages="vm.WarehouseAudit.timeout.$touched && vm.WarehouseAudit.timeout.$error" role="alert">
+                                                        <div ng-message="required">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                        </div>
+                                                        <div ng-message="min">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                        <div ng-message="max">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                        <div ng-message="step">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                    </div>
+                                                </md-input-container>
+                                                <span class="align-vertical height-25 margin-top-3 mr-10">{{vm.LabelConstant.Audit_Page.Seconds}}</span>
+                                            </td>
+                                            <th ng-show="false"><p class="label-container">Show Lights On for</p></th>
+                                            <td class="display-flex padding-right-10" ng-show="false">
+                                                <md-input-container class="m-0">
+                                                    <input type="number" min="1" max="9999999" step="1" name="rowDelay" ng-model="vm.rowNumberDelay" id="rowDelay">
+                                                    <div ng-messages="vm.WarehouseAudit.rowDelay.$touched && vm.WarehouseAudit.rowDelay.$error" role="alert">
+                                                        <div ng-message="min">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                        <div ng-message="max">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                        <div ng-message="step">
+                                                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                        </div>
+                                                    </div>
+                                                </md-input-container>
+                                                <span class="align-vertical height-25 margin-top-3 mr-10">{{vm.LabelConstant.Audit_Page.Seconds}}</span>
+                                            </td>
+                                            <td class="text-align-center">
+                                                <div class="cm-switch-light cm-switch-new margin-left-10" layout="row" layout-align="center center">
+                                                    <md-input-container flex="100" class="md-input-has-value mid m-0">
+                                                        <md-radio-group class="rocker" ng-class="{'cm-show-btn':vm.clickButton,'cm-cancel-btn':(!vm.clickButton && vm.ScanWH && vm.rowCount && vm.timeout && vm.perslotTime),'cm-button-disable':(!vm.ScanWH ||!vm.rowCount || !vm.timeout || !vm.perslotTime) }" ng-change="vm.changeEvent(vm.clickButton,$event)" ng-model="vm.clickButton">
+                                                            <md-radio-button ng-value="true" class="cm-show md-button switch-left" ng-disabled="!vm.ScanWH || vm.showStatus || !vm.timeout ||!vm.perslotTime">Start Audit</md-radio-button>
+                                                            <md-radio-button ng-value="false" class="cm-cancel md-button switch-right" ng-disabled="!vm.showStatus || !vm.timeout ||!vm.perslotTime">Cancel</md-radio-button>
+                                                        </md-radio-group>
+                                                    </md-input-container>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="inline-block cm-progressbar-part-costing" ng-if="vm.request">
+                                                    <span class="font-size-12">Audit In-Progress</span>
+                                                    <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="cm-section-main full-height" ng-if="vm.umIDList.length>0">
+                    <div class="cm-section-header" flex="100">
+                        <h2>Audit Result</h2>
+                    </div>
+                    <div flex="100" layout="row" layout-wrap class="cm-section-inner">
+                        <div layout="row" flex="100" class="margin-vertical-5 padding-left-25" layout-wrap>
+                            <div flex="100" layout="row">
+                                <div class="cm-section-main margin-right-5" flex="20" layout="row">
+                                    <div class="cm-section-inner" flex="100" layout="row">
+                                        <div class="margin-0" flex="100">
+                                            <md-radio-group class="cm-rd-switch" flex="100" layout="row" ng-model="vm.isShowAll" name="serachRfq" ng-change="vm.checkforFilter()">
+                                                <md-radio-button ng-value="vm.AuditFilter[0].id" class="md-primary">{{vm.AuditFilter[0].value}}</md-radio-button>
+                                                <md-radio-button ng-value="vm.AuditFilter[1].id" class="md-primary">{{vm.AuditFilter[1].value}}</md-radio-button>
+                                                <md-radio-button ng-value="vm.AuditFilter[2].id" class="md-primary">{{vm.AuditFilter[2].value}}</md-radio-button>
+                                            </md-radio-group>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cm-labor-table min-height-200 padding-left-25" id="audit-page">
+                            <table class="table-responsive width-100p border-black cm-audit-table" id="audit">
+                                <thead>
+                                    <tr class="bgcolor-summary">
+                                        <th class="color-white cm-action-first"></th>
+                                        <th class="color-white cm-audit-first"></th>
+                                        <th class="text-center color-white table-labor-box-border ph-5 cm-fjt border-left-1px-solid" colspan="4">System</th>
+                                        <th class="text-center color-white table-labor-box-border ph-5 cm-inovaxe cm-border-rg" colspan="4">Inovaxe</th>
+                                        <th class="color-white cm-audit-error"></th>
+                                    </tr>
+                                    <tr class="bgcolor-summary">
+                                        <th class="color-white ph-5  cm-action-first">Action</th>
+                                        <th class="color-white ph-5 cm-audit-first">{{vm.LabelConstant.Audit_Page.UMID}}</th>
+                                        <th class="color-white ph-5 cm-audit-wr border-left-1px-solid">{{vm.LabelConstant.Audit_Page.Warehouse}}</th>
+                                        <th class="color-white ph-5 cm-audit-bin-loc">{{vm.LabelConstant.Audit_Page.Bin}}</th>
+                                        <th class="color-white ph-5 cm-audit-side">{{vm.LabelConstant.Audit_Page.Side}}</th>
+                                        <th class="color-white ph-5  cm-pid">{{vm.LabelConstant.Audit_Page.PID}}</th>
+                                        <th class="color-white ph-5 cm-border-rg text-right cm-audit-qty border-right-1px-solid">{{vm.LabelConstant.Audit_Page.Qty}}</th>
+                                        <th class="color-white ph-5 cm-audit-wr border-left-1px-solid">{{vm.LabelConstant.Audit_Page.Warehouse}}</th>
+                                        <th class="color-white ph-5 cm-audit-bin-loc">{{vm.LabelConstant.Audit_Page.Bin}}</th>
+                                        <th class="color-white ph-5 cm-audit-side">{{vm.LabelConstant.Audit_Page.Side}}</th>
+                                        <th class="color-white ph-5 cm-pid">{{vm.LabelConstant.Audit_Page.PID}}</th>
+                                        <th class="color-white ph-5 text-right cm-audit-qty border-right-1px-solid">{{vm.LabelConstant.Audit_Page.Qty}}</th>
+                                        <th class="color-white ph-5 text-align-left cm-audit-error">{{vm.LabelConstant.Audit_Page.Error}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="auditsummary">
+                                    <tr class="ng-scope" ng-repeat="item in vm.filteUmidList track by $index">
+                                        <td class="ph-5 color-white cm-action-first">
+                                            <md-button class="md-primary grid-button md-icon-button bdrbtn bdrrcvbtn cm-grid-action-view-icon"
+                                                       ng-class="item.ledColorCssClass">
+                                                <md-icon role="img" md-font-icon="icon-lightbulb-outline"></md-icon>
+                                                <md-tooltip md-direction="top" ng-if="item.ledColorName">{{item.ledColorName}}</md-tooltip>
+                                            </md-button>
+                                            <md-button class="md-primary grid-button md-icon-button bdrbtn bdrrcvbtn cm-grid-action-view-icon cm-sq-btn" ng-class="{' cursor-not-allow':!item.isTransfer}" ng-click="vm.transferInTransitUMID(item,$event)" ng-disabled="!item.isTransfer">
+                                                <md-icon role="img" md-font-icon="icons-transfer-material-2"></md-icon>
+                                                <md-tooltip md-direction="top">Transfer UMID</md-tooltip>
+                                            </md-button>
+                                        </td>
+                                        <td class="ph-5 cm-audit-first">
+                                            <span>{{item.uid}}</span>
+                                        </td>
+                                        <td class="ph-5 cm-audit-wr border-left-1px-solid">
+                                            <span>{{item.fjtWh}}</span>
+                                        </td>
+                                        <td class="ph-5 cm-audit-bin-loc" ng-class="{'highlight':item.isSlotMismatch}">
+                                            <span>{{item.fjtSlot}}</span>
+                                        </td>
+                                        <td class="ph-5 cm-audit-side" ng-class="{'highlight':item.isSideMismatch}">
+                                            <span>{{item.fjtSide}}</span>
+                                        </td>
+                                        <td class="ph-5 cm-pid" ng-class="{'highlight':item.isPartMismatch}">
+                                            <span>{{item.fjtPID}}</span>
+                                        </td>
+                                        <td class="ph-5 text-right cm-audit-qty border-right-1px-solid" ng-class="{'highlight':item.ispkgQtyMismatch}">
+                                            <span>{{item.fjtpkgQty}}</span>
+                                        </td>
+                                        <td class="ph-5 cm-audit-wr  border-left-1px-solid">
+                                            <span>{{item.inovexWh}}</span>
+                                        </td>
+                                        <td class="ph-5 cm-audit-bin-loc" ng-class="{'highlight':item.isSlotMismatch}">
+                                            <span>{{item.inovexSlot}}</span>
+                                        </td>
+                                        <td class="ph-5 cm-audit-side" ng-class="{'highlight':item.isSideMismatch}">
+                                            <span>{{item.inovexSide}}</span>
+                                        </td>
+                                        <td class="ph-5 cm-pid" ng-class="{'highlight':item.isPartMismatch}">
+                                            <span>{{item.inovexPID}}</span>
+                                        </td>
+                                        <td class="cm-border-rg ph-5 text-right cm-audit-qty border-right-1px-solid" ng-class="{'highlight':item.ispkgQtyMismatch}">
+                                            <span>{{item.inovexpkgQty}}</span>
+                                        </td>
+                                        <td class="ph-5 text-align-left cm-audit-error">
+                                            <span>{{item.status}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr ng-if="vm.filteUmidList.length==0" class="height-160">
+                                        <td class="width-100p">
+                                            <div layout="row" layout-wrap layout-align="center center" flex="100">
+                                                <div class="emty-icon" flex="100">
+                                                    <img class="height-100" ng-src="{{vm.empty.IMAGEURL}}" />
+                                                </div>
+                                                <p class="empty-state-title text-align-center" flex="100">{{vm.empty.MESSAGE}}</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </md-content>
+        </md-dialog-content>
+
+        <md-dialog-actions layout="row">
+            <div class="flex layout-align-space-between-center layout-row" ng-if="vm.umIDList.length>0">
+                <div class="flex layout">
+                    <table cellspacing="0" cellpadding="0" class="ng-scope">
+                        <tbody>
+                            <tr>
+                                <th>
+                                    Total:&nbsp;
+                                </th>
+                                <td class="ng-binding">
+                                    {{vm.auditAllRecords}}
+                                </td>
+                                <th class="padding-left-10 text-align-right">
+                                    Total&nbsp;{{vm.AuditFilter[1].value}}:&nbsp;
+                                </th>
+                                <td class="ng-binding">
+                                    {{vm.auditMismatchedRecords}}
+                                </td>
+                                <th class="padding-left-10 text-align-right">
+                                    Total&nbsp;{{vm.AuditFilter[2].value}}:&nbsp;
+                                </th>
+                                <td class="ng-binding">
+                                    {{vm.auditMatchedRecords}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <md-button class="md-default md-raised" ng-click="vm.cancel()">Close</md-button>
+                </div>
+            </div>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

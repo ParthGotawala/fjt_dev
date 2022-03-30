@@ -1,0 +1,1281 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed" layout="column"
+     cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="content-card" layout="row" flex="100">
+    <div layout="row" flex="100">
+      <div layout="row" flex="100" layout-wrap class="cm-receiving-tabing">
+        <form name="vm.formReceivingMaterial" flex="100" layout-wrap class="md-inline-form padding-bottom-0" novalidate
+              read-only-form isreadonly="{{vm.isReadOnly}}">
+          <md-button id="btnRequireColValidation" type="submit" ng-disabled="vm.isReadOnly" ng-hide="true"></md-button>
+          <!-- UMID INVENTORY TYPE & INFORMATION SECTION -->
+          <div layout="row" layout-md="column" layout-sm="column" class="mb-5">
+            <fieldset class="container-box">
+              <div flex layout flex-md="100" flex-sm="100" layout-wrap class="margin-right-5 margin-pro-rs-right-0">
+                <div class="margin-bottom-5" flex layout layout-align="start center">
+                  <div class="cm-section-inner">
+                    <div flex="100" layout="row" layout-wrap>
+                      <div layout="row" class="mt-10" layout-wrap flex layout-align="start-center">
+                        <md-input-container layout-wrap layout="row" flex="100" class="md-input-has-value cm-receiving-part-stk margin-top-5">
+                          <md-radio-group name="StockInventoryGroup" layout="column" layout-gt-xs="row" flex layout-align="start start" class="margin-0" ng-model="vm.umidDetail.stockInventoryType" ng-change="vm.changeStockInventoryType()" ng-disabled="vm.isReadOnly">
+                            <md-radio-button name="StockInventory" class="margin-right-0" ng-disabled="vm.isEdit || vm.isScanLabel || vm.autoCompletecomponent.keyColumnId" value="{{vm.InventoryType[0].value}}">{{vm.InventoryType[0].Name}}</md-radio-button>
+                            <md-radio-button name="StockInventory" class="margin-left-10" ng-disabled="vm.isEdit || vm.isScanLabel || vm.autoCompletecomponent.keyColumnId" value="{{vm.InventoryType[1].value}}">{{vm.InventoryType[1].Name}}</md-radio-button>
+                            <md-radio-button name="StockInventory" ng-disabled="true" value="{{vm.InventoryType[3].value}}">{{vm.InventoryType[3].Name}}</md-radio-button>
+                            <md-radio-button name="StockInventory" ng-disabled="vm.isEdit || vm.isScanLabel || vm.autoCompletecomponent.keyColumnId" value="{{vm.InventoryType[2].value}}">{{vm.InventoryType[2].Name}}</md-radio-button>
+                          </md-radio-group>
+                        </md-input-container>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+            <div class="cm-section-main ml-5" flex>
+              <div class="cm-section-inner">
+                <div flex="100" layout="row" layout-wrap>
+                  <div class="input-wrapper" flex="60" layout>
+                    <div flex layout ng-if="!vm.isHideWOAutocomplete">
+                      <p class="label-container">
+                        <a tabindex="-1" class="cm-text-decoration underline"
+                           ng-click="vm.goToWOList();">{{vm.autoCompleteWO.placeholderName}}</a><span ng-if="vm.umidDetail.stockInventoryType === vm.InventoryType[2].value && !vm.isEdit">&nbsp;*</span>
+                      </p>
+                      <md-input-container ng-if="vm.autoCompleteWO" flex
+                                          class="autocompletecustom cm-custom-autocomplete margin-0">
+                        <custom-auto-complete datalist="vm.workorderList" column-name="vm.autoCompleteWO.columnName"
+                                              key-column-name="vm.autoCompleteWO.keyColumnName" input-name="vm.autoCompleteWO.inputName"
+                                              placeholder-name="vm.autoCompleteWO.placeholderName"
+                                              key-column-id="vm.autoCompleteWO.keyColumnId"
+                                              is-required="vm.umidDetail.stockInventoryType === vm.InventoryType[2].value"
+                                              is-addnew="vm.autoCompleteWO.isAddnew" callback-fn="vm.autoCompleteWO.callbackFn"
+                                              on-select-callback-fn="vm.autoCompleteWO.onSelectCallbackFn"
+                                              is-disabled="vm.isReadOnly || (vm.isEdit || vm.umidDetail.stockInventoryType !== vm.InventoryType[2].value || vm.umidDetail.woNumber)">
+                        </custom-auto-complete>
+                        <span flex="100" class="font-size-10">
+                          <b>i.e. WO#, Assy ID, Assy#</b>
+                        </span>
+                      </md-input-container>
+                    </div>
+                    <div layout class="ml-15" ng-if="vm.isHideWOAutocomplete">
+                      <p class="label-container">
+                        <a tabindex="-1" class="cm-text-decoration underline"
+                           ng-click="vm.goToWOList();">{{vm.autoCompleteWO.placeholderName}}</a>
+                      </p>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input ng-disabled="true" type="text" name="woNumber" ng-model="vm.umidDetail.woNumber"
+                               placeholder="Workorder Number" ng-readonly="vm.isReadOnly">
+                      </md-input-container>
+                    </div>
+                    <div layout="row" class="margin-right-5">
+                      <p class="label-container">Assy Stock</p>
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input ng-disabled="true" type="text" name="woAvailableQty"
+                               ng-model="vm.umidDetail.woAvailableQty" placeholder="Assy Stock" ng-readonly="vm.isReadOnly">
+                      </md-input-container>
+                    </div>
+                  </div>
+                  <div class="input-wrapper pt-5" flex layout>
+                    <h3 ng-if="vm.umidDetail.orgQty || vm.umidDetail.orgPkgUnit">
+                      <span>
+                        Initial Count:
+                        {{vm.umidDetail.uomClassID === vm.MEASUREMENT_TYPES_COUNT.ID ? (vm.umidDetail.orgQty) : (vm.umidDetail.orgQty |unit)}} | Units: {{vm.umidDetail.uomClassID ===vm.MEASUREMENT_TYPES_COUNT.ID ? (vm.umidDetail.orgPkgUnit) : (vm.umidDetail.orgPkgUnit |unit)}}
+                      </span>
+                    </h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- / UMID INVENTORY TYPE & INFORMATION SECTION -->
+          <div layout="row" layout-md="column" layout-sm="column">
+            <div flex="60" class="margin-bottom-5 margin-right-5">
+              <!-- KIT ALLOCATION SECTION -->
+              <div class="margin-bottom-5 cm-section-main cm-section-inner"
+                   ng-if="!vm.isEdit || (vm.isScanLabel && vm.isEdit)">
+                <div flex="100" layout="row" layout-wrap>
+                  <div layout="row" flex="100" layout-sm="column">
+                    <div flex="15" flex-lg="15" flex-sm="100" layout="row" class="input-wrapper">
+                      <md-checkbox ng-model="vm.isAllocateToKit" class="cm-margin-5"
+                                   ng-change="vm.changeAllocateToKit();" custom-auto-focus="true"></md-checkbox>
+                      <p class="label-container" ng-if="!vm.autoCompleteSubAssebmly.keyColumnId">Allocate To Kit</p>
+                      <p class="label-container"
+                         ng-if="vm.autoCompleteSubAssebmly && vm.autoCompleteSubAssebmly.keyColumnId">
+                        <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToKitList();">
+                          Allocate To Kit
+                        </a>
+                      </p>
+                    </div>
+                    <div flex="45" flex-sm="100" layout="row" class="input-wrapper">
+                      <p class="label-container">
+                        <a tabindex="-1" class="cm-text-decoration underline"
+                           ng-click="vm.goToPOList();">{{vm.autoCompleteSO.placeholderName}}</a><span ng-if="vm.isAllocateToKit">&nbsp;*</span>
+                      </p>
+                      <md-input-container ng-if="vm.autoCompleteSO"
+                                          class="autocompletecustom cm-custom-autocomplete margin-0"
+                                          custom-auto-focus="{{vm.focusPOAuto ? true : false}}">
+                        <custom-auto-complete datalist="vm.SalesOrderNumberList"
+                                              column-name="vm.autoCompleteSO.columnName" key-column-name="vm.autoCompleteSO.keyColumnName"
+                                              input-name="vm.autoCompleteSO.inputName" placeholder-name="vm.autoCompleteSO.placeholderName"
+                                              key-column-id="vm.autoCompleteSO.keyColumnId"
+                                              is-required="vm.isAllocateToKit ? vm.autoCompleteSO.isRequired : false"
+                                              is-addnew="vm.autoCompleteSO.isAddnew" callback-fn="vm.autoCompleteSO.callbackFn"
+                                              on-select-callback-fn="vm.autoCompleteSO.onSelectCallbackFn"
+                                              is-disabled="vm.isReadOnly || (!vm.isAllocateToKit ? true : false)">
+                        </custom-auto-complete>
+                        <span flex="100" class="font-size-10">
+                          <b>i.e. Assy ID, PO#, SO#, PO Qty, Kit#</b>
+                        </span>
+                      </md-input-container>
+                    </div>
+                    <div flex="40" flex-sm="100" layout="row" class="input-wrapper"
+                         ng-class="{'cm-UMID-sub-assy-highlight': vm.isSubAssyHighlight }">
+                      <p class="label-container">
+                        <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">
+                          Assy ID
+                        </a><span ng-if="vm.isAllocateToKit && (vm.autoCompleteSO && vm.autoCompleteSO.keyColumnId)">&nbsp;*</span>
+                      </p>
+                      <md-input-container ng-if="vm.autoCompleteSubAssebmly"
+                                          class="autocompletecustom cm-custom-autocomplete margin-0">
+                        <custom-auto-complete datalist="vm.SubAssemblyList"
+                                              column-name="vm.autoCompleteSubAssebmly.columnName"
+                                              key-column-name="vm.autoCompleteSubAssebmly.keyColumnName"
+                                              input-name="vm.autoCompleteSubAssebmly.inputName"
+                                              placeholder-name="vm.autoCompleteSubAssebmly.placeholderName"
+                                              key-column-id="vm.autoCompleteSubAssebmly.keyColumnId"
+                                              is-required="(vm.autoCompleteSO && vm.autoCompleteSO.keyColumnId) && vm.isAllocateToKit ? vm.autoCompleteSubAssebmly.isRequired : false"
+                                              is-addnew="vm.autoCompleteSubAssebmly.isAddnew"
+                                              callback-fn="vm.autoCompleteSubAssebmly.callbackFn"
+                                              on-select-callback-fn="vm.autoCompleteSubAssebmly.onSelectCallbackFn"
+                                              is-disabled="vm.isReadOnly || (!vm.isAllocateToKit ? true : false || !vm.autoCompleteSO.keyColumnId)">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </div>
+                  </div>
+                </div>
+                <div flex="100" layout="row" layout-wrap>
+                  <div layout="row" flex layout-align="space-between center">
+                    <div layout="row" flex="100">
+                      <div flex="15" class="text-right pr-20">
+                        <md-button id="btnGoToBOM" name="btnGoToBOM" class="md-primary md-raised mt-0"
+                                   aria-label="receive" ng-disabled="!vm.autoCompleteSubAssebmly.keyColumnId || vm.isReadOnly"
+                                   ng-click="vm.goTOBom()">
+                          Go To BOM
+                        </md-button>
+                      </div>
+                      <div flex="20" layout="row" class="margin-right-5 input-wrapper">
+                        <p class="label-container">{{vm.CORE.LabelConstant.SalesOrder.SO}}</p>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input ng-disabled="true" type="text" name="so" ng-model="vm.kitAllocation['SO']"
+                                 placeholder="{{vm.LabelConstant.SalesOrder.SO}}">
+                        </md-input-container>
+                      </div>
+                      <div flex="25" layout="row" class="margin-right-5 input-wrapper">
+                        <p class="label-container">Assy ID</p>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input ng-disabled="true" type="text" name="so" ng-model="vm.kitAllocation['Assy ID']"
+                                 placeholder="Assembly">
+                        </md-input-container>
+                      </div>
+                      <div flex="20" layout="row" class="margin-right-5 input-wrapper">
+                        <p class="label-container">PO Qty</p>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input ng-disabled="true" type="text" name="so" ng-model="vm.kitAllocation['PO Qty']"
+                                 placeholder="Assembly">
+                        </md-input-container>
+                      </div>
+                      <div flex="20" layout="row" class="margin-right-5 input-wrapper">
+                        <p class="label-container">MRP Qty</p>
+                        <md-input-container flex="100" class="margin-bottom-0">
+                          <input ng-disabled="true" type="text" name="so" ng-model="vm.kitAllocation['mrpQty']"
+                                 placeholder="Assembly">
+                        </md-input-container>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- / KIT ALLOCATION SECTION -->
+              <!-- UMID PART DETAIL SECTION -->
+              <div class="cm-section-main margin-bottom-5">
+                <div class="cm-section-inner">
+                  <table cellpadding="0" cellspacing="0" class="cm-table-input-main cm-table-cell-height-auto">
+                    <tbody>
+                      <tr>
+                        <th ng-if="!vm.isEdit">
+                          <p class="label-container">
+                            UMID Prefix<span ng-if="!(vm.umidDetail.customerConsign || vm.umidDetail.isReservedStock)">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td ng-if="!vm.isEdit" class="width-250">
+                          <md-input-container class="margin-bottom-0" flex="100">
+                            <input type="text" ng-maxlength="8" md-maxlength="8" capitalize no-special-character-strict
+                                   class="input-text-uppercase" id="Prefix" name="Prefix" ng-model="vm.umidDetail.prefix"
+                                   placeholder="UMID Prefix"
+                                   ng-required="!(vm.umidDetail.customerConsign || vm.umidDetail.isReservedStock)"
+                                   custom-blur="vm.setPrefixToStorage($event, vm.formReceivingMaterial.Prefix)"
+                                   ng-disabled="vm.umidDetail.customerConsign || vm.umidDetail.isReservedStock">
+                            <div ng-messages="vm.formReceivingMaterial.Prefix.$touched && vm.formReceivingMaterial.Prefix.$error"
+                                 role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(8,vm.formReceivingMaterial.Prefix.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                        <th ng-if="vm.isEdit">
+                          <p class="label-container">UMID</p>
+                        </th>
+                        <td ng-if="vm.isEdit" class="width-280">
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="text" name="UID" id="UID" ng-model="vm.umidDetail.uid" placeholder="UMID"
+                                   class="cm-receiving-uid-font" ng-disabled="vm.isEdit" ng-maxlength="vm.UMID_MAX_LENGTH"
+                                   capitalize>
+                          </md-input-container>
+                        </td>
+                        <td colspan="3">
+                          <md-input-container flex="100" class="md-input-has-value">
+                            <md-radio-group name="paymentMode" ng-model="vm.selectPartBarcode" layout="column"
+                                            layout-gt-xs="row" flex layout-align="start start" class="margin-0"
+                                            ng-change="vm.checkPartBarcode(vm.selectPartBarcode)"
+                                            ng-disabled="(vm.autoCompletecomponent && vm.autoCompletecomponent.keyColumnId) || vm.umidDetail.stockInventoryType === vm.TransactionData.InventoryType[2].value">
+                              <md-radio-button name="scanType" value="true" ng-model="vm.selectPartBarcode"
+                                               ng-disabled="vm.isEdit">{{vm.Transaction.FIRSTSCANLBL}}</md-radio-button>
+                              <md-radio-button name="scanType" value="false"
+                                               ng-disabled="vm.isEdit || vm.isScanLabel || vm.autoCompletecomponent.keyColumnId">
+                                {{vm.Transaction.FIRSTMFG}}
+                              </md-radio-button>
+                            </md-radio-group>
+                          </md-input-container>
+                        </td>
+                        <td colspan="3" class="text-right">
+                          <md-button class="md-primary md-raised md-ink-ripple margin-0" ng-disabled="vm.isReadOnly"
+                                     ng-if="vm.allocatedKitCount && !vm.isScanLabel && vm.isEdit" ng-click="vm.allocatedKit()">
+                            Allocated Kit ({{vm.allocatedKitCount}})
+                          </md-button>
+                          <md-button class="md-primary md-raised md-ink-ripple margin-0" ng-disabled="vm.isReadOnly"
+                                     ng-if="!vm.allocatedKitCount && (vm.isScanLabel || vm.autoCompletecomponent.keyColumnId) && !vm.isEdit"
+                                     ng-click="vm.resetScanLabel()">Reset</md-button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToLocationList();">
+                              From {{vm.LabelConstant.TransferStock.Bin}}
+                            </a><span ng-if="!vm.isFromBinDisable && !vm.isEdit && vm.umidDetail.stockInventoryType !== vm.TransactionData.InventoryType[1].value && vm.umidDetail.stockInventoryType !== vm.TransactionData.InventoryType[2].value">&nbsp;*<scan-or-enter></scan-or-enter></span>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                            <input type="text" name="fromBinName" id="fromBinName" capitalize
+                                   ng-model="vm.umidDetail.fromBinName" required ng-maxlength="110" md-maxlength="110"
+                                   ng-disabled="vm.isFromBinDisable || vm.isEdit || vm.umidDetail.stockInventoryType === vm.TransactionData.InventoryType[1].value || vm.umidDetail.stockInventoryType === vm.TransactionData.InventoryType[2].value"
+                                   ng-keypress="vm.scanBin($event, vm.getFromBinDetail, 'From', true)"
+                                   custom-blur="vm.scanBin($event, vm.getFromBinDetail, 'From', false)">
+                            <span flex="100" class="font-size-10">
+                              <b>{{vm.LabelConstant.ScanOREnter.ScanFromBin}}</b>
+                            </span>
+                            <div ng-messages="vm.formReceivingMaterial.fromBinName.$touched && vm.formReceivingMaterial.fromBinName.$error"
+                                 role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(110,vm.formReceivingMaterial.fromBinName.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container">
+                            {{vm.LabelConstant.MFG.CustomerPN}}/{{vm.LabelConstant.MFG.MFGPN}}/{{vm.LabelConstant.MFG.SupplierPN}}
+                            <span ng-if="!vm.isEdit && !vm.isScanLabel && vm.selectPartBarcode === 'true' && !vm.isEdit && vm.umidDetail.stockInventoryType !== vm.TransactionData.InventoryType[2].value && vm.umidDetail.fromBinName">
+                              &nbsp;*
+                              <scan-or-enter></scan-or-enter>
+                            </span>
+                          </p>
+                        </th>
+                        <td class="width-auto" colspan="4">
+                          <md-input-container class="margin-bottom-0">
+                            <input ng-disabled="vm.isEdit || vm.isScanLabel || vm.selectPartBarcode === 'false' || vm.umidDetail.stockInventoryType === vm.TransactionData.InventoryType[2].value || !vm.umidDetail.fromBinName"
+                                   type="text" name="ScanLabel" ng-model="vm.umidDetail.ScanLabel"
+                                   ng-keypress="vm.scanLabelDet($event)" id="ScanLabel"
+                                   ng-required="vm.selectPartBarcode === 'true' && vm.umidDetail.stockInventoryType !== vm.TransactionData.InventoryType[2].value && vm.umidDetail.fromBinName"
+                                   ng-maxlength="1000">
+                            <span flex="100" class="font-size-10">
+                              <b>{{vm.LabelConstant.ScanOREnter.Scan1D2DLabel}}</b>
+                            </span>
+                            <div ng-messages="vm.formReceivingMaterial.ScanLabel.$touched && vm.formReceivingMaterial.ScanLabel.$error"
+                                 role="alert">
+                              <div ng-message="required" ng-if="vm.selectPartBarcode === 'true'">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(1000,vm.formReceivingMaterial.ScanLabel.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                        <td>
+                          <md-button class="md-primary md-raised md-ink-ripple ml-0 mt-0" tabindex="-1"
+                                     ng-disabled="!vm.isScanLabel || vm.isReadOnly" ng-click="vm.reScan()">
+                            Re-scan
+                          </md-button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();"
+                               return false;>{{vm.LabelConstant.MFG.CustomerPN}}/{{vm.LabelConstant.MFG.MFGPN}}</a><span ng-if="vm.selectPartBarcode === 'false'">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container ng-if="vm.autoCompletecomponent"
+                                              class="autocompletecustom margin-bottom-0" flex="100">
+                            <custom-auto-complete-search class="min-width-initial"
+                                                         on-search-fn="vm.autoCompletecomponent.onSearchFn"
+                                                         column-name="vm.autoCompletecomponent.columnName"
+                                                         controller-name="vm.autoCompletecomponent.controllerName"
+                                                         view-template-url="vm.autoCompletecomponent.viewTemplateURL"
+                                                         key-column-name="vm.autoCompletecomponent.keyColumnName"
+                                                         input-name="vm.autoCompletecomponent.inputName"
+                                                         key-column-id="vm.autoCompletecomponent.keyColumnId"
+                                                         is-required="vm.umidDetail.fromBinName" is-addnew="vm.autoCompletecomponent.isAddnew"
+                                                         is-disabled="vm.isReadOnly || (vm.umidDetail.formatType === vm.Transaction.FIRSTSCANLBL || vm.isEdit ? true : false) || !vm.umidDetail.fromBinName"
+                                                         add-data="vm.autoCompletecomponent.addData"
+                                                         search-text="vm.autoCompletecomponent.searchText"
+                                                         callback-fn="vm.autoCompletecomponent.callbackFn"
+                                                         on-select-callback-fn="vm.autoCompletecomponent.onSelectCallbackFn">
+                            </custom-auto-complete-search>
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration underline"
+                               ng-click="vm.goToMFGList();">{{vm.LabelConstant.MFG.MFG}}</a>
+                          </p>
+                        </th>
+                        <td>
+                          <div class="text-left">
+                            <label class="padding-top-5"
+                                   ng-class="{'text-decoration-underline cursor-pointer': vm.umidDetail.mfgcodeID && vm.umidDetail.mfgName }"
+                                   ng-click="vm.umidDetail.mfgcodeID ? vm.goToManufacturerDetail(vm.umidDetail.mfgcodeID):''">
+                              {{vm.umidDetail.mfgName ? vm.umidDetail.mfgName : '-'}}
+                            </label>
+                          </div>
+                        </td>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.MFG.MFGPNDescription}}</p>
+                        </th>
+                        <td colspan="3">
+                          <div class="text-left">
+                            <label class="padding-top-5">
+                              {{vm.umidDetail.mfgPNDescription}}
+                            </label>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr ng-if="vm.supplierCode">
+                        <th>
+                          <p class="label-container">
+                            Supplier<span>&nbsp;</span>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input ng-disabled="true" type="text" name="SupplierMFGCode" ng-model="vm.supplierCode"
+                                   placeholder="Supplier {{vm.LabelConstant.MFG.MFG}} Code">
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container">
+                            {{vm.LabelConstant.MFG.SupplierPN}}<span>&nbsp;</span>
+                          </p>
+                        </th>
+                        <td colspan="5">
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input ng-disabled="true" type="text" name="SupplierMFGPart" ng-model="vm.supplierMFGPN"
+                                   placeholder="Supplier {{vm.LabelConstant.MFG.MFG}} Part">
+                          </md-input-container>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">Unit</p>
+                        </th>
+                        <td>
+                          <div layout="row" flex="100">
+                            <div flex="40">
+                              <md-input-container flex="100" class="margin-bottom-0">
+                                <input type="number" id="componentUnit" name="componentUnit"
+                                       ng-model="vm.umidDetail.componentUnit" placeholder="Unit" ng-disabled="true">
+                              </md-input-container>
+                            </div>
+                            <div flex="15">
+                              <p class="label-container">
+                                <a tabindex="-1" class="cm-text-decoration underline margin-top-5"
+                                   ng-click="vm.goToUOMList();">UOM</a>
+                              </p>
+                            </div>
+                            <div flex="45">
+                              <md-input-container flex="100" class="margin-bottom-0">
+                                <input type="text" id="uom" name="uom" ng-model="vm.umidDetail.uomName"
+                                       placeholder="UOM" ng-disabled="true">
+                              </md-input-container>
+                            </div>
+                          </div>
+                        </td>
+                        <th>
+                          <p class="label-container">
+                            COFC<md-icon class="icon-question-mark-circle help-icon mr-5">
+                              <md-tooltip md-direction="top">
+                                {{vm.CORE_MESSAGE_CONSTANT.UMID_COFC_NOTE}}
+                              </md-tooltip>
+                            </md-icon>
+                          </p>
+                        </th>
+                        <td>
+                          <div class="text-left">
+                            <label class="padding-top-5"
+                                   ng-class="{'text-decoration-underline cursor-pointer':vm.umidDetail.id && vm.umidDetail.cOfcCode}"
+                                   ng-click="vm.umidDetail.id && vm.umidDetail.cOfcCode ? vm.goToCofC():''">
+                              {{vm.umidDetail.cOfcCode ? vm.umidDetail.cOfcCode : '-'}}
+                            </label>
+                          </div>
+                        </td>
+                        <th>
+                          <p class="label-container">
+                            {{vm.LabelConstant.PartAttribute.PackageCase}}
+                            <md-icon class="icon-question-mark-circle help-icon">
+                              <md-tooltip md-direction="top">
+                                External
+                              </md-tooltip>
+                            </md-icon>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" class="margin-bottom-0 text-bold">
+                            <input ng-disabled="true" type="text" name="packageCaseExternal"
+                                   ng-model="vm.umidDetail.externalPartPackage"
+                                   placeholder="{{vm.LabelConstant.PartAttribute.PackageCase}}(External)">
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container">
+                            <md-icon class="icon-question-mark-circle help-icon">
+                              <md-tooltip md-direction="top">
+                                Internal
+                              </md-tooltip>
+                            </md-icon>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" class="margin-bottom-0 text-bold">
+                            <input ng-disabled="true" type="text" name="packageCaseExternal"
+                                   ng-model="vm.umidDetail.partPackage"
+                                   placeholder="{{vm.LabelConstant.PartAttribute.PackageCase}}(Internal)">
+                          </md-input-container>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <!-- / UMID PART DETAIL SECTION -->
+              <!-- UMID CPN AND RESTRICT PART DETAIL SECTION -->
+              <div class="cm-section-main margin-bottom-5"
+                   ng-if="vm.umidDetail.stockInventoryType !== vm.TransactionData.InventoryType[2].value && (!vm.isEdit || vm.umidDetail.customerConsign || vm.umidDetail.isReservedStock || vm.umidDetail.mfgAvailabel)">
+                <div class="cm-section-inner">
+                  <table cellpadding="0" cellspacing="0" class="cm-table-input-main cm-table-cell-height-auto">
+                    <tbody>
+                      <tr>
+                        <th class="w-220" rowspan="3">
+                          <div layout="column">
+                            <md-checkbox ng-model="vm.umidDetail.mfgAvailabel"
+                                         ng-if="(vm.isEdit && vm.umidDetail.mfgAvailabel) || (!vm.isEdit && vm.umidDetail.cpn && vm.umidDetail.refcompid)"
+                                         ng-change="vm.mfgAvailabelChange(vm.umidDetail.mfgAvailabel);" class="cm-margin-5 pb-25"
+                                         ng-disabled="!vm.umidDetail.refcompid || vm.isEdit || !vm.umidDetail.cpn">
+                              Original MFR Label Visible
+                            </md-checkbox>
+                            <md-checkbox id="custConsign" ng-model="vm.umidDetail.customerConsign"
+                                         ng-hide="vm.isEdit && (vm.umidDetail.isReservedStock || (!vm.umidDetail.customerConsign && !vm.umidDetail.isReservedStock))"
+                                         class="cm-margin-5 pb-25" ng-change="vm.resetCustomer();"
+                                         ng-disabled="!vm.umidDetail.refcompid || vm.isEdit || vm.umidDetail.isReservedStock || vm.umidDetail.stockInventoryType === vm.InventoryType[0].value">
+                              Customer Consigned
+                            </md-checkbox>
+                            <md-checkbox id="reservedStock" ng-model="vm.umidDetail.isReservedStock"
+                                         ng-hide="vm.isEdit && (vm.umidDetail.customerConsign || (!vm.umidDetail.customerConsign && !vm.umidDetail.isReservedStock))"
+                                         class="cm-margin-5 pb-25" ng-change="vm.resetCustomer();"
+                                         ng-disabled="!vm.umidDetail.refcompid || vm.isEdit || vm.umidDetail.customerConsign">
+                              Reserved Stock
+                            </md-checkbox>
+                          </div>
+                        </th>
+                        <th ng-if="(vm.isEdit && vm.umidDetail.mfgAvailabel) || (!vm.isEdit && vm.umidDetail.cpn && vm.umidDetail.refcompid)">
+                          <p class="label-container">
+                            ORG.
+                            <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGPartList();">
+                              {{vm.LabelConstant.UMIDManagement.MFRPN}}
+                            </a><span ng-if="vm.umidDetail.mfgAvailabel">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td colspan="2"
+                            ng-if="(vm.isEdit && vm.umidDetail.mfgAvailabel) || (!vm.isEdit && vm.umidDetail.cpn && vm.umidDetail.refcompid)">
+                          <md-input-container ng-if="vm.autoCompleteCPNComponent"
+                                              class="autocompletecustom margin-bottom-0" flex="100"
+                                              custom-auto-focus="{{vm.isFocusonCPN ? true : false}}">
+                            <custom-auto-complete-search class="min-width-initial"
+                                                         on-search-fn="vm.autoCompleteCPNComponent.onSearchFn"
+                                                         column-name="vm.autoCompleteCPNComponent.columnName"
+                                                         controller-name="vm.autoCompleteCPNComponent.controllerName"
+                                                         view-template-url="vm.autoCompleteCPNComponent.viewTemplateURL"
+                                                         key-column-name="vm.autoCompleteCPNComponent.keyColumnName"
+                                                         input-name="vm.autoCompleteCPNComponent.inputName"
+                                                         placeholder-name="vm.autoCompleteCPNComponent.placeholderName"
+                                                         key-column-id="vm.autoCompleteCPNComponent.keyColumnId"
+                                                         is-required="vm.umidDetail.mfgAvailabel" is-addnew="vm.autoCompleteCPNComponent.isAddnew"
+                                                         is-disabled="vm.isReadOnly || (vm.isEdit || vm.umidDetail.mfgAvailabel === false ? true : false)"
+                                                         add-data="vm.autoCompleteCPNComponent.addData"
+                                                         callback-fn="vm.autoCompleteCPNComponent.callbackFn"
+                                                         on-select-callback-fn="vm.autoCompleteCPNComponent.onSelectCallbackFn">
+                            </custom-auto-complete-search>
+                          </md-input-container>
+                        </td>
+                        <th ng-if="(vm.isEdit && vm.umidDetail.mfgAvailabel) || (!vm.isEdit && vm.umidDetail.cpn && vm.umidDetail.refcompid)">
+                          <p class="label-container margin-top-5">
+                            ORG.
+                            <a tabindex="-1" class="cm-text-decoration underline"
+                               ng-click="vm.goToMFGList();">{{vm.LabelConstant.UMIDManagement.MFR}}</a>
+                          </p>
+                        </th>
+                        <td colspan="2"
+                            ng-if="(vm.isEdit && vm.umidDetail.mfgAvailabel) || (!vm.isEdit && vm.umidDetail.cpn && vm.umidDetail.refcompid)">
+                          <div class="text-left">
+                            <label class="padding-top-5"
+                                   ng-class="{'text-decoration-underline cursor-pointer':vm.umidDetail.cpnMfgcodeID && vm.umidDetail.cpnMfgName }"
+                                   ng-click="vm.umidDetail.cpnMfgcodeID && vm.umidDetail.cpnMfgName ? vm.goToManufacturerDetail(vm.umidDetail.cpnMfgcodeID):''">
+                              {{vm.umidDetail.cpnMfgName ? vm.umidDetail.cpnMfgName : '-'}}
+                            </label>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr ng-if="(vm.isEdit && vm.umidDetail.mfgAvailabel) || (!vm.isEdit && vm.umidDetail.cpn && vm.umidDetail.refcompid)">
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.MFG.MFGPNDescription}}</p>
+                        </th>
+                        <td colspan="3">
+                          <div class="text-left">
+                            <label class="padding-top-5">
+                              {{vm.umidDetail.cpnMfgPNDescription}}
+                            </label>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr ng-hide="vm.isEdit && !(vm.umidDetail.customerConsign || vm.umidDetail.isReservedStock)">
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration underline"
+                               ng-click="vm.goToCustomerList();">{{vm.autoCompleteCustomer.placeholderName}}</a>
+                            <span ng-if="!((!vm.isEdit && !(vm.umidDetail.customerConsign || vm.umidDetail.isReservedStock)) || (vm.isEdit && vm.umidDetail.isReservedStock) || (vm.umidDetail.customerConsign && !vm.umidDetail.changeCustomer))">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td class="w-350">
+                          <div layout="row">
+                            <md-button name="btnAddStandardClass" class="md-primary md-icon-button md-raised md-mini"
+                                       ng-disabled="vm.allocatedKitCount || vm.isReadOnly || !vm.umidDetail.customerConsign || !vm.umidDetail.refcompid || vm.umidDetail.changeCustomer" ng-click="vm.umidDetail.changeCustomer = true;">
+                              <md-icon md-font-icon="icons-add-edit-black" class="material-icons mat-icon"></md-icon>
+                              <md-tooltip>Change Customer</md-tooltip>
+                            </md-button>
+                            <md-input-container ng-if="vm.autoCompleteCustomer" id="customerAuto"
+                                                class="autocompletecustom cm-custom-autocomplete margin-0"
+                                                custom-auto-focus="{{vm.focusCustomerAuto ? true : false}}">
+                              <custom-auto-complete datalist="vm.CustomerList"
+                                                    column-name="vm.autoCompleteCustomer.columnName"
+                                                    controller-name="vm.autoCompleteCustomer.controllerName"
+                                                    view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                                    key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                                    input-name="vm.autoCompleteCustomer.inputName"
+                                                    placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                                    key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                                    is-required="(vm.umidDetail.customerConsign || vm.umidDetail.isReservedStock)"
+                                                    is-disabled="vm.isReadOnly || (!vm.isEdit && !(vm.umidDetail.customerConsign || vm.umidDetail.isReservedStock)) || (vm.isEdit && vm.umidDetail.isReservedStock) || (vm.umidDetail.customerConsign && !vm.umidDetail.changeCustomer)"
+                                                    is-addnew="vm.autoCompleteCustomer.isAddnew" add-data="vm.autoCompleteCustomer.addData"
+                                                    callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                                    on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn">
+                              </custom-auto-complete>
+                            </md-input-container>
+                          </div>
+                        </td>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration underline"
+                               ng-click="vm.goToMFGPartList();">{{vm.autoCompleteAssy.placeholderName}}</a>
+                          </p>
+                        </th>
+                        <td class="w-200">
+                          <md-input-container ng-if="vm.autoCompleteAssy"
+                                              class="autocompletecustom cm-custom-autocomplete margin-0"
+                                              custom-auto-focus="{{vm.isMismatchWithKit}}">
+                            <custom-auto-complete datalist="vm.assyList" column-name="vm.autoCompleteAssy.columnName"
+                                                  controller-name="vm.autoCompleteAssy.controllerName"
+                                                  view-template-url="vm.autoCompleteAssy.viewTemplateURL"
+                                                  key-column-name="vm.autoCompleteAssy.keyColumnName"
+                                                  input-name="vm.autoCompleteAssy.inputName"
+                                                  placeholder-name="vm.autoCompleteAssy.placeholderName"
+                                                  key-column-id="vm.autoCompleteAssy.keyColumnId"
+                                                  is-required="vm.autoCompleteAssy.isRequired" is-addnew="vm.autoCompleteAssy.isAddnew"
+                                                  callback-fn="vm.autoCompleteAssy.callbackFn" add-data="vm.autoCompleteAssy.addData"
+                                                  on-select-callback-fn="vm.autoCompleteAssy.onSelectCallbackFn"
+                                                  is-disabled="vm.isReadOnly || (vm.autoCompleteCustomer && !vm.autoCompleteCustomer.keyColumnId) || vm.isEdit || vm.umidDetail.customerConsign">
+                            </custom-auto-complete>
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container">Nickname</p>
+                        </th>
+                        <td>
+                          <md-input-container class="margin-bottom-0" flex="100">
+                            <input type="text" ng-maxlength="50" capitalize class="input-text-uppercase" name="Nickname"
+                                   ng-model="vm.umidDetail.nickName" ng-disabled="true">
+                            <div ng-messages="vm.formReceivingMaterial.Nickname.$touched && vm.formReceivingMaterial.Nickname.$error"
+                                 role="alert">
+                              <div ng-message="maxlength">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.MAX_LENGTH}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <!-- / UMID CPN AND RESTRICT PART DETAIL SECTION -->
+              <!-- UMID COUNT/UNIT DETAIL SECTION -->
+              <div class="cm-section-main margin-top-5">
+                <div class="cm-section-inner">
+                  <table cellpadding="0" cellspacing="0" class="cm-table-input-main cm-table-cell-height-auto">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            Count<span ng-if="!vm.isEdit">
+                              &nbsp;*<check-unique-on-blur ng-if="vm.umidDetail.sourceName === vm.TransactionData.Packaging.TapeAndReel || vm.supplierPartId"></check-unique-on-blur>
+                            </span>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="number" id="txtqty" name="txtqty" input-number-decimal-place
+                                   ng-model="vm.umidDetail.pkgQty" placeholder="Count"
+                                   onkeypress="return OnlyNumbersWithDot(event)" min="{{vm.isDisableCount ? 0 : 1 }}"
+                                   ng-max="9999999999.99999" step="{{$root.unitInputStep}}" ng-disabled="vm.isDisableCount"
+                                   custom-blur="vm.setPackingUnit($event)" ng-change="vm.checkCountValueChange()" required>
+                            <div ng-messages="vm.formReceivingMaterial.txtqty.$touched && vm.formReceivingMaterial.txtqty.$error"
+                                 md-auto-hide="false" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="min || number || step || max">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container">Units</p>
+                        </th>
+                        <td class="w-250">
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="number" id="txtunit" name="units" ng-model="vm.umidDetail.pkgUnit"
+                                   placeholder="Units" ng-disabled="true" input-number-decimal-place
+                                   step="{{$root.unitInputStep}}">
+                            <span flex="100" class="font-size-10">
+                              <b>i.e. Unit * Count</b>
+                            </span>
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container">UMID SPQ</p>
+                        </th>
+                        <td colspan="3">
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="number" name="spq" ng-model="vm.umidDetail.spq" placeholder="UMID SPQ"
+                                   ng-disabled="true" input-number-decimal-place>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToLocationList();">
+                              <span class="color-black" ng-if="!vm.isEdit">To Location/Bin</span>
+                              <span class="color-black"
+                                    ng-if="vm.isEdit">{{vm.LabelConstant.TransferStock.CurrentLocation}}</span>
+                            </a><span ng-if="!vm.isEdit">&nbsp;*<scan-or-enter></scan-or-enter></span>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                            <input type="text" name="currentBinName" id="currentBinName" capitalize md-maxlength="50"
+                                   ng-model="vm.umidDetail.currentBinName" required maxlength="50" ng-disabled="vm.isEdit"
+                                   ng-keypress="vm.scanBin($event, vm.getCurrentBinDetail, 'To', true)"
+                                   custom-blur="vm.scanBin($event, vm.getCurrentBinDetail, 'To', false)">
+                            <span flex="100" class="font-size-10">
+                              <b>{{vm.LabelConstant.ScanOREnter.ScanToBin}}</b>
+                            </span>
+                            <div ng-messages="vm.formReceivingMaterial.currentBinName.$touched && vm.formReceivingMaterial.currentBinName.$error"
+                                 role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(50,vm.formReceivingMaterial.currentBinName.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration underline"
+                               ng-click="vm.goToPackaging();">{{vm.autoPackaging.placeholderName}}</a><span ng-if="!(vm.isEdit || vm.isPackagingDisable)">&nbsp;*</span>
+                            <md-icon class="icon-question-mark-circle help-icon mr-5" ng-if="vm.umidDetail.stockInventoryType !== vm.InventoryType[0].value">
+                              <md-tooltip md-direction="top">
+                                {{vm.CORE_MESSAGE_CONSTANT.UMID_PACKAGING_NOTE}}
+                              </md-tooltip>
+                            </md-icon>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" ng-if="vm.autoPackaging"
+                                              class="autocompletecustom min-width-initial margin-bottom-0"
+                                              custom-auto-focus="{{vm.focusPackaginAuto ? true : false}}">
+                            <custom-auto-complete datalist="vm.packagingList" column-name="vm.autoPackaging.columnName"
+                                                  controller-name="vm.autoPackaging.controllerName"
+                                                  view-template-url="vm.autoPackaging.viewTemplateURL"
+                                                  key-column-name="vm.autoPackaging.keyColumnName" input-name="vm.autoPackaging.inputName"
+                                                  placeholder-name="vm.autoPackaging.placeholderName"
+                                                  key-column-id="vm.autoPackaging.keyColumnId" is-required="vm.autoPackaging.isRequired"
+                                                  is-addnew="vm.autoPackaging.isAddnew" add-data="vm.autoPackaging.addData"
+                                                  callback-fn="vm.autoPackaging.callbackFn"
+                                                  on-select-callback-fn="vm.autoPackaging.onSelectCallbackFn"
+                                                  is-disabled="vm.isReadOnly || vm.isEdit || vm.isPackagingDisable">
+                            </custom-auto-complete>
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration underline"
+                               ng-click="vm.goToCostCategoryList();">Cost Category</a><span>&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td colspan="3">
+                          <md-input-container flex="100" ng-if="vm.autoCompletePriceCategory"
+                                              class="autocompletecustom min-width-initial margin-bottom-0" custom-auto-focus="{{vm.focusPriceCategory ? true : false}}">
+                            <custom-auto-complete datalist="vm.priceCategoryList"
+                                                  column-name="vm.autoCompletePriceCategory.columnName"
+                                                  controller-name="vm.autoCompletePriceCategory.controllerName"
+                                                  view-template-url="vm.autoCompletePriceCategory.viewTemplateURL"
+                                                  key-column-name="vm.autoCompletePriceCategory.keyColumnName"
+                                                  input-name="vm.autoCompletePriceCategory.inputName"
+                                                  placeholder-name="vm.autoCompletePriceCategory.placeholderName"
+                                                  key-column-id="vm.autoCompletePriceCategory.keyColumnId"
+                                                  is-required="vm.autoCompletePriceCategory.isRequired" is-disabled="vm.isReadOnly"
+                                                  is-addnew="vm.autoCompletePriceCategory.isAddnew"
+                                                  callback-fn="vm.autoCompletePriceCategory.callbackFn"
+                                                  on-select-callback-fn="vm.autoCompletePriceCategory.onSelectCallbackFn">
+                            </custom-auto-complete>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container layout-align-end-start">
+                            <a class="cm-text-decoration underline" ng-click="vm.goToDCFormatList();" tabindex="-1">Date Code</a><span>&nbsp;*</span>
+                            <md-icon class="icon-question-mark-circle help-icon mr-5">
+                              <md-tooltip md-direction="top" class="tooltip-height-auto" ng-bind-html="vm.MFR_DATE_CODE_FORMAT_NOT_FOUND"></md-tooltip>
+                            </md-icon>
+
+                          </p>
+                        </th>
+                        <td colspan="3">
+                          <div layout="row" flex="100" layout-align="start start">
+                            <md-input-container class="margin-bottom-0" md-no-float>
+                              <input type="text" name="mfgDateCode" id="mfgDateCode" ng-model="vm.umidDetail.mfrDateCode"
+                                     placeholder="{{vm.umidDetail.mfrDateCodeFormat}}" required ng-disabled="vm.isReadOnly"
+                                     ng-maxlength="vm.umidDetail.mfrDateCodeLength" md-maxlength="vm.umidDetail.mfrDateCodeLength" onkeypress="return OnlyNumeric(event)"
+                                     custom-blur="vm.getInternalCode()" ng-minlength="vm.umidDetail.mfrDateCodeLength">
+                              <span flex="100" class="font-size-10">
+                                <b>
+                                  {{vm.umidDetail.fromDateCodeFormat !== vm.DateCodeFormatFrom[0].key ? vm.umidDetail.dateCodeFormatFromValue : '' }} DC Format Default:
+                                  {{vm.umidDetail.mfrDateCodeFormatCategory}}
+                                </b>
+                              </span>
+                              <div ng-messages="vm.formReceivingMaterial.mfgDateCode.$touched && vm.formReceivingMaterial.mfgDateCode.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(vm.umidDetail.mfrDateCodeLength,vm.formReceivingMaterial.mfgDateCode.$viewValue.length)}}</span>
+                                </div>
+                                <div ng-message="minlength">
+                                  <span>{{vm.getMinLengthValidation(vm.umidDetail.mfrDateCodeLength,vm.formReceivingMaterial.mfgDateCode.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                            <md-button flex id="btnUpdateMFRDateCode" name="btnUpdateMFRDateCode" class="md-primary md-icon-button md-raised md-mini cm-feture-btn-color"
+                                       ng-disabled="vm.isReadOnly || (!vm.isEnableDateCodeModification)"
+                                       ng-click="vm.updateMFRDateCodeFormat();">
+                              <md-icon md-font-icon="icon-pencil" class="material-icons mat-icon"></md-icon>
+                              <md-tooltip>Change Selected Date Code Format</md-tooltip>
+                            </md-button>
+                            <md-input-container flex="35" ng-if="vm.autoCompleteDateCodeFormat"
+                                                class="autocompletecustom cm-custom-autocomplete">
+                              <custom-auto-complete datalist="vm.dateCodeFormatList"
+                                                    column-name="vm.autoCompleteDateCodeFormat.columnName"
+                                                    key-column-name="vm.autoCompleteDateCodeFormat.keyColumnName"
+                                                    controller-name="vm.autoCompleteDateCodeFormat.controllerName"
+                                                    view-template-url="vm.autoCompleteDateCodeFormat.viewTemplateURL"
+                                                    input-name="vm.autoCompleteDateCodeFormat.inputName"
+                                                    placeholder-name="vm.autoCompleteDateCodeFormat.placeholderName"
+                                                    key-column-id="vm.autoCompleteDateCodeFormat.keyColumnId"
+                                                    is-addnew="vm.autoCompleteDateCodeFormat.isAddnew"
+                                                    callback-fn="vm.autoCompleteDateCodeFormat.callbackFn"
+                                                    is-required="vm.autoCompleteDateCodeFormat.isRequired"
+                                                    is-disabled="vm.mfrDateCodeAutoCompleteDisabled"
+                                                    on-select-callback-fn="vm.autoCompleteDateCodeFormat.onSelectCallbackFn">
+                              </custom-auto-complete>
+                            </md-input-container>
+                            <md-button flex id="btnSetMFRDateCode" name="btnSetMFRDateCode" ng-disabled="vm.isEdit || vm.isReadOnly || !vm.umidDetail.refcompid" class="md-primary md-icon-button md-raised md-mini margin-left-2" ng-click="vm.setMFGDateCodeFormat();">
+                              <md-icon md-font-icon="t-icons-set-default-value" class="material-icons mat-icon"></md-icon>
+                              <md-tooltip md-direction="top" class="tooltip-height-auto" ng-bind-html="vm.SET_DATE_CODE_FORMAT_BUTTON"></md-tooltip>
+                            </md-button>
+                          </div>
+                        </td>
+                        <th>
+                          <p class="label-container">Internal Date Code</p>
+                        </th>
+                        <td colspan="3">
+                          <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                            <input type="text" name="dateCode" ng-model="vm.umidDetail.dateCode" placeholder="{{vm.umidDetail.dateCodeFormat}}" disabled />
+                            <span flex="100" class="font-size-10">
+                              <b>
+                                UMID DC Format Default: {{vm.umidDetail.internaDateCodeFormatValue}}
+                              </b>
+                            </span>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">Lot Code</p>
+                        </th>
+                        <td>
+                          <div layout="row" flex="100" layout-align="start start">
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="text" name="lotCode" ng-model="vm.umidDetail.lotCode" placeholder="Lot Code"
+                                     ng-maxlength="255" md-maxlength="255">
+                              <div ng-messages="vm.formReceivingMaterial.lotCode.$error" role="alert">
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(255,vm.formReceivingMaterial.lotCode.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </div>
+                        </td>
+                        <th>
+                          <p class="label-container">MSL</p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" md-no-float>
+                            <input type="text" name="mslLevel" ng-model="vm.umidDetail.mslLevel" ng-disabled="true">
+                          </md-input-container>
+                        </td>
+
+
+                        <th>
+                          <p class="label-container">Seal Date</p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" class="datepicker w-110 padding-right-0-imp margin-bottom-0">
+                            <input name="sealDate" type="text" class="float-left" id="sealDate"
+                                   datetime-picker="{{$root.dateDisplayFormat}}" ng-model="vm.umidDetail.sealDate"
+                                   enable-time="false" ui-options="{clearOnBlur: false}"
+                                   ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                   ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}" model-view-value="true"
+                                   datepicker-options="vm.sealDateOptions" ng-readonly="vm.isReadOnly"
+                                   is-open="vm.IsPickerOpenSeal[vm.DATE_PICKER.partSealDate]" />
+                            <md-icon md-font-icon="icon-calendar calender-icon"
+                                     ng-click="vm.IsPickerOpenSeal[vm.DATE_PICKER.partSealDate] = (!vm.isReadOnly)">
+                            </md-icon>
+                            <div ng-messages="vm.formReceivingMaterial.sealDate.$error" role="alert">
+                              <div ng-message="datetime || mask || parse">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container">PCB Per Array</p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="number" name="pcbPerArray" ng-model="vm.umidDetail.pcbPerArray"
+                                   placeholder="PCB Per Array" onkeypress="return OnlyNumeric(event)" min="0" maxlength="10"
+                                   ng-disabled="vm.mountingType !== vm.RFQ_MOUNTINGTYPE.BarePCB.Name ? true : false">
+                            <div ng-messages="vm.formReceivingMaterial.pcbPerArray.$error" role="alert">
+                              <div ng-message="min">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(10,vm.formReceivingMaterial.pcbPerArray.$viewValue.length)}}</span>
+                              </div>
+                              <div ng-message="number">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            <a class="cm-text-decoration underline" ng-click="vm.goToRoHSStatusList();"
+                               tabindex="-1">RoHS Status</a><span ng-if="!(vm.allocatedKitCount && !vm.isScanLabel && vm.isEdit)">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container class="autocompletecustom cm-custom-autocomplete" flex="100"
+                                              ng-if="vm.autoCompleteRohsStatus">
+                            <custom-auto-complete datalist="vm.RohsList"
+                                                  column-name="vm.autoCompleteRohsStatus.columnName"
+                                                  key-column-name="vm.autoCompleteRohsStatus.keyColumnName"
+                                                  input-name="vm.autoCompleteRohsStatus.inputName"
+                                                  placeholder-name="vm.autoCompleteRohsStatus.placeholderName"
+                                                  key-column-id="vm.autoCompleteRohsStatus.keyColumnId"
+                                                  is-addnew="vm.autoCompleteRohsStatus.isAddnew"
+                                                  callback-fn="vm.autoCompleteRohsStatus.callbackFn"
+                                                  is-required="vm.autoCompleteRohsStatus.isRequired"
+                                                  is-disabled="vm.isReadOnly || (vm.allocatedKitCount && !vm.isScanLabel && vm.isEdit)"
+                                                  on-select-callback-fn="vm.autoCompleteRohsStatus.onSelectCallbackFn"
+                                                  controller-name="vm.autoCompleteRohsStatus.controllerName"
+                                                  view-template-url="vm.autoCompleteRohsStatus.viewTemplateURL"
+                                                  add-data="vm.autoCompleteRohsStatus.addData">
+                            </custom-auto-complete>
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container">Special Note</p>
+                        </th>
+                        <td colspan="5">
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <textarea id="specialNote" name="specialNote" ng-model="vm.umidDetail.specialNote"
+                                      rows="{{vm.textAreaRows.ROWS}}" max-rows="{{vm.textAreaRows.MAX_ROWS}}"
+                                      placeholder="Special Note" ng-maxlength="1000" md-maxlength="1000">
+                            </textarea>
+                            <div ng-messages="vm.formReceivingMaterial.specialNote.$error" role="alert">
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(1000,vm.formReceivingMaterial.specialNote.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <!-- / UMID COUNT/UNIT DETAIL SECTION -->
+              <!-- UMID SHELF LIFE SECTION -->
+              <div class="cm-section-main margin-top-5">
+                <div class="cm-section-inner">
+                  <table cellpadding="0" cellspacing="0" class="cm-table-input-main cm-table-cell-height-auto">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            {{vm.LabelConstant.MFG.ShelfLifeDateType}}
+                            <md-icon class="icon-question-mark-circle help-icon" ng-if="vm.hasLimitedShelfLife">
+                              <md-tooltip md-direction="top">
+                                <span>
+                                  {{vm.CORE.MESSAGE_CONSTANT.DYNAMIC_MESSAGE.RECEIVING.SHELF_LIFE_UPON_PART_MASTER.message}}
+                                </span>
+                              </md-tooltip>
+                            </md-icon>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" md-no-float class="margin-0 w-250">
+                            <md-select name="dateType" id="dateType" ng-model="vm.umidDetail.MFGorExpiryDate"
+                                       ng-disabled="!vm.umidDetail.refcompid || vm.isReadOnly"
+                                       md-container-class="containerClass" ng-keydown="vm.setFocusForDate($event)"
+                                       ng-change="vm.changeDateType()">
+                              <md-option ng-repeat="option in vm.DateTypeList" ng-value="option.type"
+                                         ng-disabled="option.IsDisable">{{option.Name}}</md-option>
+                            </md-select>
+                          </md-input-container>
+                        </td>
+
+                        <th>
+                          <p class="label-container">
+                            Date of Manufacture<span ng-if="!(vm.umidDetail.MFGorExpiryDate === vm.DateTypeList[0].type)">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                            <input name="mfgDate" type="text" class="float-left" id="mfgDate"
+                                   datetime-picker="{{$root.dateDisplayFormat}}" ng-model="vm.umidDetail.mfgDate"
+                                   enable-time="false" ui-options="{clearOnBlur: false}"
+                                   ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                   ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}" model-view-value="true"
+                                   ng-change="vm.changeMFGDate();" datepicker-options="vm.mfgDateOptions"
+                                   is-open="vm.IsPickerOpenMFG[vm.DATE_PICKER.partMFGDate]"
+                                   ng-disabled="vm.umidDetail.MFGorExpiryDate === vm.DateTypeList[0].type"
+                                   ng-readonly="vm.isReadOnly"
+                                   ng-required="!(vm.umidDetail.MFGorExpiryDate === vm.DateTypeList[0].type)" />
+                            <md-icon md-font-icon="icon-calendar calender-icon"
+                                     ng-click="vm.IsPickerOpenMFG[vm.DATE_PICKER.partMFGDate] = (!vm.isReadOnly)">
+                            </md-icon>
+                            <div ng-messages="vm.formReceivingMaterial.mfgDate.$error" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="datetime || mask || parse">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                              <div ng-message="valid" ng-if="vm.isInvalid">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                        <td rowspan="2">
+                          <!-- PART MASTER INFORMATION - SHELF LIFE DAYS -->
+                          <div>
+                            <table cellpadding="0" cellspacing="0"
+                                   class="cm-table-cell-height-auto cm-table-input-main middle-align-table table-bordered">
+                              <tbody>
+                                <tr>
+                                  <td></td>
+                                  <td class="text-bold text-center">
+                                    <p class="justify-content-center label-container">Today</p>
+                                  </td>
+                                  <td class="w-90">
+                                    <p class="justify-content-end label-container">
+                                      {{vm.currentDate | date: vm.DefaultDateFormat}}
+                                    </p>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th rowspan="4" class="text-center vertical-middle-align">
+                                    <p class="cm-vertical-text label-container text-center">Shelf Life <br>(Days)</p>
+                                  </th>
+                                  <td>
+                                    <p class="label-container">Shelf Life Per MFR</p>
+                                  </td>
+                                  <td>
+                                    <p class="justify-content-end label-container">
+                                      {{vm.umidDetail.selfLifeDays ? vm.umidDetail.selfLifeDays : '-'}}
+                                    </p>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    <p class="label-container">Accept With Permission If Expires In (Days)</p>
+                                  </td>
+                                  <td>
+                                    <p class="justify-content-end label-container">
+                                      {{vm.umidDetail.shelfLifeAcceptanceDays ? vm.umidDetail.shelfLifeAcceptanceDays :'-'}}
+                                    </p>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    <p class="label-container">Reject If Expires In (Days)</p>
+                                  </td>
+                                  <td>
+                                    <p class="justify-content-end label-container">
+                                      {{vm.umidDetail.maxShelfLifeAcceptanceDays ? vm.umidDetail.maxShelfLifeAcceptanceDays : '-'}}
+                                    </p>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    <p class="label-container">Expires In (Days)</p>
+                                  </td>
+                                  <td class="text-right">
+                                    <p class="justify-content-end label-container">
+                                      {{vm.expiryInDays ? vm.expiryInDays : '-'}}
+                                    </p>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                          <!-- / PART MASTER INFORMATION - SHELF LIFE DAYS -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="2"></td>
+                        <th>
+                          <p class="label-container">
+                            {{vm.LabelConstant.UMIDManagement.DateOfExpiration}}<span ng-if="!(vm.umidDetail.MFGorExpiryDate === vm.DateTypeList[0].type)">&nbsp;*</span>
+                          </p>
+                        </th>
+                        <td>
+                          <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                            <input name="expiryDate" type="text" class="float-left" id="expiryDate"
+                                   datetime-picker="{{$root.dateDisplayFormat}}" ng-model="vm.umidDetail.expiryDate"
+                                   enable-time="false" ui-options="{clearOnBlur: false}"
+                                   ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                   ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}" model-view-value="true"
+                                   datepicker-options="vm.expireDateOptions" ng-change="vm.changeExpiryDate();"
+                                   is-open="vm.IsPickerOpenExpiry[vm.DATE_PICKER.partExpiryDate]"
+                                   ng-disabled="vm.umidDetail.MFGorExpiryDate === vm.DateTypeList[0].type"
+                                   ng-readonly="vm.isReadOnly"
+                                   ng-required="!(vm.umidDetail.MFGorExpiryDate === vm.DateTypeList[0].type)" last-element
+                                   data-focusButton="btnSaveUMID" elementcondition="true" />
+                            <md-icon md-font-icon="icon-calendar calender-icon"
+                                     ng-click="vm.IsPickerOpenExpiry[vm.DATE_PICKER.partExpiryDate] = (!vm.isReadOnly)">
+                            </md-icon>
+                            <div ng-messages="vm.formReceivingMaterial.expiryDate.$error || vm.isInvalid" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="datetime || mask || parse">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                              <div ng-message="valid" ng-if="vm.isInvalid">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <!-- / UMID SHELF LIFE SECTION -->
+            </div>
+            <div flex="40" flex-md="100" flex-sm="100" layout layout-wrap class="margin-pro-rs-right-0">
+              <div class="margin-bottom-5" flex>
+                <div class="cm-section-main margin-bottom-5" flex>
+                  <div class="cm-section-inner" layout="row">
+                    <div layout-wrap>
+                      <h3 class="margin-left-auto-imp" ng-if="vm.umidDetail.packingSlipNumber && vm.isEdit">
+                        <span ng-if="vm.umidDetail.packingSlipNumber">
+                          Packing Slip#:
+                          <label class="mb-0 underline">
+                            <a class="cursor-pointer" ng-click="vm.goToManagePackingSlipDetail();">
+                              {{vm.umidDetail.packingSlipNumber}}
+                            </a>
+                            <copy-text text="vm.umidDetail.packingSlipNumber"></copy-text>
+                          </label>
+                        </span>
+                      </h3>
+                    </div>
+                    <div layout="row" layout-wrap flex layout-align="end-center">
+                      <md-button tabindex="-1" class="md-primary md-raised md-ink-ripple m-0"
+                                 ng-disabled="vm.isReadOnly" ng-click="vm.goToNonUMIDStock()">
+                        {{vm.nonUMIDStockLabel}}
+                      </md-button>
+                      <md-button class="md-primary md-raised md-ink-ripple m-0 ml-10" ng-if="vm.isEdit"
+                                 ng-disabled="vm.isReadOnly" ng-click="vm.goToAttribute();">Add Attributes</md-button>
+                      <md-button class="md-primary md-raised md-ink-ripple m-0 ml-10" ng-if="vm.isEdit"
+                                 ng-disabled="vm.isReadOnly" ng-click="vm.getDataElementList()">Refresh Attributes</md-button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- UMID DATA FIELD GRID SECTION -->
+                <div layout="column" flex-md="100" flex-sm="100" flex="100" layout-wrap>
+                  <div layout="row" flex="100" ng-if="vm.execute">
+                    <div flex="100">
+                      <div class="content-card" layout="column" flex>
+                        <div class="content-card" layout="row" flex="100">
+                          <md-card layout="column" class="cm-receiving-grid-stock margin-0" flex
+                                   layout-align="space-between stretch">
+                            <ui-grid-extention grid-id="vm.gridConfig.gridUMIDDataElementList" load-data="vm.loadData"
+                                               grid-option="vm.gridOptions" header="vm.sourceHeader" grid-data="vm.sourceData"
+                                               total-data-count="vm.totalSourceDataCount" reset-grid="vm.resetSourceGrid"
+                                               selectted-rows="vm.selectedRowsList" paging-info="vm.pagingInfo"
+                                               current-item="vm.currentdata" get-data-down="vm.getDataDown" empty-state="vm.emptyState"
+                                               delete-multiple-data="vm.deleteMultipleData">
+                            </ui-grid-extention>
+                          </md-card>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- / UMID DATA FIELD GRID SECTION -->
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- FOOTER BUTTONS -->
+  <div flex="100" class="cm-receiving-screen-button" layout="row">
+    <div flex layout="row" layout-align="start center" layout-wrap flex-lg="80" flex-md="80">
+      <md-button id="btnSaveUMID" name="btnSaveUMID" class="md-primary md-raised"
+                 ng-disabled="vm.saveBtnDisableFlag || vm.isReadOnly"
+                 ng-class="{'md-formdirty': vm.formReceivingMaterial.$dirty}" aria-label="receive"
+                 ng-click="vm.SaveDataElements()">
+        Save
+      </md-button>
+
+      <span class="cm-direction-arrow-parttostock"><i class="icon-chevron-right s18 arrow rooticon"></i></span>
+      <md-button id="btnPrintLabelUMID" name="btnPrintLabelUMID" ng-disabled="!vm.isEdit || vm.isReadOnly"
+                 class="md-primary md-raised" aria-label="print" ng-click="vm.printBarcodeLabel()">
+        Print Label
+      </md-button>
+
+      <span class="cm-direction-arrow-parttostock"><i class="icon-chevron-right s18 arrow rooticon"></i></span>
+      <md-button ng-disabled="!vm.isEdit || vm.isReadOnly" class="md-primary md-raised" aria-label="verify"
+                 ng-click="vm.verifyBarcodeLabel($event, { Title : 'Label Verification', UMID: vm.umidDetail.uid, PageType : vm.TRANSACTION.VerifyPictureType.TakePicture })">
+        Verify Label and Take Picture
+      </md-button>
+
+      <span class="cm-direction-arrow-parttostock"><i class="icon-chevron-right s18 arrow rooticon"></i></span>
+      <md-button ng-disabled="!vm.isEdit || vm.isReadOnly" class="md-primary md-raised" aria-label="transfer"
+                 ng-click="vm.verifyBarcodeLabel($event, { Title : 'Transfer Label', UMID: vm.umidDetail.uid})">
+        Transfer Label
+      </md-button>
+
+      <span class="cm-direction-arrow-parttostock"><i class="icon-chevron-right s18 arrow rooticon"></i></span>
+      <md-button id="btnFooterAddUMID" name="btnFooterAddUMID"
+                 ng-disabled="vm.isReadOnly || ((!vm.isEdit) || (!vm.isEdit && vm.formReceivingMaterial.$valid) || vm.isExpire || vm.isScanLabel)"
+                 class="md-primary md-raised" aria-label="add" ng-click="vm.addNewReceiveMaterial()">
+        Add UMID
+      </md-button>
+
+    </div>
+
+    <div flex layout="row" layout-align="end center" layout-wrap flex-lg="20" flex-md="20">
+      <md-button id="btnPrintMultipleUMID" name="btnPrintMultipleUMID" ng-disabled="!vm.isEdit || vm.isReadOnly"
+                 class="md-primary md-raised" aria-label="print" ng-click="vm.printMultipleBarcodeLabel($event)">
+        Print Multiple
+      </md-button>
+    </div>
+  </div>
+  <!-- / FOOTER BUTTONS -->
+</div>
+
+<style>
+  .ui-grid-cell-focus {
+    border: 0 !important;
+    height: 100%;
+  }
+
+  .form-control {
+    width: 100% !important;
+  }
+
+  .ui-grid-cell-contents {
+    width: 100%;
+    overflow: visible;
+  }
+</style>

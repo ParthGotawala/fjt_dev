@@ -1,0 +1,126 @@
+<md-dialog aria-label="SelectStock" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="85">
+  <form name="vm.formSupplierRMAStock" class="md-inline-form" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Supplier RMA Stock</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content class="no-padding custom-scroll">
+      <md-content class="padding-10 full-height" layout="row" flex="100">
+        <div class="flex-100 layout-row layout-wrap">
+          <div layout="row" flex="100" layout-align="end center" class="pb-10">
+            <md-button class="md-primary md-raised margin-0"
+                       ng-click="vm.refreshData(true);" aria-label="Submit">Refresh</md-button>
+          </div>
+          <div class="content fullpage-datatable cm-available-stock-table cm-table-available" layout="column" flex="100">
+            <md-table-container>
+              <table md-table class="cm-scroll-table">
+                <thead md-head md-order="vm.query.order">
+                  <tr md-row>
+                    <th md-column class="text-center w-50">
+                      <md-checkbox ng-model="vm.isAllSelect" ng-change="vm.selectAllStock()" ng-disabled="vm.showStatus"></md-checkbox>
+                    </th>
+                    <th md-column class="serial-number">#</th>
+                    <th md-column md-order-by="packingSlipSerialNumber">PS Line#</th>
+                    <th md-column md-order-by="type" class="w-130">Type</th>
+                    <th md-column md-order-by="receivedStatus" class="w-130">Received Status</th>
+                    <th md-column md-order-by="umid" class="w-150">UMID</th>
+                    <th md-column md-order-by="pkgUnit" class="w-150">Received Qty</th>
+                    <th md-column md-order-by="pkgUnit" class="w-150">Available Qty</th>
+                    <th md-column class="units-detail">Shipment Qty</th>
+                    <th md-column md-order-by="binName" class="w-180">Last Location/Bin</th>
+                    <th md-column md-order-by="warehouseName" class="w-180">Last Warehouse</th>
+                    <th md-column md-order-by="departmentName" class="w-180">Last Department</th>
+                    <th md-column class="width-250">
+                      Location/Bin
+                      <md-icon class="icon-question-mark-circle help-icon">
+                        <md-tooltip md-direction="top">Location/Bin is required when uncheck any UMID from supplier RMA stock.</md-tooltip>
+                      </md-icon>
+                      <br />
+                      ({{vm.LabelConstant.ScanOREnter.ScanBin}})
+                    </th>
+                    <th md-column class="width-250">Warehouse</th>
+                    <th md-column class="width-250">Department</th>
+                  </tr>
+                </thead>
+                <tbody class="max-height-650">
+                  <tr md-row md-auto-select ng-repeat="item in vm.stockList | orderBy: vm.query.order">
+                    <td md-cell class="text-center w-50">
+                      <md-checkbox ng-model="item.isSelect" ng-change="vm.selectStock(item)" class="margin-top-10 margin-bottom-10"></md-checkbox>
+                    </td>
+                    <td md-cell class="serial-number">{{$index+1}}</td>
+                    <td md-cell class="serial-number w-130">{{item.packingSlipSerialNumber}}</td>
+                    <td md-cell class="text-center w-130">
+                      <span class="label-box" ng-class="{'label-success': item.type === vm.RMAStockStatus.PendingUMID, 'label-warning': item.type === vm.RMAStockStatus.UMID }">{{item.typeValue}}</span>
+                    </td>
+                    <td md-cell class="text-center w-130">
+                      <span ng-if="item.receivedStatus === vm.packingSlipReceivedStatus[0].value" class="label-box label-warning">{{vm.packingSlipReceivedStatus[0].key}}</span>
+                      <span ng-if="item.receivedStatus === vm.packingSlipReceivedStatus[1].value" class="label-box label-success">{{vm.packingSlipReceivedStatus[1].key}}</span>
+                      <span ng-if="item.receivedStatus === vm.packingSlipReceivedStatus[2].value" class="label-box label-danger">{{vm.packingSlipReceivedStatus[2].key}}</span>
+                      <span ng-if="item.receivedStatus === vm.packingSlipReceivedStatus[3].value" class="label-box light-green-bg">{{vm.packingSlipReceivedStatus[3].key}}</span>
+                    </td>
+                    <td md-cell class="w-150">
+                      <a ng-click="vm.goToUMIDManagement(item)" ng-if="item.umid" class="cm-text-decoration underline cursor-pointer">{{item.umid || "-"}}</a>
+                      <copy-text ng-if="item.umid" label="vm.CORE.LabelConstant.UMIDManagement.UMID" text="item.umid"></copy-text>
+                      <span ng-if="!item.umid">-</span>
+                    </td>
+                    <td md-cell class="text-right w-150">{{item.receivedQty}}</td>
+                    <td md-cell class="text-right w-150">{{item.availableQty > 0 ? item.availableQty : 0}}</td>
+                    <td md-cell class="units-detail text-center">
+                      <input type="number" id="shipmentQty" name="shipmentQty" ng-model="item.shipmentQty" placeholder="Shipment Qty"
+                             onkeypress="return OnlyNumeric(event)" min="0" step="1" input-number-decimal-place maxlength="18"
+                             ng-disabled="(!item.isSelect) || (item.isSelect && item.type === vm.RMAStockStatus.UMID)" ng-keyup="vm.inputShipmentQty(item)"
+                             ng-class="{'text-angular-custom-border': item.isNotValidShipmentQty && item.isSelect}">
+                    </td>
+                    <td md-cell class="w-180">{{item.binName}}</td>
+                    <td md-cell class="w-180">{{item.warehouseName}}</td>
+                    <td md-cell class="w-180">{{item.parentWarehouseName}}</td>
+                    <td md-cell class="width-250 text-center">
+                      <input type="text" id="transferBinName_{{$index}}" name="transferBinName" ng-model="item.transferBinName" placeholder="Location/Bin" capitalize
+                             ng-disabled="(item.isSelect) || !(!item.isSelect && item.type === vm.RMAStockStatus.UMID && item.stockId)" class="width-235"
+                             ng-class="{'cm-input-text-border-validation': !item.isSelect && item.type === vm.RMAStockStatus.UMID && item.stockId && !item.transferBinName, 'cm-input-text-border': !(!item.isSelect && item.type === vm.RMAStockStatus.UMID && item.stockId && !item.transferBinName) }"
+                             ng-required="!item.isSelect && item.type === vm.RMAStockStatus.UMID && item.stockId"
+                             ng-keypress="vm.scanBin($event,true, item, $index)" custom-blur="vm.scanBin($event,false, item, $index)">
+                    </td>
+                    <td md-cell class="width-250">{{item.transferWarehouseName}}</td>
+                    <td md-cell class="width-250">{{item.transferParentWarehouseName}}</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr md-row class="cm-stock-al-total font-weight-900">
+                    <td class="text-right w-430">Total:</td>
+                    <td class="text-right w-150"></td>
+                    <td class="text-right width-150"></td>
+                    <td class="text-right width-150">{{vm.totalAvailableQty}}</td>
+                    <td class="text-right units-detail">{{vm.totalShipementQty}}</td>
+                    <td class="rma-stock-footer-last-col">&nbsp;</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </md-table-container>
+          </div>
+
+        </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()" id="btnCancel">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.saveStockDetail()"
+                 ng-disabled="vm.isDisable || vm.formSupplierRMAStock.$invalid"
+                 ng-class="{'md-formdirty': vm.formSupplierRMAStock.$dirty && !vm.isDisable}"
+                 aria-label="Submit">
+        Save
+      </md-button>
+    </md-dialog-actions>
+
+  </form>
+</md-dialog>

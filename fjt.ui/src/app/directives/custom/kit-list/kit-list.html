@@ -1,0 +1,479 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div layout="row" layout-sm="column" flex class="layout-row flex md-inline-form cm-kit-list-filters">
+    <form class="md-inline-form cm-custom-label-common width-100p pt-10" name="vm.filtersInfo">
+      <div layout="row" flex="100" class="umid-advance-filter advanced-filters" layout-wrap>
+        <div layout="row" flex="100" class="overflow-auto-rs pl-10 mb-5">
+          <!--customer list-->
+          <div layout="column" class="padding-right-5" flex="25" ng-if="!vm.isFilterHidden">
+            <div layout="column" class="alias-list-main cm-alias-list-main-static-block" flex>
+              <div class="title alias-list-title cm-alias-list-title-static-block" layout="row" flex="100" layout-align="space-between center">
+                <span class="label-container width-auto">
+                  <a class="cm-text-decoration underline" ng-click="vm.goToCustomerList();"
+                     tabindex="-1">Customer</a>
+                </span>
+                <div layout="row" layout-align="center center" flex="100" class="cm-part-mfr-list-search">
+                  <md-input-container md-no-float flex="100" layout="row" class="margin-0 pos-rel">
+                    <input type="text" name="CustomerSearchText" id="CustomerSearchText" ng-model="vm.CustomerSearchText"
+                           placeholder="Type here to search"
+                           ng-maxlength="50" autocomplete="off"
+                           ng-model-options="{ debounce: vm.configTimeout }"
+                           ng-change="vm.searchCustomerList()">
+                    <md-button ng-if="vm.CustomerSearchText" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3 padding-0"
+                               ng-click="vm.clearCustomerSearchText()">
+                      <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close font-size-12 color-white"></md-icon>
+                    </md-button>
+                  </md-input-container>
+                </div>
+                <div layout="row" layout-align="center center">
+                  <a class="cm-text-decoration underline"
+                     ng-click="vm.clearCustomerFilter();"
+                     tabindex="-1"
+                     ng-if="vm.customer.length">
+                    Clear
+                  </a>
+                  <md-button ng-click="vm.getCustomerList();" class="md-primary md-link-ripple cm-part-advance-filter-btn">
+                    <md-icon md-font-icon="icon-reload">
+                      <md-tooltip>Reload</md-tooltip>
+                    </md-icon>
+                  </md-button>
+                </div>
+              </div>
+              <select ng-model="vm.customer" size="10" multiple="" class="cm-auto-scroll" ng-if="vm.customerListToDisplay && vm.customerListToDisplay.length">
+                <option ng-repeat="x in vm.customerListToDisplay" value="{{x.id}}">{{x.mfgName}}</option>
+              </select>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap
+                   ng-if="(!vm.customerListToDisplay || vm.customerListToDisplay.length === 0) && vm.CustomerSearchText">
+                <p flex="100" class="empty-state-title font-size-17-imp">{{vm.EmptyMesssages.MESSAGE}}</p>
+              </div>
+            </div>
+          </div>
+          <div layout="column" class="padding-right-5" flex="10">
+            <div flex="100" layout="row">
+              <div flex layout="row">
+                <fieldset flex="100" class="container-box">
+                  <legend class="margin-0">SO Working Status</legend>
+                  <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                    <div class="input-wrapper" layout="column" layout-align="start start">
+                      <md-checkbox ng-model="vm.pending" ng-change="vm.statusFilter()" class="mv-0">{{vm.CompelteStatus[1].value}}</md-checkbox>
+                      <md-checkbox ng-model="vm.completed" ng-change="vm.statusFilter()" class="mv-0">{{vm.CompelteStatus[2].value}}</md-checkbox>
+                      <md-checkbox ng-model="vm.canceled" ng-change="vm.statusFilter()" class="mv-0">{{vm.CompelteStatus[3].value}}</md-checkbox>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+            <div flex="100" layout="row">
+              <div flex layout="row">
+                <fieldset flex="100" class="container-box">
+                  <legend class="margin-0">SO Posting Status</legend>
+                  <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                    <div class="input-wrapper" layout="column" layout-align="start center">
+                      <md-checkbox ng-model="vm.draft" ng-change="vm.postingStatusFilter()" class="mv-0">{{vm.SOStatus[1].value}}</md-checkbox>
+                      <md-checkbox ng-model="vm.publish" ng-change="vm.postingStatusFilter()" class="mv-0">{{vm.SOStatus[2].value}}</md-checkbox>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+          </div>
+          <div layout="column" class="padding-right-5" flex="15">
+            <div flex="100" layout="row">
+              <div flex layout="row">
+                <fieldset flex="100" class="container-box">
+                  <legend class="margin-0">Kit Plan Status</legend>
+                  <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                    <div class="cm-checkbox-auto input-wrapper" layout="column" layout-align="start start">
+                      <md-checkbox ng-model="vm.unPlanned" ng-change="vm.planstatusFilter()" class="mv-0 margin-bottom-10-imp">Unplanned (Requires Planning) ({{vm.unPlannedCount || 0}})</md-checkbox>
+                      <md-checkbox ng-model="vm.partiallyPlanned" ng-change="vm.planstatusFilter()" class="mv-0 margin-bottom-10-imp">Partially Planned (Require Further Planning) ({{vm.partiallyPlannedCount || 0}})</md-checkbox>
+                      <md-checkbox ng-model="vm.planned" ng-change="vm.planstatusFilter()" class="mv-0">Fully Planned</md-checkbox>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+          </div>
+          <div layout="column" class="padding-right-5" flex="10">
+            <div flex="100" layout="row">
+              <div flex layout="row">
+                <fieldset flex="100" class="container-box">
+                  <legend class="margin-0">Kit Release Status</legend>
+                  <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                    <div class="input-wrapper" layout="column" layout-align="start start">
+                      <md-checkbox ng-model="vm.kitNotRelease" ng-change="vm.releasestatusFilter()" class="mv-0">{{vm.kitReleaseStatus[2].value}}</md-checkbox>
+                      <md-checkbox ng-model="vm.kitReadyRelease" ng-change="vm.releasestatusFilter()" class="mv-0">{{vm.kitReleaseStatus[1].value}}</md-checkbox>
+                      <md-checkbox ng-model="vm.kitPartialRelease" ng-change="vm.releasestatusFilter()" class="mv-0">{{vm.kitReleaseStatus[3].value}}</md-checkbox>
+                      <md-checkbox ng-model="vm.kitFullyRelease" ng-change="vm.releasestatusFilter()" class="mv-0">{{vm.kitReleaseStatus[4].value}}</md-checkbox>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+          </div>
+          <div layout="column" class="padding-right-5">
+            <div flex="100" layout="row">
+              <div flex layout="row">
+                <fieldset flex="100" class="container-box">
+                  <legend class="margin-0">Kit Return Status</legend>
+                  <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                    <div class="input-wrapper" layout="column" layout-align="start start">
+                      <md-checkbox ng-model="vm.kitReturnNA" ng-change="vm.kitReturnstatusFilter()" class="mv-0">{{vm.kitReturnStatus[1].value}}</md-checkbox>
+                      <md-checkbox ng-model="vm.kitReturnNot" ng-change="vm.kitReturnstatusFilter()" class="mv-0">{{vm.kitReturnStatus[2].value}}</md-checkbox>
+                      <md-checkbox ng-model="vm.KitReturnReady" ng-change="vm.kitReturnstatusFilter()" class="mv-0">{{vm.kitReturnStatus[3].value}}</md-checkbox>
+                      <md-checkbox ng-model="vm.kitReturnPartially" ng-change="vm.kitReturnstatusFilter()" class="mv-0">{{vm.kitReturnStatus[4].value}}</md-checkbox>
+                      <md-checkbox ng-model="vm.kitReturnedWithShortage" ng-change="vm.kitReturnstatusFilter()" class="mv-0">{{vm.kitReturnStatus[5].value}}</md-checkbox>
+                      <md-checkbox ng-model="vm.kitReturnFully" ng-change="vm.kitReturnstatusFilter()" class="mv-0">{{vm.kitReturnStatus[6].value}}</md-checkbox>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+          </div>
+          <div layout="column" flex>
+            <div layout layout-wrap flex="100" class="pr-10">
+              <div class="input-wrapper" layout="column" flex="100" flex-md="100" flex-sm="100">
+                <fieldset flex="100" class="container-box">
+                  <legend class="margin-0">Search PO#/SO#</legend>
+                  <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                    <div layout="row" layout-align="start center">
+                      <md-radio-group class=" mb-5" flex="100" layout="row" ng-model="vm.checkSerachPOType" name="checkSerachType">
+                        <md-radio-button id="" ng-value="vm.CheckSearchTypeList[1].id" class="md-primary margin-top-0">Contains</md-radio-button>
+                        <md-radio-button ng-value="vm.CheckSearchTypeList[0].id" class="md-primary margin-top-0">Exact</md-radio-button>
+                      </md-radio-group>
+                    </div>
+                    <div class="input-wrapper ml-10" layout="row" layout-align="start center" flex="90">
+                      <md-input-container flex="100" class="margin-bottom-0">
+                        <input type="text" id="posoNumber" name="posoNumber" ng-model="vm.posoNumber" ng-maxlength="50"
+                               placeholder="Search PO/SO Slip#" ng-keypress="vm.scanSearchKey($event)" />
+                        <div ng-messages="vm.filtersInfo.posoNumber.$error" role="alert">
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(50,vm.filtersInfo.posoNumber.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </div>
+                    <div flex="7" layout="row" ng-if="vm.posoNumber">
+                      <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removePOSONumber($event)">
+                        <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                        <md-tooltip>Reset</md-tooltip>
+                      </md-button>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+              <div class="input-wrapper" layout="column" flex="100" flex-md="100" flex-sm="100">
+                <fieldset flex="100" class="container-box cm-supplier-check-box">
+                  <legend class="margin-0">SO Date</legend>
+                  <div class="margin-left-10" layout="row" flex="100" layout-align="start start">
+                    <table cellpadding="0" cellspacing="0" class="cm-table-input-main" flex>
+                      <tbody>
+                        <tr>
+                          <th class="width-15p">
+                            <p class="mt-10 label-container">From Date</p>
+                          </th>
+                          <td class="width-35p">
+                            <md-input-container class="md-block datepicker padding-right-0-imp margin-0 w-110" flex="100">
+                              <input type="text" class="float-left"
+                                     name="fromDate"
+                                     max-value="vm.toDate"
+                                     datetime-picker="{{$root.dateDisplayFormat}}"
+                                     enable-date="true"
+                                     enable-time="false"
+                                     allow-past-date="true"
+                                     allow-future-date="true"
+                                     ng-model="vm.fromDate"
+                                     ng-change="vm.fromDateChanged()"
+                                     datepicker-options="vm.fromDateOptions"
+                                     ui-options="{clearOnBlur  : true}"
+                                     ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                     ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                     model-view-value="true"
+                                     is-open="vm.fromDateOptions.fromDateOpenFlag" />
+                              <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.fromDateOptions.fromDateOpenFlag = true">
+                              </md-icon>
+                              <div ng-messages="vm.filtersInfo.fromDate.$error" role="alert">
+                                <div ng-message="valid">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="datetime">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="maxvalue">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.MAX_DATE_TODAY_DATE}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th class="pl-10 width-10p">
+                            <p class="mt-10 label-container">To Date</p>
+                          </th>
+                          <td class="width-35p">
+                            <md-input-container class="md-block datepicker padding-right-0-imp margin-0 w-110" flex="100">
+                              <input type="text" class="float-left"
+                                     name="toDate"
+                                     min-value="vm.fromDate"
+                                     datetime-picker="{{$root.dateDisplayFormat}}"
+                                     allow-past-date="true"
+                                     allow-future-date="true"
+                                     enable-date="true"
+                                     enable-time="false"
+                                     ng-model="vm.toDate"
+                                     ng-change="vm.toDateChanged()"
+                                     datepicker-options="vm.toDateOptions"
+                                     ui-options="{clearOnBlur  : true}"
+                                     ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                     ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                     model-view-value="true"
+                                     is-open="vm.toDateOptions.toDateOpenFlag" />
+                              <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.toDateOptions.toDateOpenFlag = true">
+                              </md-icon>
+                              <div ng-messages="vm.filtersInfo.toDate.$error" role="alert">
+                                <div ng-message="valid">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="datetime">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="minvalue">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_DATE_TODAY_DATE}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </fieldset>
+                <fieldset flex="100" class="container-box cm-supplier-check-box">
+                  <legend class="margin-0">PO Date</legend>
+                  <div class="margin-left-10 pb-15" layout="row" flex="100" layout-align="start start">
+                    <table cellpadding="0" cellspacing="0" class="cm-table-input-main" flex>
+                      <tbody>
+                        <tr>
+                          <th class="width-15p">
+                            <p class="mt-10 label-container">From Date</p>
+                          </th>
+                          <td class="width-35p">
+                            <md-input-container class="md-block datepicker padding-right-0-imp margin-0 w-110" flex="100">
+                              <input type="text" class="float-left"
+                                     name="fromPODate"
+                                     max-value="vm.toPODate"
+                                     datetime-picker="{{$root.dateDisplayFormat}}"
+                                     enable-date="true"
+                                     enable-time="false"
+                                     allow-past-date="true"
+                                     allow-future-date="true"
+                                     ng-model="vm.fromPODate"
+                                     ng-change="vm.fromPODateChanged()"
+                                     datepicker-options="vm.fromDateOptions"
+                                     ui-options="{clearOnBlur  : true}"
+                                     ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                     ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                     model-view-value="true"
+                                     is-open="vm.fromPODateOptions.fromPODateOpenFlag" />
+                              <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.fromPODateOptions.fromPODateOpenFlag = true">
+                              </md-icon>
+                              <div ng-messages="vm.filtersInfo.fromPODate.$error" role="alert">
+                                <div ng-message="valid">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="datetime">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="maxvalue">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.MAX_DATE_TODAY_DATE}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th class="pl-10 width-15p">
+                            <p class="mt-10 label-container">To Date</p>
+                          </th>
+                          <td class="width-35p">
+                            <md-input-container class="md-block datepicker padding-right-0-imp margin-0 w-110" flex="100">
+                              <input type="text" class="float-left"
+                                     name="toPODate"
+                                     min-value="vm.fromPODate"
+                                     datetime-picker="{{$root.dateDisplayFormat}}"
+                                     allow-past-date="true"
+                                     allow-future-date="true"
+                                     enable-date="true"
+                                     enable-time="false"
+                                     ng-model="vm.toPODate"
+                                     ng-change="vm.toPODateChanged()"
+                                     datepicker-options="vm.toDateOptions"
+                                     ui-options="{clearOnBlur  : true}"
+                                     ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                     ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                     model-view-value="true"
+                                     is-open="vm.toPODateOptions.toPODateOpenFlag" />
+                              <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.toPODateOptions.toPODateOpenFlag = true">
+                              </md-icon>
+                              <div ng-messages="vm.filtersInfo.toPODate.$error" role="alert">
+                                <div ng-message="valid">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="datetime">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="minvalue">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_DATE_TODAY_DATE}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div layout="row" flex="100" class="overflow-auto-rs pl-10 mb-5">
+          <div class="input-wrapper pr-5" layout="column" flex="40" flex-md="100" flex-sm="100">
+            <fieldset flex="100" class="container-box">
+              <legend class="margin-0">Search PID / Assy ID / MPN / Assy# / CPN &nbsp;&nbsp;((MFR/Supplier Code) (MPN/SPN) | PID | Production PN)</legend>
+              <div layout="row" flex="100" layout-md="column" layout-sm="column" class="cm-po-part-height-scroll">
+                <md-input-container class="cm-widget-chip md-block full-chip margin-0" flex="100" md-no-float>
+                  <md-contact-chips ng-model="vm.partIds" flex="100" layout="row" class="cm-so-contact-chip"
+                                    md-contacts="vm.querycomponentSearch($query)"
+                                    md-contact-name="componentParts"
+                                    md-contact-image=""
+                                    md-contact-email=""
+                                    md-require-match="true"
+                                    md-highlight-flags="i"
+                                    filter-selected="true"
+                                    secondary-placeholder="Add another to search"
+                                    placeholder="Type here to search">
+                  </md-contact-chips>
+                </md-input-container>
+              </div>
+            </fieldset>
+          </div>
+          <div class="input-wrapper pr-5" layout="column" flex="25" flex-md="100" flex-sm="100">
+            <fieldset flex="100" class="container-box">
+              <legend class="margin-0">Work Order</legend>
+              <div layout="row" flex="100" layout-md="column" layout-sm="column" class="cm-po-part-height-scroll">
+                <md-input-container class="cm-widget-chip md-block full-chip margin-0" flex="100" md-no-float>
+                  <md-contact-chips ng-model="vm.woIds" flex="100" layout="row"
+                                    md-contacts="vm.queryworkorderSearch($query)"
+                                    md-contact-name="woNumber"
+                                    md-contact-image=""
+                                    md-contact-email=""
+                                    md-require-match="true"
+                                    md-highlight-flags="i"
+                                    filter-selected="true"
+                                    secondary-placeholder="Add another to search"
+                                    placeholder="Type here to search">
+                  </md-contact-chips>
+                </md-input-container>
+              </div>
+            </fieldset>
+          </div>
+          <div layout="column" flex="nogrow">
+            <div flex="100" layout="row">
+              <div flex layout="row">
+                <fieldset flex="100" class="container-box margin-top-7">
+                  <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                    <div class="input-wrapper margin-top-10 margin-left-10" layout="row" layout-align="start center">
+                      <md-checkbox ng-model="vm.isRushJob" class="mv-0">Rush Job</md-checkbox>
+                      <md-checkbox ng-if="(!vm.isSubAssemblyTab)" ng-model="vm.isSubAssembly" class="mv-0">{{vm.KitListAdvanceFilter.SubAssembly.value}}</md-checkbox>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+          </div>
+          <div layout="column" flex class="mr-5 mt-10">
+            <div class="input-wrapper cm-btn-group" flex="100" layout="row" layout-align="end-end">
+              <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.advanceFilterSearch()">{{vm.LabelConstant.COMMON.APPLY_FILTERS}}</md-button>
+              <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.clearSelection();" ng-disabled="vm.isClearSelectionDisabled()">{{vm.LabelConstant.COMMON.CLEAR_ALL}}</md-button>
+              <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.reset()">{{vm.LabelConstant.COMMON.RESET}}</md-button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div layout="row" layout-align="start center" layout-wrap flex="100" class="padding-left-10 mb-5" ng-if="vm.generateFilter">
+        <span class="font-weight-600">
+          {{vm.LabelConstant.COMMON.APPLIED_FILTERS}}
+        </span>
+        <div ng-repeat="item in vm.KitListAdvanceFilter" layout="row" layout-align="start center" class="cm-tracking-chip-mian"
+             ng-if="!item.isDeleted">
+          <div class="tracking-number-chip" layout="row" layout-align="start center">
+            <label>
+              {{item.value}}
+              <md-tooltip md-direction="top" ng-if="item.tooltip" class="tooltip-height-auto"
+                          ng-bind-html="item.tooltip">
+              </md-tooltip>
+            </label>
+            <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeAppliedFilter(item, $index)">
+              <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+              <md-tooltip>Click to remove this filter</md-tooltip>
+            </md-button>
+          </div>
+        </div>
+      </div>
+      <div layout="row" layout-align="start center" layout-wrap flex="100" class="padding-left-10 mb-5"
+           ng-if="vm.isUiGridColumnFiltersApplied && vm.gridOptions.gridApi && vm.gridOptions.gridApi.grid.columns.length > 0">
+        <span class="font-weight-600">
+          {{vm.LabelConstant.COMMON.APPLIED_GRID_FILTERS}}
+        </span>
+        <div ng-repeat="item in vm.gridOptions.gridApi.grid.columns" layout="row" layout-align="start center" class="cm-tracking-chip-mian"
+             ng-if="item.filters[0].term">
+          <div class="tracking-number-chip" layout="row" layout-align="start center" ng-if="item.filters[0].term">
+            <label>
+              {{item.displayName}}
+              <md-tooltip md-direction="top" ng-if="item.filters[0].term" class="tooltip-height-auto"
+                          ng-bind-html="item.filters[0].term">
+              </md-tooltip>
+            </label>
+            <md-button class="md-icon-button md-primary md-mini" ng-click="vm.clearGridColumnFilter(item, $index)">
+              <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+              <md-tooltip>Click to remove this filter</md-tooltip>
+            </md-button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <!-- / CONTENT HEADER -->
+  <!-- CONTENT CARD -->
+  <div class="content-card cm-salesorder-list cm-kit-list-table" layout="column" flex ng-show="!vm.isNoDataFound">
+    <md-card layout="column" flex layout-align="space-between stretch" class="margin-0 padding-10 padding-top-0">
+      <ui-grid-extention load-data="vm.loadData"
+                         grid-option="vm.gridOptions"
+                         header="vm.sourceHeader"
+                         grid-data="vm.sourceData"
+                         total-data-count="vm.totalSourceDataCount"
+                         reset-grid="vm.resetSourceGrid"
+                         selectted-rows="vm.selectedRowsList"
+                         paging-info="vm.pagingInfo"
+                         current-item="vm.currentdata"
+                         get-data-down="vm.getDataDown"
+                         empty-state="vm.emptyState"
+                         delete-multiple-data="vm.deleteMultipleData"
+                         grid-id="vm.gridConfig.gridKitList">
+    </md-card>
+  </div>    <!-- / CONTENT CARD -->
+  <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound == true">
+    <div class="emty-icon" flex="100">
+      <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+    </div>
+    <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+    <p flex="100">
+      <md-button class="md-fab md-mini" aria-label="Refresh Kit List" ng-click="vm.refreshSalesOrder()">
+        <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+        <md-tooltip>Refresh Kit List</md-tooltip>
+      </md-button>
+    </p>
+  </div>
+</div>
+<!-- / CENTER -->
+<!--</div>-->
+<style>
+  .md-contact-suggestion .md-contact-name {
+    width: auto !important;
+  }
+</style>

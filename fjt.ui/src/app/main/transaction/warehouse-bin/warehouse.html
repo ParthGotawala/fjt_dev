@@ -1,0 +1,100 @@
+<div layout="row" class="cm-custom-label-common md-inline-form advanced-filters" layout-wrap>
+  <div flex-gt-lg="25"  class="pr-5 padding-5-rs">
+    <fieldset flex="100" class="container-box margin-bottom-5 mr-10">
+      <legend class="margin-0">Warehouse Type</legend>
+      <div class="margin-0 input-wrapper" flex="100" layout="row" layout-align="start-center">
+        <!--pt-5 pb-10-->
+        <md-radio-group class="cm-rd-switch" flex="100" layout="row" ng-model="vm.WarehouseType" name="WarehouseTypeGroup" custom-auto-focus="true" ng-change="vm.changeCartType()">
+          <md-radio-button ng-value="vm.default" class="md-primary">All</md-radio-button>
+          <md-radio-button ng-value="vm.cartType.Equipment.key" class="md-primary">{{vm.cartType.Equipment.value}}</md-radio-button>
+          <md-radio-button ng-value="vm.cartType.ShelvingCart.key" class="md-primary">{{vm.cartType.ShelvingCart.value}}</md-radio-button>
+          <md-radio-button ng-value="vm.cartType.SmartCart.key" class="md-primary">{{vm.cartType.SmartCart.value}}</md-radio-button>
+        </md-radio-group>
+      </div>
+    </fieldset>
+  </div>
+  <div flex-gt-lg="20" class="pr-5 padding-5-rs"> <!--ng-if="vm.WarehouseType==vm.cartType.SmartCart">-->
+    <fieldset flex="100" class="container-box margin-bottom-5 mr-10">
+      <legend class="margin-0">Smart Cart Status</legend>
+      <div class="margin-0 input-wrapper" flex="100" layout="row" layout-align="start-center">
+        <md-radio-group class="cm-rd-switch" flex="100" layout="row" ng-model="vm.smartCartStatusDetail" name="SmartCartStatusGroup" ng-change="vm.changeCart()">
+          <md-radio-button ng-value="vm.default" class="md-primary">All</md-radio-button>
+          <md-radio-button ng-value="vm.smartCartStatus[0].value" class="md-primary">{{vm.smartCartStatus[0].Name}}</md-radio-button>
+          <md-radio-button ng-value="vm.smartCartStatus[1].value" class="md-primary">{{vm.smartCartStatus[1].Name}}
+            <span ng-if="vm.offlineSmartCartCount>0">({{vm.offlineSmartCartCount}})</span>
+          </md-radio-button>
+        </md-radio-group>
+      </div>
+    </fieldset>
+  </div>
+  <div flex-gt-lg="25" class="pr-5 padding-5-rs">
+    <fieldset flex="100" class="container-box margin-bottom-5">
+      <legend class="margin-0">Search Warehouse Name&nbsp;/&nbsp;Nickname&nbsp;/&nbsp;Unique Cart Id&nbsp;</legend>
+      <div class="margin-0" layout="row" flex="100" layout-align="start start">
+        <div class="input-wrapper" layout="row" layout-align="start center">
+          <md-radio-group class=" mb-5" flex="100" layout="row" ng-model="vm.searchType" name="checkSerachType">
+            <md-radio-button ng-value="vm.CustomSearchTypeForList.Contains" class="md-primary margin-top-0">Contains</md-radio-button>
+            <md-radio-button ng-value="vm.CustomSearchTypeForList.Exact" class="md-primary margin-top-0">Exact</md-radio-button>
+          </md-radio-group>
+        </div>
+        <div class="input-wrapper" layout="row" layout-align="start center" flex="100">
+          <md-input-container flex="80" class="margin-bottom-0">
+            <input type="text" id="searchNameUniqueCart" name="searchNameUniqueCartId" ng-model="vm.searchNameUniqueCartId"
+                   custom-auto-focus="false" ng-keypress="vm.scanSearchKey($event)" />
+          </md-input-container>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+  <div flex-gt-lg="10" class="pr-5 padding-5-rs">
+    <fieldset flex="100" class="container-box margin-bottom-5">
+      <legend class="margin-0">Search Warehouse Options</legend>
+      <div class="margin-0" layout="row" flex="100" layout-align="start start">
+        <div class="input-wrapper" layout="row" layout-align="start center">
+          <md-checkbox ng-model="vm.isEmptyWarehouse" class="margin-0">Empty Warehouse</md-checkbox>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+  <div class="input-wrapper" layout="row" layout-align="start center" layout-wrap>
+    <md-button class="md-primary md-raised md-ink-ripple mv-0 mt-5" ng-click="vm.advanceFilterSearch()">Search</md-button>
+    <md-button class="md-primary md-raised md-ink-ripple mv-0 mt-5" ng-click="vm.resetNameUniqueCartId()">Reset</md-button>
+  </div>
+</div>
+<div class="content-card" layout="column" flex ng-show="!vm.isNoDataFound" cg-busy="{promise:vm.cgBusyLoading}">
+  <md-card class="margin-0 cm-warehouse-grid" layout="column" flex layout-align="space-between stretch">
+    <ui-grid-extention load-data="vm.loadData"
+                       grid-id="vm.gridConfig.gridWareHouse"
+                       grid-option="vm.gridOptions"
+                       header="vm.sourceHeader"
+                       grid-data="vm.sourceData"
+                       total-data-count="vm.totalSourceDataCount"
+                       reset-grid="vm.resetSourceGrid"
+                       selectted-rows="vm.selectedRowsList"
+                       paging-info="vm.pagingInfo"
+                       current-item="vm.currentdata"
+                       get-data-down="vm.getDataDown"
+                       empty-state="vm.emptyState"
+                       delete-multiple-data="vm.deleteMultipleData">
+  </md-card>
+</div>
+<!-- / CONTENT CARD -->
+<div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound">
+  <div class="emty-icon" flex="100">
+    <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+  </div>
+  <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+  <p flex="100">
+    {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+  </p>
+  <p flex="100">
+    <md-button class="md-fab md-mini" aria-label="Add Warehouse" ng-click="vm.addEditRecordWarehouse({ generateWarehouse: false },$event)">
+      <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+      <md-tooltip md-direction="top">Add Warehouse</md-tooltip>
+    </md-button>
+    <md-button class="md-fab md-mini" aria-label="Add Warehouse" ng-click="vm.loadData()">
+      <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+      <md-tooltip md-direction="top">Refresh Warehouse</md-tooltip>
+    </md-button>
+  </p>
+</div>

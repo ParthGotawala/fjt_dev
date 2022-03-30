@@ -1,0 +1,126 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed" layout="row" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="center margin-left-0 margin-right-0" layout="column" flex>
+    <div class="header md-accent-bg" layout="row" layout-align="start center">
+      <div class="white-fg" layout="column" layout-align="start start">
+        <div class="h2" layout="row" layout-align="start center">
+          <pagetitle is-list="true" is-display-menu-name="true"></pagetitle>
+        </div>
+        <div layout="row" layout-align="start center" class="product-count">
+          <breadcrumbs></breadcrumbs>
+        </div>
+      </div>
+      <div layout="row" layout-wrap layout-align="end center" flex flex-xs="100">
+        <ms-form-wizard class="cm-no-bg no-shadow" layout-align="end-center" flex layout="row" novalidate ng-if="vm.showconfiguration">
+          <form name="vm.manageBarTenderForm" ms-form-wizard-form novalidate>
+            <table cellspacing="0" cellpadding="0" class="cm-bom-header-table">
+              <tbody>
+                <tr>
+                  <th><p class="label-container mb-5">Bartender Server : Port<span class="margin-left-2">*</span></p></th>
+                  <td>
+                    <md-input-container md-no-float class="margin-bottom-0 md-block margin-top-0">
+                      <input type="text" name="BartenderServer" ng-model="vm.manageLabelTemplates.BartenderServer"
+                             placeholder="BartenderServer" ng-maxlength="50"
+                             required no-special-character>
+                      <div ng-messages="vm.manageBarTenderForm.BartenderServer.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50,vm.manageBarTenderForm.BartenderServer.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+
+                  <td class="color-black text-align-center width-10"><b>:</b></td>
+                  <td class="width-100">
+                    <md-input-container md-no-float class="margin-bottom-0 md-block margin-top-0 pr-10">
+                      <input type="text" name="BartenderServerPort" ng-model="vm.manageLabelTemplates.BartenderServerPort"
+                             placeholder="BartenderServerPort" ng-maxlength="5"
+                             onkeypress="return OnlyNumeric(event)"
+                             required no-special-character>
+                      <div ng-messages="vm.manageBarTenderForm.BartenderServerPort.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+
+                  </td>
+                  <td layout="row">
+                    <md-button class="md-btn md-primary md-raised margin-0 margin-right-10"
+                               ng-class="{'md-formdirty': vm.manageBarTenderForm.$dirty}"
+                               ng-click="vm.updateBartenderConfiguration()">
+                      Save Configuration
+                    </md-button>
+                    <md-button class="md-btn md-default md-raised margin-0" ng-click="vm.closeConfiguration()">
+                      Cancel
+                    </md-button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </form>
+        </ms-form-wizard>
+
+        <md-button class="md-primary md-raised md-ink-ripple ml-0"
+                   ng-if="!vm.showconfiguration"
+                   ng-click="vm.configureBartender()">Configure BarTender Server</md-button>
+        <md-button class="md-primary md-raised md-ink-ripple ml-0"
+                   ng-click="vm.downloadSampleFileIntegration()">Download Sample Integration File</md-button>
+        <md-button class="md-primary md-raised" ng-click="" ngf-select="vm.documentFiles($files, $event)">
+          Import Label Templates Data
+        </md-button>
+        <md-button class="md-primary md-raised" ng-click="vm.downloadDocument()">
+          Export Template
+        </md-button>
+        <md-button class="md-primary md-raised" ng-click="vm.addrecord()">
+          Add Label Template
+        </md-button>
+      </div>
+    </div>
+    <div class="content-card padding-top-side" layout="column" flex ng-if="!vm.isNoDataFound">
+      <md-card layout="column" flex layout-align="space-between stretch">
+        <ui-grid-extention load-data="vm.loadData"
+                           grid-id="vm.gridConfig.gridLabelTemplates"
+                           grid-option="vm.gridOptions"
+                           header="vm.sourceHeader"
+                           grid-data="vm.sourceData"
+                           total-data-count="vm.totalSourceDataCount"
+                           reset-grid="vm.resetSourceGrid"
+                           selectted-rows="vm.selectedRowsList"
+                           paging-info="vm.pagingInfo"
+                           current-item="vm.currentdata"
+                           get-data-down="vm.getDataDown"
+                           empty-state="vm.emptyState"
+                           delete-multiple-data="vm.deleteMultipleData"
+                           verify-label-template-multiple-data="vm.verifyLabelTemplateMultipleData">
+      </md-card>
+    </div>
+    <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound == true">
+      <div class="emty-icon" flex="100">
+        <img ng-src="{{vm.EmptyMessage.IMAGEURL}}" />
+      </div>
+      <p flex="100" class="empty-state-title">{{vm.EmptyMessage.MESSAGE}}</p>
+      <p flex="100">
+        {{vm.EmptyMessage.ADDNEWMESSAGE}}
+      </p>
+      <p flex="100">
+        <md-button class="md-fab md-mini" ng-click="vm.updateRecord(null,$event)">
+          <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus">
+            <md-tooltip>Add Label Template</md-tooltip>
+          </md-icon>
+        </md-button>
+        <md-button class="md-fab md-mini" aria-label="Refresh Label Templates" ng-click="vm.loadData()">
+          <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus">
+            <md-tooltip>Refresh Label Template</md-tooltip>
+          </md-icon>
+        </md-button>
+      </p>
+    </div>
+  </div>
+</div>
+

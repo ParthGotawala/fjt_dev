@@ -1,0 +1,136 @@
+<div id="dashboard-project" class="page-layout simple right-sidenav breadcrumb-fixed fullwidth" layout="row" cg-busy="{promise:vm.cgBusyLoading}" ng-cloak>
+  <!-- CENTER -->
+  <div class="center custom-scroll" flex>
+    <!-- HEADER -->
+    <div class="header md-accent-bg" layout="row" layout-align="space-between center">
+      <div>
+        <span class="md-display-1 font-weight-300">Welcome Back, {{vm.loginUser.username}}!</span>
+      </div>
+    </div>
+    <!-- / HEADER -->
+    <!-- CONTENT -->
+    <div class="content padding-top-side full-height" layout="row" flex="100">
+      <md-tabs flex="100" class="fielddetail manage-customer-tabing padding-bottom-0" md-selected="vm.selectedIndex" ng-if="vm.chartCategoryList.length > 0">
+        <md-tab md-on-select="vm.onTabChanges(item)" ng-repeat="item in vm.chartCategoryList">
+          <md-tab-label>
+            <div layout="row">
+              <span>{{item.name}}</span>
+              <div ng-if="vm.isUserSuperAdmin">
+                <md-menu>
+                  <md-button class="md-icon-button margin-0 md-primary dashboard-tab-btn" ng-click="$mdOpenMenu()" md-menu-origin
+                             md-menu-align-target
+                             aria-label="Options">
+                    <md-icon md-font-icon="icon-dots-vertical" class="icon"></md-icon>
+                  </md-button>
+                  <md-menu-content width="3">
+                    <md-menu-item>
+                      <md-button ng-click="vm.updateCategory(item, $event)">
+                        <md-icon md-font-icon="icon-pencil" class="icon"></md-icon>
+                        Update
+                      </md-button>
+                    </md-menu-item>
+                    <md-menu-item>
+                      <md-button ng-click="vm.updateChartCategoryTabAsDefault(item, $event ,$index == vm.chartCategoryTabSelectedIndex ? false : true )">
+                        <!--<md-icon md-font-icon="{{$index == vm.chartCategoryTabSelectedIndex ? 'icon-pin-off' : 'icon-pin'}}" class="icon"></md-icon>-->
+                        <md-icon md-font-icon="{{$index == vm.chartCategoryTabSelectedIndex ? 'icons-pin' : 'icons-unpin'}}" class="icon"></md-icon>
+                        {{$index == vm.chartCategoryTabSelectedIndex  ? 'Remove Default' : 'Set As Default'}}
+                      </md-button>
+                    </md-menu-item>
+                  </md-menu-content>
+                </md-menu>
+              </div>
+              <div ng-if="!vm.isUserSuperAdmin">
+                <md-button class="md-primary md-icon-button bdrbtn dashboard-widget-hover-pin" style="border:none;"
+                           ng-click="vm.updateChartCategoryTabAsDefault(item, $event ,$index == vm.chartCategoryTabSelectedIndex ? false : true )">
+                  <!--<md-icon role="img" md-font-icon="{{$index == vm.chartCategoryTabSelectedIndex ? 'icon-pin-off' : 'icon-pin'}}"></md-icon>-->
+                  <md-icon role="img" md-font-icon="{{$index == vm.chartCategoryTabSelectedIndex ? 'icons-pin' : 'icons-unpin'}}"></md-icon>
+                  <md-tooltip md-direction="top">{{$index == vm.chartCategoryTabSelectedIndex  ? 'Remove Default' : 'Set As Default'}}</md-tooltip>
+                </md-button>
+              </div>
+            </div>
+          </md-tab-label>
+          <md-tab-body>
+            <div flex="100" layout="row" layout-wrap layout-align="start start" ng-if="vm.selectedIndex == $index">
+              <md-content flex="100" id="widgetCharts" layout-align="start start" class="dragscroll items-container scroll-section margin-bottom-20"
+                          layout="row" layout-wrap
+                          ui-sortable="vm.sortableOptions"
+                          ng-model="vm.analyticsList">
+                <div flex="33" flex-sm="50" flex-xs="100" ui-sortable-selectable
+                     ng-repeat="chartModel in vm.analyticsList" class="element-item-selected sortable-item">
+                  <div flex="100" class="cm-section-main margin-5">
+                    <!--<md-card flex="100" class="analytics-card">-->
+                    <div class="cm-section-header" layout="row" layout-align="space-between center">
+                      <h2>{{chartModel.nameOfChart}}</h2>
+                      <!--<div layout="row" layout-align="start center" flex="100"
+                           class="layout-align-start-center layout-row" style="min-height:40px;">
+                          <div class="chat-contact-name sendername ng-binding">
+                              <span>{{chartModel.nameOfChart}}</span>
+                          </div>
+                      </div>-->
+                      <div layout="row" layout-align="end center" flex="" class="layout-align-end-center layout-row">
+                        <md-menu ng-if="chartModel.drilldown">
+                          <md-button class="md-icon-button margin-0 padding-0" ng-click="$mdOpenMenu()" md-menu-origin
+                                     md-menu-align-target
+                                     aria-label="Options">
+                            <md-icon md-font-icon="icon-dots-vertical" class="icon cm-widget-header-icon"></md-icon>
+                          </md-button>
+                          <md-menu-content width="3">
+                            <md-menu-item>
+                              <md-button ng-click="vm.fullDrillDown(chartModel,$event)">
+                                <md-icon md-font-icon="icon-receipt" class="icon"></md-icon>
+                                Full Drilldown
+                              </md-button>
+                            </md-menu-item>
+                          </md-menu-content>
+                        </md-menu>
+                      </div>
+                    </div>
+                    <div class="cm-section-inner" ng-class="{'cm-dashboard-chart': vm.isAnyChartContainData }">
+                      <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.BAR">
+                        <bar-chart chart-template-id="chartModel.chartTemplateID"></bar-chart>
+                      </div>
+                      <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.LINE">
+                        <line-chart chart-template-id="chartModel.chartTemplateID"></line-chart>
+                      </div>
+                      <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.PIE">
+                        <pie-chart chart-template-id="chartModel.chartTemplateID"></pie-chart>
+                      </div>
+                      <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.DOTPLOT">
+                        <dot-plot-chart chart-template-id="chartModel.chartTemplateID"></dot-plot-chart>
+                      </div>
+                      <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.DONUT">
+                        <donut-chart chart-template-id="chartModel.chartTemplateID"></donut-chart>
+                      </div>
+                      <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.PARETO">
+                        <pareto-chart chart-template-id="chartModel.chartTemplateID"></pareto-chart>
+                      </div>
+                    </div>
+                    <!--</md-card>-->
+                  </div>
+                </div>
+              </md-content>
+              <md-content flex="100" layout-align="start start">
+                <div class="cm-section-main margin-bottom-20" ng-repeat="dynamicReportObj in vm.dynamicReportMstList">
+                  <div class="cm-section-header" layout="row" layout-align="space-between center">
+                    <h2>{{dynamicReportObj.ReportName}}</h2>
+                  </div>
+                  <div class="cm-section-inner">
+                    <dynamic-mis-report report-id="dynamicReportObj.ID" report-name="dynamicReportObj.ReportName"
+                                        filter-option-in-paging-info=""></dynamic-mis-report>
+                  </div>
+                </div>
+              </md-content>
+            </div>
+          </md-tab-body>
+        </md-tab>
+      </md-tabs>
+      <div class="empty-state text-center" flex="100" layout="row" layout-align="center center" layout-wrap ng-show="vm.chartCategoryList.length == 0">
+        <div class="emty-icon" flex="100">
+          <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+        </div>
+        <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+      </div>
+    </div>
+    <!-- / CONTENT -->
+  </div>
+</div>

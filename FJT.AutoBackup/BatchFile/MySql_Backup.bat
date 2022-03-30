@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\MySQL\MySQL for Visual Studio 1.2\Dependencies\mysqldump.exe" -u root -ptriveni@123 flexjobtracking_dev > C:\FJTBackup\09272019.sql

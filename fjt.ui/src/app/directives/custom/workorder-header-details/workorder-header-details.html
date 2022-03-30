@@ -1,0 +1,678 @@
+<div layout="row" flex="100">
+  <!--ng-class="{'cm-wo-header-without-dpmo': !vm.woAllHeaderDetails.totalSolderPoints }"-->
+  <div layout="row" flex="100" class="cm-workorder-table" layout-sm="row" layout-md="row" layout-wrap>
+    <div flex layout="row" layout-wrap flex-md="100" flex-sm="100" class="cm-overflow-auto-1601" flex-xs="100">
+      <div class="cm-section-main border-0" flex="100">
+        <div class="cm-section-inner">
+          <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-wo-header-main">
+            <tbody>
+              <tr>
+                <th class="display-flex" layout-align="end">
+                  <div class="chricon height-24 width-24 margin-right-3">
+                    <img class="md-avatar avatar height-24 width-24" ng-src="{{vm.woAllHeaderDetails.woCreatedByEmpProfilePic}}" />
+                    <md-tooltip md-direction="top" class="tt-multiline">
+                      {{vm.LabelConstant.Workorder.WOCreator}}: {{vm.woAllHeaderDetails.woCreatedByEmpFullName}} <br />
+                      {{vm.LabelConstant.Workorder.WODate}}: {{vm.woAllHeaderDetails.createdAt | date: vm.DefaultDateFormat}}
+                    </md-tooltip>
+                  </div>
+                  <p class="label-container width-40">
+                    <a tabindex="-1" class="cm-text-decoration"
+                       ng-mousedown="vm.goToWorkorderList();$event.preventDefault();">{{vm.LabelConstant.Workorder.WO}}</a>:
+                  </p>
+                </th>
+                <td class="width-16p">
+                  <span class="cm-wo-font-large mb-1">
+                    <a tabindex="-1" class="cm-text-decoration"
+                       ng-mousedown="vm.goToWorkorderDetails(vm.woID);$event.preventDefault();">
+                      {{vm.woAllHeaderDetails.woNumber}}-{{vm.woAllHeaderDetails.woVersion}}
+                    </a>
+                    <copy-text label="vm.LabelConstant.Workorder.WO" text="vm.woAllHeaderDetails.woNumber"></copy-text>
+                    <md-tooltip>{{vm.woAllHeaderDetails.woNumber}}-{{vm.woAllHeaderDetails.woVersion}}</md-tooltip>
+                  </span>
+                  <span class="label-box margin-5 label-danger margin-top-imp margin-bottom-0" ng-if="vm.woAllHeaderDetails.isHotJob">
+                    {{vm.LabelConstant.Workorder.RushJob}}
+                  </span>
+                </td>
+                <!--<th>
+                  <p class="label-container">{{vm.LabelConstant.Workorder.Version}}:</p>
+                </th>
+                <td>
+                  <span class="cm-wo-font-large">
+                    {{vm.woAllHeaderDetails.woVersion}}
+                  </span>
+                </td>-->
+                <th>
+                  <p class="label-container">
+                    <a tabindex="-1" class="cm-text-decoration margin-0"
+                       ng-mousedown="vm.goToAssemblyList();$event.preventDefault();">{{vm.LabelConstant.Assembly.ID}}</a>:
+                  </p>
+                </th>
+                <td class="width-26p common-pid-link-header assy-id">
+                  <span class="display-flex">
+                    <common-pid-code-label-link component-id="vm.woAllHeaderDetails.partID"
+                                                label="vm.LabelConstant.Assembly.ID" value="vm.woAllHeaderDetails.PIDCode"
+                                                is-copy="true"
+                                                rohs-icon="vm.woAllHeaderDetails.displayRohsIcon"
+                                                rohs-status="vm.woAllHeaderDetails.rohsName" is-formated="true"
+                                                is-assembly="true"
+                                                is-custom-part="vm.woAllHeaderDetails.isCustom">
+                    </common-pid-code-label-link>
+                    <!--<img ng-if="vm.woAllHeaderDetails.isExportControlled" ng-src="{{vm.LabelConstant.Workorder.ExportControlImagePath}}" class="ml-5 hot-job-icon" />-->
+                    <!--<span class="label-box margin-5 label-danger margin-top-imp margin-bottom-0" ng-if="vm.woAllHeaderDetails.isHotJob">
+                    {{vm.LabelConstant.Workorder.RushJob}}
+                      </span>-->
+                    <a tabindex="-1" class="cm-text-decoration  margin-left-5" ng-if="vm.woAllHeaderDetails.sampleImageCnt > 0"
+                       ng-mousedown="vm.openDocumentTab(vm.woAllHeaderDetails.mfgType, vm.woAllHeaderDetails.partID, false)">
+                      ({{vm.woAllHeaderDetails.sampleImageCnt}})
+                      <md-tooltip>View Sample Images</md-tooltip>
+                    </a>
+                    <a tabindex="-1" class="cm-text-decoration  margin-left-5 "
+                       ng-mousedown="vm.openDocumentTab(vm.woAllHeaderDetails.mfgType, vm.woAllHeaderDetails.partID ,true)">
+                      <md-icon role="img" md-font-icon="icon-folder-upload" class="margin-0 font-size-17-imp"></md-icon>
+                      <md-tooltip>Upload Sample Images</md-tooltip>
+                    </a>
+                    <span class="margin-left-5">
+                      <operation-flux-type-icon flux-type="vm.woAllHeaderDetails.assyFluxTypeList"></operation-flux-type-icon>
+                    </span>
+                  </span>
+                </td>
+                <th>
+                  <p class="label-container">{{vm.LabelConstant.BOM.InternalVersion}}:</p>
+                </th>
+                <td class="width-15p">
+                  <span>
+                    <md-tooltip>{{vm.woAllHeaderDetails.liveVersion}}</md-tooltip>
+                    {{vm.woAllHeaderDetails.liveVersion ? vm.woAllHeaderDetails.liveVersion : "-"}}
+                  </span>
+                </td>
+                <td>
+                  <a tabindex="-1" class="cm-text-decoration view-bom-link"
+                     ng-mousedown="vm.goToComponentBOM();$event.preventDefault();">
+                    View BOM
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <p class="label-container" ng-class="{'mt-1': vm.isKitHaltStatus}">
+                    <a tabindex="-1" class="cm-text-decoration margin-0"
+                       ng-mousedown="vm.goToSalesOrderList();$event.preventDefault();">
+                      {{vm.LabelConstant.Workorder.PO}}
+                    </a>:
+                  </p>
+                </th>
+                <td class="w-300">
+                  <span ng-if="vm.woAllHeaderDetails.poNumber" class="width-100p" ng-class="{'mb-5': vm.isKitHaltStatus}">
+                    <a tabindex="-1" class="cm-text-decoration cursor-pointer"
+                       ng-mousedown="vm.showSalesOrderDetails($event);$event.preventDefault();">
+                      {{vm.woAllHeaderDetails.poNumber}}
+                    </a>
+                    <md-tooltip>{{vm.woAllHeaderDetails.poNumber}}</md-tooltip>
+                  </span>
+                  <span ng-if="vm.isKitHaltStatus">
+                    <img class="wo-stop-image" src="assets/images/logos/stop.png" />
+                    <md-tooltip class="tt-multiline" ng-if="vm.tooltipData">
+                      <span ng-bind-html="vm.tooltipData"></span>
+                    </md-tooltip>
+                  </span>
+                </td>
+                <!--<th>
+                  <p class="label-container">{{vm.LabelConstant.Workorder.WODate}}:</p>
+                </th>
+                <td>
+                  <span>
+                    {{vm.woAllHeaderDetails.createdAt | date: vm.DefaultDateFormat}}
+                  </span>
+                </td>-->
+                <th>
+                  <p class="label-container">
+                    <a tabindex="-1" class="cm-text-decoration margin-0"
+                       ng-mousedown="vm.goToAssemblyList();$event.preventDefault();">{{vm.LabelConstant.Assembly.Assy}}</a>:
+                  </p>
+                </th>
+                <td class="common-pid-link-header">
+                  <common-pid-code-label-link component-id="vm.woAllHeaderDetails.partID"
+                                              label="vm.LabelConstant.Assembly.MFGPN" value="vm.woAllHeaderDetails.mfgPN"
+                                              is-copy="true" rohs-icon="vm.woAllHeaderDetails.displayRohsIcon"
+                                              rohs-status="vm.woAllHeaderDetails.rohsName" is-formated="true"
+                                              is-assembly="true"
+                                              is-custom-part="vm.woAllHeaderDetails.isCustom">
+                  </common-pid-code-label-link>
+                </td>
+                <th>
+                  <p class="label-container">{{vm.LabelConstant.Assembly.NickName}}:</p>
+                </th>
+                <td>
+                  <span>
+                    <md-tooltip>{{vm.woAllHeaderDetails.nickName}}</md-tooltip>
+                    {{vm.woAllHeaderDetails.nickName}}
+                  </span>
+                </td>
+                <td>
+                  <a tabindex="-1" class="cm-text-decoration view-bom-link nowrap"
+                     ng-mousedown="vm.AssyAtGlance();$event.preventDefault();">
+                    Assy At Glance
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <p class="label-container">
+                    <a tabindex="-1" class="cm-text-decoration margin-0"
+                       ng-mousedown="vm.goToSalesOrderList();$event.preventDefault();">{{vm.LabelConstant.SalesOrder.SO}}</a>:
+                  </p>
+                </th>
+                <td class="w-300">
+                  <span class="width-100p" ng-if="vm.woAllHeaderDetails.salesOrderNumber">
+                    <a tabindex="-1" class="cm-text-decoration cursor-pointer"
+                       ng-mousedown="vm.showSalesOrderDetails($event);$event.preventDefault();">
+                      {{vm.woAllHeaderDetails.salesOrderNumber}}
+                    </a>
+                    <md-tooltip>{{vm.woAllHeaderDetails.salesOrderNumber}}</md-tooltip>
+                  </span>
+                </td>
+                <th>
+                  <p class="label-container">
+                    <a tabindex="-1" class="cm-text-decoration margin-0" ng-click="vm.goToCustomerList();">
+                      {{vm.LabelConstant.Customer.Customer}}
+                    </a>
+                  </p>
+                </th>
+                <td>
+                  <span>
+                    <a tabindex="-1" class="cm-text-decoration margin-0" ng-click="vm.goToManageCustomer();">
+                      {{vm.woAllHeaderDetails.formattedCustomerName}}
+                    </a>
+                  </span>
+                </td>
+                <th>
+                  <p class="label-container">{{vm.LabelConstant.Assembly.Description}}:</p>
+                </th>
+                <td colspan="4" class="nowrap">
+                    <span class="cm-wo-section-description">
+                        {{vm.woAllHeaderDetails.partDescription}}
+                    </span>
+                    <md-button class="md-icon-button h-20 vertical-top-align width-auto margin-0" ng-click="vm.showDescription(vm.woAllHeaderDetails, $event, 'Description')">
+                        <md-icon role="img" md-font-icon="icon-eye" class="material-icons mat-icon"></md-icon>
+                        <md-tooltip>View Description</md-tooltip>
+                    </md-button>
+                    <md-button class="md-icon-button h-20 w-24 border-radius-0 vertical-top-align md-primary margin-0" ng-disabled="vm.MFRCommentsList && vm.MFRCommentsList.length === 0" ng-click="vm.viewPurchaseRequirementList()">
+                        <md-icon role="img" md-font-icon="icons-requirement-comment" class="material-icons mat-icon"></md-icon>
+                        <md-tooltip>View {{vm.ManufacturingAndProductionComments.value}}</md-tooltip>
+                    </md-button>
+                </td>
+              </tr>
+              <tr>
+                <th></th>
+                <td colspan="3">
+                  <span>
+                    <operation-flux-type-icon flux-type="vm.woAllHeaderDetails.woFluxTypeList"></operation-flux-type-icon>
+                  </span>
+                </td>
+                <th>
+                  <p class="label-container">Special Note:</p>
+                </th>
+                <td colspan="4">
+                  <span class="cm-wo-section-description">
+                    <md-tooltip ng-if="vm.woAllHeaderDetails.specialNote">
+                      {{vm.woAllHeaderDetails.specialNote}}
+                    </md-tooltip>
+                    {{vm.woAllHeaderDetails.specialNote}}
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <p class="label-container">
+                    <a tabindex="-1" class="cm-text-decoration cursor-pointer"
+                       ng-mousedown="vm.goToWorkorderStandards(vm.woID);$event.preventDefault();">{{vm.LabelConstant.Standards.MenuName}}</a>:
+                  </p>
+                </th>
+                <td colspan="3">
+                  <label class="margin-2 label-box"
+                         ng-style="{'background-color': standardItem.colorCode}"
+                         ng-repeat="standardItem in vm.woAllHeaderDetails.woAllStandardsWithClass track by $index">
+                    <!--<md-tooltip ng-if="standardItem.className">{{standardItem.className}}</md-tooltip>-->
+                    {{standardItem.className}}
+                  </label>
+                </td>
+                <th>
+                  <p class="label-container">{{vm.LabelConstant.Assembly.PartsToWatch}}:</p>
+                </th>
+                <td colspan="3">
+                  <div class="cm-bom-img shortcuts-container" flex="100" layout="row">
+                    <div ng-bind-html="vm.iconHtml" class="shortcut shortcut-scroll cm-bom-img-block">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th ng-if="vm.woOPID">
+                  <p class="label-container">
+                    <a tabindex="-1" class="cm-text-decoration cursor-pointer"
+                       ng-mousedown="vm.goToWorkorderOperations(vm.woID);$event.preventDefault();">{{vm.LabelConstant.Operation.OP}}</a>:
+                  </p>
+                </th>
+                <td ng-if="vm.woOPID">
+                  <span class="cm-operation-workorder-header">
+                    <a tabindex="-1" class="cm-text-decoration cursor-pointer"
+                       ng-mousedown="vm.goToWorkorderOperationDetails();$event.preventDefault();">
+                      {{vm.woAllHeaderDetails.opFullName}}
+                    </a>
+                    <md-tooltip>{{vm.woAllHeaderDetails.opFullName}}</md-tooltip>
+                  </span>
+                </td>
+                <th ng-if="vm.woAllHeaderDetails.totalSolderPoints">
+                  <p class="label-container">
+                    {{vm.LabelConstant.Workorder.DPMO}}
+                    <md-tooltip>{{vm.LabelConstant.Workorder.DPMOFullName}}</md-tooltip>:
+                  </p>
+                </th>
+                <td ng-if="vm.woAllHeaderDetails.totalSolderPoints">
+                  <span>
+                    {{vm.woAllHeaderDetails.DPMO ? vm.woAllHeaderDetails.DPMO : '-'}}
+                  </span>
+                </td>
+                <td colspan="2" ng-if="!vm.woAllHeaderDetails.totalSolderPoints"></td>
+                <td ng-if="!vm.woOPID" colspan="2"></td>
+                <td colspan="6" rowspan="2">
+                  <span class="color-black text-bold cm-wo-operation-label flex-nowrap cm-overflow-auto max-width-420 cm-text-overflow-initial">
+                    <span ng-if="vm.woAllHeaderDetails.isIncludeSubAssembly">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Workorder.IncludeSubAssembly}}
+                      </label>
+                      <md-tooltip>{{vm.LabelConstant.Workorder.IncludeSubAssembly}}</md-tooltip>
+                    </span>
+                    <span ng-if="vm.woAllHeaderDetails.isClusterApplied">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Workorder.ClusterApplied}}
+                      </label>
+                    </span>
+                    <span ng-if="vm.woAllHeaderDetails.isOperationTrackBySerialNo">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Workorder.TrackSerialNumbers}}
+                      </label>
+                    </span>
+                    <span ng-if="vm.woAllHeaderDetails.isTrackBySerialNo">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Operation.TrackSerialInOperation}}
+                      </label>
+                    </span>
+                    <span ng-if="vm.woAllHeaderDetails.isTeamOperation">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Operation.TeamOperation}}
+                      </label>
+                    </span>
+                    <span ng-if="vm.woAllHeaderDetails.isRework">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Operation.ReWork}}
+                      </label>
+                    </span>
+                    <!--<span ng-if="!vm.woAllHeaderDetails.isRework">
+    <md-icon md-font-icon="icon-check-circle"></md-icon>
+    Non-Rework Operation
+  </span>-->
+                    <span ng-if="vm.woAllHeaderDetails.isPreProgrammingComponent">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Operation.PreProgramming}}
+                      </label>
+                    </span>
+                    <!--<span ng-if="!vm.woAllHeaderDetails.isPreProgrammingComponent">
+    <md-icon md-font-icon="icon-check-circle"></md-icon>
+    Non Pre-Programming
+  </span>-->
+                    <span ng-if="vm.woAllHeaderDetails.qtyControl">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Operation.QtyTrackingRequired}}
+                      </label>
+                    </span>
+                    <!--<span ng-if="!vm.woAllHeaderDetails.qtyControl">
+    <md-icon md-font-icon="icon-check-circle"></md-icon>
+    Qty Tracking Not Required
+  </span>-->
+                    <span ng-if="vm.woAllHeaderDetails.isIssueQty">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Operation.IssueQtyRequired}}
+                      </label>
+                    </span>
+                    <!--<span ng-if="!vm.woAllHeaderDetails.isIssueQty">
+    <md-icon md-font-icon="icon-check-circle"></md-icon>
+    Issue Qty Not Required
+  </span>-->
+                    <span ng-if="vm.woAllHeaderDetails.isFluxNotApplicable === 0">
+                      <label class="margin-2 label-box label-primary" ng-if="vm.woAllHeaderDetails.isNoClean === 1">
+                        {{vm.LabelConstant.Operation.NoClean }}
+                      </label>
+                      <label class="margin-2 label-box label-primary" ng-if="vm.woAllHeaderDetails.isWaterSoluble === 1">
+                        {{vm.LabelConstant.Operation.WaterSoluble }}
+                      </label>
+                    </span>
+                    <span ng-if="vm.woAllHeaderDetails.isMoveToStock">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Operation.MoveToStock}}
+                      </label>
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Operation.LastOperation}}
+                      </label>
+                    </span>
+                    <span ng-if="vm.woAllHeaderDetails.isPlacementTracking">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Operation.BasicPlacementTracking}}
+                      </label>
+                    </span>
+                    <span ng-if="vm.woAllHeaderDetails.isLoopOperation">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Operation.LoopOperation}}
+                      </label>
+                    </span>
+                    <span ng-if="vm.woAllHeaderDetails.isAllowFinalSerialMapping">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Operation.MappingSerial}}
+                      </label>
+                    </span>
+                    <label ng-if="vm.woAllHeaderDetails.isParellelOperation == 1"
+                           class="label-box label-primary">
+                      <!--label-warning-->
+                      {{vm.LabelConstant.Operation.ParallelOperation}}
+                    </label>
+                    <label ng-if="vm.woAllHeaderDetails.isParellelOperation == 0"
+                           class="label-box label-primary">
+                      {{vm.LabelConstant.Operation.SequentialOperation}}
+                    </label>
+                    <span ng-if="vm.woAllHeaderDetails.isEnablePreProgrammingPart">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Operation.EnablePreProgrammingPart}}
+                      </label>
+                    </span>
+                    <span ng-if="vm.woAllHeaderDetails.requireMachineVerification == 0">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Traveler.ByPassMachineVerification}}
+                      </label>
+                    </span>
+                    <span ng-if="vm.woAllHeaderDetails.isRequireRefDesWithUMID == 0">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Operation.IsRequireRefDesWithUMID}}
+                      </label>
+                    </span>
+                    <span ng-if="vm.woAllHeaderDetails.isStrictlyLimitRefDes == 0">
+                      <label class="margin-2 label-box label-primary">
+                        {{vm.LabelConstant.Operation.IsStrictlyLimitRefDes}}
+                      </label>
+                    </span>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <th ng-if="vm.woOPID">
+                  <p class="label-container">{{vm.LabelConstant.Operation.Version}}:</p>
+                </th>
+                <td colspan="3" ng-if="vm.woOPID">
+                  <span class="pr-5" style="vertical-align:top;">  {{vm.woAllHeaderDetails.opVersion}}    </span>
+                  <span>
+                    <operation-flux-type-icon flux-type="vm.woAllHeaderDetails.opFluxTypeList"></operation-flux-type-icon>
+                  </span>
+                </td>
+
+                <th ng-if="vm.woAllHeaderDetails.totalSolderPoints">
+                  <p class="label-container">
+                    {{vm.LabelConstant.Workorder.TotalSolderOpportunitiesOfError}}:
+                  </p>
+                </th>
+                <td ng-if="vm.woAllHeaderDetails.totalSolderPoints">
+                  <span>
+                    {{vm.woAllHeaderDetails.totalSolderOpportunitiesOfErrorValue}}
+                    <md-tooltip>{{vm.allFormulas.TotalSolderOpportunitiesOfError.Formula}}</md-tooltip>
+                  </span>
+                </td>
+              </tr>
+              <tr></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div layout="row" ng-class="{'cm-qty-eco-section': vm.timerCurrentData || vm.timerData , 'cm-workorder-travel-status' : vm.woCompletedWithMissing }" flex-md="100" flex-sm="100" class="cm-overflow-auto-1601 cm-workorder-travel-right">
+      <div class="cm-section-main border-0" flex="100">
+        <div class="cm-section-inner" flex="100">
+          <table cellspacing="0" cellpadding="0" width="100%" class="cm-table-input-main cm-wo-header-main">
+            <tbody>
+              <tr>
+                <td>
+                  <table width="100%">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.Workorder.POQty}}:</p>
+                        </th>
+                        <td>
+                          <span>
+                            <md-tooltip ng-if="vm.woAllHeaderDetails.totalPOQty">
+                              {{vm.woAllHeaderDetails.totalPOQty | numberWithoutDecimal}}
+                            </md-tooltip>
+                            {{vm.woAllHeaderDetails.totalPOQty | numberWithoutDecimal}}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            {{vm.LabelConstant.Workorder.BuildQty}}:
+                          </p>
+                        </th>
+                        <td>
+                          <span>
+                            <md-tooltip ng-if="vm.woAllHeaderDetails.buildQty">
+                              {{vm.woAllHeaderDetails.buildQty | numberWithoutDecimal}}
+                            </md-tooltip>
+                            {{vm.woAllHeaderDetails.buildQty | numberWithoutDecimal}}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            {{vm.LabelConstant.Workorder.MRPQty}}:
+                          </p>
+                        </th>
+                        <td>
+                          <span>
+                            <md-tooltip ng-if="vm.woAllHeaderDetails.totalMRPQty">
+                              {{vm.woAllHeaderDetails.totalMRPQty | numberWithoutDecimal}}
+                            </md-tooltip>
+                            {{vm.woAllHeaderDetails.totalMRPQty | numberWithoutDecimal}}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container" ng-if="!vm.ECORequestDetail.custECONumber">{{vm.LabelConstant.Workorder.IECO}}:</p>
+                          <p class="label-container" ng-if="vm.ECORequestDetail.custECONumber">{{vm.LabelConstant.Workorder.CECO}}:</p>
+                        </th>
+                        <td>
+                          <span>
+                            <span ng-if="!vm.ECORequestDetail.FCAECONumber && !vm.ECORequestDetail.custECONumber">
+                              -
+                            </span>
+                            <span ng-if="vm.ECORequestDetail.FCAECONumber">
+                              <md-tooltip>
+                                {{vm.ECORequestDetail.FCAECONumber}}
+                              </md-tooltip>
+                              <a class="cm-text-decoration" tabindex="-1" ng-click="vm.gotoECODetail(vm.ECORequestDetail.ecoReqID);">{{vm.ECORequestDetail.FCAECONumber}}</a>
+                            </span>
+                            <span ng-if="vm.ECORequestDetail.custECONumber">
+                              <md-tooltip>
+                                {{vm.ECORequestDetail.custECONumber}}
+                              </md-tooltip>
+                              <a class="cm-text-decoration" tabindex="-1" ng-click="vm.gotoECODetail(vm.ECORequestDetail.ecoReqID);">{{vm.ECORequestDetail.custECONumber}}</a>
+                            </span>
+                            <span class="color-white">&nbsp;|&nbsp;</span>
+                            <span>
+                              <md-tooltip>
+                                Total {{vm.woAllHeaderDetails.ecoRequestCount}} ECO Available
+                              </md-tooltip>
+                              (<a class="cm-text-decoration" tabindex="-1" ng-click="vm.gotoECOlist(vm.requestType.ECO.Value);">{{vm.woAllHeaderDetails.ecoRequestCount}}</a>)
+                            </span>
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container" ng-if="!vm.DFMRequestDetail.custECONumber">{{vm.LabelConstant.Workorder.IDFM}}:</p>
+                          <p class="label-container" ng-if="vm.DFMRequestDetail.custECONumber">{{vm.LabelConstant.Workorder.CDFM}}:</p>
+                        </th>
+                        <td>
+                          <span>
+                            <span ng-if="!vm.DFMRequestDetail.FCAECONumber && !vm.DFMRequestDetail.custECONumber">
+                              -
+                            </span>
+                            <span ng-if="vm.DFMRequestDetail.FCAECONumber">
+                              <md-tooltip>
+                                {{vm.DFMRequestDetail.FCAECONumber}}
+                              </md-tooltip>
+                              <a class="cm-text-decoration" tabindex="-1" ng-click="vm.gotoDFMDetail(vm.DFMRequestDetail.ecoReqID);">{{vm.DFMRequestDetail.FCAECONumber}}</a>
+                            </span>
+                            <span ng-if="vm.DFMRequestDetail.custECONumber">
+                              <md-tooltip>
+                                {{vm.DFMRequestDetail.custECONumber}}
+                              </md-tooltip>
+                              <a class="cm-text-decoration" tabindex="-1" ng-click="vm.gotoDFMDetail(vm.DFMRequestDetail.ecoReqID);">{{vm.DFMRequestDetail.custECONumber}}</a>
+                            </span>
+                            <span class="color-white">&nbsp;|&nbsp;</span>
+                            <span>
+                              <md-tooltip>
+                                Total {{vm.woAllHeaderDetails.dfmRequestCount}} DFM Available
+                              </md-tooltip>
+                              (<a class="cm-text-decoration" tabindex="-1" ng-click="vm.gotoECOlist(vm.requestType.DFM.Value);">{{vm.woAllHeaderDetails.dfmRequestCount}}</a>)
+                            </span>
+                          </span>
+                        </td>
+                      </tr>
+                      <tr ng-if="vm.woAllHeaderDetails.refWOId">
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration"
+                               ng-mousedown="vm.goToWorkorderList();$event.preventDefault();"> {{vm.LabelConstant.Workorder.ReferenceWO}}:</a>
+                          </p>
+                        </th>
+                        <td>
+                          <span>
+                            <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToWorkorderDetails(vm.woAllHeaderDetails.refWOId);">{{vm.woAllHeaderDetails.refWONumber}}</a>
+                          </span>
+                        </td>
+                      </tr>
+                      <tr ng-if="vm.ParentWODetails.length > 0">
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration"
+                               ng-mousedown="vm.goToWorkorderList();$event.preventDefault();">Parent {{vm.LabelConstant.Workorder.WO}}</a>:
+                          </p>
+                        </th>
+                        <td>
+                          <span ng-repeat="subAssyItem in vm.ParentWODetails">
+                            <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToWorkorderDetails(subAssyItem.woID);"><b>{{subAssyItem.woNumberWithVersion}}</b></a> {{(($index + 1) !=  vm.ParentWODetails.length) ? "," : ""}}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+                <td>
+                  <table width="100%">
+                    <tbody>
+                      <tr>
+                        <th></th>
+                        <td>
+                          <md-menu-bar id="user-menu" class="padding-right-0-imp padding-left-0-imp" layout-align="start-center" layout="row">
+                            <md-menu md-position-mode="left bottom">
+                              <md-button class="height-20 line-height-20 margin-0 padding-bottom-24 padding-right-0-imp user-button padding-left-0-imp" ng-click="$mdOpenMenu()"
+                                         aria-label="User settings">
+                                <div layout="row" layout-align="space-between center">
+                                  <span class="color-white font-size-13 font-weight-normal">Menu Items</span>
+                                  <md-icon md-font-icon="icon-chevron-down"
+                                           class="icon s16 color-white" hide-sm></md-icon>
+                                </div>
+                              </md-button>
+                              <md-menu-content width="3">
+                                <md-menu-item>
+                                  <md-button class="" ng-click="vm.refreshDetails()">
+                                    Refresh
+                                  </md-button>
+                                </md-menu-item>
+                                <md-menu-item ng-if="vm.woAllHeaderDetails.terminatedFromOp">
+                                  <md-button class="cursor-not-allow">
+                                    Terminated From OP#:&nbsp;<b>{{ vm.woAllHeaderDetails.terminatedFromOp }}</b>
+                                  </md-button>
+                                </md-menu-item>
+                                <md-menu-item>
+                                  <md-button ng-click="vm.usageMaterialReport()">
+                                    Usage Material Report
+                                  </md-button>
+                                </md-menu-item>
+                              </md-menu-content>
+                            </md-menu>
+                          </md-menu-bar>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th><p class="label-container">{{vm.LabelConstant.Workorder.Status}}:</p></th>
+                        <td><span class="cm-bom-t-title text-right label-box" ng-class="vm.class">{{vm.woAllHeaderDetails.woStatusText}}</span></td>
+                      </tr>
+                      <tr ng-if="vm.woAllHeaderDetails.opStatus != null">
+                        <th><p class="label-container">{{vm.LabelConstant.Operation.Status}}:</p></th>
+                        <td><span class="cm-bom-t-title text-align-right label-box" ng-class="vm.class">{{vm.woAllHeaderDetails.opStatusText}}</span></td>
+                      </tr>
+                      <tr ng-if="vm.timerCurrentData || vm.timerData">
+                        <th ng-if="vm.timerData">
+                          <p class="label-container">Target Time:</p>
+                        </th>
+                        <td ng-if="vm.timerData">
+                          <span>
+                            {{vm.timerData.EstimTotalProcTimeDisplay}}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr ng-if="vm.timerCurrentData || vm.timerData">
+                        <th ng-if="vm.timerData">
+                          <p class="label-container">Actual Cumulative Time:</p>
+                        </th>
+                        <td ng-if="vm.timerData">
+                          <span>
+                            {{vm.timerData.totalConsumptionDisplay}}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr ng-if="vm.employeeIDOfWOOP && vm.woOPEmpWiseTotTimeConsumptionData">
+                        <th>
+                          <p class="label-container">Personnel Cumulative Time:</p>
+                        </th>
+                        <td>
+                          <span>
+                            {{vm.woOPEmpWiseTotTimeConsumptionData.totalConsumptionDisplay}}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr ng-if="vm.timerCurrentData || vm.timerData">
+                        <th></th>
+                        <td class="text-left">
+                          <span ng-if="vm.currentTimerDiff" class="pr-5 margin-left-2">
+                            <div class="white-text">
+                              {{vm.timerCurrentData.checkinTime | date : vm.FullDateTimeFormat}}
+                            </div>
+                            <label flex="100" layout-align="start center" layout="row"
+                                   class="label-box label-warning">
+                              {{vm.currentTimerDiff}}
+                            </label>
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

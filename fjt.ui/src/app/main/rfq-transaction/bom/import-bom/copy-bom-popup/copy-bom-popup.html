@@ -1,0 +1,168 @@
+<md-dialog aria-label="coustomer-confirmation" flex="90" class="copy-bom-select cm-custom-label-common cm-copy-assy-popup" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.CopyAssyBOMForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>
+          <span ng-if="vm.copyModel.isBOM">Copy BOM & Save</span>
+          <span ng-if="!vm.copyModel.isBOM">Copy RFQ & Save</span>
+        </h2>  <!--flex="20"-->
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll" layout="column">
+      <md-content class="padding-10">
+        <div class="cm-section-main border-0 margin-bottom-5" ng-if="true">
+          <div class="cm-section-inner">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <td class="font-size-12 height-25 md-accent-fg">
+                    <span ng-if="vm.copyModel.isBOM"><b>Hint: {{vm.COPY_BOM_NOTES}}</b></span>
+                    <span ng-if="!vm.copyModel.isBOM"><b>Hint: {{vm.COPY_RFQ_NOTES}}</b></span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <th>
+                    <div layout="row">
+                      <p class="label-container line-height-normal">
+                        <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToAssyList();">{{vm.LabelConstant.Assembly.ID}}</a><span ng-if="vm.copyModel.isBOM">&nbsp;*</span>
+                      </p>
+                      <div class="icon-question-mark-circle help-icon" ng-if="vm.copyModel.isBOM">
+                        <md-tooltip md-direction="top">{{ vm.BOM_MESSAGE_CONSTANT.COPY_BOM_ASSY_TOOLTIP}}</md-tooltip>
+                      </div>
+                    </div>
+                  </th>
+                  <td>
+                    <div layout="row">
+                      <md-input-container ng-if="vm.autoCompleteAssy" class="autocompletecustom margin-0" flex="100">
+                        <custom-auto-complete datalist="vm.assyList"
+                                              column-name="vm.autoCompleteAssy.columnName"
+                                              controller-name="vm.autoCompleteAssy.controllerName"
+                                              view-template-url="vm.autoCompleteAssy.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteAssy.keyColumnName"
+                                              input-name="vm.autoCompleteAssy.inputName"
+                                              placeholder-name="vm.autoCompleteAssy.placeholderName"
+                                              key-column-id="vm.autoCompleteAssy.keyColumnId"
+                                              is-required="vm.autoCompleteAssy.isRequired"
+                                              is-addnew="vm.autoCompleteAssy.isAddnew"
+                                              callback-fn="vm.autoCompleteAssy.callbackFn"
+                                              add-data="vm.autoCompleteAssy.addData"
+                                              callback-fn-param="vm"
+                                              is-disabled="!vm.copyModel.isBOM"
+                                              on-select-callback-fn="vm.autoCompleteAssy.onSelectCallbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th ng-if="vm.copyModel.customerName">
+                    <div layout="row">
+                      <p class="label-container">
+                        <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToCustomer();">Customer</a>
+                      </p>
+                    </div>
+                  </th>
+                  <td ng-if="vm.copyModel.customerName" class="padding-top-5">
+                    <span class="cm-bo-font-large text-underline cursor-pointer cm-bom-t-desc" ng-click="vm.goToCustDet()">
+                      <b>{{vm.copyModel.customerName}}</b>
+                      <md-tooltip ng-if="vm.copyModel.customerName">{{vm.copyModel.customerName}}</md-tooltip>
+                    </span>
+                  </td>
+                </tr>
+                <tr ng-if="vm.copyModel.mfgPN">
+                  <th>
+                    <div layout="row">
+                      <p class="label-container">
+                        <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToAssyList();">{{vm.LabelConstant.Assembly.MFGPN}}</a>
+                      </p>
+                    </div>
+                  </th>
+                  <td>
+                    <span class="cm-bo-font-large cm-bom-t-desc">
+                      <span class="text-underline inline-block cursor-pointer" ng-click="vm.goToAssyMaster()">
+                        <b>{{vm.copyModel.mfgPN}}</b>
+                        <md-tooltip>{{vm.copyModel.mfgPN}}</md-tooltip>
+                      </span>
+                      <span>
+                        <img class="rohs-bom-image" ng-src="{{vm.copyModel.RoHSIcon}}">
+                        <md-tooltip ng-if="vm.copyModel.rohsName">{{vm.copyModel.rohsName}}</md-tooltip>
+                      </span>
+                      <copy-text ng-if="vm.copyModel.mfgPN" label="vm.LabelConstant.Assembly.MFGPN" text="vm.copyModel.mfgPN">
+                      </copy-text>
+                      <copy-part-text ng-if="(vm.copyModel.isCustom && vm.copyModel.partID>0) && vm.copyModel.custAssyPN" label="label" text="vm.copyModel.custAssyPN"></copy-part-text>
+                    </span>
+                  </td>
+                </tr>
+                <tr ng-if="vm.copyModel.nickName">
+                  <th>
+                    <div layout="row">
+                      <p class="label-container">
+                        Nickname
+                      </p>
+                    </div>
+                  </th>
+                  <td class="padding-top-5">
+                    <span class="cm-bo-font-large cm-bom-t-desc">
+                      <b>{{vm.copyModel.nickName}}</b>
+                      <md-tooltip>{{vm.copyModel.nickName}}</md-tooltip>
+                    </span>
+                  </td>
+                </tr>
+                <tr ng-if="!vm.copyModel.isBOM">
+                  <th>
+                  </th>
+                  <td>
+                    <div layout="row">
+                      <div class="icon-question-mark-circle help-icon padding-0 margin-right-10" ng-if="vm.QuoteGroupNumberList.length == 0">
+                        <md-tooltip md-direction="top">{{ vm.BOM_MESSAGE_CONSTANT.SAVE_IN_EXISTING_RFQ_TOOLTIP}}</md-tooltip>
+                      </div>
+                      <md-checkbox ng-model="vm.copyModel.isExistingRFQ" ng-disabled="vm.QuoteGroupNumberList.length == 0" ng-click="vm.isformDirty = true" name="isExistingRFQ" class="margin-0">
+                        Save in Existing Quote Group?
+                      </md-checkbox>
+                      <md-input-container ng-if="vm.autoCompleteRFQ && vm.copyModel.isExistingRFQ" class="autocompletecustom margin-0 width-300" flex="100">
+                        <custom-auto-complete datalist="vm.QuoteGroupNumberList"
+                                              column-name="vm.autoCompleteRFQ.columnName"
+                                              controller-name="vm.autoCompleteRFQ.controllerName"
+                                              view-template-url="vm.autoCompleteRFQ.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteRFQ.keyColumnName"
+                                              input-name="vm.autoCompleteRFQ.inputName"
+                                              placeholder-name="vm.autoCompleteRFQ.placeholderName"
+                                              key-column-id="vm.autoCompleteRFQ.keyColumnId"
+                                              is-required="vm.copyModel.isExistingRFQ"
+                                              is-addnew="vm.autoCompleteRFQ.isAddnew"
+                                              callback-fn="vm.autoCompleteRFQ.callbackFn"
+                                              add-data="vm.autoCompleteRFQ.addData"
+                                              callback-fn-param="vm"
+                                              is-disabled="!vm.copyModel.isExistingRFQ || vm.QuoteGroupNumberList.length == 0"
+                                              on-select-callback-fn="vm.autoCompleteRFQ.onSelectCallbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="empty-state text-center full-height" flex="100" layout="row" ng-if="false" layout-align="center center">
+          <h1>Coming soon...</h1>
+        </div>
+      </md-content>
+
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.save()" ng-class="{'md-formdirty': vm.isformDirty }" aria-label="Submit">SAVE</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

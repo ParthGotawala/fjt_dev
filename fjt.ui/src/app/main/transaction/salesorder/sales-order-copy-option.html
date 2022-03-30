@@ -1,0 +1,313 @@
+<md-dialog aria-label="coustomer-confirmation" flex="65" class="copy-bom-select cm-custom-label-common cm-copy-assy-popup" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.CopySalesOrderForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>
+          <span>Create Duplicate SO</span>
+        </h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll" layout="column">
+      <md-content class="padding-10">
+        <div class="cm-section-main border-0 margin-bottom-5" ng-if="true">
+          <div class="cm-section-inner">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+              <tbody>
+                <tr>
+                  <td class="font-size-12 height-25" colspan="8">
+                    <div layout>
+                      <div>
+                        <p class="label-container"><b>Note:</b></p>
+                      </div>
+                      <div class="pl-10">
+                        <ul class="pl-15">
+                          <li><b>A new SO will be created as a Draft.</b></li>
+                          <li><b>{{vm.COPY_SO_NOTES}}</b></li>
+                          <li><b>RMA PO, Legacy PO, Blanket PO and Kit Planning will not be duplicated.</b></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">{{vm.LabelConstant.SalesOrder.SODate}}<span>&nbsp;*</span></p></th>
+                  <td class="width-140">
+                    <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 width-140">
+                      <input type="text" class="float-left"
+                             id="soDate"
+                             name="soDate"
+                             required
+                             min-value="vm.soModel.poDate"
+                             max-value="vm.todayDate"
+                             allow-past-date="true"
+                             allow-future-date="false"
+                             datetime-picker="{{$root.dateDisplayFormat}}"
+                             ng-change="vm.onChangesoDate(vm.salesorder.soDate)"
+                             ng-model="vm.soModel.soDate"
+                             enable-time="false"
+                             ui-options="{clearOnBlur  : true}"
+                             ui-mask="{{$root.uimaskFormat.date.mask}}"
+                             ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                             model-view-value="true"
+                             datepicker-options="vm.soDateOptions"
+                             is-open="vm.IsPickerOpen[vm.DATE_PICKER.soDate]"
+                             close-text="Close" />
+                      <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.soDate] =true">
+                      </md-icon>
+                      <div ng-messages="vm.CopySalesOrderForm.soDate.$error" role="alert">
+                        <div ng-message="maxvalue">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_SALES_ORDER_DATE}}</span>
+                        </div>
+                        <div ng-message="minvalue">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MIN_SALES_ORDER_DATE}}</span>
+                        </div>
+                        <div ng-message="valid">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="datetime">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">PO#<span>&nbsp;*</span></p></th>
+                  <td>
+                    <md-input-container flex="100" class="margin-bottom-0">
+                      <input type="text"
+                             name="poNumber"
+                             id="poNumberDet"
+                             md-maxlength="100"
+                             ng-model="vm.soModel.poNumber"                             
+                             custom-auto-focus="true"
+                             class="input-text-uppercase"
+                             capitalize placeholder="PO#"
+                             required ng-maxlength="100">
+                      <div ng-messages="vm.CopySalesOrderForm.poNumber.$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength" class="cm-white-space-normal">
+                          <span>{{vm.getMaxLengthValidation(100, vm.CopySalesOrderForm.poNumber.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">{{vm.LabelConstant.SalesOrder.PODate}}<span>&nbsp;*</span></p></th>
+                  <td class="width-140">
+                    <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                      <input type="text" class="float-left"
+                             id="poDate"
+                             name="poDate"
+                             allow-past-date="true"
+                             max-value="vm.soModel.soDate"
+                             required
+                             allow-future-date="false"
+                             ng-change="vm.onChangePoDate(vm.salesorder.poDate)"
+                             datetime-picker="{{$root.dateDisplayFormat}}"
+                             ng-model="vm.soModel.poDate"
+                             enable-time="false"
+                             ui-options="{clearOnBlur  : true}"
+                             ui-mask="{{$root.uimaskFormat.date.mask}}"
+                             ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                             model-view-value="true"
+                             datepicker-options="vm.poDateOptions"
+                             is-open="vm.IsPickerOpen[vm.DATE_PICKER.poDate]"
+                             close-text="Close" />
+                      <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.poDate] =true">
+                      </md-icon>
+                      <div ng-messages="vm.CopySalesOrderForm.poDate.$error" role="alert">
+                        <div ng-message="maxvalue">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.MAX_PURCHASE_ORDER_DATE}}</span>
+                        </div>
+                        <div ng-message="valid">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="datetime">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">PO Revision</p></th>
+                  <td>
+                    <md-input-container flex="100" class="margin-bottom-0">
+                      <input type="text"
+                             name="poRevision"
+                             id="poRevision"
+                             md-maxlength="8"
+                             ng-model="vm.soModel.poRevision"
+                             ng-blur="!vm.soModel.poRevision?vm.soModel.poRevisionDate=null:null"
+                             class="input-text-uppercase"
+                             capitalize placeholder="PO Revision"
+                             ng-maxlength="8">
+                      <div ng-messages="vm.CopySalesOrderForm.poRevision.$error"
+                           role="alert">
+                        <div ng-message="maxlength" class="cm-white-space-normal">
+                          <span>{{vm.getMaxLengthValidation(8, vm.CopySalesOrderForm.poRevision.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">PO Revision Date<span ng-if="vm.soModel.poRevision">&nbsp;*</span></p></th>
+                  <td class="width-140">
+                    <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                      <input type="text" class="float-left"
+                             name="poRevisionDate"
+                             min-value="vm.soModel.poDate"
+                             max-value="vm.todayDate"
+                             allow-past-date="true"
+                             ng-disabled="!vm.soModel.poRevision"
+                             ng-required="vm.soModel.poRevision?true:false"
+                             allow-future-date="false"
+                             datetime-picker="{{$root.dateDisplayFormat}}"
+                             ng-model="vm.soModel.poRevisionDate"
+                             enable-time="false"
+                             ui-options="{clearOnBlur  : true}"
+                             ui-mask="{{$root.uimaskFormat.date.mask}}"
+                             ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                             model-view-value="true"
+                             datepicker-options="vm.poRevisionDateOptions"
+                             is-open="vm.IsPickerOpen[vm.DATE_PICKER.poRevisionDate]" />
+                      <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.poRevisionDate]=(vm.isDisable ? false : true)">
+                      </md-icon>
+                      <div ng-messages="vm.CopySalesOrderForm.poRevisionDate.$error" role="alert">
+                        <div ng-message="valid">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="minvalue">
+                          <span>{{vm.messageCompareMessage}}</span>
+                        </div>
+                        <div ng-message="maxvalue">
+                          <span>{{vm.pomessageCompareMessage}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr ng-if="vm.salesOrderAssyList.length>0">
+                  <td colspan="10">
+                    <div class="border">
+                      <div class="cm-section-header cm-height-auto mb-10 ">
+                        <h2>Copy Assy Details</h2>
+                      </div>
+                      <div class="max-height-130 cm-overflow-auto cm-sticky-header-table border-top">
+                        <table class="cm-data-sub-table width-100p">
+                          <thead>
+                            <tr ng-if="vm.salesOrderAssyList.length>0" class="bg-white">
+                              <th><p class="label-container">#</p></th>
+                              <th><p class="label-container justify-content-start">SO Assy ID/PID</p></th>
+                              <th><p class="label-container justify-content-start">Current Assy ID/PID</p></th>
+                              <th><p class="label-container justify-content-start w-300">Comment/Remark</p></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr ng-repeat="item in vm.salesOrderAssyList track by $index" ng-if="vm.salesOrderAssyList.length>0">
+                              <th ng-class="{'background-color-light-red':item.isMismatch}"><p class="label-container">{{$index+1}}</p></th>
+                              <td ng-class="{'background-color-light-red':item.isMismatch}">
+                                <div flex="100" layout layout-wrap>
+                                  <common-pid-code-label-link component-id="item.currPartID"
+                                                              label="'Assy ID/PID'"
+                                                              value="item.currPidCode"
+                                                              is-copy="true"
+                                                              rohs-icon="vm.rohsImagePath+item.currRohsIcon"
+                                                              rohs-status="item.currRohs"
+                                                              is-formated="true"
+                                                              is-assembly="true"></common-pid-code-label-link>
+                                </div>
+                              </td>
+                              <td ng-class="{'background-color-light-red':item.isMismatch}">
+                                <p class="label-container">
+                                  <common-pid-code-label-link component-id="item.newPartID"
+                                                              label="'Assy ID/PID'"
+                                                              value="item.newPidCode"
+                                                              is-copy="true"
+                                                              rohs-icon="vm.rohsImagePath+item.newRohsIcon"
+                                                              rohs-status="item.newRohs"
+                                                              is-formated="true"
+                                                              is-assembly="true"></common-pid-code-label-link>
+                                </p>
+                              </td>
+                              <td ng-class="{'background-color-light-red':item.isMismatch}"><p class="label-container">{{item.isMismatch?'Part is Mismatched':''}}</p></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="font-size-12 height-25" colspan="6">
+                    <div layout>
+                      <div>
+                        <p class="label-container"><b>Hint:</b></p>
+                      </div>
+                      <div class="pl-10">
+                        <div ng-if="vm.partDescriptions.length>0" layout layout-wrap>
+                          <span flex="100">Mismatch found! <br />Mismatch of description or comments between Part Master and selected SO.</span>
+                          <div flex="100" layout layout-wrap class="max-height-200 cm-overflow-auto">
+                            <span ng-repeat="item in vm.partDescriptions">
+                              <common-pid-code-label-link class="margin-top-5"
+                                                          component-id="item.partID"
+                                                          label="'MFR'"
+                                                          value="item.componentAssembly.PIDCode"
+                                                          is-copy="true"
+                                                          rohs-icon="vm.rohsImagePath+item.componentAssembly.rfq_rohsmst.rohsIcon"
+                                                          rohs-status="item.componentAssembly.rfq_rohsmst.name"
+                                                          is-formated="true"
+                                                          is-assembly="item.componentAssembly.isCustom"></common-pid-code-label-link>
+                            </span>
+                          </div>
+                        </div>
+                        <div ng-if="vm.partDescriptions.length==0">
+                          <span>
+                            No mismatch of description or comments between Part Master and selected SO.
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="8">
+                    <fieldset class="container-box inline-block">
+                      <legend class="margin-0"></legend>
+                      <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                        <div class="input-wrapper" layout="row" layout-align="start center">
+                          <md-radio-group class=" mb-5" flex="100" layout="row" ng-model="vm.soModel.isPartRequirements" name="isPartRequirements">
+                            <md-radio-button ng-value="true" class="md-primary margin-top-0">Select description & comments from selected SO.</md-radio-button>
+                            <md-radio-button ng-value="false" class="md-primary margin-top-0">Select description & comments from Part Master.</md-radio-button>
+                          </md-radio-group>
+                        </div>
+                      </div>
+                    </fieldset>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </md-content>
+
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-class="{'md-formdirty': vm.CopySalesOrderForm.$dirty || vm.soModel.poDate}" ng-click="vm.createDuplicateSalesOrder()" aria-label="Submit">SAVE</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

@@ -1,0 +1,183 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common"
+     ng-class="{'cm-work-order-header': vm.workorder.woID}" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="header md-accent-bg" layout="row" layout-wrap flex="100" layout-align="start center">
+    <div flex="100" layout="row">
+      <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" ng-click="vm.goBack()">
+        <!--<md-icon md-font-icon="icon-arrow-left" class="material-icons icon-arrow-left">
+        </md-icon>-->
+        <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+        </md-icon>
+      </md-button>
+      <div class="white-fg" layout="row" flex="100" layout-wrap>
+        <div class="layout-wrap-rs" layout-align="space-between center" layout="row" flex="100">
+          <div>
+            <div layout="row" class="layout-wrap-mob">
+              <div class="h2" layout="row" layout-align="start center">
+                <pagetitle is-list="false"
+                           is-display-menu-name="true"
+                           prefix-content="vm.workorder.woID ? 'Update' : 'Add'"
+                           suffix-content="vm.workorder.woNumber ? ('#: ' + vm.workorder.woNumber + (vm.workorder.woVersion ? '-' + vm.workorder.woVersion : '')) : ''"
+                           prefix-page-title="vm.workorder.woNumber ? (vm.workorder.woNumber + (vm.workorder.woVersion ? '-' + vm.workorder.woVersion : '')) : ''"></pagetitle>
+                <md-tooltip ng-if="vm.workorder.woID && vm.workorder.woNumber" md-direction="right">{{vm.workorder.woNumber}}{{vm.workorder.woNumber ? (vm.workorder.woVersion ? '-' + vm.workorder.woVersion : '') : ''}}</md-tooltip>
+              </div>
+              <div layout="row" ng-if="vm.autoCompleteGoToWO" class="margin-left-20">
+                <div class="margin-top-10">
+                  <md-input-container ng-if="vm.autoCompleteGoToWO" class="width-300 autocompletecustom margin-0 widget-dashboard-search-area" flex="100" flex-gt-xs="100">
+                    <custom-auto-complete-search on-search-fn="vm.autoCompleteGoToWO.onSearchFn"
+                                                 column-name="vm.autoCompleteGoToWO.columnName"
+                                                 key-column-name="vm.autoCompleteGoToWO.keyColumnName"
+                                                 key-column-id="vm.autoCompleteGoToWO.keyColumnId"
+                                                 input-name="vm.autoCompleteGoToWO.inputName"
+                                                 placeholder-name="vm.autoCompleteGoToWO.placeholderName"
+                                                 is-required="vm.autoCompleteGoToWO.isRequired"
+                                                 is-addnew="vm.autoCompleteGoToWO.isAddnew"
+                                                 callback-fn="vm.autoCompleteGoToWO.callbackFn"
+                                                 on-select-callback-fn="vm.autoCompleteGoToWO.onSelectCallbackFn">
+                    </custom-auto-complete-search>
+                  </md-input-container>
+                </div>
+                <div>
+                  <md-button class="md-primary md-raised mb-0 margin-top-10" ng-click="vm.addNewWorkOrder($event)" ng-if="vm.workorder.woID">
+                    Add Work Order
+                  </md-button>
+                </div>
+              </div>
+            </div>
+            <div class="product-count">
+              <span>
+                <breadcrumbs></breadcrumbs>
+              </span>
+            </div>
+          </div>
+          <div layout="row" class="cm-custom-label-common layout-wrap-pro-rs cm-layout-align-end-center-1281" layout-align="center center">
+            <!-- Operation Verification Button-->            
+            <div ng-if="vm.dataLoaded">
+              <workorder-operation-verification wo-id="vm.workorder.woID" wo-sub-status="vm.workorder.woSubStatus"
+                    is-operations-verified="vm.workorder.isOperationsVerified"
+                    wo-other-details="vm.woDetailsForWOOPVerification"> </workorder-operation-verification>
+            </div>
+            <md-button class="md-raised cm-feture-btn-color mv-0 ml-0"
+                       ng-click="vm.toggleWorkorder(vm.workorder, $event)"
+                       ng-disabled="!vm.workorder.woID || vm.isWoInSpecificStatusNotAllowedToChange">
+              {{vm.workorder.isStopWorkorder ?   "Resume" : "Halt"}} Work Order
+            </md-button>
+            <md-menu-bar id="user-menu" class="p-0">
+              <md-menu md-position-mode="left bottom">
+                <!--ng-class="{'label-success white-fg': vm.isDisableStatusMenu}"        ng-disabled="vm.isDisableStatusMenu"-->
+                <md-button class="md-raised user-button md-button md-ink-ripple white-text cm-feture-btn-color mv-0 ml-0"
+                           ng-click="$mdOpenMenu()"
+                           aria-label="User settings" ng-disabled="!vm.workorder.woID">
+                  <div layout="row" layout-align="center center">
+                    <span class="username">{{vm.getWoStatus(vm.workorder.woSubStatus)}}</span>
+                    <md-icon md-font-icon="icon-chevron-down"
+                             class="icon s16" ng-if="vm.workorder.woID"></md-icon>
+                  </div>
+                </md-button>
+                <md-menu-content width="3">
+                  <md-menu-item ng-repeat="status in vm.WoStatus | orderBy:'DisplayOrder'">
+                    <md-button ng-click="vm.changeWoStatus(status.ID, vm.workorder.woSubStatus,$event)">{{status.Name}}</md-button>
+                  </md-menu-item>
+                </md-menu-content>
+              </md-menu>
+            </md-menu-bar>
+            <!--<md-button class="md-raised md-primary"
+             ng-click="vm.isWOPublished ? '' : vm.AddClusterToWorkorder(null)"
+             ng-disabled="!vm.workorder.woID || !vm.workorder.isClusterApplied || vm.isWOUnderTermination || vm.isWOPublished">
+      Add Cluster
+  </md-button>-->
+            <md-button class="md-raised md-primary mv-0 ml-0" ng-click="vm.openWorkorderReviewModel($event);"
+                       ng-disabled="!vm.workorder.woID">Review Comments & Change Request</md-button>
+            <md-button ng-if="vm.selectedTab == 0" class="md-raised md-primary mv-0 ml-0"
+                       id="saveBtn"
+                       ng-disabled="vm.saveDisable || vm.isWoInSpecificStatusNotAllowedToChange"
+                       ng-class="{'md-formdirty': vm.checkFormDirty(vm.frmWorkOrderDetails,null)}"
+                       ng-click="vm.SaveWorkorderGenralDetails(true,$event,false,null)">
+              Save
+            </md-button>
+            <md-button ng-if="vm.selectedTab == 1" class="md-raised md-primary mv-0 ml-0"
+                       id="saveBtn"
+                       ng-disabled="vm.saveDisable || vm.isWoInSpecificStatusNotAllowedToChange"
+                       ng-class="{'md-formdirty': vm.checkFormDirty(vm.frmCertificateDetails,null)}"
+                       ng-click="vm.SaveWorkorderStandard($event)">
+              Save
+            </md-button>
+            <md-button ng-if="vm.selectedTab == 8"
+                       class="md-raised md-primary mv-0 ml-0"
+                       id="saveBtn"
+                       ng-disabled="vm.saveDisable || vm.isWoInSpecificStatusNotAllowedToChange"
+                       ng-class="{'md-formdirty': vm.checkFormDirty(vm.workorderOtherDetail,null)}"
+                       ng-click="vm.SaveWorkorderOtherDetails()">
+              Save
+            </md-button>
+            <md-button ng-if="vm.selectedTab == 9"
+                       class="md-raised md-primary mv-0 ml-0"
+                       id="savebtn"
+                       ng-class="{'md-formdirty': vm.isinviteSaveBtnDisable || vm.isCoownerSaveBtnDisable
+                                        || vm.checkFormDirty(vm.woStatusForm,null) || vm.woStatusForm.$dirty}"
+                       ng-click="vm.InviteEmployeeForReview()"
+                       ng-disabled="vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange">
+              <!--ng-disabled="vm.isWOUnderTermination || (!vm.isinviteSaveBtnDisable && !vm.isCoownerSaveBtnDisable)"-->
+              Save
+            </md-button>
+            <!--<md-button id="quick-panel-toggle" class="md-icon-button">
+      <md-icon md-font-icon="icon-alert-circle" class="icon"></md-icon>
+  </md-button>-->
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="divider-horizontal"></div>
+    <div layout="row" flex="100" ng-if="vm.workorder.woID && vm.workorder.partID">
+      <workorder-header-details flex="100" wo-id="vm.workorder.woID" wo-op-id=""
+                                is-woheaderdetails-changed="vm.isWOHeaderDetailsChanged"
+                                is-traveler="false" wo-assy-id="vm.workorder.partID">
+      </workorder-header-details>
+    </div>
+  </div>
+
+  <!-- / CONTENT HEADER -->
+  <!-- CONTENT CARD -->
+  <div class="content-card padding-top-side" layout="column" flex>
+    <div layout="row">
+      <div class="ms-theme-options-button md-primary-bg sidebar-icon-fixed " role="button" ng-show="!vm.isShowSideNav">
+        <div class="sidebar-icon-class">
+          <md-icon class="md-default-theme md-font material-icons cursor-pointer icon-backburger sidebar-icon-left" md-font-icon="icon-backburger" ng-click="vm.HideShowSideNav()" role="button" aria-label="icon-backburger"></md-icon>
+        </div>
+      </div>
+      <div flex-sm="{{vm.isShowSideNav==false?0:25}}" flex="{{vm.isShowSideNav==false?0:20}}">
+        <workorder-tree wo-id="vm.workorder.woID" class="cm-wo-sidebar" is-show-side-nav="vm.isShowSideNav"></workorder-tree>
+      </div>
+      <div flex-sm="{{vm.isShowSideNav==false?100:75}}" flex="{{vm.isShowSideNav==false?100:80}}" class="padding-10 cm-workorder-main-detail">
+        <div ng-if="vm.selectedTab == 0" ui-view="workorderdetails"></div>
+        <div ng-if="vm.selectedTab == 1" ui-view="workorderstandards"></div>
+        <div ng-if="vm.selectedTab == 2" ui-view="workorderdocuments"></div>
+        <div ng-if="vm.selectedTab == 3" ui-view="workorderoperations"></div>
+        <div ng-if="vm.selectedTab == 4" ui-view="workorderparts"></div>
+        <div ng-if="vm.selectedTab == 5" ui-view="workorderequipments"></div>
+        <div ng-if="vm.selectedTab == 6" ui-view="workorderemployees"></div>
+        <div ng-if="vm.selectedTab == 7" ui-view="workorderdatafields"></div>
+        <div ng-if="vm.selectedTab == 8" ui-view="workorderotherdetails"></div>
+        <div ng-if="vm.selectedTab == 9" ui-view="workorderinvitepeople"></div>
+        <div ng-if="vm.selectedTab == null">
+          <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap>
+            <div class="emty-icon" flex="100">
+              <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+            </div>
+            <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+            <p flex="100">
+              {{vm.EmptyMesssage.LOADINGMESSAGE}}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- / CONTENT CARD -->
+  <!-- Placed at bottom to solve z-inde issue -->
+  <md-sidenav class="md-sidenav-right md-whiteframe-4dp workorder-review" md-component-id="workorder-review" style="position:fixed;overflow:hidden">
+    <workorder-review ng-if="vm.isWorkorderReviewSideNavOpen" wo-id="vm.workorder.woID" wo-rev-req-id="vm.woRevReqForReview.woRevReqID"
+                      wo-number="vm.workorder.woNumber"
+                      wo-review-other-details="vm.woReviewOtherDetails"
+                      is-disable-all-functionality="vm.isWoInSpecificStatusNotAllowedToChange"></workorder-review>
+  </md-sidenav>
+</div>

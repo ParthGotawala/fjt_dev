@@ -1,0 +1,109 @@
+FJT DB run below script. Note change DB name in below script
+----------------
+ALTER TABLE users ADD IdentityUserId varchar(255);
+==========================================
+DELIMITER $$
+
+USE `flexjobtracking_dev`$$
+
+DROP PROCEDURE IF EXISTS `Sproc_GetUserAuthDetail`$$
+
+CREATE DEFINER=`root`@`%` PROCEDURE `Sproc_GetUserAuthDetail`(        
+	pUserID VARCHAR(225)         
+)
+BEGIN        
+	SELECT	u.id, 			u.username, 	u.emailAddress,		u.firstName,		u.lastName,         
+			u.deletedAt, 	u.isDeleted, 	u.employeeID, 	 	u.printerID,         
+            u.defaultLoginRoleID, 			e.isActive   , e.initialName      
+	FROM 	users u        
+	INNER JOIN employees e ON u.employeeID = e.id AND (e.deletedAt IS NULL AND e.isActive = TRUE)        
+	WHERE (u.deletedAt IS NULL AND u.IdentityUserId = pUserID);        
+  
+    SELECT s.`key`, s.`values` FROM systemconfigrations s WHERE s.`key` = 'TextAngularKeyCode';        
+END$$
+
+DELIMITER ;
+
+----------------------------------------------------------------------------------------------
+	Steps to Set up Agreement tables in Identity Db. - Bhavik Thummar (26 Feb. 2021)
+----------------------------------------------------------------------------------------------
+1. Change Your Dabatabse name in 'appsettings.json' file.
+	-   "DatabaseNames": {
+			"FJTMainDB": "flexjobtracking_dev",
+			"IdentityDB": "fjt_identity_dev"
+		  },
+	- write your Main FJT Dabatabsename in "FJTMainDB" and your Identity Database name in "IdentityDB"
+
+2. Find and UnComment Below Line in 'Program.cs'
+	- DbInitialize.Initialize(context, dbNames);
+	
+Note:- after Completed steps 2 in - "Steps to Set up Identity Server - Purav (18 Jan 2021 05:20 P.M.)"(as written below) re-Comment This Line.
+Info :- this 'DbInitialize.Initialize' used for Copy "agreement_type","agreement","user_agreement","`systemconfigrations`"  tables Records From FJT Main Db To Identity Db. and also Execute some necessary Functions and Store Procedure In identityDb. 
+
+----------------------------------------------------------------------------------------------
+	Steps to Set up Identity Server - Purav (18 Jan 2021 05:20 P.M.)
+----------------------------------------------------------------------------------------------
+
+Step 1 : Migration of Identity Server DB
+-------------------------------------------
+    Open Package Manager Console and run the following command step by step.
+
+        PM> Update-Database -Context ConfigurationDbContext
+
+        PM> Update-Database -Context PersistedGrantDbContext
+
+        PM> Update-Database -Context FJTIdentityDbContext
+
+Step 2: Seed default data
+----------------------------------- 
+- Make flag true in appsettings.json file
+	"Data": {
+		"Seed": true
+	},
+- Run project. It will make default entries in DB once get exception in startup.cs file to make that flag again false.
+- Stop project and again set value to false
+	"Data": {
+		"Seed": false
+	},
+
+	
+Note(bhavik thummar):- After Project Start(after successfully run code from 'DbInitialize'(you can check in identityDb - there are some records copied from FJtDB in this tables.- "agreement_type","agreement","user_agreement","`systemconfigrations`" and created some functions and Sp.)), now re-comment below line in 'program.cs'
+	- DbInitialize.Initialize(context, dbNames);
+	
+
+Step:3 Create Client
+-------------------------------------------
+    Create Client for Identity Server
+
+        url: 'https://localhost:44372/Clients/ManageApplicationClients',
+        method: POST,
+        bodytype : x-www-form-urlencoded,
+        body :  ClientID:FJT UI
+                AllowedScopes[0]:FJTFrontEnd
+                AllowedCorsOrigin:https://localhost:3000
+                RedirectUri:https://localhost:3000/#!/loginresponse
+                PostLogoutRedirectUri:https://localhost:3000/#!/login      
+              
+NOTE: 'https://localhost:44372/' is url for identityserver4.
+
+Step 4: FJT API PRoject run below command
+-----------------------------------------------
+ npm install express-jwt https jwks-rsa openssl-nodejs ssl-root-cas axios
+
+Step 5: FJT UI PRoject run below command
+-----------------------------------------------
+ npm install oidc-client
+
+
+Step 6: Migration of exsisting user
+-------------------------------------------
+    Run an api on Postman.
+
+        url: 'https://localhost:2003/api/v1/utility/updateUsersWithUserID',
+        method: POST  
+
+NOTE: 'https://localhost:2003/' is url for fjt.api.
+
+
+
+

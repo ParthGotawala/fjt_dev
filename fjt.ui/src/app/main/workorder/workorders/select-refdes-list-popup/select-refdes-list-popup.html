@@ -1,0 +1,134 @@
+<md-dialog aria-label="Part" class="cm-custom-label-common" draggable>
+  <form name="vm.refDesListForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Select RefDes</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content layout="column" class="customer-modal padding-10-imp custom-scroll">
+      <div layout="column" flex infinite-scroll="vm.getRFQLineItemsByID()" infinite-scroll-disabled="vm.disableScroll" infinite-scroll-container="vm.scrollEle" infinite-scroll-distance="2">
+        <div flex class="cm-sticky-header-table cm-overflow-auto border" ng-if="!vm.isNoDataFound" id="dataSection">
+          <table class="md-table md-data-table cm-table-paddding-10 table table-bordered mb-0 cm-sticky-padding-right-10 cm-table-data-baseline cm-table-row-white">
+            <thead>
+              <tr>
+                <th class="width-50" >
+                  <md-checkbox ng-model="vm.isAllSelect" ng-change="vm.selectAllRefDes()"></md-checkbox>
+                </th>
+                <th class="width-70">
+                  <p class="label-container cm-white-space-normal">{{vm.labelConstant.BOM.BOM_LineID}}</p>
+                </th>
+                <th class="width-150">
+                  <p class="label-container">{{vm.labelConstant.BOM.CPN}}</p>
+                </th>
+                <th>
+                  <p class="label-container">{{vm.labelConstant.BOM.CPN_REV}}</p>
+                </th>
+                <th>
+                  <p class="label-container">QPA</p>
+                </th>
+                <th class="width-450">
+                  <p class="label-container">{{vm.labelConstant.BOM.REF_DES}}</p>
+                </th>
+                <th>
+                  <p class="label-container">Populate</p>
+                </th>
+                <th>
+                  <p class="label-container">DNP Qty</p>
+                </th>
+                <th class="width-250">
+                  <p class="label-container">{{vm.labelConstant.BOM.DNP_REF_DES}}</p>
+                </th>
+                <th class="width-250">
+                  <p class="label-container">
+                    <a class="cm-text-decoration" ng-click="vm.gotoManufacturerList();" tabindex="-1">{{vm.labelConstant.MFG.MFG}}</a>
+                  </p>
+                </th>
+                <th>
+                  <p class="label-container">
+                    <a class="cm-text-decoration" ng-click="vm.goToAssemblyList();" tabindex="-1">{{vm.labelConstant.MFG.MFGPN}}</a>
+                  </p>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="detItem in  vm.itemPerBOMLineList">
+                <td rowspan="{{detItem.bomLineCnt}}" ng-if="detItem.bomLineIndex === 1">
+                  <md-checkbox ng-model="detItem.isSelectedItem" ng-change="vm.selectLine(detItem)" class="margin-top-5 margin-bottom-5" ng-disabled="detItem.isDisabled"></md-checkbox>
+                </td>
+                <td rowspan="{{detItem.bomLineCnt}}" ng-if="detItem.bomLineIndex === 1">
+                  <p class="label-container text-right">
+                    {{detItem.lineID}}
+                  </p>
+                </td>
+                <td rowspan="{{detItem.bomLineCnt}}" ng-if="detItem.bomLineIndex === 1">
+                  <p class="label-container">{{detItem.custPN}}</p>
+                </td>
+                <td rowspan="{{detItem.bomLineCnt}}" ng-if="detItem.bomLineIndex === 1">
+                  <p class="label-container">{{detItem.custPNRev}}</p>
+                </td>
+                <td rowspan="{{detItem.bomLineCnt}}" ng-if="detItem.bomLineIndex === 1">
+                  <p class="label-container">{{detItem.qpa}}</p>
+                </td>
+                <td rowspan="{{detItem.bomLineCnt}}" ng-if="detItem.bomLineIndex === 1">
+                  <p class="label-container cm-white-space-normal word-break">{{detItem.refDesig}}</p>
+                </td>
+                <td class="text-center" rowspan="{{detItem.bomLineCnt}}" ng-if="detItem.bomLineIndex === 1">
+                  <md-checkbox ng-model="detItem.isInstall" disabled></md-checkbox>
+                </td>
+                <td rowspan="{{detItem.bomLineCnt}}" ng-if="detItem.bomLineIndex === 1">
+                  <p class="label-container">{{detItem.dnpQty}}</p>
+                </td>
+                <td rowspan="{{detItem.bomLineCnt}}" ng-if="detItem.bomLineIndex === 1">
+                  <p class="label-container cm-white-space-normal word-break">{{detItem.dnpDesig}}</p>
+                </td>
+                <td>
+                  <p class="label-container cm-white-space-normal">
+                    <a class="cm-text-decoration" ng-click="vm.goToManufacturer(detItem.mfgcodeID);" tabindex="-1">{{detItem.formattedMfrName}}</a>
+                    <copy-text ng-if="detItem.formattedMfrName" label="vm.LabelConstant.MFG.MFG" text="detItem.formattedMfrName"></copy-text>
+                  </p>
+                </td>
+                <td class="width-420">
+                  <common-pid-code-label-link component-id="detItem.linePartId"
+                                              label="vm.LabelConstant.MFG.MFGPN"
+                                              value="detItem.mfgPN"
+                                              is-copy="true"
+                                              is-custom-part="detItem.isCustom"
+                                              rohs-icon="vm.rohsImagePath + detItem.rohsIcon"
+                                              rohs-status="detItem.rohsName"
+                                              is-search-findchip="false"
+                                              is-formated="true"
+                                              cust-part-number="detItem.custAssyPN"></common-pid-code-label-link>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="empty-state text-center" layout="row" flex="100" layout-wrap ng-if="vm.isNoDataFound && !vm.isFilterEnable && vm.isBOMReadOnly">
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+          </div>
+          <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+          <p flex="100">
+            {{vm.EmptyMesssage.MESSAGE_DISCRIPTIOM}}
+          </p>
+          <!--<p flex="100">
+            {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+          </p>-->
+        </div>
+
+      </div>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-rasied" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.addToOperation($event)"
+                 ng-disabled="vm.saveDisable"
+                 ng-class="{'md-formdirty': vm.checkFormDirty(vm.refDesListForm,null)}">Add to Operation</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

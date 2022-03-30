@@ -1,0 +1,122 @@
+<div layout="row" class="advanced-filters">
+  <div class="pr-5 padding-5-rs">
+    <form name="vm.countHistoryForm" id="countHistoryForm">
+      <div layout="row">
+        <fieldset flex="100" class="container-box mb-6">
+          <legend class="margin-0">Search UMID</legend>
+          <div class="margin-0" layout="row" flex="100" layout-align="start start">
+            <div class="input-wrapper" layout="row" layout-align="start center">
+              <md-radio-group class=" mb-5" flex="100" layout="row" ng-model="vm.searchType" name="checkSerachType">
+                <md-radio-button ng-value="vm.CustomSearchTypeForList.Contains" class="md-primary margin-top-0">Contains</md-radio-button>
+                <md-radio-button ng-value="vm.CustomSearchTypeForList.Exact" class="md-primary margin-top-0">Exact</md-radio-button>
+              </md-radio-group>
+              <md-input-container flex="80" class="margin-bottom-0">
+                <input type="text" id="searchName" name="searchName" ng-model="vm.searchName"
+                       custom-auto-focus="false" ng-keypress="vm.scanSearchKey($event)" />
+              </md-input-container>
+            </div>
+          </div>
+        </fieldset>
+        <div layout="column" layout-align="start center" class="pv-6 ml-5">
+          <div class="cm-section-main" flex="100">
+            <div class="cm-section-inner ph-0-imp">
+              <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th>
+                      <p class="label-container mt-10">From Date<span class="color-red margin-left-3">*</span></p>
+                    </th>
+                    <td class="width-150">
+                      <md-input-container class="md-block datepicker padding-right-0-imp margin-0" flex="100">
+                        <input type="text" class="float-left" ng-required="true"
+                               name="fromDate"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               enable-date="true"
+                               enable-time="false"
+                               ng-model="vm.countHistory.fromDate"
+                               ng-change="vm.fromDateChanged()"
+                               datepicker-options="vm.fromDateOptions"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               is-open="vm.fromDateOptions.fromDateOpenFlag" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.fromDateOptions.fromDateOpenFlag = true">
+                        </md-icon>
+                        <div ng-messages="vm.countHistoryForm.fromDate.$error" md-auto-hide="false" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <th class="pl-10">
+                      <p class="label-container mt-10">To Date<span class="color-red margin-left-3">*</span></p>
+                    </th>
+                    <td class="width-150">
+                      <md-input-container class="md-block datepicker padding-right-0-imp margin-0" flex="100">
+                        <input type="text" class="float-left" ng-required="true"
+                               name="toDate"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               enable-date="true"
+                               enable-time="false"
+                               ng-model="vm.countHistory.toDate"
+                               ng-change="vm.toDateChanged()"
+                               datepicker-options="vm.toDateOptions"
+                               ui-options="{clearOnBlur  : true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               is-open="vm.toDateOptions.toDateOpenFlag" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.toDateOptions.toDateOpenFlag = true">
+                        </md-icon>
+                        <div ng-messages="vm.countHistoryForm.toDate.$error" md-auto-hide="false" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="input-wrapper" layout="row" flex layout-align="start center">
+    <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.searchData()">Search</md-button>
+    <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.resetData()">Reset</md-button>
+  </div>
+</div>
+<div class="content-card cm-custom-label-common cm-non-umid-grid" layout="column" flex ng-show="!vm.isNoDataFound" cg-busy="{promise:vm.cgBusyLoading}">
+  <md-card layout="column" class="margin-0" flex layout-align="space-between stretch">
+    <ui-grid-extention load-data="vm.loadData"
+                       grid-id="vm.gridConfig.gridCountApprovalHistory"
+                       grid-option="vm.gridOptions"
+                       header="vm.sourceHeader"
+                       grid-data="vm.sourceData"
+                       total-data-count="vm.totalSourceDataCount"
+                       reset-grid="vm.resetSourceGrid"
+                       selectted-rows="vm.selectedRowsList"
+                       paging-info="vm.pagingInfo"
+                       current-item="vm.currentdata"
+                       get-data-down="vm.getDataDown"
+                       empty-state="vm.emptyState"
+                       delete-multiple-data="vm.deleteMultipleData">
+  </md-card>
+</div>
+<div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound && !vm.searchFilterData">
+  <div class="emty-icon" flex="100">
+    <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+  </div>
+  <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+  <p flex="100">
+    <md-button class="md-fab md-mini" aria-label="Refresh" ng-click="vm.resetData()">
+      <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+      <md-tooltip>Refresh</md-tooltip>
+    </md-button>
+  </p>
+</div>

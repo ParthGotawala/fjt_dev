@@ -1,0 +1,127 @@
+<md-dialog aria-label="Blanket PO Details" flex="60" class="cm-custom-label-common cm-multiline-popup-header" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <md-toolbar class="md-toolbar ma pt-5">
+    <div class="md-toolbar-tools">
+      <h2 class="nowrap">
+        Linked PO(s)
+      </h2>
+      <span flex></span>
+      <div layout="row" layout-align="end center" layout-wrap class="mv-5">
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+      </div>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content class="customer-modal no-padding custom-scroll mh-5" layout="column">
+    <md-content class="padding-10">
+      <div class="content fullpage-datatable" layout="column">
+        <div layout="row" flex="100">
+          <div>
+            <div class="feeder-scan-message margin-0 color-black">
+              <p ng-if="vm.data.isAlert">
+                PO Qty cannot be less than Assigned Qty
+              </p>
+              <p class="margin-0">
+                <span layout>
+                  <span>MPN:</span>
+                  <common-pid-code-label-link component-id="vm.data.partID"
+                                              label="'MPN'"
+                                              value="vm.data.mfgPN"
+                                              is-copy="true"
+                                              rohs-icon="vm.data.rohsIcon"
+                                              rohs-status="vm.data.rohsName"
+                                              is-formated="true"
+                                              is-assembly="vm.data.partType == vm.subAssy"></common-pid-code-label-link>
+                  <span class="ml-30">Assy ID/PID:</span>
+                  <common-pid-code-label-link component-id="vm.data.partID"
+                                              label="'Assy ID/PID'"
+                                              value="vm.data.PIDCode"
+                                              is-copy="true"
+                                              rohs-icon="vm.data.rohsIcon"
+                                              rohs-status="vm.data.rohsName"
+                                              is-formated="true"
+                                              is-assembly="vm.data.partType == vm.subAssy"></common-pid-code-label-link>
+                </span> 
+                <span>Following Sales Order(s) created based on Blanket PO</span>
+              </p>
+            </div>
+          </div>
+          <div class="cm-ml-auto mr-0"><md-button id="btnRefresh" class="md-primary md-raised" ng-click="vm.refresh()" aria-label="Submit">Refresh</md-button></div>
+        </div>
+
+        <div class="margin-top-10 cm-section-main order-detail-form-container payments md-background-bg md-whiteframe-1dp" layout="column" flex="100" ng-show="vm.soBlanketPOlist.length>0">
+          <div layout="row" layout-align="space-between center" class="cm-section-header">
+            <h2 class="margin-0" flex="100">
+              Associated PO#(s)
+            </h2>
+          </div>
+          <div class="cm-section-inner">
+            <md-table-container layout="row" flex="100" class="max-height-450 border-bottom-gray">
+              <table md-table class="md-data-table table-row-select cm-table-padding-5">
+                <thead md-head fix-head md-order="vm.queryAssemblyList.order">
+                  <tr md-row>
+                    <th md-column width="100" ng-if="vm.BlanketPODetails.LINKBLANKETPO==vm.data.blanketPOOption && !vm.data.isfromUnlink">
+                      Action
+                    </th>
+                    <th md-column width="50">
+                      #
+                    </th>
+                    <th md-column md-order-by="poNumber">
+                      PO#
+                    </th>
+                    <th md-column width="80" md-order-by="poRevision">
+                      PO Rev.
+                    </th>
+                    <th md-column md-order-by="salesOrderNumber">
+                      SO#
+                    </th>
+                    <th md-column width="80" md-order-by="qty">
+                      SO Ver.
+                    </th>
+                    <th md-column md-order-by="custPOLineNumber" width="50">
+                      PO Line#
+                    </th>
+                    <th md-column md-order-by="qty" class="text-right">
+                      Qty
+                    </th>
+                  </tr>
+                </thead>
+                <tbody md-body>
+                  <tr md-row ng-repeat="item in vm.soBlanketPOlist">
+                    <td md-cell ng-if="vm.BlanketPODetails.LINKBLANKETPO==vm.data.blanketPOOption && !vm.data.isfromUnlink">
+                      <md-button class="md-primary md-icon-button bdrbtn" ng-click="vm.unlinkDetail(item)"><md-icon role="img" md-font-icon="t-icons-unlink-future-po"></md-icon><md-tooltip md-direction="top">Unlink PO</md-tooltip></md-button>
+                    </td>
+                    <td md-cell>{{$index+1}}</td>
+                    <td md-cell><a class="text-decoration-underline cursor-pointer" ng-click="vm.goToSalesOrderMaster(item.id)">{{item.poNumber}}</a><copy-text label="'PO#'" text="item.poNumber" hide-copy-tooltip="false"></copy-text></td>
+                    <td md-cell>{{item.poRevision}}</td>
+                    <td md-cell><a class="text-decoration-underline cursor-pointer" ng-click="vm.goToSalesOrderMaster(item.id)">{{item.salesOrderNumber}}</a><copy-text label="'SO#'" text="item.salesOrderNumber" hide-copy-tooltip="false"></copy-text></td>
+                    <td md-cell>{{item.revision}}</td>
+                    <td md-cell>{{item.custPOLineNumber}}</td>
+                    <td md-cell class="text-right cm-cell-orderby">
+                      <span>{{item.qty}}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </md-table-container>
+          </div>
+        </div>
+        <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="(!vm.soBlanketPOlist || vm.soBlanketPOlist.length === 0)">
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+          </div>
+          <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+          <p flex="100">
+            {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+          </p>
+        </div>
+      </div>
+    </md-content>
+  </md-dialog-content>
+
+  <md-dialog-actions layout="row">
+    <md-button class="md-default md-raised" ng-click="vm.cancel(false)">Close</md-button>
+  </md-dialog-actions>
+
+</md-dialog>

@@ -1,0 +1,337 @@
+<div id="Manage Generic Category" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common"
+     layout="row" cg-busy="{promise:vm.cgBusyLoading}" autocomplete="off">
+  <ms-form-wizard flex layout="row" novalidate>
+    <div class="header md-accent-bg" layout="row" layout-align="space-between center">
+      <div flex layout="row" layout-align="start center">
+        <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" aria-label="Go to GenericCategorylist" ng-click="vm.goBack(msWizard)">
+          <!--<md-icon md-font-icon="icon-arrow-left" class="material-icons icon-arrow-left">
+          </md-icon>-->
+          <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+          </md-icon>
+        </md-button>
+        <div class="white-fg" layout="row" flex layout-align="start center">
+          <div>
+            <div class="equipment-workstation-title">
+              <pagetitle is-list="false" is-display-menu-name="true" prefix-content="vm.gencCategoryID ? 'Update' : 'Add'" suffix-content="vm.getTitleName()"></pagetitle>
+              <md-tooltip ng-if="vm.gencCategoryID && vm.manageGenericCategory.gencCategoryName" md-direction="right">{{vm.getTooltipName()}}</md-tooltip>
+            </div>
+            <div layout="row" layout-align="start center" class="product-count">
+              <breadcrumbs></breadcrumbs>
+            </div>
+          </div>
+          <div class="cm-header-search-add-container">
+            <div>
+              <md-input-container ng-if="vm.autoCompleteGenericCategoryList" class="width-100p autocompletecustom margin-0 widget-dashboard-search-area cm-kit-allocation-so-autocomplete part-header-search-area">
+                <custom-auto-complete-search on-search-fn="vm.autoCompleteGenericCategoryList.onSearchFn"
+                                             column-name="vm.autoCompleteGenericCategoryList.columnName"
+                                             key-column-name="vm.autoCompleteGenericCategoryList.keyColumnName"
+                                             key-column-id="vm.autoCompleteGenericCategoryList.keyColumnId"
+                                             input-name="vm.autoCompleteGenericCategoryList.inputName"
+                                             placeholder-name="vm.autoCompleteGenericCategoryList.placeholderName"
+                                             is-required="vm.autoCompleteGenericCategoryList.isRequired"
+                                             is-addnew="vm.autoCompleteGenericCategoryList.isAddnew"
+                                             callback-fn="vm.autoCompleteGenericCategoryList.callbackFn"
+                                             callback-fn-param="msWizard"
+                                             on-select-callback-fn="vm.autoCompleteGenericCategoryList.onSelectCallbackFn">
+                </custom-auto-complete-search>
+              </md-input-container>
+            </div>
+            <div>
+              <md-button class="md-primary md-raised" ng-if="vm.gencCategoryID && vm.categoryType.categoryTypeID != vm.notificationCategoryID" ng-click="vm.addGenericCategoryType()">
+                Add {{vm.categoryType.displayName }}
+              </md-button>
+            </div>
+          </div>
+        </div>
+        <div layout="row" class="input-wrapper" layout-wrap layout-align="end-center">          
+          <md-button class="md-raised md-primary" id="saveGenericeCatBtn"
+                     ng-disabled="vm.saveBtnFlag || vm.isDisableToAddUpdate"
+                     ng-class="{'md-formdirty': vm.manageGenericCategoryForm.$dirty}"
+                     ng-click="vm.SaveGenericCategory(msWizard, true)">
+            Save
+          </md-button>
+        </div>
+      </div>
+    </div>
+    <div class="content-card padding-top-side" layout="row" flex="100">
+      <!-- FORM WIZARD -->
+      <div layout="row" flex="100">
+        <!-- FORM WIZARD -->
+        <div flex>
+          <md-tabs class="fielddetail manage-genericcategory-tabing padding-0" md-dynamic-height
+                   md-selected="msWizard.selectedIndex" id="manage-genericcategory-tabing">
+            <md-tab md-on-select="vm.onTabChanges(null,msWizard)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="vm.manageGenericCategoryForm.$invalid">1</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.manageGenericCategoryForm.$valid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span class="ms-form-wizard-step-text">Details</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <form name="vm.manageGenericCategoryForm" class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+                  <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+                  <div layout="row" flex="100" class="layout-wrap-rs cm-section-main border-0">
+                    <div flex="85" layout="row">
+                      <div class="input-wrapper margin-right-5" flex layout="row">
+                        <p class="label-container" ng-class="{'width-135': vm.categoryType.categoryTypeID === vm.payablePaymentMethod}">{{vm.categoryType.categoryTypeID === vm.barcodeSeparator?'Barcode Field Separator(s) (e.g &, &&, @@, &$, etc.)':'Name'}}<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p>
+                        <md-input-container flex="100">
+                          <input type="text" name="gencCategoryName" id="gencCategoryName" ng-model="vm.manageGenericCategory.gencCategoryName"
+                                 placeholder="Name" ng-maxlength="100" md-maxlength="100" ng-if="vm.categoryType.categoryTypeID !== vm.barcodeSeparator && vm.categoryType.categoryTypeID !== vm.printertype"
+                                 required 
+                                 custom-blur="vm.checkGenericCategoryAlreadyExists()"
+                                 custom-auto-focus="{{msWizard.selectedIndex === 0 ? true : false}}"
+                                 ng-disabled="vm.isDisableToAddUpdate || vm.disabledSystemGenerated">
+                          <input type="text" name="gencCategoryName" id="gencCategoryName" ng-model="vm.manageGenericCategory.gencCategoryName"
+                                 placeholder="Name" ng-maxlength="100" md-maxlength="100" ng-if="vm.categoryType.categoryTypeID === vm.printertype"
+                                 required
+                                 custom-blur="vm.checkGenericCategoryAlreadyExists()"
+                                 custom-auto-focus="{{msWizard.selectedIndex === 0 ? true : false}}"
+                                 ng-disabled="vm.disabledSystemGenerated">
+                          <input type="text" name="gencCategoryName" id="gencCategoryName" ng-model="vm.manageGenericCategory.gencCategoryName"
+                                 ng-trim='false'
+                                 placeholder="Name"
+                                 ng-maxlength="100"
+                                 md-maxlength="100"
+                                 custom-blur="vm.checkGenericCategoryAlreadyExists()"
+                                 ng-if="vm.categoryType.categoryTypeID === vm.barcodeSeparator" required
+                                 custom-auto-focus="{{msWizard.selectedIndex === 0 ? true : false}}"
+                                 ng-disabled="vm.disabledSystemGenerated">
+
+                          <div ng-messages="vm.manageGenericCategoryForm.gencCategoryName.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(100,vm.manageGenericCategoryForm.gencCategoryName.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </div>
+                      <div class="input-wrapper margin-right-5" flex layout="row"
+                           ng-hide="{{vm.categoryType.categoryTypeID === vm.printertype}} || {{ vm.categoryType.categoryTypeID===vm.HomeCategory }} || {{ vm.categoryType.categoryTypeID === vm.DocumentType }} || {{ vm.categoryType.categoryTypeID === vm.reportCategory }}">
+                        <p class="label-container">{{vm.categoryType.categoryTypeID === vm.barcodeSeparator?'Name':'Code'}}&nbsp;<span ng-if="vm.categoryType.categoryTypeID === vm.shippingType || vm.categoryType.categoryTypeID === vm.paymentTypeCategory">*</span><check-unique-on-blur></check-unique-on-blur></p>
+                        <md-input-container flex="100">
+                          <input type="text" name="gencCategoryCode" id="gencCategoryCode" ng-model="vm.manageGenericCategory.gencCategoryCode"
+                                 placeholder="Code" ng-maxlength="50" md-maxlength="50"
+                                 custom-blur="vm.checkGenericCategoryAlreadyExistsForCode()"
+                                 allow-special-char-with-strict
+                                 ng-required="{{vm.categoryType.categoryTypeID === vm.shippingType || vm.categoryType.categoryTypeID === vm.paymentTypeCategory ? true:false}}"
+                                 class="input-text-uppercase" capitalize
+                                 ng-disabled="vm.categoryType.categoryTypeID === vm.notificationCategoryID || vm.disabledSystemGenerated">
+                          <div ng-messages="vm.manageGenericCategoryForm.gencCategoryCode.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(50, vm.manageGenericCategoryForm.gencCategoryCode.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </div>
+                      <div class="input-wrapper margin-right-5" flex layout="row" ng-if="vm.categoryType.categoryTypeID === vm.paymenterm">
+                        <p class="margin-bottom-0 label-container" layout-align="start start" layout="row">Terms Days<span>&nbsp;*</span></p>
+                        <md-input-container>
+                          <input type="number" name="termDay" onkeypress="return OnlyNumeric(event)" min="0" ng-model="vm.manageGenericCategory.termsDays"
+                                 ng-disabled="vm.manageGenericCategory.isEOM"
+                                 placeholder="Terms Day" ng-max="999999999" step="1" required>
+                          <div ng-messages="vm.manageGenericCategoryForm.termDay.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="min || number || step || max">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </div>
+                      <div class="input-wrapper margin-right-5" flex="5" layout="row" ng-if="vm.categoryType.categoryTypeID === vm.paymenterm">
+                        <md-checkbox ng-model="vm.manageGenericCategory.isEOM" name="isEOM"
+                                     ng-change="vm.onEOMChange()"
+                                     class="margin-top-5imp cm-checkbox">
+                          EOM
+                        </md-checkbox>
+                      </div>
+                      <div class="input-wrapper margin-right-5" flex layout="row" ng-if="vm.autoCompleteCarriers && vm.categoryType.categoryTypeID === vm.shippingType">
+                        <p class="label-container">
+                          <a class="cm-text-decoration underline" ng-click="vm.goTocarrierList();" tabindex="-1">{{vm.autoCompleteCarriers.placeholderName}}</a>
+                          <span>&nbsp;*</span>
+                        </p>
+                        <md-input-container class="autocompletecustom" flex="100">
+                          <custom-auto-complete datalist="vm.carrierlist"
+                                                column-name="vm.autoCompleteCarriers.columnName"
+                                                controller-name="vm.autoCompleteCarriers.controllerName"
+                                                view-template-url="vm.autoCompleteCarriers.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteCarriers.keyColumnName"
+                                                input-name="vm.autoCompleteCarriers.inputName"
+                                                placeholder-name="vm.autoCompleteCarriers.placeholderName"
+                                                key-column-id="vm.autoCompleteCarriers.keyColumnId"
+                                                is-required="vm.autoCompleteCarriers.isRequired"
+                                                is-addnew="vm.autoCompleteCarriers.isAddnew"
+                                                add-data="vm.autoCompleteCarriers.addData"
+                                                callback-fn="vm.autoCompleteCarriers.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </div>
+                      <div class="input-wrapper margin-right-5" flex layout="row" ng-if="vm.autoCompleteGenericCategory && vm.isVisibleParent">
+                        <p class="label-container">
+                          <a class="cm-text-decoration underline" ng-click="vm.goToParentGroupList();" tabindex="-1">{{vm.autoCompleteGenericCategory.placeholderName}}</a>
+                        </p>
+                        <md-input-container class="autocompletecustom" flex="100">
+                          <custom-auto-complete datalist="vm.GenericCategoryList"
+                                                column-name="vm.autoCompleteGenericCategory.columnName"
+                                                controller-name="vm.autoCompleteGenericCategory.controllerName"
+                                                view-template-url="vm.autoCompleteGenericCategory.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteGenericCategory.keyColumnName"
+                                                input-name="vm.autoCompleteGenericCategory.inputName"
+                                                placeholder-name="vm.autoCompleteGenericCategory.placeholderName"
+                                                key-column-id="vm.autoCompleteGenericCategory.keyColumnId"
+                                                is-required="vm.autoCompleteGenericCategory.isRequired"
+                                                is-addnew="vm.autoCompleteGenericCategory.isAddnew"
+                                                add-data="vm.autoCompleteGenericCategory.addData"
+                                                callback-fn="vm.autoCompleteGenericCategory.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </div>
+                      <div class="input-wrapper margin-right-5" flex layout="row" ng-if="vm.categoryType.categoryTypeID === vm.reportCategory">
+                        <p class="label-container">
+                          Description
+                        </p>
+                        <md-input-container class="autocompletecustom" flex="100">
+                          <textarea type="text" name="description" ng-model="vm.manageGenericCategory.description" placeholder="Description" rows="3" max-rows="4" ng-maxlength="vm.descriptionMaxLength" md-maxlength="vm.descriptionMaxLength"></textarea>
+
+                          <div ng-messages="vm.manageGenericCategoryForm.description.$error"
+                               role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.descriptionMaxLength,vm.manageGenericCategoryForm.description.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </div>
+                      <div class="input-wrapper margin-right-5" flex layout="row" ng-if="vm.autoCompletePaymentTypeCategory && (vm.categoryType.categoryTypeID === vm.payablePaymentMethod || vm.categoryType.categoryTypeID === vm.receivablePaymentMethod)">
+                        <p class="label-container">
+                          <a class="cm-text-decoration underline" ng-click="vm.goToPaymentTypeCategoryList();" tabindex="-1">{{vm.autoCompletePaymentTypeCategory.placeholderName}}</a><span>&nbsp;*</span>
+                        </p>
+                        <md-input-container class="autocompletecustom" flex="100">
+                          <custom-auto-complete datalist="vm.paymentTypeCategoryList"
+                                                column-name="vm.autoCompletePaymentTypeCategory.columnName"
+                                                controller-name="vm.autoCompletePaymentTypeCategory.controllerName"
+                                                view-template-url="vm.autoCompletePaymentTypeCategory.viewTemplateURL"
+                                                key-column-name="vm.autoCompletePaymentTypeCategory.keyColumnName"
+                                                input-name="vm.autoCompletePaymentTypeCategory.inputName"
+                                                placeholder-name="vm.autoCompletePaymentTypeCategory.placeholderName"
+                                                key-column-id="vm.autoCompletePaymentTypeCategory.keyColumnId"
+                                                is-required="vm.autoCompletePaymentTypeCategory.isRequired"
+                                                is-addnew="vm.autoCompletePaymentTypeCategory.isAddnew"
+                                                add-data="vm.autoCompletePaymentTypeCategory.addData"
+                                                callback-fn="vm.autoCompletePaymentTypeCategory.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </div>
+
+                    </div>
+                    <div flex="15" flex-sm="100" class="input-wrapper">
+                      <div flex="100">
+                        <md-input-container flex="100">
+                          <md-radio-group layout="row" layout-align="start start" layout-wrap
+                                          name="active" ng-model="vm.manageGenericCategory.isActive"
+                                          ng-disabled="(vm.categoryType.categoryTypeID !== vm.payablePaymentMethod &&
+                                          vm.categoryType.categoryTypeID !== vm.receivablePaymentMethod &&
+                                          (vm.categoryType.categoryTypeID === vm.notificationCategoryID
+                                          || vm.isDisableToAddUpdate || vm.disabledSystemGenerated))"
+                                          last-element data-focusButton="saveGenericeCatBtn"
+                                          elementcondition="{{(vm.categoryType.categoryTypeID !== vm.payablePaymentMethod && vm.categoryType.categoryTypeID !== vm.receivablePaymentMethod)}}">
+                            <md-radio-button class="margin-top-0" ng-repeat="item in vm.RadioGroup.isActive.array"
+                                             name="{{item.Value}}" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                          </md-radio-group>
+                        </md-input-container>
+                      </div>
+                    </div>
+                  </div>
+                  <div layout="row" flex="100" class="layout-wrap-rs cm-section-main border-0" ng-show="{{vm.categoryType.categoryTypeID}} === {{vm.shippingTypeId}}">
+                    <div flex="85" layout="row">
+                      <div class="md-block colorpicker" ng-show="{{vm.categoryType.categoryTypeID}} === {{vm.shippingTypeId}}">
+                        <!--<label class="label-container flex-100">
+            Color Code
+        </label>-->
+                        <!--<div class="md-block colorpicker" flex-gt-xs>-->
+                        <!--<div md-color-picker ng-model="vm.manageGenericCategory.colorCode">-->
+                        <md-button class="md-default md-raised black-500-fg" ng-click="vm.getColor($event,vm.StandardClassModel.colorCode)"
+                                   style="background-color:{{vm.manageGenericCategory.colorCode}} !important">Select Color Code</md-button>
+
+                        <!--</div>-->
+                      </div>
+                    </div>
+                    <div flex="15" flex-sm="100" class="input-wrapper">
+                    </div>
+                  </div>
+                  <div layout="row" flex="100" class="layout-wrap-rs cm-section-main border-0" ng-if="vm.categoryType.categoryTypeID === vm.payablePaymentMethod">
+                    <div flex="85" layout="row">
+                      <div class="input-wrapper margin-right-5" flex layout="row" ng-if="vm.autoCompleteBank && vm.categoryType.categoryTypeID === vm.payablePaymentMethod">
+                        <p class="label-container width-135">
+                          <a class="cm-text-decoration underline" ng-click="vm.goToBankList();" tabindex="-1">{{vm.autoCompleteBank.placeholderName}}</a><span>&nbsp;*</span>
+                        </p>
+                        <md-input-container class="autocompletecustom" flex="100">
+                          <custom-auto-complete datalist="vm.bankList"
+                                                column-name="vm.autoCompleteBank.columnName"
+                                                controller-name="vm.autoCompleteBank.controllerName"
+                                                view-template-url="vm.autoCompleteBank.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteBank.keyColumnName"
+                                                input-name="vm.autoCompleteBank.inputName"
+                                                placeholder-name="vm.autoCompleteBank.placeholderName"
+                                                key-column-id="vm.autoCompleteBank.keyColumnId"
+                                                is-required="vm.autoCompleteBank.isRequired"
+                                                is-addnew="vm.autoCompleteBank.isAddnew"
+                                                add-data="vm.autoCompleteBank.addData"
+                                                callback-fn="vm.autoCompleteBank.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </div>
+                      <div class="input-wrapper margin-right-5" flex layout="row" ng-if="vm.categoryType.categoryTypeID === vm.payablePaymentMethod">
+
+                      </div>
+                      <div class="input-wrapper margin-right-5" flex layout="row" ng-if="vm.categoryType.categoryTypeID === vm.payablePaymentMethod">
+
+                      </div>
+                    </div>
+                    <div flex="15" flex-sm="100" class="input-wrapper">
+                    </div>
+                  </div>
+                  <div layout="row" flex="100" class="layout-wrap-rs cm-section-main border-0">
+                    <div flex="100" layout="row">
+                      <div class="input-wrapper margin-right-5" flex="100" layout="row" ng-if="vm.categoryType.categoryTypeID === vm.payablePaymentMethod || vm.categoryType.categoryTypeID === vm.receivablePaymentMethod">
+                        <p class="label-container width-135">
+                          Description
+                        </p>
+                        <md-input-container class="autocompletecustom" flex="100">
+                          <textarea type="text" name="description" ng-model="vm.manageGenericCategory.description"
+                                    placeholder="Description" rows="3" max-rows="4"
+                                    ng-maxlength="vm.descriptionMaxLength"
+                                    last-element data-focusButton="saveGenericeCatBtn"
+                                    elementcondition="true"></textarea>
+
+                          <div ng-messages="vm.manageGenericCategoryForm.description.$error"
+                               role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(vm.descriptionMaxLength,vm.manageGenericCategoryForm.description.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </md-tab-body>
+            </md-tab>
+          </md-tabs>
+        </div>
+      </div>
+    </div>
+  </ms-form-wizard>
+</div>

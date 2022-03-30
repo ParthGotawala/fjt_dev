@@ -1,0 +1,251 @@
+<form name="operationParts" class="padding-10-imp cm-search-tab-operation-list" cg-busy="{promise:vm.cgBusyLoading}" ms-form-wizard-form novalidate>
+  <div flex="100" layout="row" layout-wrap ng-if="vm.isContainMasterPart">
+    <div flex flex-sm="100" flex-xs="100" layout="row" class="cm-load-more-part-box" layout-wrap>
+      <div flex="100" flex-xs="100" layout="row" class="mobilesearch employee-workstaion-search-box userpermissionhead" layout-align="space-between center">
+        <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75" ng-class="{'clickedsearch':isButtonPartClicked}">
+          <input id="SearchNoAddedListPart" type="text"
+                 placeholder="Type here to search supplies, materials & tools"
+                 ng-model="vm.SearchNoAddedListPart"
+                 ng-change="vm.searchPartFromNoAddedList()"
+                 ng-model-options="{debounce: vm.debounceTime }" max="255">
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-disabled="!vm.SearchNoAddedListPart"
+                   ng-click="vm.SearchNoAddedListPart=''; vm.searchPartFromNoAddedList()">
+          Clear
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.refreshDataPartForNoAddedListPart()">
+          Refresh
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.addDataPart()">
+          Add New
+        </md-button>
+        <div>
+          <md-menu>
+            <md-button class="margin-0 width-25 md-primary smt-drag-drop-action-btn" ng-click="$mdOpenMenu()" md-menu-origin
+                       md-menu-align-target aria-label="Options">
+              <md-icon md-font-icon="icon-dots-vertical" class="icon"></md-icon>
+            </md-button>
+            <md-menu-content width="3">
+              <md-menu-item>
+                <md-button ng-click="vm.goToMountingGroupData()">
+                  <md-icon md-font-icon="icon-eye" class="icon"></md-icon>
+                  Mounting Groups
+                </md-button>
+              </md-menu-item>
+            </md-menu-content>
+          </md-menu>
+        </div>
+      </div>
+      <md-list flex="100" class="permissiontab custom-scroll dragbox" ng-class="{'layout-column': vm.partNoAddedList.length == 0}">
+        <md-list-item id="partNoAddedList" class="padding-0 items-container drag-container-item" layout="row" flex="100" layout-wrap
+                      ui-sortable="sortableOptionsPart"
+                      ng-model="vm.partNoAddedList"
+                      haveadded="false">
+          <div flex="100" class="md-1-line margin-0 dragsortable"
+               ng-repeat="part in vm.partNoAddedList"
+               ui-sortable-selectable
+               ng-model="part"
+               layout="row" layout-align="start center">
+            <div class="avatar-wrapper">
+              <img class="md-avatar avatar margin-top-0 margin-bottom-0" ng-src="{{part.imageURL}}" />
+            </div>
+            <div class="md-list-item-text" flex layout-align="space-between center">
+              <div class="inline-block" layout="row">
+                <h3 class="name margin-0 md-primary-fg" flex
+                    ng-style="{'background-color': part.isObsoletePart ? vm.obsoletePartErrorColor : '' }"
+                    ng-class="{'text-line-through': part.restrictUSEwithpermission || part.restrictUsePermanently
+                                                    || part.restrictPackagingUseWithpermission || part.restrictPackagingUsePermanently}">
+                  <common-pid-code-label-link component-id="part.id"
+                                              label="vm.LabelConstant.MFG.PID"
+                                              value="part.PIDCode"
+                                              is-copy="true"
+                                              is-mfg="true"
+                                              mfg-label="vm.LabelConstant.MFG.MFGPN"
+                                              mfg-value="part.mfgPN"
+                                              rohs-icon="part.displayRohsIcon"
+                                              rohs-status="part.rohsStatus"
+                                              is-formated="true"
+                                              is-copy-ahead-label="true"
+                                              is-search-digi-key="true"
+                                              is-search-findchip="true"
+                                              is-custom-part="part.isCustom"></common-pid-code-label-link>
+                  <md-tooltip ng-if="part.isObsoletePart">Obsolete</md-tooltip>
+                </h3>
+              </div>
+              <div>
+                <span>
+                  {{part.functionalCategoryName}}
+                  <md-tooltip ng-if="part.functionalCategoryName">Functional Type</md-tooltip>
+                </span>&nbsp;|&nbsp;
+                <span>
+                  {{part.mountingTypeName}}
+                  <md-tooltip ng-if="part.mountingTypeName">
+                    Mounting Type
+                  </md-tooltip>
+                </span>
+              </div>
+              <div class="cm-document-name" flex="100">
+                {{part.mfgPNDescription}}
+                <md-tooltip>{{part.mfgPNDescription}}</md-tooltip>
+              </div>
+            </div>
+          </div>
+          <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+               ng-if="vm.partNoAddedList.length == 0"
+               ui-sortable-selectable>
+            <div class="empty-state text-center">
+              <div class="emty-icon">
+                <img ng-src="{{vm.EmptyMesssageForOpParts.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="!vm.SearchNoAddedListPart && vm.partNoAddedList.length == 0">
+                {{vm.EmptyMesssageForOpParts.ALL_ASSIGNED}}
+              </p>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchNoAddedListPart && vm.partNoAddedList.length == 0">
+                {{vm.EmptyMesssageForOpParts.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+      <div flex="100" flex-xs="100" layout="row" layout-align="space-between center" class="userpermissionhead">
+        <h4 class="mh-0"><b>Loaded {{vm.partNoAddedList.length}} of Total {{vm.partNoAddedListTotalCount}}</b></h4>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.getMoreSupplyMaterialToolData()"
+                   ng-if="vm.isLoadMore">
+          Show More
+        </md-button>
+      </div>
+    </div>
+    <div flex-sm="100" flex-xs="100" class="cm-data-fields-buttons" layout="row" layout-align="space-between center">
+      <div flex="100" layout-xs="row" layout-sm="row" layout="column" layout-align="space-between center">
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="!selectAnyAddedPart"
+                   ng-click="vm.ModifyPageAddedPart('Remove',null)">
+          <i class="icon-chevron-left icondrag"></i>
+          <md-tooltip>Remove</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="vm.partAddedList.length == 0"
+                   ng-click="vm.ModifyPageAddedPart('RemoveAll',null)">
+          <i class="icon-chevron-double-left icondrag"></i>
+          <md-tooltip>Remove All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="!selectAnyNoAddedPart"
+                   ng-click="vm.ModifyPageAddedPart('Add',null)">
+          <i class="icon-chevron-right icondrag"></i>
+          <md-tooltip>Add</md-tooltip>
+        </md-button>
+      </div>
+    </div>
+    <div flex flex-xs="100" flex-sm="100">
+      <div flex="100" flex-xs="100" layout="row" class="mobilesearch userpermissionhead" layout-align="space-between end">
+        <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75" ng-class="{'clickedsearch':isButtonPartAddedClicked}">
+          <input id="SearchAddedListPart" type="text"
+                 placeholder="Type here to search added supplies, materials & tools" ng-model="vm.SearchAddedListPart"
+                 ng-change="vm.searchPartFromAddedList()"
+                 ng-model-options="{debounce: vm.debounceTime }" max="255">
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-disabled="!vm.SearchAddedListPart"
+                   ng-click="vm.SearchAddedListPart='';vm.searchPartFromAddedList()">
+          Clear
+        </md-button>
+      </div>
+      <md-list flex="100" class="permissiontab custom-scroll dragbox" ng-class="{'layout-column': vm.partAddedList.length == 0}">
+        <md-list-item id="partAddedList" class="padding-0 items-container drag-container-item" layout="row" flex="100" layout-wrap
+                      ui-sortable="sortableOptionsPart"
+                      ng-model="vm.partAddedList">
+          <div flex="100" class="md-1-line margin-0 dragsortable"
+               ng-repeat="part in vm.partAddedList"
+               ui-sortable-selectable
+               ng-model="part"
+               layout="row" layout-align="start center">
+            <div class="avatar-wrapper">
+              <img class="md-avatar avatar margin-top-0 margin-bottom-0" ng-src="{{part.imageURL}}" />
+            </div>
+            <div class="md-list-item-text" flex layout-align="space-between center">
+              <div class="inline-block" layout="row">
+                <h3 class="name margin-0 md-primary-fg" flex
+                    ng-style="{'background-color': part.isObsoletePart ? vm.obsoletePartErrorColor : '' }"
+                    ng-class="{'text-line-through': part.restrictUSEwithpermission || part.restrictUsePermanently
+                                                 || part.restrictPackagingUseWithpermission || part.restrictPackagingUsePermanently}">
+                  <common-pid-code-label-link component-id="part.id"
+                                              label="vm.LabelConstant.MFG.PID"
+                                              value="part.PIDCode"
+                                              is-copy="true"
+                                              is-mfg="true"
+                                              mfg-label="vm.LabelConstant.MFG.MFGPN"
+                                              mfg-value="part.mfgPN"
+                                              rohs-icon="part.displayRohsIcon"
+                                              rohs-status="part.rohsStatus"
+                                              is-formated="true"
+                                              is-copy-ahead-label="true"
+                                              is-search-digi-key="true"
+                                              is-search-findchip="true"
+                                              is-custom-part="part.isCustom"></common-pid-code-label-link>
+                  <md-tooltip ng-if="part.isObsoletePart">Obsolete</md-tooltip>
+                </h3>
+              </div>
+              <div>
+                <span>
+                  {{part.functionalCategoryName}}
+                  <md-tooltip ng-if="part.functionalCategoryName">Functional Type</md-tooltip>
+                </span>&nbsp;|&nbsp;
+                <span>
+                  {{part.mountingTypeName}}
+                  <md-tooltip ng-if="part.mountingTypeName">
+                    Mounting Type
+                  </md-tooltip>
+                </span>
+              </div>
+              <div class="cm-document-name" flex="100">
+                {{part.mfgPNDescription}}
+                <md-tooltip>{{part.mfgPNDescription}}</md-tooltip>
+              </div>
+            </div>
+          </div>
+          <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+               ng-if="vm.partAddedList.length == 0"
+               ui-sortable-selectable>
+            <div class="empty-state text-center">
+              <div class="emty-icon">
+                <img ng-src="{{vm.EmptyMesssageForOpParts.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchAddedListPart == null && vm.partAddedList.length == 0">
+                {{vm.EmptyMesssageForOpParts.MESSAGE}}
+              </p>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchAddedListPart != null && vm.partAddedList.length == 0">
+                {{vm.EmptyMesssageForOpParts.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+  </div>
+  <div flex="100" class="md-1-line margin-0 cursor-not-allow" ng-if="!vm.isContainMasterPart">
+    <div class="empty-state text-center full-height">
+      <div class="emty-icon">
+        <img ng-src="{{vm.EmptyMesssageForOpParts.IMAGEURL}}" />
+      </div>
+      <p class="empty-state-title font-size-2 useadded-emptytxt">
+        {{vm.EmptyMesssageForOpParts.MESSAGE}}
+      </p>
+      <p flex="100">
+        {{vm.EmptyMesssageForOpParts.ADDNEWMESSAGE}}
+      </p>
+
+      <p flex="100">
+        <md-button class="md-fab md-mini" aria-label="Add DataField" ng-click="vm.addDataPart()">
+          <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+          <md-tooltip md-direction="top">Add New</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.refreshDataPartForNoAddedListPart()">
+          <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-refresh"></md-icon>
+          <md-tooltip md-direction="top">Refresh</md-tooltip>
+        </md-button>
+      </p>
+    </div>
+  </div>
+</form>

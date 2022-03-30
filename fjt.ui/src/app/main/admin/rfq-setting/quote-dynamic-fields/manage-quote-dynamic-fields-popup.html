@@ -1,0 +1,413 @@
+<md-dialog aria-label="Add Quote Dynamic Fields" class="cm-custom-label-common" flex="50" flex-lg="70" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.AddQuoteDynamicFieldsForm" class="md-inline-form" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{vm.quoteDynamicFieldsModel.id ? 'Update' : 'Add'}} {{vm.isRFQPage ? vm.quoteAyytibuteTypeName.RFQ : vm.quoteAyytibuteTypeName.SUPPLIER}} Quote Attributes (NRE, OH, Markup, etc.)</h2>
+        <span flex></span>
+        <div layout-align="center center" class="cm-btn-group cm-square-icon-btn">
+          <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.openQuoteAttributeeHistoryPopup($event)" ng-if="vm.quoteDynamicFieldsModel.id">
+            <md-icon md-font-icon="t-icons-history-text" class="material-icons"></md-icon>
+            <md-tooltip>{{vm.historyactionButtonName}}</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button md-primary md-raised md-mini" id="headerAddBtn" ng-click="vm.saveAndProceed(vm.BUTTON_TYPE.ADDNEW)">
+            <md-icon md-font-icon="{{vm.isRFQPage ? 't-icons-rfq-quote' : 't-icons-supplier-quote' }} add-icon" class="material-icons"></md-icon>
+            <md-tooltip>Add {{vm.isRFQPage ? vm.quoteAyytibuteTypeName.RFQ : vm.quoteAyytibuteTypeName.SUPPLIER}} Quote Attributes (NRE, OH, Markup, etc.)</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button" ng-click="vm.cancel()">
+            <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+          </md-button>
+        </div>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll" layout="column">
+      <md-content class="padding-10">
+        <div flex="100" flex-gt-xs="100" layout-wrap>
+          <div class="cm-section-main border-0" flex="100">
+            <div class="cm-section-inner">
+              <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th>
+                      <p class="label-container">Name<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p>
+                    </th>
+                    <td>
+                      <div class="input-wrapper" layout="row">
+                        <md-input-container class="margin-bottom-0 md-block" flex="100" flex-gt-xs="100">
+                          <input type="text" name="fieldName" id="fieldName" ng-model="vm.quoteDynamicFieldsModel.fieldName"
+                                 placeholder="Name" required ng-maxlength="100" md-maxlength="100" md-autofocus custom-blur="vm.checkUniqueFieldName()">
+                          <div ng-messages="vm.AddQuoteDynamicFieldsForm.fieldName.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(100, vm.AddQuoteDynamicFieldsForm.fieldName.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                        <div>
+                          <md-radio-group class="" flex="100" layout="row" ng-model="vm.quoteDynamicFieldsModel.isActive" name="isActive">
+                            <md-radio-button ng-value="true" class="md-primary margin-top-0">Active</md-radio-button>
+                            <md-radio-button ng-value="false" class="md-primary margin-top-0">Inactive</md-radio-button>
+                          </md-radio-group>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="padding-0">
+                    </th>
+                    <td class="padding-bottom-0">
+                      <div flex="100" class="input-wrapper" layout="row">
+                        <md-input-container class="margin-bottom-0 md-block" flex="100" flex-gt-xs="100">
+                          <md-checkbox class="margin-0" ng-model="vm.quoteDynamicFieldsModel.applyToAll" name="applyToAll">
+                            Apply to All {{vm.quoteDynamicFieldsModel.quoteAttributeType == vm.quote_attribute_type.RFQ ? vm.quoteAyytibuteTypeName.RFQ : vm.quoteAyytibuteTypeName.SUPPLIER}}
+                          </md-checkbox>
+                        </md-input-container>
+                        <md-input-container class="margin-bottom-0 md-block" flex="100" flex-gt-xs="100" ng-if="vm.quoteDynamicFieldsModel.quoteAttributeType == vm.quote_attribute_type.RFQ && (vm.quoteDynamicFieldsModel.costingType === vm.QuoteDynamicFieldsType.Material || vm.quoteDynamicFieldsModel.costingType === vm.QuoteDynamicFieldsType.Labor || vm.quoteDynamicFieldsModel.costingType === vm.QuoteDynamicFieldsType.Adhoc || vm.quoteDynamicFieldsModel.costingType === vm.QuoteDynamicFieldsType.ALL)">
+                          <md-checkbox class="margin-0" ng-model="vm.quoteDynamicFieldsModel.isCommission" name="isCommission">
+                            Commission
+                          </md-checkbox>
+                        </md-input-container>
+
+
+                      </div>
+                    </td>
+                  </tr>
+                  <tr ng-if="vm.quoteDynamicFieldsModel.quoteAttributeType == vm.quote_attribute_type.RFQ">
+                    <th>
+                    </th>
+                    <td class="display-flex">
+                      <md-input-container class="margin-bottom-0 md-block" flex="100" flex-gt-xs="100">
+                        <md-checkbox class="margin-0" ng-model="vm.quoteDynamicFieldsModel.isIncludeInOtherAttribute" name="isIncludeInOtherAttribute" ng-change="vm.removeSelectedAttribute()">
+                          Include Other Attribute In Calculation
+                        </md-checkbox>
+                      </md-input-container>
+                      <div ng-if="vm.quoteDynamicFieldsModel.isIncludeInOtherAttribute" layout="row" flex="100">
+                        <p class="label-container  width-125">Ref. Quote Attribute<span>&nbsp;*</span></p>
+                        <md-input-container flex="100" class="margin-0 autocompletecustom width-100p" md-no-float>
+                          <custom-auto-complete class="min-width-initial" ng-if="vm.autocompleteRefQuoteAttribute" datalist="vm.rfqQuoteAttributeList"
+                                                column-name="vm.autocompleteRefQuoteAttribute.columnName"
+                                                key-column-name="vm.autocompleteRefQuoteAttribute.keyColumnName"
+                                                input-name="vm.autocompleteRefQuoteAttribute.inputName"
+                                                placeholder-name="vm.autocompleteRefQuoteAttribute.placeholderName"
+                                                key-column-id="vm.autocompleteRefQuoteAttribute.keyColumnId"
+                                                is-required="vm.autocompleteRefQuoteAttribute.isRequired"
+                                                on-select-callback-fn="vm.autocompleteRefQuoteAttribute.onSelectCallbackFn"
+                                                is-addnew="vm.autocompleteRefQuoteAttribute.isAddnew">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div layout="row" flex="100" layout-sm="column">
+            <!--<div layout="row" flex="100" class="container-box">-->
+            <fieldset flex="50" flex-sm="100" class="cm-section-main container-box margin-right-5 margin-left-5">
+              <legend class="margin-0">Applies to Unit Cost of</legend>
+              <div layout="row" flex="100" class="margin-0">
+                <div class="margin-top-0 padding-5 ui-grid-cell-contents" flex="100">
+                  <md-radio-group class="" flex="100" ng-disabled="vm.costingType || (vm.quoteDynamicFieldsModel.id && vm.isQuotefieldUsed)" layout="row" ng-model="vm.quoteDynamicFieldsModel.costingType" name="CostingType" ng-change="vm.changeCostingType(false)">
+                    <md-radio-button class="margin-top-0" ng-value="vm.QuoteDynamicFieldsType.Material">{{vm.QuoteDynamicFieldsType.Material}}</md-radio-button>
+                    <md-radio-button class="margin-top-0" ng-value="vm.QuoteDynamicFieldsType.Labor">{{vm.QuoteDynamicFieldsType.Labor}}</md-radio-button>
+                    <md-radio-button class="margin-top-0" ng-value="vm.QuoteDynamicFieldsType.Adhoc">{{vm.QuoteDynamicFieldsType.Adhoc}}</md-radio-button>
+                    <md-radio-button class="margin-top-0" ng-value="vm.QuoteDynamicFieldsType.ALL" ng-if="vm.quoteDynamicFieldsModel.quoteAttributeType == vm.quote_attribute_type.RFQ">
+                      {{vm.QuoteDynamicFieldsType.ALL}}
+                      <md-tooltip>All Attribute will be apply for sum of Material, Labor and Overhead Costs.</md-tooltip>
+                    </md-radio-button>
+                  </md-radio-group>
+                </div>
+              </div>
+            </fieldset>
+            <fieldset flex="50" flex-sm="100" class="cm-section-main container-box margin-right-5">
+              <legend class="margin-0">One Time Cost (NRE/Tooling) / Recurring</legend>
+              <div layout="row" flex="100" class="margin-0" layout-sm="column">
+                <div class="margin-top-0 padding-5 ui-grid-cell-contents" flex="50" flex-sm="100">
+                  <md-radio-group class="" flex="100" layout="row" ng-disabled="vm.costingType|| (vm.quoteDynamicFieldsModel.id && vm.isQuotefieldUsed)" ng-model="vm.quoteDynamicFieldsModel.costingType" name="CostingType" ng-change="vm.changeCostingType(true)">
+                    <!--<fieldset flex="100" class="container-box">
+                    <legend class="margin-0">One Time Cost(NRE / Tooling) / Recurring</legend>-->
+                    <!--<div layout="row">
+                    <div flex="50" layout="row" flex-sm="100">-->
+                    <md-radio-button class="margin-top-0" ng-value="vm.QuoteDynamicFieldsType.NRE">{{vm.QuoteDynamicFieldsType.NRE}}</md-radio-button>
+                    <!--</div>
+                    <div flex="50" layout="row" flex-sm="100">-->
+                    <md-radio-button class="margin-top-0" ng-value="vm.QuoteDynamicFieldsType.TOOL">{{vm.QuoteDynamicFieldsType.TOOL}}</md-radio-button>
+                    <md-radio-button class="margin-top-0" ng-value="vm.QuoteDynamicFieldsType.RC">RE</md-radio-button>
+                    <!--</div>-->
+                    <!--</div>-->
+                    <!--</fieldset>-->
+                  </md-radio-group>
+                </div>
+                <div flex="20" class="input-wrapper margin-top-5" layout="row" flex-sm="100">
+                  <p class="label-container">Qty</p>
+                  <md-input-container class="margin-bottom-0 md-block" flex="100" flex-gt-xs="100" md-no-float>
+                    <input type="number" name="qty" ng-model="vm.quoteDynamicFieldsModel.toolingQty"
+                           placeholder="Qty" ng-disabled="!(vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.TOOL || vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.NRE|| vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.RC)" min="1" max="100000" step="1">
+                    <div ng-messages="vm.AddQuoteDynamicFieldsForm.qty.$touched &&  vm.AddQuoteDynamicFieldsForm.qty.$error"
+                         role="alert">
+                      <div ng-message="min">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="step">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="max">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="number">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </div>
+                <div flex="30" class="input-wrapper margin-top-5" layout="row" flex-sm="100">
+                  <p class="label-container">Price(ea)</p>
+                  <md-input-container class="margin-bottom-0 md-block" flex="100" flex-gt-xs="100" md-no-float>
+                    <input type="number" name="price" ng-model="vm.quoteDynamicFieldsModel.toolingPrice"
+                           placeholder="Price" ng-disabled="!(vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.TOOL || vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.NRE|| vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.RC)" min="{{$root.unitInputStep}}" step="{{$root.unitInputStep}}" max="100000.00000">
+                    <div ng-messages="vm.AddQuoteDynamicFieldsForm.price.$touched &&  vm.AddQuoteDynamicFieldsForm.price.$error"
+                         role="alert">
+                      <div ng-message="min">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="step">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="max">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="number">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </div>
+              </div>
+            </fieldset>
+            <!--</div>-->
+          </div>
+
+          <div layout="row" flex="100" layout-sm="column">
+            <fieldset flex="50" flex-sm="100" class="cm-section-main container-box margin-right-5 margin-left-5 margin-top-7">
+              <legend class="margin-0"> </legend>
+              <div class="cm-section-inner" flex="100">
+                <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th>
+                        <p class="label-container">Show Markup %</p>
+                      </th>
+                      <td colspan="2">
+                        <md-radio-group class="" flex="100" layout="row" ng-model="vm.quoteDynamicFieldsModel.displayPercentage" name="displayPercentage" ng-disabled="(vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.Material && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.Labor && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.Adhoc && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.ALL)|| (vm.quoteDynamicFieldsModel.id && vm.isQuotefieldUsed)">
+                          <md-radio-button ng-value="true" class="md-primary margin-top-0">Yes</md-radio-button>
+                          <md-radio-button ng-value="false" class="md-primary margin-top-0">No</md-radio-button>
+                        </md-radio-group>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">Show Margin %</p>
+                      </th>
+                      <td colspan="2">
+                        <md-radio-group class="" flex="100" layout="row" ng-model="vm.quoteDynamicFieldsModel.displayMargin" name="displayMargin" ng-disabled="(vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.Material && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.Labor && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.Adhoc && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.ALL) || (vm.quoteDynamicFieldsModel.id && vm.isQuotefieldUsed)">
+                          <md-radio-button ng-value="true" class="md-primary margin-top-0">Yes</md-radio-button>
+                          <md-radio-button ng-value="false" class="md-primary margin-top-0">No</md-radio-button>
+                        </md-radio-group>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">Default Value</p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" md-no-float class="margin-0">
+                          <input placeholder="Default Value" type="number" custom-blur="vm.ToDecimalDigit($event)" min="0" max="{{vm.autocompleteMarginType.keyColumnId === 1 ? 99999 : 100}}" step="0.01"
+                                 id="defaultUnitValue" name="defaultUnitValue" ng-model="vm.quoteDynamicFieldsModel.defaultMarginValue"
+                                 ng-required="vm.autocompleteMarginType.keyColumnId != null" ng-disabled="(vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.Material && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.Labor && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.Adhoc && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.ALL)">
+                          <div ng-messages="vm.AddQuoteDynamicFieldsForm.defaultUnitValue.$touched &&  vm.AddQuoteDynamicFieldsForm.defaultUnitValue.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="min">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="step">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="max">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="number">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <td>
+                        <md-input-container flex="100" class="margin-0 autocompletecustom" md-no-float>
+                          <custom-auto-complete class="min-width-initial" ng-if="vm.autocompleteMarginType" datalist="vm.quoteMarginType"
+                                                column-name="vm.autocompleteMarginType.columnName"
+                                                key-column-name="vm.autocompleteMarginType.keyColumnName"
+                                                input-name="vm.autocompleteMarginType.inputName"
+                                                placeholder-name="vm.autocompleteMarginType.placeholderName"
+                                                key-column-id="vm.autocompleteMarginType.keyColumnId"
+                                                is-required="vm.quoteDynamicFieldsModel.defaultMarginValue > 0"
+                                                is-disabled="(vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.Material && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.Labor && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.Adhoc && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.ALL)"
+                                                is-addnew="vm.autocompleteMarginType.isAddnew">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </fieldset>
+            <fieldset flex="50" flex-sm="100" class="cm-section-main container-box margin-right-5">
+              <legend class="margin-0">{{vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.NRE || vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.RC ||vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.TOOL?'Lead Time':'Lead Time in Days'}}</legend>
+              <div flex="100" class="cm-section-inner">
+                <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th>
+
+                      </th>
+                      <td>
+                        <md-radio-group class="" flex="100" layout="row" ng-model="vm.quoteDynamicFieldsModel.isDaysRequire"
+                                        ng-disabled="(vm.quoteDynamicFieldsModel.id && vm.isQuotefieldUsed)"
+                                        name="isDaysRequire" ng-change="vm.changeQuoteDetail()">
+                          <md-radio-button ng-value="true" class="md-primary margin-top-0">Applicable</md-radio-button>
+                          <md-radio-button ng-value="false" class="md-primary margin-top-0"> Not Applicable</md-radio-button>
+                        </md-radio-group>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">Default Value</p>
+                      </th>
+                      <td>
+                        <div layout="row">
+                          <md-input-container flex="35" md-no-float class="margin-0">
+                            <input ng-disabled="!vm.quoteDynamicFieldsModel.isDaysRequire || (vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.NRE &&vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.RC && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.TOOL)"
+                                   type="number" class="width-100 padding-right-8-imp" placeholder="Default Value" step="1" min="0" max="999" name="defaultUnitValueUnit" ng-model="vm.quoteDynamicFieldsModel.defaultuomValue">
+                            <div ng-messages="vm.AddQuoteDynamicFieldsForm.defaultUnitValueUnit.$touched &&  vm.AddQuoteDynamicFieldsForm.defaultUnitValueUnit.$error"
+                                 role="alert">
+                              <div ng-message="min">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                              <div ng-message="step">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                              <div ng-message="max">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                              <div ng-message="number">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                          <!--</td>
+                          <td>-->
+                          <md-input-container flex="65" class="margin-0 autocompletecustom width-100p" md-no-float>
+                            <custom-auto-complete class="min-width-initial" ng-if="vm.autocompleteUOMType" datalist="vm.uomList"
+                                                  column-name="vm.autocompleteUOMType.columnName"
+                                                  key-column-name="vm.autocompleteUOMType.keyColumnName"
+                                                  input-name="vm.autocompleteUOMType.inputName"
+                                                  placeholder-name="vm.autocompleteUOMType.placeholderName"
+                                                  key-column-id="vm.autocompleteUOMType.keyColumnId"
+                                                  is-required="vm.autocompleteUOMType.isRequired"
+                                                  is-disabled="!vm.quoteDynamicFieldsModel.isDaysRequire || (vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.NRE &&vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.RC && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.TOOL)"
+                                                  is-addnew="vm.autocompleteUOMType.isAddnew">
+                            </custom-auto-complete>
+                          </md-input-container>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">Affecting<span ng-if="vm.quoteDynamicFieldsModel.isDaysRequire && (vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.NRE ||vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.RC || vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.TOOL)">&nbsp;*</span></p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-0 autocompletecustom width-100p" md-no-float>
+                          <custom-auto-complete class="min-width-initial" ng-if="vm.autocompleteAffectingType" datalist="vm.quoteAttributeType"
+                                                column-name="vm.autocompleteAffectingType.columnName"
+                                                key-column-name="vm.autocompleteAffectingType.keyColumnName"
+                                                input-name="vm.autocompleteAffectingType.inputName"
+                                                placeholder-name="vm.autocompleteAffectingType.placeholderName"
+                                                key-column-id="vm.autocompleteAffectingType.keyColumnId"
+                                                is-required="vm.quoteDynamicFieldsModel.isDaysRequire && (vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.NRE ||vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.RC || vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.TOOL)"
+                                                is-disabled="!vm.quoteDynamicFieldsModel.isDaysRequire || (vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.NRE && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.RC && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.TOOL) || (vm.quoteDynamicFieldsModel.id && vm.isQuotefieldUsed)"
+                                                is-addnew="vm.autocompleteAffectingType.isAddnew">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">Lead Time Selection Criteria<span ng-if="vm.quoteDynamicFieldsModel.isDaysRequire && (vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.NRE ||vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.RC || vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.TOOL)">&nbsp;*</span></p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" class="margin-0 autocompletecustom width-100p" md-no-float>
+                          <custom-auto-complete class="min-width-initial" ng-if="vm.autocompleteSelectionCriteriaType" datalist="vm.selectionCriteria"
+                                                column-name="vm.autocompleteSelectionCriteriaType.columnName"
+                                                key-column-name="vm.autocompleteSelectionCriteriaType.keyColumnName"
+                                                input-name="vm.autocompleteSelectionCriteriaType.inputName"
+                                                placeholder-name="vm.autocompleteSelectionCriteriaType.placeholderName"
+                                                key-column-id="vm.autocompleteSelectionCriteriaType.keyColumnId"
+                                                is-required="vm.quoteDynamicFieldsModel.isDaysRequire && (vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.NRE ||vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.RC || vm.quoteDynamicFieldsModel.costingType==vm.QuoteDynamicFieldsType.TOOL)"
+                                                is-disabled="!vm.quoteDynamicFieldsModel.isDaysRequire || (vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.NRE &&vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.RC && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.TOOL) || (vm.quoteDynamicFieldsModel.id && vm.isQuotefieldUsed)"
+                                                is-addnew="vm.autocompleteSelectionCriteriaType.isAddnew">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </fieldset>
+
+            <!--<div flex="50" class="margin-top-0" ng-if="vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.Adhoc && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.NRE && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.TOOL">
+                <div flex="100" class="padding-5">
+                    <div layout="column" flex="100" class="container-box">
+                        <div layout="row" flex="100" class="margin-5">
+                            <div class="margin-top-0" flex="100">
+                                <md-radio-group class="" flex="100" layout="row" ng-model="vm.quoteDynamicFieldsModel.displayMargin" name="displayMargin">
+                                    <md-radio-button ng-value="true" class="md-primary margin-top-0" flex="50">Show Margin</md-radio-button>
+                                    <md-radio-button ng-value="false" class="md-primary margin-top-0" flex="50">Hide Margin</md-radio-button>
+                                </md-radio-group>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div flex="50" class="margin-top-0" ng-if="vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.Adhoc && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.NRE && vm.quoteDynamicFieldsModel.costingType!=vm.QuoteDynamicFieldsType.TOOL">
+                <div flex="100" class="padding-5">
+                    <div layout="column" flex="100" class="container-box">
+                        <div layout="row" flex="100" class="margin-5">
+                            <div class="margin-top-0" flex="100">
+                                <md-radio-group class="" flex="100" layout="row" ng-model="vm.quoteDynamicFieldsModel.displayPercentage" name="displayPercentage">
+                                    <md-radio-button ng-value="true" class="md-primary margin-top-0" flex="50">Show%</md-radio-button>
+                                    <md-radio-button ng-value="false" class="md-primary margin-top-0" flex="50">Hide%</md-radio-button>
+                                </md-radio-group>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>-->
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.saveQuoteDynamicFields(vm.BUTTON_TYPE.SAVE)" aria-label="Submit" ng-class="{'md-formdirty': vm.checkFormDirty(vm.AddQuoteDynamicFieldsForm)}">Save</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.saveQuoteDynamicFields(vm.BUTTON_TYPE.SAVEANDEXIT)" aria-label="Submit" ng-class="{'md-formdirty': vm.checkFormDirty(vm.AddQuoteDynamicFieldsForm)}" data-focusButton="headerAddBtn" last-element elementcondition="true">{{vm.CORE_MESSAGE_CONSTANT.SAVE_AND_EXIT}}</md-button>
+      <!--ng-disabled="vm.AddQuoteDynamicFieldsForm.$invalid || !vm.checkFormDirty(vm.AddQuoteDynamicFieldsForm)"-->
+    </md-dialog-actions>
+  </form>
+</md-dialog>

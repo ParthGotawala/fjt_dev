@@ -1,0 +1,228 @@
+<!-- LIST VIEW -->
+<div class="content fullpage-datatable" layout="column" flex>
+  <md-table-container flex="100" class="cm-sticky-header-table">
+    <!--<table md-table class="md-data-table dataTable row-border hover">-->
+    <table md-table class="dataTable hover  md-data-table md-data-table row-border table-row-select">
+      <!--cm-document-table-->
+      <thead md-head md-order="vm.queryDocument.order">
+        <tr md-row class="document-list">
+          <!--<th class="secondary-text" ng-if="vm.Entity == vm.allentity.Operation.Name">
+              <md-checkbox ng-model="vm.isCopyAllToActiveWOOp"
+                           name="isCopyAllToActiveWOOp" ng-change="vm.selectAllDocFolderToCopy()">
+              </md-checkbox>
+          </th>-->
+          <th ng-if="((!isViewOnly) && (!vm.isDisableDeleteButtonUserWise))" class="cm-documentc-multiple-chb padding-bottom-0 padding-top-0">
+            <md-checkbox ng-model="vm.isSelectAll"
+                         ng-change="vm.selectAll()" ignore-dirty
+                         ng-disabled="vm.folderDocumentList.length == 0 || vm.isProtected" class="cm-margin-5">
+            </md-checkbox>
+          </th>
+          <th md-column class="secondary-text cm-action" ng-class="{'cm-action-view-only': isViewOnly}">
+            <div class="table-header">
+              <span class="column-title">Action</span>
+            </div>
+          </th>
+          <th class="secondary-text cm-secondary-text">&nbsp;</th>
+          <th md-column md-order-by="name" class="secondary-text cm-name w-300">
+            <div class="table-header">
+              <span class="column-title">Name</span>
+            </div>
+          </th>
+          <th md-column md-order-by="fileGroupName" class="secondary-text cm-doc-type">
+            <div class="table-header">
+              <span class="column-title"><a tabindex="-1" class="cm-text-decoration" ng-click="vm.gotoDocumentType()">Document Type</a></span>
+            </div>
+          </th>
+          <th md-column md-order-by="type" class="secondary-text cm-type">
+            <div class="table-header">
+              <span class="column-title">Type</span>
+            </div>
+          </th>
+          <th md-column md-order-by="size" class="secondary-text cm-size">
+            <div class="table-header">
+              <span class="column-title">Size(KB)</span>
+            </div>
+          </th>
+          <th md-column ng-if="isMerge" class="secondary-text cm-source">
+            <div class="table-header">
+              <span class="column-title">Source</span>
+            </div>
+          </th>
+          <th md-column class="secondary-text cm-tags w-235">
+            <div class="table-header">
+              <span class="column-title">Tags</span>
+            </div>
+          </th>
+          <th md-column class="secondary-text cm-description">
+            <div class="table-header">
+              <span class="column-title">Description</span>
+            </div>
+          </th>
+          <th md-column md-order-by="modifiedOn" class="secondary-text  cm-modified-date">
+            <div class="table-header">
+              <span class="column-title">Modified Date</span>
+            </div>
+          </th>
+          <th md-column md-order-by="modifiedBy" class="secondary-text cm-owner">
+            <div class="table-header">
+              <span class="column-title">Owner</span>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody md-body>
+        <tr class="document-body-tr" nd-row ng-repeat="detail in vm.folderDocumentList | orderBy: vm.queryDocument.order"
+            ng-class="{'selected' : (vm.isShowPicture && vm.selected === detail)}" ng-click="vm.selectFile(detail, $index)"
+            ng-dblclick="vm.selectFolder(detail)">
+
+
+          <td ng-if="((!isViewOnly) && (!vm.isDisableDeleteButtonUserWise))" class="cm-documentc-multiple-chb">
+            <md-checkbox ng-model="detail.isSelected" ng-disabled="detail.isFolder ? vm.DisableFolderSelectionChkbox(detail) : vm.DisableDocSelectionChkbox(detail)"
+                         ignore-dirty ng-change="vm.SelectFolderFile(detail)" class="cm-margin-5">
+            </md-checkbox>
+          </td>
+          <!--&& (!isViewOnly))-->
+          <td md-cell ng-if="((!detail.isFolder))" class="cm-action width-220 nowrap" ng-class="{'cm-action-view-only': isViewOnly}">
+            <md-button class="md-primary grid-button md-icon-button bdrbtn" ng-click="vm.viewDocument($index)"
+                       ng-if="(!isViewOnly) && (detail.isImage || detail.isVideoTypeFile || detail.isAudioTypeFile || detail.isPDF)">
+              <md-icon md-font-icon="icon icon-eye" class="s16"></md-icon>
+              <md-tooltip>Preview</md-tooltip>
+            </md-button>
+            <md-button class="md-primary grid-button md-icon-button bdrbtn"
+                       ng-click="vm.editDocument($index, null,detail)"
+                       ng-if="(!isViewOnly) && (!vm.isProtected && !vm.isProfile)"
+                       ng-disabled="vm.DisableUpdateButton(detail)"
+                       ng-class="{'item-disabled' :vm.DisableUpdateButton(detail)}">
+              <!--detail.isImage &&-->
+              <md-icon md-font-icon="icon-pencil" class="s16"></md-icon>
+              <md-tooltip>Update</md-tooltip>
+            </md-button>
+            <md-button class="md-primary grid-button md-icon-button bdrbtn"
+                       ng-click="vm.downloadDocument(detail)"
+                       ng-if="!vm.isProtected">
+              <md-icon md-font-icon="icon-download" class="material-icons mat-icon s16"></md-icon>
+              <md-tooltip>Download</md-tooltip>
+            </md-button>
+            <md-button class="md-primary grid-button md-icon-button bdrbtn cm-s17" ng-if="(!isViewOnly) && (!vm.isProfile)"
+                       ng-click="vm.moveFolderFile(detail,false,$event)"
+                       ng-hide="(vm.isHideDisplayTree) || vm.isProtected || (isMerge && (detail.gencFileOwnerType == vm.allentity.Operation.Name || detail.gencFileOwnerType == vm.allentity.Component.Name))"
+                       ng-disabled="vm.DisableMoveDocumentButton(detail)"
+                       ng-class="{'item-disabled' : vm.DisableMoveDocumentButton(detail)}">
+              <md-icon md-font-icon="icon-folder-move" class="s16 icon-folder-move"></md-icon>
+              <md-tooltip>Move Document</md-tooltip>
+            </md-button>
+            <md-button class="md-primary grid-button md-icon-button bdrbtn"
+                       ng-click="vm.disableDocument(detail,$event)"
+                       ng-if="(!isViewOnly) && (!vm.isProtected && !vm.isProfile)"
+                       ng-disabled="vm.IsDisableDocumentButton()"
+                       ng-class="{'item-disabled' :  vm.IsDisableDocumentButton()}">
+              <md-icon md-font-icon="{{detail.isDisable ? 'mdi mdi-pencil-off': 'mdi mdi-pencil-lock'}}" class="s16"></md-icon>
+              <md-tooltip md-direction="top" class="tt-multiline" ng-if="detail.isDisable">
+                Enable Document<br />
+                <span ng-if="detail.disableBy">{{'Disabled By: ' + detail.disableBy}}</span><br />
+                <span ng-if="detail.disableBy">{{'Disabled At: ' + detail.disableOn | date:vm.dateTimeDisplayFormat}}</span>
+              </md-tooltip>
+              <md-tooltip ng-if="!detail.isDisable">
+                Disable Document
+              </md-tooltip>
+            </md-button>
+            <md-button class="md-primary grid-button md-icon-button bdrbtn"
+                       ng-click="vm.deleteDocument(detail)"
+                       ng-if="(!isViewOnly) && (!vm.isProtected && !vm.isProfile)"
+                       ng-disabled="vm.DisableDeleteButton(detail)"
+                       ng-class="{'item-disabled' : vm.DisableDeleteButton(detail)}">
+              <md-icon md-font-icon="icon-trash" class="s16"></md-icon>
+              <md-tooltip>Delete</md-tooltip>
+            </md-button>
+          </td>
+          <td md-cell ng-if="detail.isFolder && (!vm.isHideDisplayTree)" class="cm-action nowrap">
+            <md-button class="md-primary grid-button md-icon-button bdrbtn"
+                       ng-click="vm.renameFolder(detail.gencFolderID,detail)"
+                       ng-disabled="vm.DisableRenameFolderButton(detail)"
+                       ng-class="{'item-disabled' : vm.DisableRenameFolderButton(detail)}">
+              <md-icon md-font-icon="icon-pencil" class="s16"></md-icon>
+              <md-tooltip>Rename</md-tooltip>
+            </md-button>
+            <md-button class="md-primary grid-button md-icon-button bdrbtn  cm-s17"
+                       ng-click="vm.moveFolderFile(detail,true,$event)"
+                       ng-disabled="vm.DisableMoveFolderButton(detail)"
+                       ng-class="{'item-disabled' : vm.DisableMoveFolderButton(detail)}">
+              <md-icon md-font-icon="icon-folder-move" class="s16 icon-folder-move"></md-icon>
+              <md-tooltip>Move Folder</md-tooltip>
+            </md-button>
+            <md-button class="md-primary grid-button md-icon-button bdrbtn"
+                       ng-click="vm.deleteFolder(detail)"
+                       ng-disabled="vm.DisableDeleteFolderButton(detail)"
+                       ng-class="{'item-disabled' : vm.DisableDeleteFolderButton(detail)}">
+              <md-icon md-font-icon="icon-trash" class="s16"></md-icon>
+              <md-tooltip>Delete</md-tooltip>
+            </md-button>
+          </td>
+          <td md-cell class="file-icon cursor-pointer cm-secondary-text" ng-if="detail.isFolder" ng-click="vm.selectFolder(detail)">
+            <i class="icon-folder"></i>
+          </td>
+          <td md-cell class="file-icon cm-secondary-text" ng-if="!detail.isFolder">
+            <img draggable="false" ng-if="detail.isImage || detail.isVideoTypeFile || detail.isAudioTypeFile || detail.isPDF" ng-click="vm.viewDocument($index)" ng-src="{{detail.documentIcon}}" style="width:52px;height:52px;" />
+            <img draggable="false" ng-if="!(detail.isImage || detail.isVideoTypeFile || detail.isAudioTypeFile || detail.isPDF)" ng-src="{{detail.documentIcon}}" style="width:52px;height:52px;" />
+          </td>
+          <td md-cell class="cm-name">
+            <span ng-if="detail.isImage || detail.isVideoTypeFile || detail.isAudioTypeFile || detail.isPDF" ng-click="vm.viewDocument($index)">{{detail.name}}</span>
+            <span ng-if="!(detail.isImage || detail.isVideoTypeFile || detail.isAudioTypeFile || detail.isPDF)">{{detail.name}}</span>
+          </td>
+          <td md-cell class="cm-doc-type">{{detail.fileGroupName}}</td>
+          <td md-cell class="cm-type">{{detail.type}}</td>
+          <td md-cell class="cm-size text-right">
+            {{detail.displaySize}}
+            <md-tooltip ng-if="!detail.isFolder">{{detail.sizeTooltip}}</md-tooltip>
+          </td>
+          <td ng-if="isMerge" md-cell class="cm-source">
+            <md-button ng-if="detail.refCopyGencFileOwnerType == vm.allentity.Workorder.Name"
+                       class="md-primary md-icon-button cursor-default">
+              <md-icon md-font-icon="icons-wo" class="s24"></md-icon>
+              <md-tooltip>Work Order</md-tooltip>
+            </md-button>
+            <md-button ng-if="detail.refCopyGencFileOwnerType == vm.allentity.Operation.Name"
+                       class="md-primary md-icon-button cursor-default">
+              <md-icon md-font-icon="icons-operation" class="s24"></md-icon>
+              <md-tooltip>Operation</md-tooltip>
+            </md-button>
+            <md-button ng-if="detail.refCopyGencFileOwnerType == vm.allentity.Component.Name"
+                       class="md-primary md-icon-button cursor-default">
+              <md-icon md-font-icon="icons-part-master" class="s24 material-icons"></md-icon>
+              <md-tooltip>Part</md-tooltip>
+            </md-button>
+          </td>
+          <td md-cell class="cm-tags">
+            <label class="label-box label-info mt-5 mr-5" ng-repeat="tag in detail.tagDetail.displayTag">{{tag}}</label>
+            <label class="label-box label-info mt-5" ng-if="detail.tagDetail.extraTags">... <md-tooltip>{{detail.tagDetail.extraTags}}</md-tooltip></label>
+          </td>
+          <td md-cell class="cm-description">
+            <div layout="row" class="w-400">
+              <span class="cursor-pointer bom-header-wrap" ng-if="!detail.isFolder || detail.gencFileDescriptiongencFileID">{{detail.gencFileDescriptiongencFileID}}</span>
+              <button class="md-primary grid-button md-icon-button" ng-click="vm.showDescription(detail)"
+                      ng-if="detail.gencFileDescriptiongencFileID">
+                <md-icon md-font-icon="icon icon-eye" class="s16"></md-icon>
+                <md-tooltip>View</md-tooltip>
+              </button>
+            </div>
+          </td>
+          <td md-cell class="cm-modified-date nowrap">{{detail.modifiedOn}}</td>
+          <td md-cell hide-xs class="cm-owner nowrap">{{detail.modifiedBy}}</td>
+        </tr>
+        <tr class="full-height" ng-if="vm.folderDocumentList.length == 0">
+          <td class="border-0" flex="100" colspan="{{isMerge ? '14' : '13'}}" align="center">
+            <div class="cm-list-view-img empty-state ui-grid-empty-state full-height layout-row layout-wrap layout-align-center-center">
+              <div class="emty-icon flex-100">
+                <img ng-src="{{vm.SearchEmptyMessage.SEARCH_IMAGE_URL}}">
+              </div>
+              <p class="empty-state-title empty-state-title-small flex-100">{{vm.SearchEmptyMessage.EMPTY_SEARCH_MESSAGE}}</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+  </md-table-container>
+</div>
+
+<!-- / LIST VIEW -->

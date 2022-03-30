@@ -1,0 +1,362 @@
+<div id="forms" class="page-layout simple fullwidth doc-page cm-custom-label-common breadcrumb-fixed" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <!-- FORM WIZARD -->
+  <ms-form-wizard flex>
+    <div class="header md-accent-bg" layout="row" layout-align="space-between center">
+      <div layout="row" layout-align="start center" flex>
+        <div layout flex>
+          <div layout="row">
+            <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" aria-label="Go to Employeelist" ng-click="vm.backToEmployee()">
+              <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+              </md-icon>
+            </md-button>
+            <div class="white-fg" layout="column" layout-align="center start" flex="100">
+              <div class="h2 master-page-title" layout="row" layout-align="start center">
+                <pagetitle is-list="false" is-display-menu-name="true" prefix-content="vm.employeeId ? 'Update' : 'Add'" suffix-content="vm.employeeTitle"></pagetitle>
+                <md-tooltip ng-if="vm.employeeId" md-direction="right">{{(vm.employee.firstName ? vm.employee.firstName : "") + " " + (vm.employee.lastName ? vm.employee.lastName : "")}}</md-tooltip>
+              </div>
+              <div layout="row" layout-align="start center" class="product-count">
+                <breadcrumbs></breadcrumbs>
+              </div>
+            </div>
+          </div>
+          <div ng-if="vm.autoCompletePersonnel" flex="15" class="cm-header-search-add-container">
+            <div>
+              <md-input-container ng-if="vm.autoCompletePersonnel" class="width-100p autocompletecustom margin-0 widget-dashboard-search-area part-header-search-area" flex="100" flex-gt-xs="100">
+                <custom-auto-complete-search on-search-fn="vm.autoCompletePersonnel.onSearchFn"
+                                             column-name="vm.autoCompletePersonnel.columnName"
+                                             key-column-name="vm.autoCompletePersonnel.keyColumnName"
+                                             key-column-id="vm.autoCompletePersonnel.keyColumnId"
+                                             input-name="vm.autoCompletePersonnel.inputName"
+                                             placeholder-name="vm.autoCompletePersonnel.placeholderName"
+                                             is-required="vm.autoCompletePersonnel.isRequired"
+                                             is-addnew="vm.autoCompletePersonnel.isAddnew"
+                                             callback-fn="vm.autoCompletePersonnel.callbackFn"
+                                             on-select-callback-fn="vm.autoCompletePersonnel.onSelectCallbackFn">
+                </custom-auto-complete-search>
+              </md-input-container>
+            </div>
+            <div>
+              <div class="cm-square-icon-btn pt-2">
+                <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-if="vm.employeeId" ng-click="vm.addPersonnel(false)">
+                  <md-icon md-font-icon="t-icons-personnel add-icon" class="material-icons"></md-icon>
+                  <md-tooltip>Add Personnel In New Tab</md-tooltip>
+                </md-button>
+                <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-if="vm.employeeId" ng-click="vm.addPersonnel(true)">
+                  <md-icon md-font-icon="t-icons-personnel add-icon same-tab-icon" class="material-icons"></md-icon>
+                  <md-tooltip>Add Personnel</md-tooltip>
+                </md-button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div layout layout-align="end end" class="cm-square-icon-btn">
+          <md-button class="md-primary md-raised" name="btnAssignOperation" ng-click="vm.showOperationAssigned()" id="btnAssignOperation"
+                     ng-if="vm.employeeId">
+            <!--ng-disabled="msWizard.currentStepInvalid() || (!vm.isRightChange && !vm.isFeatureChange)"-->
+            Assign Operation
+          </md-button>
+          <md-button class="md-primary md-raised" name="btnSave" ng-click="vm.CheckStepAndAction(msWizard,true,true);" id="savePersonalDetailBtn"
+                     ng-disabled="vm.saveDisable"
+                     ng-class="{'md-formdirty': (vm.userForm.$dirty || vm.employeeDetail.$dirty || vm.employeeOtherDetail.$dirty || vm.ischangePage)}"
+                     ng-if="(vm.tabName == vm.EmployeeMasterTabs.Detail.Name || vm.tabName == vm.EmployeeMasterTabs.Credential.Name ||
+                     vm.tabName == vm.EmployeeMasterTabs.OtherDetail.Name ) && !vm.ischangePage">
+            <!--ng-if="(vm.tabName == vm.EmployeeMasterTabs.Credential.Name || vm.tabName == vm.EmployeeMasterTabs.Credential.Name) && !vm.ischangePage">-->
+            <!--ng-disabled="msWizard.currentStepInvalid() || !vm.checkFormDirty(msWizard.currentStepForm(),vm.checkDirtyObject)||vm.ischangePage"-->
+            Save
+          </md-button>
+          <md-button class="md-primary md-raised" name="btnSave" ng-click="vm.CheckStepAndAction(msWizard,true,true);" id="savePersonalDetailBtn"
+                     ng-if="(vm.tabName == vm.EmployeeMasterTabs.Security.Name || vm.tabName == vm.EmployeeMasterTabs.Preference.Name)"
+                     ng-class="{'md-formdirty': msWizard.currentStepInvalid() || !(!vm.isRightChange && !vm.isFeatureChange) || vm.ischange }">
+            <!--ng-disabled="msWizard.currentStepInvalid() || (!vm.isRightChange && !vm.isFeatureChange)"-->
+            Save
+          </md-button>
+          <md-menu-bar ng-if="vm.employeeId" class="pv-0" layout-align="start-center" layout="row">
+            <md-menu md-position-mode="left bottom">
+              <md-button class="md-primary  md-icon-button pr-20" ng-click="vm.openMenu($mdMenu,$event)"
+                         aria-label="User settings" md-prevent-menu-close="md-prevent-menu-close">
+                <md-icon md-font-icon="icon-dots-vertical" class="icon s24"></md-icon>
+              </md-button>
+              <md-menu-content width="4">
+                <md-menu-item>
+                  <a ng-click="vm.deleteRecord($mdMenu,$event);"
+                     ng-disabled="!vm.employeeId" class="md-button toolbar-menu"
+                     ng-class="{'item-disabled': !vm.employeeId}">
+                    <md-icon md-font-icon="icon-trash" class="icon s24"></md-icon>
+                    Delete Personnel
+                  </a>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </md-menu-bar>
+        </div>
+      </div>
+    </div>
+    <div class="content-card padding-top-side cm-custom-label-common" layout="column" flex>
+      <div flex="100" class="no-box-shadow">
+
+        <md-tabs validate-step="true" is-valid="vm.isStepValid" class="manage-customer-tabing padding-bottom-0" md-dynamic-height md-selected="vm.selectedTabIndex">
+          <!-- Employee Detail Tab -->
+          <md-tab md-on-select="vm.onTabChanges(vm.emp,msWizard)" ng-disabled="!vm.pageTabRights.DetailTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.employeeDetail.$invalid">1</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.employeeDetail.$valid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Details</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div ng-if="vm.tabName == vm.EmployeeMasterTabs.Detail.Name">
+                <employee-detail employee-id="vm.employeeId"></employee-detail>
+              </div>
+            </md-tab-body>
+          </md-tab>
+          <!-- Credential Tab -->
+          <!--<md-tab ng-show="vm.isUser" ng-disabled="vm.employeeDetail.$invalid || !vm.employeeId " md-on-select="vm.onTabChanges(vm.user,msWizard)">-->
+          <md-tab ng-show="vm.isUser" md-on-select="vm.onTabChanges(vm.user,msWizard)" ng-disabled="!vm.employeeId || !vm.pageTabRights.CredentialTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="!vm.employeeId">2</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.employeeId">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Credential</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div ng-if="vm.tabName == vm.EmployeeMasterTabs.Credential.Name">
+                <employee-credential employee-id="vm.employeeId"></employee-credential>
+              </div>
+            </md-tab-body>
+          </md-tab>
+          <!-- Security & Settings Tab -->
+          <!--<md-tab ng-show="vm.isUser" label="User Page Rights" ng-click="vm.getPageList();" ng-disabled="vm.employeeDetail.$invalid || !vm.employeeId" md-on-select="vm.onTabChanges(vm.RoleTabName,msWizard)">-->
+          <md-tab ng-show="vm.isUser" label="User Page Rights" ng-click="vm.getPageList();" md-on-select="vm.onTabChanges(vm.RoleTabName,msWizard)" ng-disabled="!vm.employeeId || !vm.pageTabRights.SecurityTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="!vm.employeeId">3</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.employeeId">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Security & Settings</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.rolePagePermisionForm" class="padding-10-imp" ms-form-wizard-form novalidate>
+                <div layout="row">
+                  <!-- <div flex="25" class="margin-left-10">
+                      <div class="margin-left-15">
+                          <span>
+                              <b>Role</b>
+                          </span>
+                      </div>
+                      <div layout-wrap>
+                          <md-list>
+                              <md-list-item ng-repeat="role in vm.roles">
+                                  <label>
+                                      <md-checkbox ng-model="role.isChecked" name="role.name" ng-change="vm.pageroleSelected(role)">
+                                      </md-checkbox>
+                                      {{role.name}}
+                                  </label>
+                              </md-list-item>
+                          </md-list>
+                      </div>
+                  </div>-->
+                  <div flex="100" class="employee-table-data">
+                    <div class="profile-page padding-10" ng-if="vm.userId>0 && (vm.tabName == vm.EmployeeMasterTabs.Security.Name)">
+                      <!--<role-page-rights user-id="vm.userId" employee-id="vm.employeeId" selected-role="vm.selectedRole"
+    page-name="vm.pageName" is-right-change="vm.isRightChange"
+    is-feature-change="vm.isFeatureChange" is-db-view-data-source-change="false"
+    is-view-only="false"></role-page-rights>-->
+                      <role-page-rights-new user-id="vm.userId" identity-user-id="vm.identityUserId" employee-id="vm.employeeId" selected-role="vm.selectedRole"
+                                            page-name="vm.pageName" is-right-change="vm.isRightChange" 
+                                            is-feature-change="vm.isFeatureChange" is-role-change="vm.isRoleChange" is-db-view-data-source-change="false"
+                                            is-view-only="false" employee-name="vm.employeeName"></role-page-rights-new>
+                   </div>
+                  </div>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+          <!-- Rights Summary Tab -->
+          <md-tab ng-show="vm.isUser" label="User Rights Summary" ng-click="vm.getPageList();" md-on-select="vm.onTabChanges(vm.RoleTabName,msWizard)" ng-disabled="!vm.employeeId || !vm.pageTabRights.RightsSummaryTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="!vm.employeeId">4</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.employeeId">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Rights Summary</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form class="padding-10-imp" ms-form-wizard-form novalidate>
+                <div layout="row">
+                  <div flex="100" class="employee-table-data">
+                    <div class="profile-page padding-10" ng-if="vm.userId > 0 && (vm.tabName == vm.EmployeeMasterTabs.RightsSummary.Name)">
+                      <rights-summary user-id="vm.userId" identity-user-id="vm.identityUserId" employee-id="vm.employeeId"></rights-summary>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+          <!-- Department Tab -->
+          <!--<md-tab md-on-select="vm.onTabChanges(vm.deptTabName,msWizard)" ng-disabled="vm.employeeDetail.$invalid || !vm.employeeId || vm.selectedRole.length==0">-->
+          <md-tab md-on-select="vm.onTabChanges(vm.deptTabName,msWizard)" ng-disabled="!vm.employeeId || !vm.pageTabRights.DepartmentTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="!vm.employeeId">5</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.employeeId">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Department</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div ng-if="(vm.tabName == vm.EmployeeMasterTabs.Department.Name)">
+                <employee-department employee-id="vm.employeeId"></employee-department>
+              </div>
+            </md-tab-body>
+          </md-tab>
+          <!-- Documents Tab -->
+          <!--<md-tab ng-disabled="vm.employeeDetail.$invalid || !vm.employeeId || vm.selectedRole.length==0" md-on-select="vm.onTabChanges(vm.documentTabName,msWizard)">-->
+          <md-tab md-on-select="vm.onTabChanges(vm.documentTabName,msWizard)" ng-disabled="!vm.employeeId || !vm.pageTabRights.DocumentTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="!vm.employeeId">6</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.employeeId">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Documents</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.employeeDocument" class="cm-document-common" ms-form-wizard-form novalidate>
+                <div ng-if="(vm.tabName == vm.EmployeeMasterTabs.Documents.Name)">
+                  <documents entity="vm.entityName.Name" ref-trans-id="vm.employeeId" is-title="null"></documents>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+          <!-- Workstations Tab -->
+          <!--<md-tab md-on-select="vm.onTabChanges(vm.WorkstationTab,msWizard)" ng-disabled="vm.employeeDetail.$invalid || !vm.employeeId || vm.selectedRole.length==0"
+          ng-click="vm.workStationDetails(true)">-->
+          <md-tab md-on-select="vm.onTabChanges(vm.WorkstationTab,msWizard)" ng-click="vm.workStationDetails(true)" ng-disabled="!vm.employeeId || !vm.pageTabRights.WorkstationsTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="!vm.employeeId">7</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.employeeId">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Workstations</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <!--  Comment done by mona please change after creating dev branch  -->
+              <div ng-if="(vm.tabName == vm.EmployeeMasterTabs.Workstations.Name)">
+                <employee-workstation employee-id="vm.employeeId"></employee-workstation>
+              </div>
+            </md-tab-body>
+          </md-tab>
+          <!-- Customer Mapping Tab -->
+          <!--<md-tab md-on-select="vm.onTabChanges(vm.CustomerMappingTab,msWizard)" ng-disabled="vm.employeeDetail.$invalid || !vm.employeeId || vm.selectedRole.length==0">-->
+          <md-tab md-on-select="vm.onTabChanges(vm.CustomerMappingTab,msWizard)" ng-disabled="!vm.employeeId || !vm.pageTabRights.CustomerMappingTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="!vm.employeeId">8</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.employeeId">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Customer Mapping</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.customerMappingForm" class="padding-10-imp cm-search-tab-operation-list" ms-form-wizard-form novalidate>
+                <customer-personnel-mapping personnelid="vm.employeeId" ng-if="(vm.tabName == vm.EmployeeMasterTabs.CustomerMapping.Name) && vm.employeeId "></customer-personnel-mapping>
+              </form>
+            </md-tab-body>
+          </md-tab>
+          <!-- MISC Tab -->
+          <!--<md-tab md-on-select="vm.onTabChanges(vm.OtherDetailTabName,msWizard)" ng-disabled="vm.employeeDetail.$invalid || !vm.employeeId || vm.selectedRole.length==0">-->
+          <md-tab md-on-select="vm.onTabChanges(vm.OtherDetailTabName,msWizard)" ng-disabled="!vm.employeeId || !vm.pageTabRights.OtherDetailTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="!vm.employeeId">9</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.employeeId">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">{{vm.OtherDetailTitle}}</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.employeeOtherDetail" class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+                <!--<div layout="column" layout-gt-xs="100" ng-if="vm.IsOtherDetailTab == true">
+                    <view-data-element entity="{{vm.Entity.Employee}}" dataelement-list="vm.dataElementList" ref-trans-id="{{vm.employeeId}}"
+                                       entity-id="vm.entityID" file-list="vm.fileList"></view-data-element>
+                </div>-->
+                <div class="cm-section-main" layout="row" layout-wrap flex="100">
+                  <div class="cm-section-header" flex="100">
+                    <h2>Personnel MISC</h2>
+                  </div>
+                  <div class="cm-section-inner" flex="100">
+                    <div layout="column" layout-gt-xs="100" ng-if="(vm.tabName == vm.EmployeeMasterTabs.OtherDetail.Name)" class="cm-tab-misc">
+                      <view-data-element entity="{{vm.Entity.Employee}}" dataelement-list="vm.dataElementList" ref-trans-id="{{vm.employeeId}}"
+                                         entity-id="vm.entityID" file-list="vm.fileList"
+                                         curr-active-form="vm.employeeOtherDetail"></view-data-element>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+          <!-- Kinjal -->
+          <md-tab ng-show="vm.isUser" label="User Preferences" ng-click="vm.getPageList();" md-on-select="vm.onTabChanges(vm.RoleTabName,msWizard)" ng-disabled="!vm.employeeId || !vm.pageTabRights.PreferenceTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="!vm.employeeId">10</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.employeeId">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">User Preferences</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.employeePreferencesForm" class="padding-0" ms-form-wizard-form novalidate>
+                <div layout="row">
+                  <div flex="100" class="employee-table-data">
+                    <div class="profile-page padding-10" ng-if="vm.userId>0 && (vm.tabName == vm.EmployeeMasterTabs.Preference.Name)">
+                      <user-preference user-id="vm.userId" employee-id="vm.employeeId" page-name="vm.pageName"></user-preference>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+          <!-- Charmi- User Agreement Tab -->
+          <md-tab ng-show="vm.isUser" label="User Agreement" md-on-select="vm.onTabChanges(vm.UserAgreementTab,msWizard)" ng-disabled="!vm.employeeId || !vm.pageTabRights.UserAgreementTab">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="!vm.employeeId">11</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.employeeId">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">User Agreement</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div layout="row">
+                <div flex="100" class="employee-table-data">
+                  <div class="profile-page padding-10" ng-if="vm.userId>0 && (vm.tabName == vm.EmployeeMasterTabs.UserAgreement.Name)">
+                    <user-signup-agreement user-id="vm.userId"></user-signup-agreement>
+                  </div>
+                </div>
+              </div>
+            </md-tab-body>
+          </md-tab>
+        </md-tabs>
+      </div>
+    </div>
+  </ms-form-wizard>
+</div>

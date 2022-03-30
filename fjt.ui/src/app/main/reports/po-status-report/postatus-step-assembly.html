@@ -1,0 +1,217 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="content-card" layout="column" flex>
+    <div flex="{{vm.isShowSideNav==false?100:80}}">
+      <div layout="row" flex="100" class="work-order-bg-main cm-section-main border-0 flex-100 cm-postatus-wo-op-bg"
+           layout-wrap ng-if="vm.poAssywiseWOList.length">
+        <div class="cm-section-inner overflow-auto-rs" layout="row" layout-wrap flex="100">
+          <table width="100%" class="cm-table-input-main cm-wo-header-main opration-table">
+            <tr>
+              <th>
+                <p class="label-container">
+                  <a tabindex="-1" href="" class="cm-text-decoration margin-0"
+                     ng-mousedown="vm.goToAssemblyList();$event.preventDefault();">
+                    {{vm.allLabelConstant.Assembly.ID}}
+                  </a>:
+                </p>
+              </th>
+              <td>
+                <span class="value">
+                  <common-pid-code-label-link component-id="vm.poMainAssyDet.partID"
+                                              label="vm.allLabelConstant.Assembly.ID" value="vm.poMainAssyDet.PIDCode"
+                                              is-copy="true" rohs-icon="vm.poMainAssyDet.displayRohsIcon"
+                                              rohs-status="vm.poMainAssyDet.rohsStatus" is-formated="true"
+                                              is-assembly="true"
+                                              is-custom-part="vm.poMainAssyDet.isCustom">
+                </span>
+              </td>
+
+              <th>
+                <p class="label-container">
+                  {{vm.allLabelConstant.Assembly.Assy}}:
+                </p>
+              </th>
+              <td>
+                <span class="value">
+                  <common-pid-code-label-link component-id="vm.poMainAssyDet.partID"
+                                              label="vm.allLabelConstant.Assembly.MFGPN" value="vm.poMainAssyDet.mfgPN"
+                                              is-copy="true" rohs-icon="vm.poMainAssyDet.displayRohsIcon"
+                                              rohs-status="vm.poMainAssyDet.rohsStatus" is-formated="true"
+                                              is-assembly="true"
+                                              is-custom-part="vm.poMainAssyDet.isCustom">
+                  </common-pid-code-label-link>
+                </span>
+              </td>
+              <th>
+                <p class="label-container">
+                  {{vm.allLabelConstant.Assembly.NickName}}:
+                </p>
+              </th>
+              <td>
+
+                <span class="value">
+                  {{vm.poMainAssyDet.nickName}}
+                </span>
+              </td>
+              <th>
+                <p class="label-container">
+                  {{vm.allLabelConstant.Assembly.InternalVersion}}:
+                </p>
+              </th>
+              <td>
+                <span class="value">
+                  {{vm.poMainAssyDet.liveVersion}}
+                </span>
+              </td>
+              <th>
+                <p class="label-container">
+                  Total {{vm.allLabelConstant.Workorder.POQty}}:
+                </p>
+              </th>
+              <td>
+                <span class="value">
+                  {{vm.poMainAssyDet.poQty }}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div flex="100" ng-if="vm.qtyProgressDataforAssyAllWo && vm.qtyProgressDataforAssyAllWo.length > 0 && vm.isDisplayQtyProgressDataScale">
+        <div layout-align="end-center" layout="row">
+          <div layout="row" flex="65" class="margin-top-15 margin-bottom-15" layout-align="end-center">
+            <div class="progress-bar" role="progressbar"
+                 ng-repeat="progressItem in vm.qtyProgressDataforAssyAllWo | orderBy : 'orderBy'"
+                 style="width:{{progressItem.valueInPer}}%;background-color:{{progressItem.color}}">
+              {{progressItem.valueInPer}}%
+              <md-tooltip md-direction="top">{{progressItem.name}}:&nbsp;{{progressItem.value}}&nbsp;&nbsp;( {{progressItem.valueInPer}} %)</md-tooltip>
+            </div>
+          </div>
+        </div>
+        <div layout="row" layout-align="end-center" flex="100" class="margin-bottom-15">
+          <span layout="row" layout-align="end-center" ng-repeat="legendItem in vm.assyPOStatusLegendList | orderBy : 'orderBy'">
+            <span class="cm-po-status-legend-color" ng-style="{'background-color':legendItem.BackgroundColor}"></span>
+            <span class="cm-po-status-legend-list">{{legendItem.Key}}</span>
+          </span>
+        </div>
+        <div layout="row" layout-align="end-center" flex="100">
+          <b>
+            <span ng-bind-html="vm.woQtyCalculationNote"></span><span ng-if="vm.isContainSubAssembly">&nbsp;Sub-assembly not included.</span>
+          </b>
+        </div>
+      </div>
+      <div layout="row" layout-align="end end" class="margin-top-15"
+           ng-if="vm.poAssywiseWOList.length || (!vm.poAssywiseWOList.length && vm.query.search)">
+        <div layout="row" flex-xs="50">
+          <md-input-container class="md-block search-header margin-0 error-none">
+            <input type="text" ng-model="vm.query.search" ng-model-options="{debounce: vm.debounceConstant.mdDataTable }"
+                   placeholder="Search" ng-change="vm.filterPOAssyWiseWOData()">
+          </md-input-container>
+          <md-button class="md-primary md-raised margin-0 margin-right-5-imp" ng-click="vm.query.search = '';vm.refreshPODetails();"
+                     ng-disabled="!vm.query.search">
+            Clear
+          </md-button>
+          <md-button class="md-primary md-raised margin-0" ng-click="vm.query.search = '';vm.refreshPODetails()">
+            Refresh
+          </md-button>
+        </div>
+      </div>
+      <div class="content fullpage-datatable margin-top-20" layout="column" flex
+           ng-if="vm.poAssywiseWOList.length || (!vm.poAssywiseWOList.length && vm.query.search)">
+        <md-table-container flex="100" class="cm-po-status-assembly">
+          <table md-table class="md-data-table table-row-select min-width-max-content cm-scroll-table" md-row-select ng-model="vm.selectedItems">
+            <thead md-head md-order="vm.query.order">
+              <tr md-row>
+                <th md-column width="50">
+                  #
+                </th>
+                <th md-column md-order-by="" class="width-110">
+                  {{vm.allLabelConstant.Workorder.WO}}
+                </th>
+                <th md-column md-order-by="" width="125">
+                  {{vm.allLabelConstant.Workorder.Version}}
+                </th>
+                <th md-column md-order-by="" width="145">
+                  Assembly Type
+                </th>
+                <th md-column md-order-by="" width="235">
+                  {{vm.allLabelConstant.Assembly.ID}}
+                </th>
+                <th md-column md-order-by="" width="110">
+                  {{vm.allLabelConstant.Assembly.Rev}}
+                </th>
+                <th md-column md-numeric md-order-by="" width="100">
+                  {{vm.allLabelConstant.Workorder.POQty}}
+                </th>
+                <th md-column md-numeric md-order-by="" width="110">
+                  {{vm.allLabelConstant.Workorder.BuildQty}}
+                </th>
+                <th md-column md-numeric md-order-by="" width="160">
+                  UnProcessed Qty
+                </th>
+                <th md-column md-numeric md-order-by="" width="105">
+                  {{vm.allLabelConstant.Qty.WIPQty}}
+                </th>
+                <th md-column md-numeric md-order-by="" width="140">
+                  {{vm.allLabelConstant.Traveler.ScrappedQty}}
+                </th>
+                <th md-column md-numeric md-order-by="" width="130">
+                  {{vm.allLabelConstant.Shipped.ShippedQty}}
+                </th>
+                <th md-column md-order-by="" width="200">
+                  {{vm.allLabelConstant.Workorder.Status}}
+                </th>
+              </tr>
+            </thead>
+            <tbody md-body>
+              <tr md-row ng-repeat="item in vm.poAssywiseWOList">
+                <td md-cell width="50">{{$index+1}}</td>
+                <td md-cell class="width-110">
+                  <a tabindex="-1" class="cm-text-decoration" ng-if="item.woid"
+                     ng-mousedown="vm.goToWorkorderDetails(item.woid);$event.preventDefault();">
+                    {{item.woNumber}}
+                  </a>
+                  <span ng-if="!item.woid">{{item.woNumber}}</span>
+                </td>
+                <td md-cell width="125">{{item.woVersion}}</td>
+                <td md-cell width="145">
+                  <span class="label-box" ng-class="item.assemblyTypeTagClassName">{{item.assemblyTypeTagName}}</span>
+                </td>
+                <td md-cell width="235">
+                  <common-pid-code-label-link component-id="item.partID"
+                                              label="vm.allLabelConstant.Assembly.ID" value="item.PIDCode"
+                                              is-copy="true" rohs-icon="item.displayRohsIcon"
+                                              rohs-status="item.rohsStatus" is-formated="true"
+                                              is-assembly="true"
+                                              is-custom-part="item.isCustom">
+                </td>
+                <td md-cell width="110">{{item.rev}}</td>
+                <td md-cell width="100">{{item.poQty | numberWithoutDecimal}}</td>
+                <td md-cell width="110">{{item.buildQty | numberWithoutDecimal}}</td>
+                <td md-cell width="160">{{item.unProcessQty | numberWithoutDecimal}}</td>
+                <td md-cell width="105">{{item.displayWIPQtyForReport | numberWithoutDecimal}}</td>
+                <td md-cell width="140">{{item.scrapQty | numberWithoutDecimal}}</td>
+                <td md-cell width="130">{{item.shippedQty | numberWithoutDecimal}}</td>
+                <td md-cell width="200"><span class=" min-width-max-content" ng-class="vm.getWoStatusClassName(item.woSubStatus, item.woid)">{{ item.woid ? vm.getWoStatus(item.woSubStatus): 'N/A'}}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </md-table-container>
+        <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+             ng-if="!vm.poAssywiseWOList.length && vm.query.search">
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.emptySearch.IMAGEURL}}" />
+          </div>
+          <p class="empty-state-title" flex="100">{{vm.emptySearch.MESSAGE}}</p>
+        </div>
+      </div>
+      <div class="empty-state full-height margin-top-80" layout="row" layout-wrap layout-align="center center"
+           ng-if="!vm.poAssywiseWOList.length && !vm.query.search">
+        <div class="emty-icon" flex="100">
+          <img ng-src="{{vm.CommonEmptyMessage.IMAGEURL}}" />
+        </div>
+        <p class="empty-state-title" flex="100">{{vm.CommonEmptyMessage.MESSAGE}}</p>
+      </div>
+    </div>
+  </div>
+</div>

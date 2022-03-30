@@ -1,0 +1,305 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common" layout="row" cg-busy="{promise:vm.cgBusyLoading}" autocomplete="off">
+  <ms-form-wizard flex layout="row">
+    <!-- CONTENT HEADER -->
+    <div class="header md-accent-bg" layout="row" layout-align="space-between center">
+      <div layout="row" layout-align="start center">
+        <div layout="row">
+          <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" ng-click="vm.goBack(msWizard)">
+            <!--<md-icon md-font-icon="icon-arrow-left" class="material-icons icon-arrow-left">
+        </md-icon>-->
+            <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+            </md-icon>
+          </md-button>
+          <div class="white-fg" layout="column" layout-align="start start">
+            <div class="h2 master-page-title" layout="row" layout-align="start center">
+              <pagetitle is-list="false"
+                         is-display-menu-name="true"
+                         prefix-content="vm.operation.opID ? 'Update' : 'Add'"
+                         suffix-content="vm.operation.opName ? ': ' + vm.operation.opName : ''"
+                         prefix-page-title="vm.operation.opName"></pagetitle>
+              <md-tooltip ng-if="vm.operation.opID" md-direction="right">{{vm.operation.opName ? vm.operation.opName:''}}</md-tooltip>
+            </div>
+            <div layout="row" layout-align="start center">
+              <breadcrumbs></breadcrumbs>
+            </div>
+          </div>
+        </div>
+        <div ng-if="vm.autoCompleteOperation" class="cm-header-search-add-container">
+          <div>
+            <md-input-container ng-if="vm.autoCompleteOperation" class="width-100p autocompletecustom margin-0 widget-dashboard-search-area part-header-search-area" flex="100" flex-gt-xs="100">
+              <custom-auto-complete-search on-search-fn="vm.autoCompleteOperation.onSearchFn"
+                                           column-name="vm.autoCompleteOperation.columnName"
+                                           key-column-name="vm.autoCompleteOperation.keyColumnName"
+                                           key-column-id="vm.autoCompleteOperation.keyColumnId"
+                                           input-name="vm.autoCompleteOperation.inputName"
+                                           placeholder-name="vm.autoCompleteOperation.placeholderName"
+                                           is-required="vm.autoCompleteOperation.isRequired"
+                                           is-addnew="vm.autoCompleteOperation.isAddnew"
+                                           callback-fn="vm.autoCompleteOperation.callbackFn"
+                                           on-select-callback-fn="vm.autoCompleteOperation.onSelectCallbackFn">
+              </custom-auto-complete-search>
+            </md-input-container>
+          </div>
+          <div>
+            <div class="cm-square-icon-btn pt-2">
+              <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-if="vm.operation.opID" ng-click="vm.addUpdateOperation(null,false)">
+                <md-icon md-font-icon="{{vm.operationIcon}} add-icon" class="material-icons"></md-icon>
+                <md-tooltip>Add Operation In New Tab</md-tooltip>
+              </md-button>
+              <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-if="vm.operation.opID" ng-click="vm.addUpdateOperation(null,true)">
+                <md-icon md-font-icon="{{vm.operationIcon}} add-icon same-tab-icon" class="material-icons"></md-icon>
+                <md-tooltip>Add Operation</md-tooltip>
+              </md-button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div layout="row">
+        <div layout="row" flex="100" layout-wrap>
+          <div flex layout="row" layout-wrap>
+            <div flex="100" layout-wrap>
+              <table cellspacing="0" cellpadding="0" class="cm-header-data-table cm-so-header-data-table">
+                <tbody>
+                  <tr>
+                    <th>
+                      <a class="cursor-pointer text-underline" ng-click="vm.goToOperationList();">
+                        {{ vm.operationLabelConstant.OP }}:
+                      </a>
+                    </th>
+                    <td>
+                      <span class="cm-data">
+                        <md-tooltip ng-if="vm.formatedOpName">
+                          {{ vm.formatedOpName }}
+                        </md-tooltip>
+                        <b ng-if="vm.formatedOpName">{{vm.formatedOpName}}</b>
+                        <b ng-if="!vm.formatedOpName">-</b>
+                      </span>
+                      <copy-text ng-if="vm.formatedOpName" label="vm.operationLabelConstant.OP"
+                                 text="vm.formatedOpName"></copy-text>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div layout="row" flex layout-wrap layout-align="end center">
+        <div layout="column" class="cm-header-draft-btn" layout-wrap layout-align="center center">
+          <md-menu-bar id="user-menu">
+            <md-menu md-position-mode="left bottom">
+              <md-button class="user-button md-button md-ink-ripple white-text"
+                         ng-click="$mdOpenMenu()" aria-label="Operation Status">
+                <div layout="row" layout-align="center center">
+                  <span class="username">{{vm.getOpStatus(vm.operation.opStatus)}}</span>
+                  <md-icon md-font-icon="icon-chevron-down" class="icon s16"></md-icon>
+                </div>
+              </md-button>
+              <md-menu-content width="3">
+                <md-menu-item ng-repeat="status in vm.OpStatus | orderBy:'DisplayOrder'">
+                  <md-button ng-click="vm.changeOpStatus(status.ID, vm.operation.opStatus,$event,msWizard)">{{status.Name}}</md-button>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </md-menu-bar>
+          <div layout="row" layout-align="center center">
+            <span ng-if="vm.operationStatusLabel" class="cm-font-10 padding-bottom-8"><b>{{vm.operationStatusLabel}}</b></span>
+          </div>
+        </div>
+        <div layout="row" layout-align="center center" class="cm-square-icon-btn cm-btn-group">
+          <md-button class="md-primary md-raised md-ink-ripple"
+                     ng-if="vm.operation.opID"
+                     ng-click="vm.duplicateOperation($event)">
+            Create Duplicate Operation
+          </md-button>
+          <md-button layout-align="center center" class="md-primary md-raised" ng-click="vm.SaveOperationData(msWizard);"
+                     ng-class="{'md-formdirty': (vm.operationDetailsForm.$dirty || vm.operationInstruction.$dirty)}"
+                     ng-disabled="vm.saveDisable"
+                     ng-if="vm.tabName == vm.OperationMasterTabs.Details.Name || vm.tabName == vm.OperationMasterTabs.DoDont.Name">
+            <!--ng-if="!vm.IsDocumentTab && !vm.IsDataFieldTab && !vm.IsSupplyMaterialtab && !vm.IsEquipmentToolsTab && !vm.IsEmployeeTab && !vm.IsTemplateTab">-->
+            <!--ng-disabled="msWizard.currentStepInvalid() || !vm.checkFormDirty(msWizard.currentStepForm(),vm.checkDirtyObject) && ((vm.selectedTabIndex == 0 && !vm.isChange)||vm.selectedTabIndex != 0)"-->
+            Save
+          </md-button>
+          <md-menu-bar ng-if="vm.operation.opID" class="pv-0" layout-align="start-center" layout="row">
+            <md-menu md-position-mode="left bottom">
+              <md-button class="md-primary  md-icon-button pr-20" ng-click="vm.openMenu($mdMenu,$event)"
+                         aria-label="User settings" md-prevent-menu-close="md-prevent-menu-close">
+                <md-icon md-font-icon="icon-dots-vertical" class="icon s24"></md-icon>
+              </md-button>
+              <md-menu-content width="3">
+                <md-menu-item>
+                  <a ng-click="vm.deleteRecord($mdMenu,$event);"
+                     ng-disabled="!vm.operation.opID" class="md-button toolbar-menu"
+                     ng-class="{'item-disabled': !vm.operation.opID}">
+                    <md-icon md-font-icon="icon-trash" class="icon s24"></md-icon>
+                    Delete Operation
+                  </a>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </md-menu-bar>
+        </div>
+      </div>
+    </div>
+    <!-- / CONTENT HEADER -->
+    <!-- CONTENT CARD -->
+    <div class="content-card padding-top-side" layout="row" flex="100">
+      <div layout="row" flex="100">
+        <!-- FORM WIZARD -->
+        <div flex>
+          <md-tabs validate-step="true" is-valid="vm.isStepValid" class="fielddetail custom-scroll manage-operation-tabing" md-dynamic-height id="manage-operation-tabing"
+                   md-selected="vm.selectedTabIndex">
+            <md-tab md-on-select="vm.onTabChanges(vm.OperationMasterTabs.Details.Name,msWizard)" ng-disabled="!vm.pageTabRights.DetailsTab">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="vm.operationDetailsForm.$invalid">1</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.operationDetailsForm.$valid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span class="ms-form-wizard-step-text">Details</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div ng-if="vm.tabName == vm.OperationMasterTabs.Details.Name && vm.isDetailsLoaded">
+                  <operation-details operation-data="vm.operation"></operation-details>
+                </div>
+              </md-tab-body>
+            </md-tab>
+            <md-tab ng-disabled="vm.operationDetailsForm.$invalid || !vm.operation.opID || !vm.pageTabRights.DoDontTab"
+                    md-on-select="vm.onTabChanges(vm.OperationMasterTabs.DoDont.Name,msWizard)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="vm.operationInstruction.$invalid">2</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.operationInstruction.$valid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span class="ms-form-wizard-step-text">Do's & Don'ts</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div ng-if="vm.tabName == vm.OperationMasterTabs.DoDont.Name && vm.isDetailsLoaded">
+                  <operation-dodont operation-data="vm.operation"></operation-dodont>
+                </div>
+              </md-tab-body>
+            </md-tab>
+            <md-tab ng-disabled="vm.operationDetailsForm.$invalid || !vm.operation.opID || vm.operationInstruction.$invalid || !vm.pageTabRights.DocumentsTab"
+                    md-on-select="vm.onTabChanges(vm.OperationMasterTabs.Documents.Name,msWizard)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="operationDocuments.$invalid">3</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.operation.opID">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span class="ms-form-wizard-step-text">Documents</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div ng-if="vm.tabName == vm.OperationMasterTabs.Documents.Name">
+                  <form name="operationDocuments" class="padding-10-imp cm-document-common" ms-form-wizard-form novalidate>
+                    <!--<div ng-if="vm.IsDocumentTab">-->
+                    <documents entity="vm.entityName" ref-trans-id="vm.operation.opID" is-title="null"></documents>
+                  </form>
+                </div>
+              </md-tab-body>
+            </md-tab>
+            <md-tab ng-disabled="vm.operationDetailsForm.$invalid || !vm.operation.opID || vm.operationInstruction.$invalid || !vm.pageTabRights.DataFieldsTab"
+                    md-on-select="vm.onTabChanges(vm.OperationMasterTabs.DataFields.Name,msWizard)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="operationDataFields.$invalid">4</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="operationDataFields.$valid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span class="ms-form-wizard-step-text">Data Fields</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div ng-if="vm.tabName == vm.OperationMasterTabs.DataFields.Name">
+                  <operation-datafields operation-id="vm.operation.opID"></operation-datafields>
+                </div>
+              </md-tab-body>
+            </md-tab>
+            <md-tab ng-disabled="vm.operationDetailsForm.$invalid || !vm.operation.opID || vm.operationInstruction.$invalid || operationDataFields.$invalid || !vm.pageTabRights.PartsTab"
+                    md-on-select="vm.onTabChanges(vm.OperationMasterTabs.Parts.Name,msWizard)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="operationParts.$invalid">5</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="operationParts.$valid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span class="ms-form-wizard-step-text">{{vm.SupplyMaterialtab}}</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div ng-if="vm.tabName == vm.OperationMasterTabs.Parts.Name">
+                  <operation-parts operation-id="vm.operation.opID"></operation-parts>
+                </div>
+              </md-tab-body>
+            </md-tab>
+            <md-tab ng-disabled="vm.operationDetailsForm.$invalid || !vm.operation.opID || vm.operationInstruction.$invalid || operationDataFields.$invalid || operationParts.$invalid || !vm.pageTabRights.EquipmentsTab"
+                    md-on-select="vm.onTabChanges(vm.OperationMasterTabs.Equipments.Name,msWizard)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="operationEquipments.$invalid">6</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="operationEquipments.$valid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span class="ms-form-wizard-step-text">{{vm.EquipmentToolsTab}}</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div ng-if="vm.tabName == vm.OperationMasterTabs.Equipments.Name">
+                  <operation-equipments operation-id="vm.operation.opID"></operation-equipments>
+                </div>
+              </md-tab-body>
+            </md-tab>
+            <md-tab ng-disabled="vm.operationDetailsForm.$invalid || !vm.operation.opID || vm.operationInstruction.$invalid || operationDataFields.$invalid || operationEquipments.$invalid || operationParts.$invalid || !vm.pageTabRights.EmployeesTab"
+                    md-on-select="vm.onTabChanges(vm.OperationMasterTabs.Employees.Name,msWizard)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="operationEmployee.$invalid">7</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="operationEmployee.$valid && vm.operation.opID">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span class="ms-form-wizard-step-text">{{vm.EmployeeTab}}</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div ng-if="vm.tabName == vm.OperationMasterTabs.Employees.Name">
+                  <operation-employees operation-id="vm.operation.opID"></operation-employees>
+                </div>
+              </md-tab-body>
+            </md-tab>
+            <!--<md-tab ng-if="vm.isPublishDisabled" ng-disabled="vm.operationDetailsForm.$invalid || !vm.operation.opID || vm.operationInstruction.$invalid || operationDataFields.$invalid || operationEquipments.$invalid || operationParts.$invalid || operationEmployee.$invalid " md-on-select="vm.onTabChanges(vm.TemplateAllocation,msWizard)">-->
+            <md-tab ng-disabled="vm.operationDetailsForm.$invalid || !vm.operation.opID || vm.operationInstruction.$invalid || operationDataFields.$invalid || operationEquipments.$invalid || operationParts.$invalid || operationEmployee.$invalid || !vm.pageTabRights.TemplatesTab"
+                    md-on-select="vm.onTabChanges(vm.OperationMasterTabs.Templates.Name,msWizard)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="templateAllocation.$invalid">8</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="templateAllocation.$valid && vm.operation.opID">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span class="ms-form-wizard-step-text">Allocate Templates</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div ng-if="vm.tabName == vm.OperationMasterTabs.Templates.Name">
+                  <operation-templates operation-id="vm.operation.opID"></operation-templates>
+                </div>
+              </md-tab-body>
+            </md-tab>
+          </md-tabs>
+        </div>
+      </div>
+    </div>
+    <!-- / CONTENT CARD -->
+  </ms-form-wizard>
+</div>

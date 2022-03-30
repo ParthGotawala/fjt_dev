@@ -1,0 +1,243 @@
+<md-dialog aria-label="manage-rfq-lineitem-headers" flex="95" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.manufacturerMapping">
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>{{vm.type==vm.mfgType.MFG?vm.isCustOrDisty?vm.LabelConstant.Customer:vm.LabelConstant.Manufacturer:vm.LabelConstant.Supplier}} Status</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding" layout="column">
+      <md-content class="md-padding custom-scroll">
+        <ms-form-wizard flex>
+          <md-tabs validate-step="true" is-valid="vm.isStepValid" class="fielddetail manage-department-tabing padding-0"
+                   md-dynamic-height md-selected="msWizard.selectedIndex">
+            <md-tab md-on-select="vm.onTabChanges(msWizard)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-text">Mapping Pending ({{vm.apiErrorList.length}})</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div layout="row" flex="40" flex-lg="50" flex-sm="100">
+                  <div class="cm-section-main border-0" layout="row" layout-wrap flex="100">
+                    <div class="cm-section-inner" flex="100">
+                      <div flex="100" layout="row" class="padding-10 layout-row flex-100 cm-padding-left-5-imp">
+                        <div class="input-wrapper">
+                          <div layout="row">
+                            <p class="label-container">Search</p>
+                            <md-radio-group class="margin-left-15" layout="row" ng-model="vm.allMfgsModel.searchType" ng-change="vm.changeSearchType()">
+                              <md-radio-button ng-value="vm.CustomSearchTypeForList.Contains" class="md-primary margin-top-0">Contains</md-radio-button>
+                              <md-radio-button ng-value="vm.CustomSearchTypeForList.Exact" class="md-primary margin-right-10 margin-top-0">Exact</md-radio-button>
+                            </md-radio-group>
+                          </div>
+                        </div>
+                        <div layout="row" flex>
+                          <div layout="row" class="input-wrapper" flex>
+                            <md-input-container class="margin-top-0 md-block margin-right-10" flex="100" md-no-float>
+                              <input type="text" name="search" ng-model="vm.allMfgsModel.searchText"
+                                     placeholder="Type here to search" maxlength="100" ng-change="vm.searchPendingList(vm.allMfgsModel.searchText)"
+                                     ng-model-options="{debounce: vm.debounceTime }">
+                            </md-input-container>
+                          </div>
+                          <div>
+                            <md-button class="md-primary md-raised margin-0 margin-left-5-imp" ng-click="vm.removeErrorListFilter(true);"
+                                       aria-label="Reset">Reset</md-button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <md-card class="margin-0 cm-mfg-grid-title" layout="column" layout-align="space-between stretch" flex="100"
+                         ng-if="(!vm.isNoDataFound)">
+                  <md-table-container flex="100" class="mh-10 mb-10">
+                    <table md-table class="md-data-table table-row-select cm-manufacturer-table" md-row-select ng-model="vm.selectedItems">
+                      <thead md-head md-order="vm.errorOrder">
+                        <tr md-row>
+                          <th class="cm-mnf-action" md-column>Action</th>
+                          <th class="cm-mnf-no">#</th>
+                          <th class="cm-mnf-ex-name" md-column md-order-by="importMfg">Import {{vm.type==vm.mfgType.MFG?vm.isCustOrDisty?vm.LabelConstant.Customer:vm.LabelConstant.MFG:vm.LabelConstant.Supplier}} Name</th>
+                          <th class="cm-mnf-action" md-column>Delete</th>
+                        </tr>
+                      </thead>
+                      <tbody md-body>
+                        <tr md-row ng-repeat="item in vm.apiErrorList | orderBy: vm.errorOrder">
+                          <td class="text-left cm-mnf-action icon-square md-cell">
+                            <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-if="!item.isVerified" ng-click="vm.addMFG(item, vm.addNewFlag, $event)">
+                              <md-tooltip md-direction="top">Add As {{vm.type==vm.mfgType.MFG?vm.isCustOrDisty?vm.LabelConstant.Customer:vm.LabelConstant.Manufacturer:vm.LabelConstant.Supplier}}</md-tooltip>
+                              <md-icon md-font-icon class="icon s18" ng-class="{'t-icons-manufacturer': vm.type==vm.mfgType.MFG && !vm.isCustOrDisty,
+                                       't-icons-customer':vm.type==vm.mfgType.MFG && vm.isCustOrDisty,
+                                       't-icons-supplier': vm.type!==vm.mfgType.MFG}"></md-icon>
+                            </md-button>
+                          </td>
+                          <td class="cm-mnf-no"> {{$index + 1}} </td>
+                          <td class="cm-mnf-ex-name md-cell">
+                            <div layout>
+                              {{item.importMfg}}
+                              <span ng-if="item.importMfg" class="cm-ml-auto"
+                                    ng-click="vm.gotoGoogle(item.importMfg)">
+                                <img role="img" class="height-20" ng-src="{{vm.googleImage}}" />
+                                <md-tooltip md-direction="top">Search Google</md-tooltip>
+                              </span>
+                            </div>
+                          </td>
+                          <td class="text-left cm-mnf-action icon-square">                            
+                            <md-button class="md-mini md-icon-button margin-0"
+                                       ng-click="vm.removeAliasFromList($event, item,false)">
+                              <md-icon md-font-icon="icon-trash"></md-icon><md-tooltip>Delete</md-tooltip>
+                            </md-button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </md-table-container>
+                  <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+                       ng-if="(vm.apiErrorList| filter: vm.errorSearch).length == 0 ">
+                    <div class="emty-icon" flex="100">
+                      <img ng-src="{{vm.empty.IMAGEURL}}" />
+                    </div>
+                    <p class="empty-state-title" flex="100">{{vm.empty.MESSAGE}}</p>
+                  </div>
+                </md-card>
+              </md-tab-body>
+            </md-tab>
+            <md-tab md-on-select="vm.onTabChanges(msWizard)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-text">Mapped List ({{vm.apiVerificationList.length}})</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div layout="row" flex="40" flex-lg="50" flex-sm="100">
+                  <div class="cm-section-main border-0" layout="row" layout-wrap flex="100">
+                    <div class="cm-section-inner" flex="100">
+                      <div flex="100" layout="row" class="padding-10 layout-row flex-100 cm-padding-left-5-imp">
+                        <div class="input-wrapper">
+                          <div layout="row">
+                            <p class="label-container">Search</p>
+                            <md-radio-group class="margin-left-15" layout="row" ng-model="vm.allMappedMfgsModel.searchType" ng-change="vm.changeSearchType()">
+                              <md-radio-button ng-value="vm.CustomSearchTypeForList.Contains" class="md-primary margin-top-0">Contains</md-radio-button>
+                              <md-radio-button ng-value="vm.CustomSearchTypeForList.Exact" class="md-primary margin-right-10 margin-top-0">Exact</md-radio-button>
+                            </md-radio-group>
+                          </div>
+                        </div>
+                        <div layout="row" flex>
+                          <div layout="row" class="input-wrapper" flex>
+                            <md-input-container class="margin-top-0 md-block margin-right-10" flex="100" md-no-float>
+                              <input type="text" name="search" ng-model="vm.allMappedMfgsModel.searchText"
+                                     placeholder="Type here to search" maxlength="100" ng-change="vm.searchMappedList(vm.allMappedMfgsModel.searchText)"
+                                     ng-model-options="{debounce: vm.debounceTime }">
+                            </md-input-container>
+                          </div>
+                          <div>
+                            <md-button class="md-primary md-raised margin-0 margin-left-5-imp" ng-click="vm.removeVerifyListFilter(true);"
+                                       aria-label="Reset">Reset</md-button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <md-card class="margin-0 cm-mfg-grid-title" layout="column" layout-align="space-between stretch" flex="100" ng-if="(!vm.isNoDataFound)">
+                  <md-table-container flex="100" class="mh-10 mb-10">
+                    <table md-table class="md-data-table table-row-select cm-manufacturer-table" md-row-select ng-model="vm.selectedItems">
+                      <thead md-head md-order="vm.mappedOrder">
+                        <tr md-row>
+                          <th class="cm-mnf-action" md-column>Action</th>
+                          <th class="cm-mnf-no">#</th>
+                          <th class="cm-mnf-code" md-column md-order-by="mfgCode">{{vm.type==vm.mfgType.MFG?vm.isCustOrDisty?vm.LabelConstant.Customer:vm.LabelConstant.MFG:vm.LabelConstant.Supplier}} Code </th>
+                          <th class="cm-mnf-name" md-column md-order-by="mfgName">{{vm.type==vm.mfgType.MFG?vm.isCustOrDisty?vm.LabelConstant.Customer:vm.LabelConstant.MFG:vm.LabelConstant.Supplier}} Name</th>
+                          <th class="cm-mnf-ex-name" md-column md-order-by="importMfg">Import {{vm.type==vm.mfgType.MFG?vm.isCustOrDisty?vm.LabelConstant.Customer:vm.LabelConstant.MFG:vm.LabelConstant.Supplier}} Name</th>
+                          <th class="cm-mnf-customer-type" md-column md-order-by="customerType" ng-if="vm.type === vm.mfgType.MFG">Current Status(Manufacturer/Customer)</th>
+                          <th class="cm-mnf-action" md-column>Delete</th>
+                        </tr>
+                      </thead>
+                      <tbody md-body>
+                        <tr md-row ng-repeat="item in vm.apiVerificationList | orderBy: vm.mappedOrder">
+                          <td class="text-left cm-mnf-action md-cell">
+                            <button class="md-raised md-icon-button ">
+                              <md-icon md-font-icon="icon-eye"></md-icon>
+                              <md-tooltip md-direction="top" class="tt-multiline">
+                                Added By: {{item.employeeName}} <br />
+                                Added On: {{item.createdAt}}
+                              </md-tooltip>
+                            </button>
+                            <md-button class="md-mini md-icon-button margin-0"
+                                       ng-click="vm.viewWhereUsed(item, $event)">
+                              <md-icon md-font-icon="icon-history"></md-icon><md-tooltip>Where Used</md-tooltip>
+                            </md-button>
+                            <i style="vertical-align: middle;" class="icon-check-circle checked font-size-36 green-fg margin-left-5">
+                              <md-tooltip md-direction="top">Resolved</md-tooltip>
+                            </i>
+                          </td>
+                          <td class="cm-mnf-no"> {{$index + 1}} </td>
+                          <td class="cm-mnf-code">
+                            <span>
+                              <a class="cm-text-decoration" ng-click="vm.type==vm.mfgType.MFG?vm.goToManufactureOrCustomer(item):vm.goToSupplierDetail(item.mfgCodeID)">
+                                <span>{{item.mfgCode}}</span>
+                              </a>
+                            </span>
+                          </td>
+                          <td class="cm-mnf-name">
+                            <span>
+                              <a class="cm-text-decoration" ng-click="vm.type==vm.mfgType.MFG?vm.goToManufactureOrCustomer(item):vm.goToSupplierDetail(item.mfgCodeID)">
+                                <span>{{item.mfgName}}</span>
+                              </a>
+                            </span>
+                          </td>
+                          <td class="cm-mnf-ex-name md-cell">
+                            <div layout>
+                              {{item.importMfg}}
+                              <span ng-if="item.importMfg" class="cm-ml-auto"
+                                    ng-click="vm.gotoGoogle(item.importMfg)">
+                                <img role="img" class="height-20" ng-src="{{vm.googleImage}}" />
+                                <md-tooltip md-direction="top">Search Google</md-tooltip>
+                              </span>
+                            </div>
+                          </td>
+                          <td class="cm-mnf-customer-type" ng-if="vm.type === vm.mfgType.MFG">
+                            <div class="ui-grid-cell-contents text-left" style="width:100%; float:left; overflow:hidden;">
+                              <span class="label-box" ng-class="vm.getMFGTypeCurrStatusClassName(item.isCustOrDistyText)">
+                                {{item.isCustOrDistyText}}
+                              </span>
+                            </div>
+                          </td>
+                          <td class="text-left cm-mnf-action">
+                            <md-button class="md-mini md-icon-button margin-0" ng-disabled="(!vm.isAllowDeleteCustSuppAlias && item.mfgCodeAliasID) || item.isSystemGenerated"
+                                       ng-click="vm.removeAliasFromList($event, item, true)">
+                              <md-icon md-font-icon="icon-trash"></md-icon><md-tooltip>Delete</md-tooltip>
+                            </md-button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </md-table-container>
+                  <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+                       ng-if="(vm.apiVerificationList| filter: vm.errorSearch).length == 0 ">
+                    <div class="emty-icon" flex="100">
+                      <img ng-src="{{vm.empty.IMAGEURL}}" />
+                    </div>
+                    <p class="empty-state-title" flex="100">{{vm.empty.MESSAGE}}</p>
+                  </div>
+                </md-card>
+              </md-tab-body>
+            </md-tab>
+          </md-tabs>
+        </ms-form-wizard>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row" layout-wrap layout-align="space-between center">
+      <span flex flex-sm="100" ng-bind-html="vm.messageMapped"></span>
+      <div layout="row" flex="nogrow" layout-align-sm="end end" flex-sm="100">
+        <md-button class="md-primary md-raised" ng-click="vm.getDerivedManufacturerList()">Refresh</md-button>
+        <md-button class="md-default md-raised" ng-click="vm.cancel(false)">{{vm.checkContinue()?'Cancel':'Close'}}</md-button>
+        <md-button class="md-primary md-raised" ng-click="vm.appendMFRDetail()">Append {{vm.type==vm.mfgType.MFG?vm.isCustOrDisty?vm.LabelConstant.Customer:vm.LabelConstant.MFG:vm.LabelConstant.Supplier}}</md-button>
+        <!--<md-button class="md-primary md-raised" ng-click="vm.cancel(false)">OK</md-button>-->
+        <md-button class="md-primary md-raised" ng-click="vm.cancel(true)">Clear List & Import New</md-button>
+      </div>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

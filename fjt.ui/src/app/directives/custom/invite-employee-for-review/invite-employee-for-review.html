@@ -1,0 +1,135 @@
+<div flex="100" class="cm-custom-label-common">
+  <div flex="100" layout="row">
+    <fieldset flex="100" class="container-box mt-5">
+      <legend class="margin-0">Review Group Member(s)</legend>
+      <div flex="100" flex-xs="100" class="margin-bottom-10 padding-top-15 cm-section-main" layout="row" layout-wrap>
+        <div class="cm-section-inner" flex="100">
+          <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+            <tbody>
+              <tr>
+                <th><p class="label-container">Invite User(s)<span>&nbsp;</span></p></th>
+                <td>
+                  <md-input-container class="md-block margin-top-0 margin-bottom-0" flex="100">
+                    <md-contact-chips flex="100" flex-xs="100" layout="row" ng-model="employeeReviewList" class="cm-invite-name mb-5"
+                                      ng-class="{'readonly-chip': (vm.isRequiredToChkInviteValidation && !vm.isaccess) || vm.isDisableToAccess}"
+                                      md-contacts="(vm.isRequiredToChkInviteValidation && !vm.isaccess) || vm.isDisableToAccess ? '' : vm.querySearch($query)"
+                                      md-contact-name="name"
+                                      md-contact-image="ProfilePic"
+                                      md-contact-email=""
+                                      md-require-match="true"
+                                      md-highlight-flags="i"
+                                      filter-selected="vm.filterSelected"
+                                      placeholder="{{vm.LabelConstant.SelectDataFrom.contactChipsSelect}}"
+                                      secondary-placeholder="{{vm.LabelConstant.SelectDataFrom.contactChipsSelect}}">
+                    </md-contact-chips>
+                    <span class="padding-top-5" ng-if="woDetails.woSubStatus == vm.WoSubStatusConst.DRAFT"><b>Hint: Work Order status must be other than "Draft" to invite user(s).</b></span><br />
+                    <span class="padding-top-5" ng-if="isCoowner"><b>{{vm.CORE_MESSAGE_CONSTANT.WO_INVITE_USER_NOTE}}</b></span>
+                  </md-input-container>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div flex="100" layout="row" class="cm-section-main mb-6" layout-wrap ng-if="employeeReviewList.length > 0">
+        <div class="cm-section-inner" flex="100">
+          <table cellspacing="0" cellpadding="0" class="cm-table-input-main dataTable row-border cm-invite-table">
+            <thead>
+              <tr>
+                <th class="cm-invite-th-1">User(s)</th>
+                <th class="cm-invite-th-3 cm-white-space-normal">Review Comments Requested Date</th>
+                <th class="cm-invite-th-3">Review Response</th>
+                <th class="cm-invite-th-4">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="inviteoptional-main" ng-if="employeeReviewList.length > 0" ng-repeat="inviteEmployee in employeeReviewList track by $index">
+                <th class="padding-0 align-vertical">
+                  <p class="label-container padding-left-0-imp margin-bottom-0 justify-content-start">
+                    <md-input-container class="margin-0" layout="row" layout-align="start center">
+                      {{inviteEmployee.empFullName}}
+                    </md-input-container>
+                    <span>&nbsp;</span>
+                  </p>
+                </th>
+                <td>
+                  <md-input-container class="datetimepicker-custom padding-right-0-imp">
+                    <input type="text" class="float-left"
+                           id="datetime{{$index}}"
+                           name="datetime{{$index}}"
+                           min-value="inviteEmployee.woRevReqInvitedID ? '' : vm.todayDate"
+                           max-value-is-today-date="inviteEmployee.woRevReqInvitedID ? false : true"
+                           allow-past-date="true"
+                           allow-future-date="true"
+                           datetime-picker="{{$root.dateTimeDisplayFormat}}"
+                           ui-mask-placeholder="{{$root.uimaskFormat.datetime.placeholder}}"
+                           ng-model="inviteEmployee.timeLine"
+                           datepicker-options="inviteEmployee.dateTimeOptions"
+                           is-open="inviteEmployee.dateTimeOpenFlag"
+                           ui-mask="{{$root.uimaskFormat.datetime.mask}}"
+                           model-view-value="true"
+                           enable-date="true"
+                           close-text="Close"
+                           enable-time="true"
+                           ng-disabled="(vm.isRequiredToChkInviteValidation && !vm.isaccess) || vm.isDisableToAccess" />
+                    <md-icon md-font-icon="icon-calendar calender-icon"
+                             ng-click="inviteEmployee.dateTimeOpenFlag = vm.isRequiredToChkInviteValidation && !vm.isaccess ? false : true">
+                    </md-icon>
+                    <div class="error-msg"
+                         ng-messages="currActiveForm['datetime'+$index].$error" role="alert" style="padding-left:0px !important;">
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                      <div ng-message="datetime">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </td>
+                <td class="inviteoptional">
+                  <md-input-container>
+                    <md-radio-group name="isCompulsory" ng-model="inviteEmployee.isCompulsory" class="margin-left-0"
+                                    ng-disabled="(vm.isRequiredToChkInviteValidation && !vm.isaccess) || vm.isDisableToAccess">
+                      <md-radio-button ng-value="true" class="margin-top-0">Mandatory</md-radio-button>
+                      <md-radio-button ng-value="false" class="margin-top-0">Optional</md-radio-button>
+                    </md-radio-group>
+                  </md-input-container>
+                </td>
+                <td class="inviteoptional">
+                  <md-button class="cm-btn-align md-primary md-raised md-mini mh-0" ng-disabled="(vm.isRequiredToChkInviteValidation && !vm.isaccess) || vm.isDisableToAccess"
+                             ng-click="vm.removeEmployeeFromInviteList(inviteEmployee)">
+                    Delete
+                  </md-button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+  <style>
+
+    .readonly-chip md-chips-wrap {
+      box-shadow: none;
+      cursor: not-allowed !important;
+    }
+
+      .readonly-chip md-chips-wrap button.md-chip-remove {
+        display: none;
+        cursor: not-allowed !important;
+      }
+
+      .readonly-chip md-chips-wrap .md-chip-input-container md-autocomplete {
+        display: none;
+        cursor: not-allowed !important;
+      }
+
+    .readonly-chip .md-chips.md-removable md-chip {
+      cursor: not-allowed !important;
+      pointer-events: none !important;
+    }
+  </style>
+</div>
+
+

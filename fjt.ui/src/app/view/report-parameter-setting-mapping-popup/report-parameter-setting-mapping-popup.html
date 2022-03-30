@@ -1,0 +1,96 @@
+<md-dialog aria-label="manage-rfq-lineitem-headers cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" class="max-height-90p width-100p" draggable>
+  <form name="vm.manageReportParameterForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>Report Filter Parameter</h2>
+        <span flex></span>
+        <popup-header-label></popup-header-label>
+        <md-checkbox class="margin-right-5 md-primary" ng-model="vm.isSelectAll" name="IsSelected" ng-change="vm.selectAll()" ng-checked="vm.isSelectAll ? true : false">
+        </md-checkbox>
+        <h2>Select All</h2>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="no-padding" layout="column">
+      <md-content class="padding-10">
+        <div layout="row" flex="100" class="margin-vertical-5" layout-wrap>
+          <div layout="row" flex="100" layout-wrap>
+            <div flex="33" ng-repeat="item in vm.parameterList | limitTo:3">
+              <div layout="row" flex="100" layout-wrap class="border mr-5 ml-5 padding-5 cm-bg-light-green">
+                <div flex="15" class="text-center cell-border">
+                </div>
+                <div flex="35">User Parameter</div>
+                <div flex="35">Report Parameter</div>
+                <div flex="15" class="text-center">User Can Select</div>
+              </div>
+            </div>
+          </div>
+          <div layout="row" flex="100" layout-wrap>
+            <div flex="33" ng-repeat="item in vm.parameterList | filter:{inputType :'!dateRange'} | orderBy:'displayOrder'">
+              <div layout="row" flex="100" class="border mr-5 ml-5" layout-wrap ng-if="item.inputType !== 'dateRange'">
+                <div flex="15" class="text-center padding-5">
+                  <md-checkbox ng-model="item.isSelected" id="isSelected{{$index}}" ng-change="vm.selectParameter()"
+                               name="IsSelected" class="margin-0" ng-checked="item.isSelected ? true : false" md-auto-focus="{{$index}} === 0">
+                  </md-checkbox>
+                </div>
+                <div flex="35" class="text-left padding-5">
+                  <span class="value">
+                    {{item.displayName}}
+                  </span>
+                </div>
+                <div flex="35" class="text-left padding-5">
+                  <span class="value">
+                    {{item.reportParamName}}
+                  </span>
+                </div>
+                <div flex="15" class="text-center padding-5">
+                  <md-checkbox ng-model="item.isRequired" ng-disable=""
+                               name="IsRequired" class="margin-0" ng-disabled="!item.isSelected" ng-checked="item.isRequired && item.isSelected ? true : false">
+                  </md-checkbox>
+                </div>
+              </div>
+            </div>
+
+            <div flex="33" ng-repeat="item in vm.parameterList | filter:{inputType :'dateRange'} | orderBy:'displayOrder'">
+              <div layout="row" flex="100" class="border mr-5 ml-5" layout-wrap>
+                <div layout="row" flex="100" layout-wrap ng-repeat="daterange in vm.dateRangeObj | orderBy:'displayOrder' :true">
+                  <div flex="15" class="text-center  padding-5">
+                    <md-checkbox ng-model="daterange.isSelected" id="isSelected{{$index}}" ng-change="vm.selectParameter()" ng-if="!(daterange.dbColumnName == vm.fromDateDbColumn ||daterange.dbColumnName == vm.toDateDbColumn)"
+                                 name="IsSelected" class="margin-0" ng-checked="daterange.isSelected ? true : false">
+                    </md-checkbox>
+                  </div>
+                  <div flex="35" class="text-left padding-5">
+                    <span ng-class="{'pl-15 pr-5 mdi mdi-subdirectory-arrow-right': daterange.dbColumnName == vm.fromDateDbColumn || daterange.dbColumnName == vm.toDateDbColumn }"></span>
+                    <span class="value">
+                      {{daterange.displayName}}
+                    </span>
+                  </div>
+                  <div flex="35" class="text-left padding-5">
+                    <span class="value" ng-class="{'pl-15': daterange.dbColumnName == vm.fromDateDbColumn || daterange.dbColumnName == vm.toDateDbColumn }">
+                      {{daterange.reportParamName}}
+                    </span>
+                  </div>
+                  <div flex="15" class="text-center  padding-5">
+                    <md-checkbox ng-model="daterange.isRequired" ng-disable="" ng-if="!(daterange.dbColumnName == vm.fromDateDbColumn ||daterange.dbColumnName == vm.toDateDbColumn)"
+                                 name="IsRequired" class="margin-0" ng-disabled="!daterange.isSelected" ng-checked="daterange.isRequired && daterange.isSelected ? true : false">
+                    </md-checkbox>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <!--</div>-->
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.saveReportParameterSettings()"
+                 ng-class="{'md-formdirty': vm.manageReportParameterForm.$dirty}">Save</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

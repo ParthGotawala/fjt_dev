@@ -1,0 +1,301 @@
+<md-dialog aria-label="Assign rights And Features" cg-busy="{promise:vm.cgBusyLoading}" class="operation-pop-main cm-popup-height cm-custom-label-common" draggable>
+    <!-- CONTENT -->
+    <form name="vm.SelectUser" novalidate>
+      <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+      <!-- HEADER SECTION -->
+      <md-toolbar>
+        <div class="md-toolbar-tools">
+          <h2>{{vm.title}}</h2>
+          <span flex></span>
+          <span layout="row" layout-align="start center">
+            <span class="lableheader cm-header-label" layout="row" layout-align="start center" ng-if="vm.isActionSelected === vm.constantAssignRightsAndFeatures.VIEW || vm.isActionSelected === vm.constantAssignRightsAndFeatures.EDIT">
+              <span ng-if="vm.selectedCriteria === vm.constantAssignRightsAndFeatures.PERMISSIONS">{{vm.constantAssignRightsAndFeatures.SelectedPage}}:&nbsp</span>
+              <span ng-if="vm.selectedCriteria === vm.constantAssignRightsAndFeatures.FEATURES">{{vm.constantAssignRightsAndFeatures.SelectedFeature}}:&nbsp</span>
+              <span class="cm-text-ellipsis"><b ng-if="vm.selectedPageOrFeature.pageOrFeatureName"><a class="cm-text-decoration">{{vm.selectedPageOrFeature.pageOrFeatureName}}</a></b></span>
+            </span>
+          </span>
+          <md-button class="md-icon-button" ng-if="vm.isActionSelected !== vm.constantAssignRightsAndFeatures.VIEW" ng-click="vm.cancel()">
+            <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+          </md-button>
+          <md-button class="md-icon-button" ng-if="vm.isActionSelected === vm.constantAssignRightsAndFeatures.VIEW" ng-click="vm.close()">
+            <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+          </md-button>
+        </div>
+      </md-toolbar>
+
+      <!-- CONTENT SECTION -->
+      <md-dialog-content layout="column" flex class="customer-modal no-padding custom-scroll">
+        <!-- Main Content -->
+        <md-content class="md-padding" layout="column" flex>
+          <div class="cm-section-main mt-5">
+            <div class="cm-section-inner">
+              <table class="cm-table-input-main">
+                <tr>
+                  <th>
+                    <p class="label-container">{{vm.constantAssignRightsAndFeatures.Select}}&nbsp
+                      <a class="cm-text-decoration"  ng-click="vm.goToAddRole(user.id);">{{vm.constantAssignRightsAndFeatures.Role}}</a>
+                    :</p>
+                  </th>
+                  <td>
+                    <md-input-container ng-if="vm.autoCompleteRoles" class="autocompletecustom" flex-xs="100">
+                      <custom-auto-complete datalist="vm.roles"
+                                            column-name="vm.autoCompleteRoles.columnName"
+                                            key-column-name="vm.autoCompleteRoles.keyColumnName"
+                                            input-name="vm.autoCompleteRoles.inputName"
+                                            placeholder-name="vm.autoCompleteRoles.placeholderName"
+                                            key-column-id="vm.autoCompleteRoles.keyColumnId"
+                                            is-required="vm.autoCompleteRoles.isRequired"
+                                            is-addnew="vm.autoCompleteRoles.isAddnew"
+                                            is-disabled="vm.disableAutocomplete"
+                                            callback-fn="vm.autoCompleteRoles.callbackFn"
+                                            on-select-callback-fn="vm.autoCompleteRoles.onSelectCallbackFn"
+                                            custom-auto-focus="{{true}}">
+                      </custom-auto-complete>
+                    </md-input-container>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          
+          <fieldset class="container-box cm-section-main mt-5 p-0-imp" 
+          ng-if="vm.selectedlist && vm.selectedlist.length > 0 && vm.isActionSelected !== vm.constantAssignRightsAndFeatures.VIEW &&
+           vm.isActionSelected !== vm.constantAssignRightsAndFeatures.EDIT">
+           <legend class="margin-0" ng-if="vm.selectedCriteria == vm.constantAssignRightsAndFeatures.PERMISSIONS">Page(s)</legend>
+           <legend class="margin-0" ng-if="vm.selectedCriteria !== vm.constantAssignRightsAndFeatures.PERMISSIONS">Feature(s)</legend>
+          <div flex layout layout-wrap class="cm-overflow-auto max-height-150">
+            <div ng-repeat="item in vm.selectedlist" layout="row" layout-align="start center" 
+          class="cm-tracking-chip-mian cm-overflow-auto">
+          <div class="tracking-number-chip" layout="row" layout-align="start center">
+            <label ng-if="vm.selectedCriteria === vm.constantAssignRightsAndFeatures.PERMISSIONS">
+              {{item.menuName}}
+              <md-tooltip md-direction="top" ng-if="item.tooltip" class="tooltip-height-auto"
+                          ng-bind-html="item.tooltip">
+              </md-tooltip>
+            </label>
+            <label ng-if="vm.selectedCriteria !== vm.constantAssignRightsAndFeatures.PERMISSIONS">
+              {{item.featureName}}
+              <md-tooltip md-direction="top" ng-if="item.tooltip" class="tooltip-height-auto"
+                          ng-bind-html="item.tooltip">
+              </md-tooltip>
+            </label>
+
+            <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeAppliedFilter(item, $index)">
+              <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+              <md-tooltip ng-if="vm.selectedCriteria === vm.constantAssignRightsAndFeatures.PERMISSIONS">{{vm.constantAssignRightsAndFeatures.RemovePageFilter}}</md-tooltip>
+              <md-tooltip ng-if="vm.selectedCriteria !== vm.constantAssignRightsAndFeatures.PERMISSIONS">{{vm.constantAssignRightsAndFeatures.RemoveFeatureFilter}}</md-tooltip>
+            </md-button>
+          </div>
+          </div>
+          </div>
+        </fieldset>
+
+          <div flex layout="row" ng-if="vm.isContainMasterUser"
+               class="padding-10" layout-md="column" layout-sm="column">
+
+            <!-- Section 1 Not Assigned Employees list -->
+            <div layout="column" flex flex-xs="100" class="pr-5">
+              <div layout="row" class="mobilesearch employee-workstaion-search-box userpermissionhead" layout-align="space-between center">
+                <md-input-container class="md-block error-none no-label margin-0" md-no-float flex flex-xs="75" ng-class="{'clickedsearch':isButtonEmployeeClicked}">
+                  <input id="SearchNoAddedListUser" type="text" placeholder="Type here to search user" ng-model="vm.SearchNoAddedListUser"
+                         ng-change="vm.SearchUser(vm.SearchNoAddedListUser, vm.RoleVal, false)" ng-model-options="{ debounce: vm.debounceConstant.uiSideFilter }">
+                </md-input-container>
+              
+                <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                           ng-disabled="!vm.SearchNoAddedListUser" ng-click="vm.SearchNoAddedListUser='';vm.SearchUser(vm.SearchNoAddedListUser, vm.RoleVal, false)">
+                  {{vm.constantAssignRightsAndFeatures.Clear}}
+                </md-button>
+                <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.refreshDataUser()">
+                  {{vm.constantAssignRightsAndFeatures.Refresh}}
+                </md-button>
+                <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.addDataEmployee(null,$event)">
+                  {{vm.constantAssignRightsAndFeatures.AddNew}}
+                </md-button>
+              </div>
+
+              <!-- Display employee list which is un assign  -->
+              <md-list flex class="permissiontab custom-scroll dragbox" ng-class="{'layout-column': vm.userNoAddedList.length == 0}">
+                <md-list-item id="userNoAddedList" class="padding-0 items-container" layout="row" flex="100" layout-wrap
+                              ui-sortable="sortableOptionsUser"
+                              ng-model="vm.userNoAddedList"
+                              haveadded="false">
+                  <div flex="100" class="md-1-line margin-0 dragsortable padding-top-0 padding-bottom-0" 
+                       ng-repeat="user in vm.userNoAddedList"
+                       ui-sortable-selectable
+                       id="{{user.id}}"
+                       ng-model="user"
+                       layout="row" layout-align="start center">
+                    <div class="avatar-wrapper" ng-if="user.ProfilePic">
+                      <img class="md-avatar avatar margin-top-0 margin-bottom-0" ng-src="{{user.ProfilePic}}" />
+                    </div>
+                    <div class="md-list-item-text padding-15" layout="row" layout-wrap>
+                      <h3 class="name margin-0 md-primary-fg" flex="100">
+                          <b>
+                           <a class="cm-text-decoration"  ng-click="vm.goToUpdateEmployee(user.id);">{{user.empCodeName}}</a>
+                          </b>      
+                      </h3>                   
+                    </div>
+                  </div>
+                  <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                       ng-if="vm.userNoAddedList.length == 0"
+                       ui-sortable-selectable>
+                    <div class="empty-state text-center">
+                      <div class="emty-icon">
+                        <img ng-src="{{vm.EmptyMesssageUsers.IMAGEURL}}" />
+                      </div>
+                      <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchNoAddedListUser == null && vm.userNoAddedList.length == 0 && !vm.isRoleWisedGetUsers">
+                        {{vm.EmptyMesssageUsers.ALL_ASSIGNED}}
+                      </p>
+                      <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="(vm.SearchNoAddedListUser != null) && vm.FilterUserNotAdded != true">
+                        {{vm.EmptyMesssageUsers.EMPTY_SEARCH_MESSAGE}}
+                      </p>
+                      <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchNoAddedListUser == null && vm.userNoAddedList.length == 0 && vm.isRoleWisedGetUsers">
+                        {{vm.EmptyMesssageUsers.USER_NOT_EXISTS}}
+                      </p>
+                    </div>
+                  </div>
+                </md-list-item>
+              </md-list>
+            </div>
+
+            <!-- Buttons Add, AddAll, Remove , RemoveAll for give rights for pages or feaures -->
+            <div flex-xs="100" layout="row" layout-align="space-between center" 
+            class="cm-data-fields-buttons" ng-if="vm.isActionSelected !== vm.constantAssignRightsAndFeatures.VIEW">
+              <div flex="100" flex-xs="100" layout-xs="row" layout-md="row" layout-sm="row" layout="column" layout-align="space-between center" layout-align-md="center center" layout-align-sm="center center">
+                <md-button class="md-fab md-raised md-mini margin-20"
+                           ng-disabled="!selectAnyAddedUser"
+                           ng-mousedown="vm.updateAddedUser('Remove',$event)">
+                  <i class="icon-chevron-left icondrag"></i>
+                  <md-tooltip ng-if="selectAnyAddedUser">{{vm.constantAssignRightsAndFeatures.Remove}}</md-tooltip>
+                </md-button>
+                <md-button class="md-fab md-raised md-mini margin-20"
+                           ng-disabled="vm.userAddedList.length == 0"
+                           ng-mousedown="vm.updateAddedUser('RemoveAll',$event)">
+                  <i class="icon-chevron-double-left icondrag"></i>
+                  <md-tooltip ng-if="vm.userAddedList.length !== 0">{{vm.constantAssignRightsAndFeatures.RemoveAll}}</md-tooltip>
+                </md-button>
+                <md-button class="md-fab md-raised md-mini margin-20"
+                           ng-disabled="vm.userNoAddedList.length == 0"
+                           ng-mousedown="vm.updateAddedUser('AddAll',$event)">
+                  <i class="icon-chevron-double-right icondrag"></i>
+                  <md-tooltip ng-if="vm.userNoAddedList.length !== 0">{{vm.constantAssignRightsAndFeatures.AddAll}}</md-tooltip>
+                </md-button>
+                <md-button class="md-fab md-raised md-mini margin-20"
+                           ng-disabled="!selectAnyNoAddedUser"
+                           ng-mousedown="vm.updateAddedUser('Add',$event)">
+                  <i class="icon-chevron-right icondrag"></i>
+                  <md-tooltip ng-if="selectAnyNoAddedUser">{{vm.constantAssignRightsAndFeatures.Add}}</md-tooltip>
+                </md-button>
+              </div>
+            </div>
+
+            <!-- Section 2 Assigned Employees list -->
+            <div layout="column" flex flex-xs="100" class="pl-5">
+              <div layout="row" layout-wrap class="mobilesearch userpermissionhead" layout-align="space-between end">
+                <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75" ng-class="{'clickedsearch':isButtonEmployeeAddedClicked}">
+                  <input id="SearchAddedListUser" type="text" placeholder="Type here to search assigned user" ng-model="vm.SearchAddedListUser"
+                         ng-change="vm.SearchUser(vm.SearchAddedListUser, vm.RoleVal, true)" ng-model-options="{ debounce: vm.debounceConstant.uiSideFilter }">
+                </md-input-container>
+                <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                           ng-disabled="!vm.SearchAddedListUser"
+                           ng-click="vm.SearchAddedListUser='';vm.SearchUser(vm.SearchAddedListUser, vm.RoleVal, true)">
+                    {{vm.constantAssignRightsAndFeatures.Clear}}
+                </md-button>
+  
+              </div>
+
+              <!-- Display employee list which is assign  for selected page or feature -->
+              <md-list flex class="permissiontab custom-scroll dragbox cm-wo-list-input flex-100" ng-class="{'layout-column': vm.userAddedList.length == 0}">
+                <md-list-item id="userAddedList"
+                              class="padding-0 items-container layout-row flex-100 layout-wrap"
+                              ui-sortable="sortableOptionsUser" ng-model="vm.userAddedList"
+                              haveadded="true">
+                  <div flex="100" class="md-1-line margin-0 dragsortable padding-top-0 padding-bottom-0"
+                       ng-repeat="user in vm.userAddedList"
+                       id="{{user.id}}"
+                       ui-sortable-selectable ng-model="user"
+                       layout="row" layout-align="start center"
+                       ng-class="{'cursor-not-allow': user.id == vm.entityCreatedByEmployeeID}">
+                    <div class="avatar-wrapper" ng-if="user.ProfilePic">
+                      <img class="md-avatar avatar margin-top-0 margin-bottom-0" ng-src="{{user.ProfilePic}}" />
+                    </div>
+                    <div class="md-list-item-text padding-15 flex layout-align-space-between-center">
+                      <div class="layout-row layout-align-space-between">
+                        <div class="layout-row layout-wrap flex-lg-75 flex-70">
+                          <div class="inline-block layout-row">
+                            <h3 class="name margin-0 md-primary-fg" flex="100" ng-click="vm.goToUpdateEmployee(user.id);">
+                              <b>
+                                <a class="cm-text-decoration"  ng-click="vm.goToUpdateEmployee(user.id);">{{user.empCodeName}}</a>
+                              </b>
+                            </h3>
+                            <div class="cm-white-space-normal" ng-if="vm.isActionSelected === vm.constantAssignRightsAndFeatures.VIEW && vm.selectedCriteria === vm.constantAssignRightsAndFeatures.PERMISSIONS">
+                                <span>{{user.rolelist}}</span>
+                            </div>
+                            <div class="cm-white-space-normal" ng-if="vm.isActionSelected === vm.constantAssignRightsAndFeatures.VIEW && vm.selectedCriteria === vm.constantAssignRightsAndFeatures.FEATURES">
+                              <span>{{user.rolelist}}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                       ng-if="vm.userAddedList.length == 0"
+                       ui-sortable-selectable>
+                    <div class="empty-state text-center">
+                      <div class="emty-icon">
+                        <img ng-src="{{vm.EmptyMesssageUsers.IMAGEURL}}" />
+                      </div>
+                      <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchAddedListUser == null && vm.userAddedList.length == 0">
+                        {{vm.EmptyMesssageUsers.MESSAGE}}
+                      </p>
+                      <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchAddedListUser != null && vm.FilterUserAdded != true">
+                        {{vm.EmptyMesssageUsers.EMPTY_SEARCH_MESSAGE}} 
+                      </p>
+                    </div>
+                  </div>
+                </md-list-item>
+              </md-list>
+            </div>
+       
+          </div>
+          
+          <!-- Content for if employee list is empty -->
+          <div flex="100" class="md-1-line margin-0 cursor-not-allow" ng-if="!vm.isContainMasterUser">
+            <div class="empty-state text-center full-height">
+              <div class="emty-icon">
+                <img ng-src="{{vm.EmptyMesssageUsers.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt">
+                {{vm.EmptyMesssageUsers.MESSAGE}}
+              </p>
+              <p flex="100">
+                {{vm.EmptyMesssageUsers.ADDNEWMESSAGE}}
+              </p>
+              <p flex="100">
+                <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.addDataEmployee(null,$event)">
+                  <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+                </md-button>
+                <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.refreshDataUser()">
+                  <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-refresh"></md-icon>
+                </md-button>
+              </p>
+            </div>
+          </div>
+
+        </md-content>
+      </md-dialog-content>
+
+      <!-- Button which is used for close popup -->
+      <md-dialog-actions layout="row">
+        <md-button ng-if="vm.isActionSelected === vm.constantAssignRightsAndFeatures.VIEW" class="md-default md-raised" ng-click="vm.close('close')">{{vm.constantAssignRightsAndFeatures.Close}}</md-button>        
+        <md-button ng-if="vm.isActionSelected !== vm.constantAssignRightsAndFeatures.VIEW" class="md-default md-raised" ng-click="vm.cancel()">{{vm.constantAssignRightsAndFeatures.Cancel}}</md-button>        
+        <md-button ng-if="vm.isActionSelected !== vm.constantAssignRightsAndFeatures.VIEW" 
+          class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.close('ok')">
+        {{vm.constantAssignRightsAndFeatures.Ok}}
+      </md-button>
+      </md-dialog-actions>
+    </form>
+    <!-- / CONTENT -->
+  </md-dialog>
+  

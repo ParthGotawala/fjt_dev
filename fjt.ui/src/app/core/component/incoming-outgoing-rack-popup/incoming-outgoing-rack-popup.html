@@ -1,0 +1,234 @@
+<md-dialog aria-label="Incoming Outgoing Popup" draggable cg-busy="{promise:vm.cgBusyLoading}" class="cm-component-detail cm-custom-label-common" flex="80">
+  <form name="vm.incomingOutgoingForm" novalidate class="md-inline-form">
+    <md-toolbar ng-class="vm.themeClass">
+      <div class="md-toolbar-tools">
+        <h2>{{vm.title}}</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding" layout="column">
+      <md-content class="md-padding">
+        <div layout="row" class="margin-vertical-5" layout-wrap>
+          <div flex="100" layout="row">
+            <div class="cm-section-main margin-right-5" flex="100" layout="row">
+              <div class="cm-section-inner" flex="100" layout="column" ng-if="vm.popUpType[1].id==vm.rackObj.type">
+                <div flex="100" layout="column">
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration underline"
+                               ng-mousedown="vm.gotoRack();$event.preventDefault();">
+                              Scan Rack
+                            </a>
+                            <scan-or-enter></scan-or-enter>
+                          </p>
+                        </th>
+                        <td class="width-300">
+                          <md-input-container class="margin-bottom-0 md-block margin-top-0 scan-label-text">
+                            <input type="text" id="racknumber" name="racknumber" ng-maxlength="10"
+                                   placeholder="Scan Rack#" md-select-on-focus md-autofocus class="input-text-uppercase" capitalize
+                                   ng-model="vm.incomOutgoingDet.racknumber" ng-keyup="vm.checknextField($event)">
+                            <md-button ng-if="vm.incomOutgoingDet.racknumber" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3"
+                                       ng-click="vm.clearRack()">
+                              <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close  color-black"></md-icon>
+                            </md-button>
+                            <span flex="100" class="font-size-10">
+                              <b>{{vm.LabelConstant.ScanOREnter.ScanRack}}</b>
+                            </span>
+                            <div ng-messages="vm.incomingOutgoingForm.racknumber.$error"
+                                 role="alert">
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(10,vm.incomingOutgoingForm.racknumber.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+
+                        <td class="float-right">
+                          <md-button class="md-primary md-raised" ng-click="vm.clearRackPopup($event)">
+                            {{vm.LabelConstant.RACK_MST.ClearRack}}
+                          </md-button>
+                          <md-button class="md-primary md-raised" ng-click="vm.addRack($event)">
+                            Add Rack
+                          </md-button>
+                          <md-button class="md-primary md-raised" ng-click="vm.openEmptyRackDetail($event)">
+                            {{vm.LabelConstant.RACK_MST.EmptyRack}}
+                          </md-button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div flex="100" layout="column">
+                  <div layout="row">
+                    <fieldset class="container-box mr-5">
+                      <md-input-container class="margin-top-5 margin-bottom-5" layout="row">
+                        <md-checkbox ng-model="vm.incomOutgoingDet.pass" name="pass" id="pass"  layout="row" layout-align="start center" aria-label="pass" flex="100" ng-disabled="!vm.checkCase(vm.rackStatusDetail.Passed.id)" class="margin-top-5imp margin-bottom-5imp width-90">
+                          <span>{{vm.rackStatusDetail.Passed.status}}</span>
+                        </md-checkbox>
+                        <md-checkbox ng-model="vm.incomOutgoingDet.reprocess"  layout="row" layout-align="start center" aria-label="status" flex="100" ng-disabled="!vm.checkCase(vm.rackStatusDetail.Reprocess.id)" class="margin-top-5imp margin-bottom-5imp width-160">
+                          <span>{{vm.rackStatusDetail.Reprocess.status}}</span>
+                        </md-checkbox>
+                        <md-checkbox ng-model="vm.incomOutgoingDet.defect"  layout="row" layout-align="start center" aria-label="status" flex="100" ng-disabled="!vm.checkCase(vm.rackStatusDetail.Defect.id)" class="margin-top-5imp margin-bottom-5imp width-145">
+                          <span>{{vm.rackStatusDetail.Defect.status}}</span>
+                        </md-checkbox>
+                        <md-checkbox ng-model="vm.incomOutgoingDet.scrapp"  layout="row" layout-align="start center" aria-label="status" flex="100" ng-disabled="!vm.checkCase(vm.rackStatusDetail.Scrapped.id)" class="margin-top-5imp margin-bottom-5imp width-100">
+                          <span>{{vm.rackStatusDetail.Scrapped.status}}</span>
+                        </md-checkbox>
+                        <md-checkbox ng-model="vm.incomOutgoingDet.rework"  layout="row" layout-align="start center" aria-label="status" flex="100" ng-disabled="!vm.checkCase(vm.rackStatusDetail.Rework.id)" class="margin-top-5imp margin-bottom-5imp width-150">
+                          <span>{{vm.rackStatusDetail.Rework.status}}</span>
+                        </md-checkbox>
+                        <md-checkbox ng-model="vm.incomOutgoingDet.missingParts"  layout="row" layout-align="start center" aria-label="status" flex="100" ng-disabled="!vm.checkCase(vm.rackStatusDetail.BoardWithMissing.id) || !vm.rackObj.isAllowMissingPartQty" class="margin-top-5imp margin-bottom-5imp width-185">
+                          <span>{{vm.rackStatusDetail.BoardWithMissing.status}}</span>
+                        </md-checkbox>
+                        <md-checkbox ng-model="vm.incomOutgoingDet.bypass"  layout="row" layout-align="start center" aria-label="status" flex="100" ng-disabled="!vm.checkCase(vm.rackStatusDetail.Bypassed.id) || !vm.rackObj.isAllowBypassQty" class="margin-top-5imp margin-bottom-5imp">
+                          <span>{{vm.rackStatusDetail.Bypassed.status}}</span>
+                        </md-checkbox>
+                      </md-input-container>
+                    </fieldset>
+                    <md-button class="md-primary md-raised" ng-click="vm.outgoingRackDetail($event)" ng-class="{'md-formdirty': !((!vm.incomOutgoingDet.pass && !vm.incomOutgoingDet.reprocess && !vm.incomOutgoingDet.defect && !vm.incomOutgoingDet.scrapp && !vm.incomOutgoingDet.rework && !vm.incomOutgoingDet.missingParts && !vm.incomOutgoingDet.bypass) || !vm.incomOutgoingDet.racknumber)}" ng-disabled="(!vm.incomOutgoingDet.pass && !vm.incomOutgoingDet.reprocess && !vm.incomOutgoingDet.defect && !vm.incomOutgoingDet.scrapp && !vm.incomOutgoingDet.rework && !vm.incomOutgoingDet.missingParts && !vm.incomOutgoingDet.bypass) || !vm.incomOutgoingDet.racknumber">
+                      Save
+                    </md-button>
+                  </div>
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main margin-top-5" ng-if="vm.currentrackStatus">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.RACK_MST.CurrentWO}}:</p>
+                        </th>
+                        <td class="padding-top-3 font-size-15-imp">
+                          <b>{{vm.currentWoorkorder}}</b>
+                        </td>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.RACK_MST.CurrentOP}}:</p>
+                        </th>
+                        <td class="padding-top-2 font-size-15-imp width-440">
+                          <b>{{vm.currentOperation}}</b>
+                        </td>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.RACK_MST.AssyStatus}}:</p>
+                        </th>
+                        <td class="padding-top-3 font-size-15-imp">
+                          <b>{{vm.currentrackStatus}}</b>
+                        </td>
+                        <th>
+                          <p class="label-container">User ID:</p>
+                        </th>
+                        <td class=" padding-top-3 font-size-15-imp">
+                          <b>{{vm.currentUserName}}</b>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="cm-section-inner" flex="100" layout="column" ng-if="vm.popUpType[0].id==vm.rackObj.type">
+                <div flex="100" layout="column">
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main margin-top-10">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration underline"
+                               ng-mousedown="vm.gotoRack();$event.preventDefault();">
+                              Scan Rack
+                            </a>
+                            <scan-or-enter></scan-or-enter>
+                          </p>
+                        </th>
+                        <td class="width-300">
+                          <md-input-container class="margin-bottom-0 md-block margin-top-0 scan-label-text">
+                            <input type="text" id="racknumber" name="racknumber" ng-maxlength="10"
+                                   placeholder="Scan Rack#" md-select-on-focus md-autofocus class="input-text-uppercase" capitalize
+                                   ng-keypress="vm.scanRackLabel($event)"
+                                   ng-model="vm.incomOutgoingDet.racknumber">
+                            <md-button ng-if="vm.incomOutgoingDet.racknumber" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3"
+                                       ng-click="vm.clearRack()">
+                              <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close  color-black"></md-icon>
+                            </md-button>
+                            <span flex="100" class="font-size-10">
+                              <b>{{vm.LabelConstant.ScanOREnter.ScanRack}}</b>
+                            </span>
+                            <div ng-messages="vm.incomingOutgoingForm.racknumber.$error"
+                                 role="alert">
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(10,vm.incomingOutgoingForm.racknumber.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+
+                        <td class="float-right">
+                          <md-button class="md-primary md-raised margin-top-0" ng-click="vm.openAvailableRack()">
+                            {{vm.LabelConstant.RACK_MST.AvailableRack}}
+                          </md-button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div flex="100" layout="column">
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main margin-top-5" ng-if="vm.currentrackStatus">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.RACK_MST.CurrentWO}}:</p>
+                        </th>
+                        <td class="padding-top-3 font-size-15-imp">
+                          <b>{{vm.currentWoorkorder}}</b>
+                        </td>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.RACK_MST.CurrentOP}}:</p>
+                        </th>
+                        <td class="padding-top-2 font-size-15-imp width-440">
+                          <b>{{vm.currentOperation}}</b>
+                        </td>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.RACK_MST.OperationStatus}}:</p>
+                        </th>
+                        <td class="padding-top-3 font-size-15-imp">
+                          <b>{{vm.currentrackStatus?'Completed':'WIP'}}</b>
+                        </td>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.RACK_MST.AssyStatus}}:</p>
+                        </th>
+                        <td class="padding-top-3 font-size-15-imp">
+                          <b>{{vm.currentrackStatus}}</b>
+                        </td>
+                        <th>
+                          <p class="label-container">User ID:</p>
+                        </th>
+                        <td class=" padding-top-3 font-size-15-imp">
+                          <b>{{vm.currentUserName}}</b>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div layout="row" flex>
+          <div flex="100" layout="row">
+            <div class="cm-section-main margin-right-5" flex="100" layout="row">
+              <div class="cm-section-inner" flex="100" layout="column">
+                <incoming-outgoing-grid wo-op-id="vm.rackObj.woOPID" type="vm.rackObj.type" operation-name="vm.opname"></incoming-outgoing-grid>
+              </div>
+            </div>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

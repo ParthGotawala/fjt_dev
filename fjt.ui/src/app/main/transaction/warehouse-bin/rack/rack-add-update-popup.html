@@ -1,0 +1,267 @@
+<md-dialog class="cm-custom-label-common" aria-label="Add Rack" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.rackForm" class="md-inline-form" novalidate autocomplete="off">
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>{{vm.rack.id == null ? 'Add':'Update'}} Rack</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custome-scroll">
+      <md-content class="padding-10">
+        <div class="cm-section-main margin-bottom-5">
+          <div class="cm-section-inner">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <th ng-if="!vm.rack.id">
+                    <p class="label-container">Rack Generate</p>
+                  </th>
+                  <td ng-if="!vm.rack.id">
+                    <md-input-container layout-wrap layout="row" class="md-input-has-value">
+                      <md-radio-group name="rackGenerateGroup" layout="column" layout-gt-xs="row" flex layout-align="start start"
+                                      class="margin-0" ng-model="vm.rack.isSingleRack" ng-change="vm.changeRackGenerate()">
+                        <md-radio-button ng-repeat="item in vm.rackGenerate"
+                                         name="rackGenerate" ng-value="{{item.value}}">{{item.key}}</md-radio-button>
+                      </md-radio-group>
+                    </md-input-container>
+                  </td>
+
+                  <td>
+                    <div class="layout-align-end-center" layout="row" flex>
+                      <div class="margin-right-5">
+                        <md-input-container>
+                          <md-radio-group layout="row" layout-align="start start"
+                                          name="Active" ng-model="vm.rack.isActive" class="margin-0">
+                            <md-radio-button ng-repeat="item in vm.RadioGroup.isActive.array"
+                                             name="{{item.Value}}" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                          </md-radio-group>
+                        </md-input-container>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr ng-if="!vm.rack.id">
+                  <th>
+                    <p class="label-container">Rack Generate Method</p>
+                  </th>
+                  <td>
+                    <md-input-container layout-wrap layout="row" class="md-input-has-value">
+                      <md-radio-group name="rackGenerateMethodGroup" layout="column" layout-gt-xs="row" flex layout-align="start start"
+                                      class="margin-0" ng-model="vm.rack.isRange" ng-change="vm.changeRackGenerateMethod()">
+                        <md-radio-button ng-repeat="item in vm.rackGenerateMethod"
+                                         name="rackGenerateMethod" ng-value="{{item.value}}" ng-disabled="item.key == vm.rackGenerateMethod[0].key && vm.rack.isSingleRack">{{item.key}}</md-radio-button>
+                      </md-radio-group>
+                    </md-input-container>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <fieldset flex="100" class="container-box margin-bottom-10" ng-if="!vm.rack.id">
+          <legend class="ml-15 mb-5">Rack</legend>
+          <div class="cm-section-main margin-bottom-5">
+            <div class="cm-section-inner">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th colspan="1">
+                      <md-input-container layout-wrap layout="row" class="md-input-has-value float-right">
+                        <md-radio-group name="rackPrefixMethodGroup" layout="column" layout-gt-xs="row" flex layout-align="start start"
+                                        class="margin-0" ng-model="vm.rack.isRackPrefix"
+                                        ng-disabled="!vm.rack.isRange || vm.rack.isSingleRack"
+                                        ng-change="vm.genString(null,null)">
+                          <md-radio-button ng-repeat="item in vm.rackPrefixMethod" name="rackPrefixMethod" ng-value="{{item.value}}">{{item.key}}</md-radio-button>
+                        </md-radio-group>
+                      </md-input-container>
+                    </th>
+                    <th class="padding-top-12">
+                      <p class="label-container" ng-if="vm.rack.isRackPrefix">Prefix</p>
+                      <p class="label-container" ng-if="!vm.rack.isRackPrefix">Suffix</p>
+                    </th>
+                    <td>
+                      <md-input-container flex class="md-block">
+                        <input type="text" name="prefix" ng-model="vm.rack.prefix" id="txtnickname" class="text-uppercase"
+                               custom-blur="vm.changeTextNickname()" ng-disabled="!vm.rack.isRange || vm.rack.isSingleRack || vm.rack.id">
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <span ng-if="!vm.rack.isSingleRack && vm.rack.isRange" flex="100" class="font-size-10 padding-2">
+            <b>i.e. Prefix/Suffix + Auto Generate Number.</b>
+          </span>
+          <div class="cm-section-main margin-bottom-5" ng-if="!vm.rack.id">
+            <div class="cm-section-inner">
+              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th>
+                      <p class="label-container">From<span ng-if="!vm.rack.isSingleRack && vm.rack.isRange">&nbsp;*</span></p>
+                    </th>
+                    <td class="width-45p">
+                      <md-input-container class="md-block">
+                        <input type="text" name="rackFrom" id="rackFrom" ng-model="vm.rack.rackFrom" placeholder="from"
+                               onkeypress="return OnlyNumeric(event)" ng-required="!vm.rack.isSingleRack && vm.rack.isRange"
+                               ng-disabled="vm.rack.isSingleRack || !vm.rack.isRange" custom-blur="vm.checkToFromValue()">
+                        <div ng-messages="vm.rackForm.rackFrom.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="minvalue">
+                            <span>{{vm.transaction.CHECK_TO_FROM_VALUE}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+
+                    <th>
+                      <p class="label-container">To<span ng-if="!vm.rack.isSingleRack && vm.rack.isRange">&nbsp;*</span></p>
+                    </th>
+                    <td class="width-45p">
+                      <md-input-container class="md-block">
+                        <input type="text" name="rackTo" id="rackTo" ng-model="vm.rack.rackTo" placeholder="to" onkeypress="return OnlyNumeric(event)"
+                               ng-required="!vm.rack.isSingleRack && vm.rack.isRange"
+                               ng-disabled="vm.rack.isSingleRack || !vm.rack.isRange" custom-blur="vm.checkToFromValue()">
+                        <div ng-messages="vm.rackForm.rackTo.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="minvalue">
+                            <span>{{vm.transaction.CHECK_TO_FROM_VALUE}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <span ng-if="!vm.rack.isSingleRack && vm.rack.isRange && vm.rack.rackFrom && vm.rack.rackTo" flex="100"
+                class="font-size-10 padding-2">
+            <b>e.g, {{vm.rackFromString}} To {{vm.rackToString}} </b>
+          </span>
+
+        </fieldset>
+
+        <div class="cm-section-main margin-bottom-5" ng-if="vm.rack.id">
+          <div class="cm-section-inner">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <th>
+                    <p class="label-container">Rack Name<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p>
+                  </th>
+                  <td>
+                    <div layout="row">
+                      <div layout="row" flex>
+                        <md-input-container class="md-block" flex="100">
+                          <input type="text" name="name" class="input-text-uppercase" id="name" ng-model="vm.rack.name" capitalize required
+                                 custom-blur="vm.checkNameAlreadyExist('name');" custom-auto-focus=true placeholder="Name" ng-maxlength="10"
+                                 style="text-transform:uppercase">
+                          <div ng-messages="vm.rackForm.name.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(10,vm.rackForm.name.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="cm-section-main margin-bottom-5" ng-if="!vm.rack.id">
+          <div class="cm-section-inner">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr ng-if="vm.rack.isSingleRack">
+                  <th>
+                    <p class="label-container">Rack Name<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p>
+                  </th>
+                  <td>
+                    <div layout="row">
+                      <div layout="row" flex>
+                        <md-input-container class="md-block" flex="100">
+                          <input type="text" name="name" class="input-text-uppercase" id="name" ng-model="vm.rack.name" capitalize required
+                                 custom-blur="vm.checkNameAlreadyExist('name');" custom-auto-focus=true placeholder="Name"
+                                 ng-maxlength="10" ng-required="vm.rack.isSingleRack" style="text-transform:uppercase"
+                                 ng-disabled="vm.rack.isRange || vm.rack.id">
+                          <div ng-messages="vm.rackForm.name.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(10,vm.rackForm.name.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr ng-if="!vm.rack.isSingleRack" ng-repeat="item in vm.multipleRackList">
+                  <th>
+                    <p class="label-container">Rack Name<span ng-if="!vm.rack.isRange">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p>
+                  </th>
+                  <td>
+                    <div layout="row">
+                      <div layout="row" flex> <!--ng-if="!vm.rack.isRange">-->
+                        <md-input-container class="md-block" flex="100">
+                          <input type="text" name="rackName_{{$index}}" ng-model="item.name" capitalize id="rackName_{{$index}}"
+                                 ng-keydown="vm.addRack($event, $index)" 
+                                 custom-blur="item.callEnter ? $event.preventDefault() : vm.checkDuplicatRandomRack($index, null, $event)"
+                                 placeholder="Name" ng-required="!vm.rack.isSingleRack && !vm.rack.isRange" ng-maxlength="10"
+                                 style="text-transform:uppercase" ng-disabled="vm.rack.isRange">
+                          <span flex="100" class="font-size-10">
+                            <b>i.e. Press enter for add new rack name.</b>
+                          </span>
+                          <div ng-messages="vm.rackForm['rackName_' + $index].$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(10,vm.rackForm['rackName_' + $index].$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                        <md-button class="md-icon-button" ng-click="vm.removeRack($index)" tabindex="-1" ng-disabled="vm.rack.isRange">
+                          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                        </md-button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised"
+                 ng-class="{'md-formdirty': vm.rackForm.$dirty}"
+                 ng-disabled="vm.saveBtnDisableFlag"
+                 ng-click="vm.saveRack()" aria-label="Submit">Save</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>
+
+

@@ -1,0 +1,117 @@
+<div ng-if="vm.subAssemblyDetails.length > 0" flex="100" class="cm-section-main" layout-wrap>
+  <div class="cm-section-header" flex="100" layout="row" layout-align="space-between center">
+    <div>
+      <img ng-src="{{vm.tmaxIcon}}"><h2 class="inline-block">Sub Assembly List</h2>
+    </div>
+    <div>
+      <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus cursor-pointer" ng-click="vm.refreshList()"></md-icon>
+      <md-tooltip>Refresh Work Order Sub Assembly List</md-tooltip>
+    </div>
+  </div>
+  <div class="cm-section-inner" flex="100">
+    <table md-table class="md-data-table table-row-select" ms-responsive-table>
+      <thead md-head md-order="">
+        <tr md-row>
+          <th md-column class="w-50">#</th>
+          <th md-column md-order-by="PIDCode" class="w-210"><span>{{vm.LabelConstant.MFG.AssyID}}</span></th>
+          <th md-column md-numeric md-order-by="qpaQty" class="w-100 p-0-imp"><span>QPA</span></th>
+          <th md-column md-numeric md-order-by="requiredQty" class="w-150 p-0-imp">
+            <span>
+              Required Qty
+              <md-icon class="icon-question-mark-circle help-icon margin-right-0 margin-top-7 padding-left-0-imp">
+                <md-tooltip>QPA * WO Build Qty</md-tooltip>
+              </md-icon>
+            </span>
+          </th>
+          <!--</span></th>-->
+          <th md-column md-numeric md-order-by="totalQty" class="w-120 p-0-imp">
+            <span>
+              Total Qty
+              <md-icon class="icon-question-mark-circle help-icon margin-right-0 margin-top-7 padding-left-0-imp">
+                <md-tooltip md-direction="center">Required Qty + Excess Qty</md-tooltip>
+              </md-icon>
+            </span>
+          </th>
+          <th md-column md-numeric md-order-by="prevAvailableQty" class="w-150 p-0-imp">
+            <span>
+              Available Qty
+              <md-icon class="icon-question-mark-circle help-icon margin-right-0 margin-top-7 padding-left-0-imp">
+                <md-tooltip>Balance Qty - Shipped Qty</md-tooltip>
+              </md-icon>
+            </span>
+          </th>
+          <th md-column md-numeric md-order-by="prevBuildQty" class="w-150 p-0-imp">
+            <span>
+              Total Build Qty
+              <md-icon class="icon-question-mark-circle help-icon margin-right-0 margin-top-7 padding-left-0-imp">
+                <md-tooltip>Sum of all work order build qty</md-tooltip>
+              </md-icon>
+            </span>
+          </th>
+          <th md-column md-numeric md-order-by="excessQty" class="w-120 p-0-imp">
+            <span>
+              Excess Qty
+              <md-icon class="icon-question-mark-circle help-icon margin-right-0 margin-top-7 padding-left-0-imp">
+                <md-tooltip>Sum of all work order excess qty</md-tooltip>
+              </md-icon>
+            </span>
+          </th>
+          <th md-column class="w-350 p-l-i-10">Work Order</th>
+        </tr>
+      </thead>
+      <tbody md-body>
+        <tr md-row ng-repeat="item in vm.subAssemblyDetails">
+          <td md-cell class="w-50">{{$index+1}}</td>
+          <td md-cell class="w-250">
+            <!--<common-pid-code-label-link component-id="item.prPerPartID"
+                                        label="vm.LabelConstant.MFG.PID"
+                                        value="item.PIDCode"
+                                        is-copy="true"
+                                        rohs-icon="vm.rohsImagePath + item.rohsIcon"
+                                        rohs-status="item.rohsName"
+                                        is-custom-part="item.isCustom">
+            </common-pid-code-label-link>-->
+            <common-pid-code-label-link component-id="item.prPerPartID"
+                                        label="vm.LabelConstant.Assembly.ID" value="item.PIDCode"
+                                        is-copy="true"
+                                        rohs-icon="vm.rohsImagePath + item.rohsIcon"
+                                        rohs-status="item.name"
+                                        is-assembly="true"
+                                        is-custom-part="item.isCustom">
+            </common-pid-code-label-link>
+          </td>
+          <td md-cell class="w-100 p-0-imp">
+            {{item.qpaQty}}
+          </td>
+          <td md-cell class="w-120 p-0-imp">
+            <!--{{item.requiredQty}}-->
+            {{ vm.getRequiredQty(item)}}
+          </td>
+          <td md-cell class="w-120 p-0-imp">
+            <!--{{item.totalQty}}-->
+            {{vm.getSubAssemblyQty(item)}}
+          </td>
+          <td md-cell class="w-120 p-0-imp">
+            {{item.availableQty}}
+          </td>
+          <td md-cell class="w-120 p-0-imp">
+            {{item.totalBuildQty || 0}}
+          </td>
+          <td md-cell class="w-120 p-0-imp">
+            {{item.excessQty}}
+          </td>
+          <td md-cell class="w-350 p-l-i-10">
+            <span ng-repeat="subAssyItem in item.refWorkOrderNumbers">
+              <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToWorkorderDetails(subAssyItem.woID);"><b>{{subAssyItem.woNumberWithVersion}}</b></a> {{(($index + 1) !=  item.refWorkOrderNumbers.length) ? "," : ""}}
+            </span>
+            &nbsp;&nbsp;<md-button class="md-primary md-raised"
+                                   ng-disabled="!vm.woObj.woID || !item.isAddAllow"
+                                   ng-click="vm.addRecord($event, item);">
+              {{item.refWorkOrderNumbers.length > 0 ? "Add More": "Add"}} Work Order
+            </md-button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

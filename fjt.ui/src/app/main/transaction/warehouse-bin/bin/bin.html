@@ -1,0 +1,122 @@
+<!-- / CONTENT HEADER -->
+<!-- CONTENT CARD -->
+<div layout="row" class="cm-custom-label-common md-inline-form advanced-filters">
+
+  <div layout="row" class="pr-5 padding-5-rs">
+    <fieldset flex="100" class="container-box margin-bottom-5">
+      <legend class="margin-0">{{vm.CORE.LabelConstant.Show_Light_Instruction}}</legend>
+      <div class="input-wrapper" layout="row" layout-align="start center">
+        <md-checkbox ng-model="vm.isComapnyLevel" name="isComapnyLevel" class="margin-left-10 margin-right-10">
+          Search Company Level
+          <md-icon class="icon-question-mark-circle help-icon h-16">
+            <md-tooltip md-direction="top">
+              {{vm.CORE_MESSAGE_CONSTANT.SEARCH_COMPANY_LEVEL}}
+            </md-tooltip>
+          </md-icon>
+        </md-checkbox>
+        <div class="cm-switch-light cm-switch-new">
+          <md-input-container flex="100" class="md-input-has-value mid">
+            <md-radio-group class="rocker" ng-class="{'cm-show-btn':vm.clickButton,'cm-cancel-btn':(!vm.clickButton && !(vm.checkPartForSearch())),'cm-button-disable':vm.checkPartForSearch() }" ng-change="vm.changeEvent(vm.clickButton,$event)" ng-model="vm.clickButton">
+              <md-radio-button ng-value="true" class="cm-show md-button switch-left" ng-disabled="vm.checkPartForSearch() ||  vm.showStatus">Show Light</md-radio-button>
+              <md-radio-button ng-value="false" class="cm-cancel md-button switch-right" ng-disabled="vm.checkPartForSearch() || !vm.showStatus">Cancel</md-radio-button>
+            </md-radio-group>
+          </md-input-container>
+        </div>
+      </div>
+      <span class="font-weight-600 font-size-10 ml-8">
+        {{vm.CORE.LabelConstant.Show_Light_Instruction_Select}}
+      </span>
+      <p class="font-weight-600 font-size-10 ml-8">Search request timeout {{vm.TimeOut}} seconds, You can increase timeout limit from <a tabindex="-1" class="underline cursor-pointer" ng-click="vm.goDatakeysPage()">Settings/System/Data Keys</a></p>
+    </fieldset>
+  </div>
+  <div flex-gt-lg="25" class="pr-5 padding-5-rs">
+    <fieldset flex="100" class="container-box margin-bottom-5">
+      <legend class="margin-0">Warehouse Type</legend>
+      <div class="margin-0 input-wrapper" flex="100" layout="row" layout-align="start-center">
+        <!--pt-5 pb-10-->
+        <md-radio-group class="" flex="100" layout="row" ng-model="vm.WarehouseType" name="WarehouseTypeGroup" custom-auto-focus="true">
+          <md-radio-button ng-value="vm.default" class="md-primary">All</md-radio-button>
+          <md-radio-button ng-value="vm.cartType.Equipment.key" class="md-primary">{{vm.cartType.Equipment.value}}</md-radio-button>
+          <md-radio-button ng-value="vm.cartType.ShelvingCart.key" class="md-primary">{{vm.cartType.ShelvingCart.value}}</md-radio-button>
+          <md-radio-button ng-value="vm.cartType.SmartCart.key" class="md-primary">{{vm.cartType.SmartCart.value}}</md-radio-button>
+        </md-radio-group>
+      </div>
+    </fieldset>
+    <fieldset flex="100" class="container-box margin-bottom-5">
+      <legend class="margin-0">Search Bin Name&nbsp;/&nbsp;Nickname&nbsp;/&nbsp;Warehouse Name&nbsp;</legend>
+      <div class="margin-0" layout="row" flex="100" layout-align="start start">
+        <div class="input-wrapper" layout="row" layout-align="start center">
+          <md-radio-group class=" mb-5" flex="100" layout="row" ng-model="vm.searchType" name="checkSerachType">
+            <md-radio-button ng-value="vm.CustomSearchTypeForList.Contains" class="md-primary margin-top-0">Contains</md-radio-button>
+            <md-radio-button ng-value="vm.CustomSearchTypeForList.Exact" class="md-primary margin-top-0">Exact</md-radio-button>
+          </md-radio-group>
+        </div>
+        <div class="input-wrapper" layout="row" layout-align="start center" flex="100">
+          <md-input-container flex="80" class="margin-bottom-0">
+            <input type="text" id="searchNameNickname" name="searchNameNickname" ng-model="vm.searchNameNickname"
+                   custom-auto-focus="false" ng-keypress="vm.scanSearchKey($event)" />
+          </md-input-container>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+  <div flex-gt-lg="15" class="pr-5 padding-5-rs">
+    <fieldset flex="100" class="container-box margin-bottom-5 mr-10">
+      <legend class="margin-0">Search Bin Options</legend>
+      <div class="margin-0" layout="row" flex="100" layout-align="start start">
+        <div class="input-wrapper" layout="row" layout-align="start center">
+          <md-checkbox ng-model="vm.searchOnlyEmptyBin"
+                       name="searchOnlyEmptyBin" class="margin-0">
+            Empty Bin
+          </md-checkbox>
+        </div>
+      </div>
+    </fieldset>
+    <div class="input-wrapper" layout="row" layout-align="start center" layout-wrap>
+      <md-button class="md-primary md-raised md-ink-ripple mv-0 mt-5" ng-click="vm.advanceFilterSearch()">Search</md-button>
+      <md-button class="md-primary md-raised md-ink-ripple mv-0 mt-5" ng-click="vm.resetPage()">Reset</md-button>
+    </div>
+  </div>
+
+
+</div>
+
+<div class="content-card" layout="column" flex ng-show="!vm.isNoDataFound" cg-busy="{promise:vm.cgBusyLoading}">
+  <md-card class="margin-0 cm-bin-grid" layout="column" flex layout-align="space-between stretch">
+    <ui-grid-extention load-data="vm.loadData"
+                       grid-id="vm.gridConfig.gridBin"
+                       grid-option="vm.gridOptions"
+                       header="vm.sourceHeader"
+                       grid-data="vm.sourceData"
+                       total-data-count="vm.totalSourceDataCount"
+                       reset-grid="vm.resetSourceGrid"
+                       selectted-rows="vm.selectedRowsList"
+                       paging-info="vm.pagingInfo"
+                       current-item="vm.currentdata"
+                       get-data-down="vm.getDataDown"
+                       empty-state="vm.emptyState"
+                       delete-multiple-data="vm.deleteMultipleData">
+  </md-card>
+</div>
+<div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound">
+  <div class="emty-icon" flex="100">
+    <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+  </div>
+  <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+  <p flex="100">
+    {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+  </p>
+  <p flex="100">
+    <md-button class="md-fab md-mini" aria-label="Add Bin" ng-click="vm.addEditRecordBin({ generateBin: false },$event)">
+      <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+      <md-tooltip md-direction="top">Add Bin</md-tooltip>
+    </md-button>
+    <md-button class="md-fab md-mini" aria-label="Refresh Bin" ng-click="vm.loadData()">
+      <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+      <md-tooltip md-direction="top">Refresh Bin</md-tooltip>
+    </md-button>
+  </p>
+</div>
+
+
+

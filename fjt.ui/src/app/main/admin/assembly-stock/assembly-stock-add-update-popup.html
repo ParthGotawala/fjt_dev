@@ -1,0 +1,677 @@
+<md-dialog aria-label="AssemblyStock" flex="95" class="cm-custom-label-common max-height-95p"
+           cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.AssemblyStockForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <div class="mr-auto">
+          <h2 class="nowrap pr-20">{{vm.AssemblyStockModel.id ? 'Update' : 'Add'}} Initial Stock</h2>
+        </div>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <span class="padding-5-imp margin-right-10 label-box label-primary font-size-14" ng-if="vm.AssemblyStockModel.poType === vm.InitialStockPOType.LegacyPO">
+          Legacy PO
+        </span>
+        <div class="cm-btn-group cm-square-icon-btn nowrap">
+          <md-button class="md-primary md-raised mv-0 ml-0" ng-click="vm.viewWONumberBuildHistory($event)">
+            WO Build History
+          </md-button>
+          <!--<md-button class="md-primary md-raised" id="headerAddBtn" ng-click="">Add Initial Stock</md-button>-->
+          <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-click="vm.saveAndProceed(vm.BUTTON_TYPE.ADDNEW)">
+            <md-icon md-font-icon="t-icons-initial-stock add-icon" class="material-icons"></md-icon>
+            <md-tooltip>Add Initial Stock</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button" ng-click="vm.cancel()">
+            <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+          </md-button>
+        </div>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custome-scroll">
+      <md-content class="md-padding cm-custom-label-common">
+        <div layout-gt-xs="row">
+          <div class="cm-section-main border-0 margin-5" flex="100">
+            <div class="cm-section-inner" layout layout-wrap>
+              <div flex class="pr-25">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration underline" ng-click="vm.goToPartList();"
+                             tabindex="-1">{{vm.LabelConstant.Assembly.ID}} / {{vm.LabelConstant.Assembly.MFGPN}}</a><span ng-if="!(vm.assyId || vm.stockId)">&nbsp;*</span>
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container ng-if="vm.autoCompleteAssy" class="autocompletecustom margin-bottom-0" flex="100" md-no-float>
+                          <custom-auto-complete-search on-search-fn="vm.autoCompleteAssy.onSearchFn"
+                                                       column-name="vm.autoCompleteAssy.columnName"
+                                                       parent-column-name="vm.autoCompleteAssy.parentColumnName"
+                                                       key-column-name="vm.autoCompleteAssy.keyColumnName"
+                                                       input-name="vm.autoCompleteAssy.inputName"
+                                                       placeholder-name="vm.autoCompleteAssy.placeholderName"
+                                                       key-column-id="vm.autoCompleteAssy.keyColumnId"
+                                                       is-required="true"
+                                                       is-addnew="vm.autoCompleteAssy.isAddnew"
+                                                       callback-fn="vm.autoCompleteAssy.callbackFn"
+                                                       search-text="vm.autoCompleteAssy.searchText"
+                                                       parent-id=""
+                                                       add-data="vm.autoCompleteAssy.addData"
+                                                       on-select-callback-fn="vm.autoCompleteAssy.onSelectCallbackFn"
+                                                       is-disabled="vm.assyId || vm.stockId">
+                          </custom-auto-complete-search>
+                        </md-input-container>
+                      </td>
+                      <th><p class="label-container">Opening Date<span>&nbsp;*</span></p></th>
+                      <td class="w-100">
+                        <md-input-container class="md-block datepicker padding-right-0-imp w-100" flex="100" md-no-float>
+                          <input type="text" class="float-left"
+                                 name="openingdate"
+                                 max-value="vm.todayDate"
+                                 max-value-is-today-date="true"
+                                 allow-past-date="true"
+                                 allow-future-date="false"
+                                 datetime-picker="{{$root.dateDisplayFormat}}"
+                                 ng-model="vm.AssemblyStockModel.openingdate"
+                                 enable-time="false"
+                                 ui-options="{clearOnBlur  : true}"
+                                 ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                 ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                 model-view-value="true"
+                                 datepicker-options="vm.openingDateOptions"
+                                 is-open="vm.IsPickerOpen[vm.DATE_PICKER.openingdate]"
+                                 required />
+                          <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.openingdate] = true">
+                          </md-icon>
+                          <div ng-messages="vm.AssemblyStockForm.openingdate.$error" role="alert">
+                            <div ng-message="maxvalue">
+                              <span>{{vm.getMaxDateValidation('Opening Date', 'Today Date')}}</span>
+                            </div>
+                            <div ng-message="valid">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="datetime">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToAssemblyList();">{{vm.LabelConstant.Assembly.PIDCode}}</a>
+                        </p>
+                      </th>
+                      <td colspan="3" class="cm-pv-6">
+                        <md-input-container class="md-block" flex-gt-xs flex="100" ng-if="!vm.AssemblyStockModel.partID" md-no-float>
+                          <input type="number" name="PIDCode" id="PIDCode" disabled />
+                        </md-input-container>
+                        <common-pid-code-label-link component-id="vm.AssemblyStockModel.partID"
+                                                    label="vm.LabelConstant.Assembly.PIDCode"
+                                                    value="vm.AssemblyStockModel.PIDCode"
+                                                    is-copy="true"
+                                                    rohs-icon="vm.rohsImagePath+vm.AssemblyStockModel.rohsIcon"
+                                                    rohs-status="vm.AssemblyStockModel.rohsName"
+                                                    is-search-findchip="false"
+                                                    is-assembly="true"></common-pid-code-label-link>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToAssemblyList();">{{vm.LabelConstant.Assembly.MFGPN}}</a>
+                        </p>
+                      </th>
+                      <td colspan="3" class="cm-pv-6">
+                        <md-input-container class="md-block" flex-gt-xs flex="100" ng-if="!vm.AssemblyStockModel.partID" md-no-float>
+                          <input type="number" name="MPN" id="MPN" disabled />
+                        </md-input-container>
+                        <common-pid-code-label-link component-id="vm.AssemblyStockModel.partID"
+                                                    label="vm.LabelConstant.Assembly.MFGPN"
+                                                    value="vm.AssemblyStockModel.mfgPN"
+                                                    rohs-icon="vm.rohsImagePath +  vm.AssemblyStockModel.rohsIcon"
+                                                    rohs-status="vm.AssemblyStockModel.rohsName"
+                                                    is-copy="true"
+                                                    is-search-findchip="false"
+                                                    is-assembly="true">
+                        </common-pid-code-label-link>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToManufacturerList();">
+                            {{vm.LabelConstant.MFG.MFG}}
+                          </a>
+                        </p>
+                      </th>
+                      <td colspan="3">
+                        <div ng-if="vm.AssemblyStockModel.mfgCodeFormated" class="margin-top-3 h4 text-bold">
+                          <span ng-class="{'text-underline': vm.AssemblyStockModel.mfgCodeFormated, 'cursor-pointer': vm.AssemblyStockModel.mfgCodeFormated}" ng-click="vm.AssemblyStockModel.mfgCodeFormated ? vm.goToManufacturerDetail() : ''">
+                            <b>{{vm.AssemblyStockModel.mfgCodeFormated}}</b>
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">{{vm.LabelConstant.Workorder.WO}}<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                      <td>
+                        <md-input-container class="md-block" flex-gt-xs flex="100" md-no-float>
+                          <input type="text" name="woNumber" id="woNumber"
+                                 capitalize class="input-text-uppercase"
+                                 folder-no-special-character
+                                 no-special-character
+                                 ng-model="vm.AssemblyStockModel.woNumber"
+                                 ng-disabled="vm.AssemblyStockModel.id"
+                                 required ng-maxlength="20" minlength="1" md-maxlength="20"
+                                 ng-blur="vm.woNumberChanged()" />
+                          <span flex="100" class="font-size-10">
+                            <b>{{vm.initialStockNotesConst.WONumberNotAllowedFormat}}</b>
+                          </span>
+                          <div ng-messages="vm.AssemblyStockForm.woNumber.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(20,vm.AssemblyStockForm.woNumber.$viewValue.length)}}</span>
+                            </div>
+                            <div ng-message="minlength">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.WO_NUMBER_LENGTH}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th><p class="label-container">Initial Stock<span>&nbsp;*</span></p></th>
+                      <td colspan="3">
+                        <md-input-container class="md-block" flex-gt-xs flex="100" md-no-float>
+                          <input type="number" name="openingStock" id="openingStock" ng-model="vm.AssemblyStockModel.openingStock"
+                                 step="1" ng-min="vm.AssemblyStockModel.openingStockRequiredMinQty || 0"
+                                 required ng-max="9999999999"
+                                 onkeypress="return OnlyNumeric(event)"
+                                 ng-change="vm.openingStockChanged()"
+                                 ng-model-options="{ debounce: vm.debounceTimeIntervalConst }">
+                          <div ng-messages="vm.AssemblyStockForm.openingStock.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="min">
+                              <span>Not allowed less than {{vm.AssemblyStockModel.openingStockRequiredMinQty || 0}}</span>
+                            </div>
+                            <div ng-message="step || number || max">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container" ng-if="vm.isPODetailAlreadyAdded && vm.AssemblyStockModel.poType !== vm.InitialStockPOType.MiscPO">
+                          {{vm.LabelConstant.Workorder.PO}}
+                        </p>
+                        <p class="label-container" ng-if="!vm.isPODetailAlreadyAdded  || vm.AssemblyStockModel.poType === vm.InitialStockPOType.MiscPO">
+                          Search {{vm.LabelConstant.Workorder.PO}} and Add
+                        </p>
+                      </th>
+                      <td>
+                        <md-input-container class="md-block" flex-gt-xs flex="100" md-no-float ng-if="vm.isPODetailAlreadyAdded && vm.AssemblyStockModel.poType !== vm.InitialStockPOType.MiscPO">
+                          <input type="text" name="poNumber" id="poNumber" disabled
+                                 class="input-text-uppercase" capitalize
+                                 ng-model="vm.AssemblyStockModel.poNumber"
+                                 ng-maxlength="50" md-maxlength="50" />
+                        </md-input-container>
+                        <!--<p>1.{{vm.AssemblyStockModel.poType}} / 2.{{vm.AssemblyStockModel.poNumber}} / 3.{{ vm.AssemblyStockModel.refSalesOrderDetID}}</p>
+                        <p>4.{{ !vm.isAllowChangePO }} / {{vm.isPODetailAlreadyAdded }} </p>-->
+                        <md-input-container ng-if="vm.autoCompletePO && (!vm.isPODetailAlreadyAdded  || vm.AssemblyStockModel.poType === vm.InitialStockPOType.MiscPO)" class="autocompletecustom margin-bottom-0" flex="100" md-no-float>
+                          <custom-auto-complete-search on-search-fn="vm.autoCompletePO.onSearchFn"
+                                                       column-name="vm.autoCompletePO.columnName"
+                                                       key-column-name="vm.autoCompletePO.keyColumnName"
+                                                       input-name="vm.autoCompletePO.inputName"
+                                                       placeholder-name="vm.autoCompletePO.placeholderName"
+                                                       key-column-id="vm.autoCompletePO.keyColumnId"
+                                                       is-required="vm.autoCompletePO.isRequired"
+                                                       is-addnew="vm.autoCompletePO.isAddnew"
+                                                       callback-fn="vm.autoCompletePO.callbackFn"
+                                                       search-text="vm.autoCompletePO.searchText"
+                                                       add-data="vm.autoCompletePO.addData"
+                                                       md-require-match="false"
+                                                       on-select-callback-fn="vm.autoCompletePO.onSelectCallbackFn"
+                                                       callback-fn-for-clear-search-text="vm.autoCompletePO.callbackFnForClearSearchText"
+                                                       is-disabled="!vm.AssemblyStockModel.partID">
+                          </custom-auto-complete-search>
+                        </md-input-container>
+                      </td>
+                      <th ng-if="vm.AssemblyStockModel.poRevision">
+                        <p class="label-container">PO Revision</p>
+                      </th>
+                      <td ng-if="vm.AssemblyStockModel.poRevision">
+                        <!--<span>{{vm.AssemblyStockModel.poRevision}}</span>-->
+                        <md-input-container class="md-block" flex-gt-xs flex="100" md-no-float>
+                          <input name="poRevision" id="poRevision" ng-model="vm.AssemblyStockModel.poRevision" disabled />
+                        </md-input-container>
+                      </td>
+                      <th>
+                        <p class="label-container">Orig. PO Qty</p>
+                      </th>
+                      <td colspan="3">
+                        <md-input-container class="md-block" flex-gt-xs flex="100" md-no-float>
+                          <input type="number" name="poQty" id="poQty" ng-model="vm.AssemblyStockModel.poQty"
+                                 step="1" ng-min="0"
+                                 ng-max="9999999999"
+                                 onkeypress="return OnlyNumeric(event)" ng-disabled="!(vm.isAllowChangePO &&  vm.AssemblyStockModel.partID)" />
+                          <div ng-messages="vm.AssemblyStockForm.poQty.$error"
+                               role="alert">
+                            <div ng-message="step || number || max">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">Type of PO</p></th>
+                      <td class="padding-top-3" colspan="2">
+                        <p class="label-container" ng-if="vm.AssemblyStockModel.poType && vm.AssemblyStockModel.poType !== vm.InitialStockPOType.MiscPO"><b>{{vm.InitialStockPOTypeText.LegacyAndSystemPO}}</b></p>
+                        <p class="label-container" ng-if="vm.AssemblyStockModel.poType && vm.AssemblyStockModel.poType === vm.InitialStockPOType.MiscPO"><b>{{vm.InitialStockPOTypeText.MiscPO}}</b></p>
+                        <p class="label-container" ng-if="!vm.AssemblyStockModel.poType"><b>{{vm.InitialStockPOTypeText.NoPO}}</b></p>
+                      </td>
+                      <td colspan="2">
+                        <span class="padding-5-imp margin-right-10 label-box label-primary font-size-14" ng-if="vm.AssemblyStockModel.poType === vm.InitialStockPOType.LegacyPO">
+                          Legacy PO
+                        </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">{{vm.LabelConstant.SalesOrder.SO}}</p></th>
+                      <td>
+                        <span ng-if="vm.AssemblyStockModel.poType && vm.AssemblyStockModel.poType !== vm.InitialStockPOType.MiscPO">
+                          <a class="cursor-pointer text-underline" ng-click="vm.goToManageSalesOrder();">
+                            {{vm.AssemblyStockModel.soNumber}}
+                          </a>
+                          <copy-text ng-if="vm.AssemblyStockModel.soNumber" label="vm.LabelConstant.SalesOrder.SO" text="vm.AssemblyStockModel.soNumber"></copy-text>
+                        </span>
+                        <md-input-container class="md-block cm-cust-packingslip-pos" flex-gt-xs flex="100" md-no-float ng-if="vm.AssemblyStockModel.poType === vm.InitialStockPOType.MiscPO || (!vm.AssemblyStockModel.poType)">
+                          <input type="text" name="soNumber" id="soNumber"
+                                 class="input-text-uppercase" capitalize
+                                 ng-model="vm.AssemblyStockModel.soNumber"
+                                 ng-maxlength="20" md-maxlength="20" ng-disabled="!(vm.isAllowChangePO &&  vm.AssemblyStockModel.partID)" /> <!-- || vm.isPODetailAlreadyAdded" />-->
+                          <div ng-messages="vm.AssemblyStockForm.soNumber.$error"
+                               role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(20,vm.AssemblyStockForm.soNumber.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                          <copy-text ng-if="vm.AssemblyStockModel.soNumber" label="vm.LabelConstant.SalesOrder.SO" text="vm.AssemblyStockModel.soNumber"></copy-text>
+                        </md-input-container>
+                      </td>
+                      <th ng-if="vm.AssemblyStockModel.poType === vm.InitialStockPOType.LegacyPO">
+                        <p class="label-container">PO Qty</p>
+                      </th>
+                      <td ng-if="vm.AssemblyStockModel.poType === vm.InitialStockPOType.LegacyPO">
+                        <md-input-container class="md-block" flex-gt-xs flex="100" md-no-float>
+                          <input type="number" name="originalPOQty" id="originalPOQty" ng-model="vm.AssemblyStockModel.originalPOQty" disabled />
+                        </md-input-container>
+                      </td>
+
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">Date Code Format</p></th>
+                      <td>
+                        <md-select name="dateCodeFormat" placeholder="Select"
+                                   ng-model="vm.AssemblyStockModel.dateCodeFormat"
+                                   md-container-class="containerClass cm-md-select" class="margin-0"
+                                   ng-change="vm.dateCodeFormatChanged()">
+                          <md-option ng-value="">Select</md-option>
+                          <md-option ng-repeat="option in vm.dateCodeFormats" value={{option}}>{{option}}</md-option>
+                        </md-select>
+                      </td>
+                      <th>
+                        <p class="label-container">Date Code<span ng-if="(vm.AssemblyStockModel.dateCodeFormat ? true : false)">&nbsp;*</span></p>
+                      </th>
+                      <td>
+                        <md-input-container flex="100" md-no-float class="w-70">
+                          <input type="text" name="dateCode" id="dateCode"
+                                 ng-model="vm.AssemblyStockModel.dateCode"
+                                 placeholder="" custom-blur="vm.checkAssyDateCode()" maxlength="4"
+                                 ng-disabled="(vm.AssemblyStockModel.dateCodeFormat ? false : true)"
+                                 onkeypress="return OnlyNumeric(event, this)"
+                                 ng-required="(vm.AssemblyStockModel.dateCodeFormat ? true : false)">
+                          <div ng-messages="vm.AssemblyStockForm.dateCode.$error" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="isInValidDatecode">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">Notes</p></th>
+                      <td colspan="5">
+                        <md-input-container class="md-block" flex-gt-xs flex="100" md-no-float>
+                          <textarea id="serialNo" type="text" rows="3" name="serialNo" ng-maxlength="1000" md-maxlength="1000" ng-model="vm.AssemblyStockModel.serialNo"></textarea>
+                          <div ng-messages="vm.AssemblyStockForm.serialNo.$error"
+                               role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(255,vm.AssemblyStockForm.serialNo.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">{{vm.LabelConstant.TransferStock.Bin}}</p></th>
+                      <td class="" colspan="5">
+                        <md-input-container class="md-block" flex-gt-xs flex="100" md-no-float>
+                          <input type="text" name="binName" ng-model="vm.binName"
+                                 disabled>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">{{vm.LabelConstant.TransferStock.WH}}</p></th>
+                      <td colspan="5">
+                        <div layout layout-align="start center">
+                          <div flex>
+                            <md-input-container class="md-block" flex-gt-xs flex="100" md-no-float>
+                              <input type="text" name="warehouse" ng-model="vm.warehouse"
+                                     disabled>
+                            </md-input-container>
+                          </div>
+                          <div class="pr-5"><p class="label-container margin-0">{{vm.LabelConstant.TransferStock.Department}}</p></div>
+                          <div flex>
+                            <md-input-container class="md-block" flex-gt-xs flex="100" md-no-float>
+                              <input type="text" name="departmentName" ng-model="vm.departmentName"
+                                     disabled>
+                            </md-input-container>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div flex="100"
+                   flex-gt-lg="45" flex-lg="50" layout layout-align="center center" class="flex-rs-md-100">
+                <div class="cm-section-main border-0 flex-rs-md-60" flex="100" ng-if="(vm.autoCompleteAssy.keyColumnId && vm.AssemblyStockModel.woNumber)">
+                  <div class="cm-common-table-ui border-0">
+                    <table border="1" width="100%" class="padding-5 opration-table text-center cm-table-stock-adjustment cm-table-cell-height-auto">
+                      <thead>
+                        <tr>
+                          <td colspan="4" class="padding-5">
+                            Stock Summary Before {{vm.AssemblyStockModel.id ? 'Update' : 'Add'}}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-right padding-5">
+                          </td>
+                          <td class="text-right padding-5 width-20p">
+                            Other WO Qty
+                          </td>
+                          <td class="text-right padding-5 width-20p">
+                            {{vm.LabelConstant.Workorder.WO}} {{vm.AssemblyStockModel.woNumber}} Qty
+                          </td>
+                          <td class="text-right padding-5 border-0 nowrap">
+                            <div class="display-flex" layout-align="end end">
+                              Cumulative Assy Stock
+                              <div class="icon-question-mark-circle help-icon">
+                                <md-tooltip md-direction="top">{{vm.LabelConstant.Workorder.WO}} {{vm.AssemblyStockModel.woNumber}} Qty + Other WO Qty</md-tooltip>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="md-blue-100-bg">
+                          <th class="text-right padding-5-imp">
+                            <span class="value">
+                              Non-UMID Stock
+                            </span>
+                          </th>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{vm.summStockModel.nonUMIDStockForOtherWOQty}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{vm.summStockModel.nonUMIDStockForCurrWOQty}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{vm.summStockModel.nonUMIDStockForCumuAssyQty}}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr class="md-purple-100-bg">
+                          <th class="text-right padding-5-imp">
+                            <span class="value">
+                              UMID Stock
+                            </span>
+                          </th>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{vm.summStockModel.UMIDStockForOtherWOQty}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{vm.AssemblyStockModel.totalUMIDCountAfterShipped}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{vm.summStockModel.UMIDStockForCumuAssyQty}}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr class="md-yellow-300-bg">
+                          <th class="text-right padding-5-imp font-size-18">
+                            <span class="value">
+                              Cumulative Stock Before {{vm.AssemblyStockModel.id ? 'Update' : 'Add'}}
+                            </span>
+                          </th>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              <a class="underline cursor-pointer" ng-click="vm.ViewAssemblyStockStatus();"
+                                 tabindex="-1">
+                                <b class="font-size-18">{{vm.summStockModel.currOtherWOQty}}</b>
+                              </a>
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              <b class="font-size-18">{{vm.summStockModel.currWOQtyBfrUpdate}}</b>
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              <b class="font-size-18">{{vm.summStockModel.currCumuAssyQtyBfrUpdate}}</b>
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                      <thead>
+                        <tr class="h-30">
+                          <td colspan="4" class="bg-white border-left-transparent border-right-transparent">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colspan="4" class="padding-5">
+                            Stock Summary After {{vm.AssemblyStockModel.id ? 'Update' : 'Add'}}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-right padding-5">
+                          </td>
+                          <td class="text-right padding-5 width-20p">
+                            Other WO Qty
+                          </td>
+                          <td class="text-right padding-5 width-20p">
+                            {{vm.LabelConstant.Workorder.WO}} {{vm.AssemblyStockModel.woNumber}} Qty
+                          </td>
+                          <td class="text-right padding-5 border-0 nowrap">
+                            <div class="display-flex" layout-align="end end">
+                              Cumulative Assy Stock
+                              <div class="icon-question-mark-circle help-icon">
+                                <md-tooltip md-direction="top">{{vm.LabelConstant.Workorder.WO}} {{vm.AssemblyStockModel.woNumber}} Qty + Other WO Qty</md-tooltip>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="md-blue-100-bg">
+                          <th class="text-right padding-5-imp">
+                            Current Non-UMID Stock Before {{vm.AssemblyStockModel.id ? 'Update' : 'Add'}}
+                          </th>
+                          <td class="text-right padding-5">
+                            <span class="value">-</span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{vm.AssemblyStockModel.openingStockCopy >= 0 ? vm.AssemblyStockModel.openingStockCopy : '-'}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{vm.AssemblyStockModel.openingStockCopy >= 0 ? vm.AssemblyStockModel.openingStockCopy : '-'}}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr class="md-blue-100-bg">
+                          <th class="text-right padding-5-imp">
+                            Initial Non-UMID Stock After {{vm.AssemblyStockModel.id ? 'Update' : 'Add'}}
+                          </th>
+                          <td class="text-right padding-5">
+                            <span class="value">-</span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{vm.AssemblyStockForm.openingStock.$viewValue}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{vm.AssemblyStockForm.openingStock.$viewValue}}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr class="md-blue-100-bg">
+                          <th class="text-right padding-5-imp">
+                            Non-UMID Stock Adjustment
+                          </th>
+                          <td class="text-right padding-5">
+                            <span class="value">-</span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              <b class="font-size-18">{{vm.isISCurrAdjustmentQtyHaveValue ? vm.AssemblyStockModel.ISCurrAdjustmentQty : '-'}}</b>
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              <b class="font-size-18">{{vm.isISCurrAdjustmentQtyHaveValue ? vm.AssemblyStockModel.ISCurrAdjustmentQty : '-'}}</b>
+                            </span>
+                          </td>
+                        </tr>
+                        <tr class="md-blue-400-bg">
+                          <th class="text-right padding-5-imp font-size-18">
+                            <span class="value">
+                              Non-UMID Stock After {{vm.AssemblyStockModel.id ? 'Update' : 'Add'}}
+                            </span>
+                          </th>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              <b class="font-size-18">{{vm.summStockModel.nonUMIDStockForOtherWOQty}}</b>
+                            </span>
+                          </td>
+                          <td class="text-right padding-5" ng-class="{'red-400-bg':vm.summStockModel.nonUMIDStockForCurrWOQtyAfrUpdate < 0}">
+                            <span class="value">
+                              <b class="font-size-18">{{vm.summStockModel.nonUMIDStockForCurrWOQtyAfrUpdate}}</b>
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              <b class="font-size-18">{{vm.summStockModel.nonUMIDStockForCumuAssyQtyAfrUpdate}}</b>
+                            </span>
+                          </td>
+                        </tr>
+                        <tr class="md-purple-100-bg">
+                          <th class="text-right padding-5-imp">
+                            <span class="value">
+                              UMID Stock
+                            </span>
+                          </th>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{vm.summStockModel.UMIDStockForOtherWOQty}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{vm.AssemblyStockModel.totalUMIDCountAfterShipped}}
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              {{vm.summStockModel.UMIDStockForCumuAssyQty}}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr class="md-yellow-300-bg">
+                          <th class="text-right padding-5 font-size-18">
+                            Cumulative Stock After {{vm.AssemblyStockModel.id ? 'Update' : 'Add'}}
+                          </th>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              <b class="font-size-18">{{vm.summStockModel.currOtherWOQty}}</b>
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              <b class="font-size-18">{{vm.summStockModel.totOfCurrWOQty}}</b>
+                            </span>
+                          </td>
+                          <td class="text-right padding-5">
+                            <span class="value">
+                              <b class="font-size-18">{{vm.summStockModel.totCumuAssyQty}}</b>
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="!(vm.autoCompleteAssy.keyColumnId && vm.AssemblyStockModel.woNumber)">
+                  <div class="emty-icon" flex="20">
+                    <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title" ng-if="!vm.selectedPoNumber">{{vm.EmptyMesssage.MESSAGE}}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-disabled="vm.saveDisable" ng-click="vm.addUpdateAssemblystock(vm.BUTTON_TYPE.SAVE)" aria-label="Submit" ng-class="{'md-formdirty':  vm.AssemblyStockForm.$dirty}">Save</md-button>
+      <md-button class="md-primary md-raised" ng-disabled="vm.saveDisable" data-focusButton="headerAddBtn" last-element elementcondition="true" ng-click="vm.addUpdateAssemblystock(vm.BUTTON_TYPE.SAVEANDEXIT);" aria-label="Submit" ng-class="{'md-formdirty': vm.AssemblyStockForm.$dirty}">{{vm.CORE_MESSAGE_CONSTANT.SAVE_AND_EXIT}}</md-button>
+      <!--<md-button class="md-primary md-raised" ng-click="vm.addUpdateAssemblystock()" aria-label="Submit"
+                 ng-class="{'md-formdirty': vm.AssemblyStockForm.$dirty}">        Save      </md-button>-->
+    </md-dialog-actions>
+  </form>
+</md-dialog>

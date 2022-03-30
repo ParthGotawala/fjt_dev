@@ -1,0 +1,244 @@
+<md-dialog aria-label="manage-rfq-lineitem-headers cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" class="flex-95" draggable>
+  <form name="vm.manageConfigurationForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar ng-class="vm.themeClass">
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>Manage Serial# Configuration</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding cm-overflow-hidden" layout="column">
+      <md-content class="padding-10">
+        <div layout="row" flex="100">
+          <p class="font-weight-600"><b>Note: </b><span ng-bind-html="vm.headerNote"></span></p>
+          <md-menu-bar class="p-0-imp cm-ml-auto" layout-align="start-center" layout="row">
+            <md-menu md-position-mode="left bottom">
+              <md-button class="md-primary md-raised md-icon-button pr-20" ng-click="vm.openMenu($mdMenu,$event)"
+                         aria-label="User settings" md-prevent-menu-close="md-prevent-menu-close">
+                <md-icon md-font-icon="icon-dots-vertical" class="icon s24"></md-icon>
+              </md-button>
+              <md-menu-content width="3">
+                <md-menu-item>
+                  <md-button ng-click="vm.deleteRecord($mdMenu,$event);"
+                             ng-disabled="vm.isReadOnly || !vm.configurationList[0].id"
+                             ng-class="{'item-disabled': vm.isReadOnly || !vm.configurationList[0].id}">
+                    <md-icon md-font-icon="icon-trash" class="icon s24"></md-icon>
+                    Delete Configured SR#
+                  </md-button>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </md-menu-bar>
+        </div>
+        <div layout="row" flex="100" class="margin-vertical-5" layout-wrap>
+          <div flex="100" class="margin-bottom-5" layout="row">
+            <div class="cm-section-main margin-right-5 cm-overflow-auto" flex="100">
+              <div class="content fullpage-datatable cm-serial-configuration-table" layout="column" flex>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Consecutive#</th>
+                      <th>Prefix</th>
+                      <th>Prefix Lock</th>
+                      <th>No. of digits<span class="color-red">&nbsp;*</span></th>
+                      <th>Start#<span class="color-red">&nbsp;*</span></th>
+                      <th>Assy Date Code Format</th>
+                      <th>Assy Date Code<span class="color-red" ng-if="vm.isRequiredDateCodeFormat()">&nbsp;*</span></th>
+                      <th>Suffix</th>
+                      <th>Suffix Lock</th>
+                      <th>Separator</th>
+                      <th>Separator Lock</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="configItem in vm.configurationList">
+                      <td class="text-center cell-border">
+                        <md-checkbox ng-model="configItem.isConsecutiveNumber" id="isConsecutiveNumber{{$index}}"
+                                     name="IsConsecutiveNumber" class="margin-0" ng-checked="configItem.isConsecutiveNumber ? true : false">
+                        </md-checkbox>
+                      </td>
+                      <td class="padding-right-5" ng-class="{'cell-border':(!configItem.isInvalidPrefix), 'border-red' : configItem.isInvalidPrefix}">
+                        <input type="text" name="prefix" class="input-text-uppercase w-450" capitalize ng-required="configItem.suffix ? false : true"
+                               ng-model="configItem.prefix" id="prefix{{$index}}" ng-maxlength="vm.WorkorderSerialNoConst.MaxLengthForPrefix"
+                               custom-blur="vm.checkPrefixSuffix(configItem,'prefix')">
+                      </td>
+                      <td class="text-center cell-border">
+                        <md-checkbox ng-model="configItem.prefixLock" id="prefixLock{{$index}}" name="prefixLock" ng-disabled="!(configItem && configItem.prefix)"
+                                     ng-checked="configItem.prefixLock ? true : false" class="margin-0">
+                        </md-checkbox>
+                      </td>
+                      <td ng-class="{'cell-border':(!configItem.invalidDigit), 'border-red' : (configItem.invalidDigit)}">
+                        <input class="padding-right-5 width-50 border-0 text-right" id="noofDigits{{$index}}" min="1" max="10" type="number"
+                               custom-blur="vm.checkStartNumber(configItem,$index)" name="noofDigits{{$index}}"
+                               ng-model="configItem.noofDigits" onkeypress="return OnlyNumeric(event, this)" required>
+                      </td>
+                      <td ng-class="{'cell-border':(!configItem.invalidDigitNumber), 'border-red' : (configItem.invalidDigitNumber)}">
+                        <input class="padding-right-5 border-0 text-right w-70" id="startNumber{{$index}}"
+                               type="number" name="startNumber" min="1" max="2147483648" required
+                               custom-blur="vm.checkStartNumber(configItem,$index)"
+                               ng-model="configItem.startNumber" onkeypress="return OnlyNumeric(event, this)">{{this['startNumber' + $index]}}
+                      </td>
+                      <td class="padding-right-5 cell-border">
+                        <md-select name="assyDateCodeFormat{{$index}}" placeholder="Select" ng-model="configItem.assyDateCodeFormat" id="assyDateCodeFormat{{$index}}"
+                                   md-container-class="containerClass cm-md-select" class="margin-0">
+                          <md-option ng-value="">Select</md-option>
+                          <md-option ng-repeat="option in vm.assyDateCodeFormats" value={{option}}>{{option}}</md-option>
+                        </md-select>
+                      </td>
+                      <td ng-class="{'cell-border':(!configItem.isInValidDatecode), 'border-red' : configItem.isInValidDatecode}">
+                        <input type="text" name="assyDateCode{{$index}}" ng-disabled="(configItem.assyDateCodeFormat ? false : true)" maxlength="4"
+                               custom-blur="vm.checkAssyDateCode(configItem,$index)" class="w-55"
+                               id="assyDateCode{{$index}}" ng-model="configItem.assyDateCode" onkeypress="return OnlyNumeric(event, this)">
+                      </td>
+                      <td ng-class="{'cell-border':(!configItem.isInvalidSuffix), 'border-red' : configItem.isInvalidSuffix}">
+                        <input type="text" class="input-text-uppercase w-450" capitalize ng-required="configItem.prefix ? false : true"
+                               name="suffix" ng-model="configItem.suffix" id="suffix{{$index}}" ng-maxlength="vm.WorkorderSerialNoConst.MaxLengthForPrefix"
+                               custom-blur="vm.checkPrefixSuffix(configItem,'suffix')">
+                      </td>
+                      <td class="text-center cell-border">
+                        <md-checkbox ng-model="configItem.suffixLock" custom-blur="vm.checkForNewLine(configItem, $index)" ng-disabled="!(configItem && configItem.suffix)"
+                                     ng-checked="configItem.suffixLock ? true : false"
+                                     name="suffixLock" id="suffixLock{{$index}}" class="margin-0">
+                        </md-checkbox>
+                      </td>
+                      <td class="cell-border">
+                        <md-input-container class="margin-top-10 margin-bottom-0 autocompletecustom cm-custom-autocomplete cm-so-input-container flex-100" ng-if="configItem.autoCompleteSeparator" md-no-float>
+                          <custom-auto-complete datalist="configItem.separatorList"
+                                                column-name="configItem.autoCompleteSeparator.columnName"
+                                                controller-name="configItem.autoCompleteSeparator.controllerName"
+                                                view-template-url="configItem.autoCompleteSeparator.viewTemplateURL"
+                                                key-column-name="configItem.autoCompleteSeparator.keyColumnName"
+                                                input-name="configItem.autoCompleteSeparator.inputName"
+                                                placeholder-name="configItem.autoCompleteSeparator.placeholderName"
+                                                key-column-id="configItem.autoCompleteSeparator.keyColumnId"
+                                                is-required="configItem.autoCompleteSeparator.isRequired"
+                                                is-addnew="configItem.autoCompleteSeparator.isAddnew"
+                                                callback-fn="configItem.autoCompleteSeparator.callbackFn"
+                                                on-select-callback-fn="configItem.autoCompleteSeparator.onSelectCallbackFn"
+                                                callback-fn-param="configItem"
+                                                add-data="configItem.autoCompleteSeparator.addData"
+                                                is-disabled="configItem.autoCompleteSeparator.isDisabled">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                      <td class="text-center cell-border">
+                        <md-checkbox ng-model="configItem.barcodeSeparatorLock" custom-blur="vm.checkForNewLine(configItem, $index)"
+                                     ng-checked="configItem.barcodeSeparatorLock ? true : false"
+                                     name="separatorLock" id="separatorLock{{$index}}" class="margin-0">
+                        </md-checkbox>
+                      </td>
+                      <!--<td class="text-center">
+                        <md-button style="width:53%;min-height:23px !important" class="md-primary md-icon-button bdrbtn"
+                                   ng-class="{'cursor-not-allow opecity-5':(item.isDisable || item.isReleased)}"
+                                   ng-click="vm.DeleteConfiguration(item, $index)">
+                          <md-icon role="img" md-font-icon="icon-trash"></md-icon>
+                          <md-tooltip md-direction="top" ng-if="!item.isDisable">Delete</md-tooltip>
+                        </md-button>
+                      </td>-->
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div flex="100" layout="row" class="padding-top-10" ng-if="vm.serialHistoryList.length > 0" layout-wrap>
+          <div flex="100" layout="row" layout-wrap>
+            <div class="cm-section-main" flex="100">
+              <div class="cm-section-inner">
+                <table border="1" width="100%" class="padding-5 opration-table text-center">
+                  <tr>
+                    <td colspan="7" class="padding-5">
+                      Generated Serial# History
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-left padding-5">
+                      SR#
+                    </td>
+                    <td class="text-left padding-5">
+                      WO#
+                    </td>
+                    <td class="text-left padding-5">
+                      Assy ID
+                    </td>
+                    <td class="text-left padding-5">
+                      From
+                    </td>
+                    <td class="text-left padding-5">
+                      To
+                    </td>
+                    <td class="text-left padding-5">
+                      Used
+                    </td>
+                    <td class="text-left padding-5">
+                      Unused
+                    </td>
+                  </tr>
+                  <tr ng-repeat="serial in vm.serialHistoryList">
+                    <td class="text-right padding-5">
+                      <span class="value">
+                        {{$index+1}}
+                      </span>
+                    </td>
+                    <td class="text-left padding-5">
+                      <span class="value">
+                        <a tabindex="-1" class="cm-text-decoration" ng-mousedown="vm.goToWorkorderDetails(serial.woID);$event.preventDefault();">
+                          {{serial.woNumber}}
+                        </a>
+                      </span>
+                    </td>
+                    <td class="text-left padding-5">
+                      <span class="value">
+                        
+
+                          <!--{{serial.PID}}-->
+                        <common-pid-code-label-link component-id="vm.assembly.id"
+                                                    label="vm.LabelConstant.MFG.PID"
+                                                    value="serial.PID"
+                                                    is-copy="true"
+                                                    rohs-icon="vm.rohsImagePath+vm.assembly.rfq_rohsmst.rohsIcon"
+                                                    rohs-status="vm.assembly.rfq_rohsmst.name"
+                                                    is-formated="true"
+                                                    is-assembly="true"></common-pid-code-label-link>
+                      </span>
+                    </td>
+                    <td class="text-right padding-5">
+                      <span class="value">
+                        {{serial.fromNo}}
+                      </span>
+                    </td>
+                    <td class="text-right padding-5">
+                      <span class="value">
+                        {{serial.toNo}}
+                      </span>
+                    </td>
+                    <td class="text-right padding-5">
+                      <span class="value">
+                        {{serial.Used}}
+                      </span>
+                    </td>
+                    <td class="text-right padding-5">
+                      <span class="value">
+                        {{serial.UnUsed}}
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.SaveSerialNoConfiguration()"
+                 ng-class="{'md-formdirty': vm.manageConfigurationForm.$dirty}">Save</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

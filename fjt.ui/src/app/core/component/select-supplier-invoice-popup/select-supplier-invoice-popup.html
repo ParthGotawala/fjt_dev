@@ -1,0 +1,131 @@
+<md-dialog aria-label="Select Invoice to Add for Payment" flex="80" draggable>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Select Invoice to Add in Payment</h2>
+      <span flex></span>
+      <popup-header-label label-data="vm.headerData"></popup-header-label>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content class="no-padding custom-scroll" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+    <md-content class="padding-10">
+      <div class="cm-section-main">
+        <div class="cm-section-inner">
+          <div class="content fullpage-datatable cm-material-table-padding-32" layout="column" flex>
+            <md-table-container class="cm-select-supplier-invoice-popup" layout="row">
+              <table md-table class="md-data-table table-row-select">
+                <thead md-head fix-head md-order="vm.query.order">
+                  <tr md-row>
+                    <th md-column>
+                      <md-checkbox ng-model="vm.isAllSelect"
+                                   ng-change="vm.selectAllReceipt()">
+                      </md-checkbox>
+                    </th>
+                    <th md-column>
+                      #
+                    </th>
+                    <th md-column md-order-by="receiptName" class="cm-white-space-normal">
+                      Type
+                    </th>
+                    <th md-column md-order-by="invoiceNumber" class="cm-white-space-normal">
+                      Invoice#
+                    </th>
+                    <th md-column md-order-by="invoiceDate" class="cm-white-space-normal">
+                      Invoice Date
+                    </th>
+                    <th md-column md-order-by="creditMemoNumber" class="cm-white-space-normal">
+                      Credit Memo#
+                    </th>
+                    <th md-column md-order-by="creditMemoDate" class="cm-white-space-normal">
+                      Credit Memo Date
+                    </th>
+                    <th md-column md-order-by="debitMemoNumber" class="cm-white-space-normal">
+                      Debit Memo#
+                    </th>
+                    <th md-column md-order-by="debitMemoDate" class="cm-white-space-normal">
+                      Debit Memo Date
+                    </th>
+                    <th md-column md-order-by="totalExtendedAmount" class="text-right cm-white-space-normal">
+                      Invoice Amount
+                    </th>
+                    <th md-column md-order-by="totalPaidAmount" class="text-right cm-white-space-normal">
+                      {{vm.LabelConstant.SupplierInvoice.PaidAmount}}
+                    </th>
+                    <th md-column md-order-by="balanceToPayAmount" class="text-right cm-white-space-normal">
+                      Balance Amount
+                    </th>
+                    <th md-column md-order-by="refInvoiceNumber" class="cm-white-space-normal">
+                      Ref. Invoice#
+                    </th>
+                    <th md-column md-order-by="packingDetailNote" class="cm-white-space-normal">
+                      Comments
+                    </th>
+                  </tr>
+                </thead>
+                <tbody md-body>
+                  <tr md-row ng-repeat="item in vm.packingSlipData | orderBy: vm.query.order">
+                    <td md-cell>
+                      <md-checkbox ng-model="item.isSelected"
+                                   ng-disabled="item.refParentCreditDebitInvoiceno"
+                                   ng-change="vm.selectReceipt(item)"
+                                   class="margin-top-10 margin-bottom-10">
+                      </md-checkbox>
+                    </td>
+                    <td md-cell>{{$index+1}}</td>
+                    <td md-cell class="width-90">{{item.receiptName}}</td>
+                    <td md-cell class="width-130"><a class="cm-text-decoration underline" ng-click="vm.supplierInvoiceDetail(item);">{{item.invoiceNumber}}</a></td>
+                    <td md-cell class="width-100">{{item.invoiceDate | date:vm.DefaultDateFormat}}</td>
+                    <td md-cell class="width-130"><a class="cm-text-decoration underline" ng-click="vm.supplierInvoiceDetail(item);">{{item.creditMemoNumber}}</a></td>
+                    <td md-cell class="width-90">{{item.creditMemoDate | date:vm.DefaultDateFormat}}</td>
+                    <td md-cell class="width-130"><a class="cm-text-decoration underline" ng-click="vm.supplierInvoiceDetail(item);">{{item.debitMemoNumber}}</a></td>
+                    <td md-cell class="width-90">{{item.debitMemoDate | date:vm.DefaultDateFormat}}</td>
+                    <td md-cell class="text-right width-100" ng-class="{'color-red': item.totalExtendedAmount < 0}">{{item.totalExtendedAmount | amount}}</td>
+                    <td md-cell class="text-right width-100" ng-class="{'color-red': item.totalPaidAmount < 0}">{{item.totalPaidAmount | amount}}</td>
+                    <td md-cell class="text-right width-100" ng-class="{'color-red': item.balanceToPayAmount < 0}">{{item.balanceToPayAmount | amount}}</td>
+                    <td md-cell class="width-100"><a class="cm-text-decoration underline" ng-click="vm.supplierInvoiceDetail(item,true);">{{item.refInvoiceNumber}}</a></td>
+                    <td md-cell class="width-100">
+                      <md-button class="md-warn"
+                                 ng-class="{'md-hue-1': !item.packingDetailNote }"
+                                 ng-disabled="!item.packingDetailNote"
+                                 ng-click="vm.showApproveNote(item, $event)">
+                        View
+                      </md-button>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr md-row>
+                    <td md-cell class="width-10"></td>
+                    <td md-cell class="width-20"></td>
+                    <td md-cell class="width-90"></td>
+                    <td md-cell class="width-130"></td>
+                    <td md-cell class="width-100"></td>
+                    <td md-cell class="width-130"></td>
+                    <td md-cell class="width-90"></td>
+                    <td md-cell class="width-130"></td>
+                    <td md-cell class="width-90"></td>
+                    <td md-cell class="text-right width-100" ng-class="{'color-red': vm.grandTotalExtendedAmount < 0}">{{vm.getTotalExtendedAmount()}}</td>
+                    <td md-cell class="text-right width-100" ng-class="{'color-red': vm.grandTotalPaidAmount < 0}">{{vm.getTotalPaidAmount()}}</td>
+                    <td md-cell class="text-right width-100" ng-class="{'color-red': vm.grandTotalBalanceToPayAmount < 0}">{{vm.getTotalBalancetoPayAmount()}}</td>
+                    <td md-cell class="width-100"></td>
+                    <td md-cell class="width-100"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </md-table-container>
+          </div>
+
+        </div>
+      </div>
+    </md-content>
+  </md-dialog-content>
+  <md-dialog-actions layout="row">
+    <md-button class="md-default md-raised" ng-click="vm.cancel()">Close</md-button>
+    <md-button class="md-primary md-raised"
+               ng-click="vm.addSelectedInvoiceToPayment();"
+               aria-label="Submit"
+               ng-disabled="!vm.anyItemSelect">Add to Payment</md-button>
+  </md-dialog-actions>
+</md-dialog>

@@ -1,0 +1,456 @@
+<div>
+  <form name="vm.formPaidPackaging" class="md-inline-form cm-custom-label-common" ng-show="!isSelectNewInvoiceVisible">
+    <fieldset flex="100" class="container-box margin-bottom-5">
+      <legend class="ml-15 mb-5" ng-if="vm.isVoidAndReIssuePayment">Add New Payment Details</legend>
+      <div class="cm-section-main border-0 flex">
+        <div class="cm-section-inner p-0-imp">
+          <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+            <tbody>
+
+              <tr>
+                <th>
+                  <p class="label-container">{{vm.LabelConstant.COMMON.SystemID}}</p>
+                </th>
+                <td>
+                  <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                    <input type="text" name="systemId" id="systemId" ng-model="vm.paidPackingSlip.systemId" placeholder="{{vm.LabelConstant.COMMON.SystemID}}" disabled>
+                  </md-input-container>
+                </td>
+
+                <th>
+                  <p class="label-container pt-2">
+                    <a class="cm-text-decoration underline" ng-click="vm.goToSupplierBillTo();"
+                       tabindex="-1">Account Reference</a>
+                    <md-icon class="icon-question-mark-circle help-icon margin-top-2 margin-right-5">
+                      <md-tooltip md-direction="top" class="tooltip-height-auto">
+                        <span>{{vm.SUPPLIER_INVOICE_ACCOUNT_REFERENCE_TOOLTIP}}</span>
+                      </md-tooltip>
+                    </md-icon><span ng-if="!vm.paidPackingSlip.accountReference">&nbsp;*</span>
+                  </p>
+                </th>
+                <td class="width-25p">
+                  <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                    <input type="text" id="accountReference" name="accountReference" ng-model="vm.paidPackingSlip.accountReference"
+                           placeholder="Account Reference" ng-maxlength="50" md-maxlength="50" required
+                           disabled>
+                    <div layout="row" class="autocomplete-refresh-icons" layout-align="center center"
+                         ng-if="!vm.paymentId">
+                      <md-button class="margin-0 md-icon-button md-ink-ripple" tabindex="-1"
+                                 ng-click="vm.refreshAccountReference()"><md-icon class="mdi mdi-refresh"></md-icon></md-button>
+                    </div>
+                    <div ng-messages="vm.formPaidPackaging.accountReference.$error" role="alert">
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                      <div ng-message="maxlength">
+                        <span>{{vm.getMaxLengthValidation(50,vm.formPaidPackaging.accountReference.$viewValue.length)}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </td>
+
+                <th>
+                  <p class="label-container">
+                    <a class="cm-text-decoration underline" ng-click="vm.goToSupplierList();"
+                       tabindex="-1">Supplier</a>
+                  </p>
+                </th>
+                <td class="width-25p">
+                  <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                    <input type="text" id="supplierName" name="supplierName" ng-model="vm.paidPackingSlip.fullMfgName"
+                           placeholder="Supplier" disabled>
+                  </md-input-container>
+                </td>
+
+              </tr>
+
+              <tr>
+                <th>
+                  <p class="label-container pt-2">Payment# or Check#<span ng-if="!(vm.paymentId || vm.paidPackingSlip.paymentAmount === 0)">&nbsp;*</span></p>
+                </th>
+                <td>
+                  <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                    <input type="text" id="paymentNumber" name="paymentNumber"
+                           ng-disabled="isReadOnly || vm.paymentId || vm.paidPackingSlip.paymentAmount === 0"
+                           ng-model="vm.paidPackingSlip.paymentNumber" placeholder="Payment# or Check#"
+                           ng-required="!(vm.paidPackingSlip.paymentAmount === 0)"
+                           ng-maxlength="50" md-maxlength="50" autocomplete="off" capitalize class="input-text-uppercase">
+                    <span class="font-size-10">
+                      <b>Payment# is Auto for $0 invoice(s)</b>
+                    </span>
+                    <div ng-messages="vm.formPaidPackaging.paymentNumber.$error" role="alert">
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                      <div ng-message="maxlength">
+                        <span>{{vm.getMaxLengthValidation(50,vm.formPaidPackaging.paymentNumber.$viewValue.length)}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </td>
+
+                <th>
+                  <p class="label-container pt-2">
+                    <a class="cm-text-decoration underline" ng-click="vm.goToPaymentMethodList();"
+                       tabindex="-1">Payment Method</a><span ng-if="!vm.paymentId">&nbsp;*</span>
+                  </p>
+                </th>
+                <td ng-if="vm.autoCompletePaymentMethodType">
+                  <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100">
+                    <custom-auto-complete datalist="vm.paymentMethodTypeList"
+                                          controller-name="vm.autoCompletePaymentMethodType.controllerName"
+                                          view-template-url="vm.autoCompletePaymentMethodType.viewTemplateURL"
+                                          column-name="vm.autoCompletePaymentMethodType.columnName"
+                                          key-column-name="vm.autoCompletePaymentMethodType.keyColumnName"
+                                          input-name="vm.autoCompletePaymentMethodType.inputName"
+                                          placeholder-name="vm.autoCompletePaymentMethodType.placeholderName"
+                                          key-column-id="vm.autoCompletePaymentMethodType.keyColumnId"
+                                          is-required="vm.autoCompletePaymentMethodType.isRequired"
+                                          is-addnew="vm.autoCompletePaymentMethodType.isAddnew"
+                                          add-data="vm.autoCompletePaymentMethodType.addData"
+                                          callback-fn="vm.autoCompletePaymentMethodType.callbackFn"
+                                          on-select-callback-fn="vm.autoCompletePaymentMethodType.onSelectCallbackFn"
+                                          is-disabled="isReadOnly || vm.paymentId">
+                    </custom-auto-complete>
+                  </md-input-container>
+                </td>
+
+                <th>
+                  <p class="label-container pt-2">
+                    <a class="cm-text-decoration underline" ng-click="vm.goToBankList();"
+                       tabindex="-1">{{vm.LabelConstant.Bank.BankAccountCode}}</a><span ng-if="!vm.paymentId">&nbsp;*</span>
+                  </p>
+                </th>
+                <td ng-if="vm.autoCompleteBankAccountNumber">
+                  <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100">
+                    <custom-auto-complete datalist="vm.bankList"
+                                          column-name="vm.autoCompleteBankAccountNumber.columnName"
+                                          controller-name="vm.autoCompleteBankAccountNumber.controllerName"
+                                          view-template-url="vm.autoCompleteBankAccountNumber.viewTemplateURL"
+                                          key-column-name="vm.autoCompleteBankAccountNumber.keyColumnName"
+                                          input-name="vm.autoCompleteBankAccountNumber.inputName"
+                                          placeholder-name="vm.autoCompleteBankAccountNumber.placeholderName"
+                                          key-column-id="vm.autoCompleteBankAccountNumber.keyColumnId"
+                                          is-required="vm.autoCompleteBankAccountNumber.isRequired"
+                                          callback-fn="vm.autoCompleteBankAccountNumber.callbackFn"
+                                          on-select-callback-fn="vm.autoCompleteBankAccountNumber.onSelectCallbackFn"
+                                          is-disabled="true"
+                                          add-data="vm.autoCompleteBankAccountNumber.addData"
+                                          is-addnew="vm.autoCompleteBankAccountNumber.isAddnew">
+                    </custom-auto-complete>
+                  </md-input-container>
+                </td>
+
+              </tr>
+
+              <tr>
+                <th>
+                  <p class="label-container pt-2">
+                    <a class="cm-text-decoration underline" ng-click="vm.goToBankList();"
+                       tabindex="-1">Bank Name</a><span ng-if="!vm.paidPackingSlip.bankName">&nbsp;*</span>
+                  </p>
+                </th>
+                <td>
+                  <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                    <input type="text" id="bankName" name="bankName" ng-model="vm.paidPackingSlip.bankName" placeholder="Bank Name"
+                           required ng-maxlength="255"
+                           disabled
+                           autocomplete="off">
+                    <div ng-messages="vm.formPaidPackaging.bankName.$error" role="alert">
+                      <div ng-message="maxlength">
+                        <span>{{vm.getMaxLengthValidation(255,vm.formPaidPackaging.bankName.$viewValue.length)}}</span>
+                      </div>
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </td>
+
+                <th>
+                  <p class="label-container pt-2">Payment Date<span ng-if="!vm.paymentId">&nbsp;*</span></p>
+                </th>
+                <td>
+                  <md-input-container class="datepicker padding-right-0-imp margin-bottom-0">
+                    <input name="paymentDate" type="text" class="float-left"
+                           id="paymentDate"
+                           datetime-picker="{{$root.dateDisplayFormat}}"
+                           ng-model="vm.paidPackingSlip.paymentDate"
+                           enable-time="false"
+                           ui-options="{clearOnBlur: true}"
+                           ui-mask="{{$root.uimaskFormat.date.mask}}"
+                           ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                           model-view-value="true"
+                           datepicker-options="vm.chequeDateOptions"
+                           is-open="vm.IsPickerOpen[vm.DATE_PICKER.paymentDate]"
+                           ng-disabled="isReadOnly || vm.paymentId"
+                           ng-required="true" />
+                    <md-icon md-font-icon="icon-calendar calender-icon"
+                             ng-click="vm.IsPickerOpen[vm.DATE_PICKER.paymentDate] = (vm.paymentId ? false : true)">
+                    </md-icon>
+                    <div ng-messages="vm.formPaidPackaging.paymentDate.$error" role="alert">
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                      <div ng-message="datetime">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </td>
+
+                <th>
+                  <p class="label-container pt-2">Payment Amount ($)<span ng-if="!vm.paymentId">&nbsp;*</span></p>
+                </th>
+                <td>
+                  <md-input-container flex="100" class="margin-bottom-0 cm-invoice-amt-diff-font" md-no-float>
+                    <input type="text" id="paymentAmount" name="paymentAmount" ng-model="vm.todalPayableAmountDisplay" placeholder="Payment Amount ($)" disabled>
+                    <span class="font-size-10">
+                      <b>i.e. {{vm.LabelConstant.SupplierInvoice.ExtendedInvoiceAmount}} - Credit/Debit Memo Amount</b>
+                    </span>
+                  </md-input-container>
+                </td>
+
+              </tr>
+
+              <tr>
+                <th>
+                  <p class="label-container pt-2">Comment</p>
+                </th>
+                <td colspan="5">
+                  <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                    <div layout-align="start center">
+                      <textarea name="remark"
+                                ng-model="vm.paidPackingSlip.remark"
+                                ng-maxlength="255" md-maxlength="255"
+                                max-rows="4"
+                                ng-disabled="isReadOnly || vm.viewOnly || (vm.paidPackingSlip.lockStatus === vm.TRANSACTION.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin)"
+                                placeholder="Comment"></textarea>
+                    </div>
+                    <div ng-messages="vm.formPaidPackaging.remark.$error" role="alert">
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                      <div ng-message="maxlength">
+                        <span>{{vm.getMaxLengthValidation(255, vm.formPaidPackaging.remark.$viewValue.length)}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cm-section-inner padding-top-0 p-0-imp" layout="row">
+          <div flex="25" layout="row">
+            <div flex="100" class="input-width width-100p margin-right-5 margin-rs-right-0" layout="row" layout-wrap>
+              <div class="row-main md-tab margin-bottom-0 customerbox" layout="row" flex="100"
+                   ng-if="!vm.paidPackingSlip || !vm.paidPackingSlip.fullMfgName">
+                <label flex="100">
+                  <u>Pay To</u>
+                </label>
+              </div>
+              <div flex layout="column" ng-if="vm.paidPackingSlip && vm.paidPackingSlip.fullMfgName">
+                <view-cust-address-contact-det param-address-det="vm.payToAddress"
+                                               param-contact-person-det="vm.payToAddressContactPerson"
+                                               param-addr-action-btn-det="vm.payToAddressViewActionBtnDet"
+                                               param-cont-person-action-btn-det="vm.payToAddressContPersonViewActionBtnDet"
+                                               param-add-update-addr-callback-fn="vm.payToAddressAddUpdateCallback"
+                                               param-select-addr-callback-fn="vm.payToAddressAddUpdateCallback"
+                                               param-other-det="vm.payToAddressViewAddrOtherDet"
+                                               param-add-update-contact-callback-fn="vm.payToContactPersonAddUpdateCallback"
+                                               param-select-contact-callback-fn="vm.payToContactPersonAddUpdateCallback"
+                                               param-delete-addr-callback-fn="vm.removePayToAddress"
+                                               param-delete-cont-person-callback-fn="vm.removePayToContactPerson"
+                                               param-refresh-address-callback-fn="vm.refreshPayToAddress">
+                </view-cust-address-contact-det>
+              </div>
+            </div>
+          </div>
+          <div flex="25" layout="row">
+            <div flex="100" class="input-width width-100p margin-right-5 margin-rs-right-0" layout="row" layout-wrap>
+              <div class="row-main md-tab margin-bottom-0 customerbox" layout="row" flex="100"
+                   ng-if="!vm.paidPackingSlip || !vm.paidPackingSlip.fullMfgName">
+                <label flex="100">
+                  <u>{{vm.LabelConstant.Address.SupplierBusinessAddress}}</u>
+                </label>
+              </div>
+              <div flex layout="column" ng-if="vm.paidPackingSlip && vm.paidPackingSlip.fullMfgName">
+                <view-cust-address-contact-det param-address-det="vm.billToAddress"
+                                               param-contact-person-det="vm.billToAddressContactPerson"
+                                               param-addr-action-btn-det="vm.billToAddressViewActionBtnDet"
+                                               param-cont-person-action-btn-det="vm.billToAddressContPersonViewActionBtnDet"
+                                               param-add-update-addr-callback-fn="vm.billToAddressAddUpdateCallback"
+                                               param-select-addr-callback-fn="vm.billToAddressAddUpdateCallback"
+                                               param-other-det="vm.billToAddressViewAddrOtherDet"
+                                               param-add-update-contact-callback-fn="vm.billToContactPersonAddUpdateCallback"
+                                               param-select-contact-callback-fn="vm.billToContactPersonAddUpdateCallback"
+                                               param-delete-addr-callback-fn="vm.removeBillToAddress"
+                                               param-delete-cont-person-callback-fn="vm.removeBillToContactPerson"
+                                               param-refresh-address-callback-fn="vm.refreshBillToAddress">
+                </view-cust-address-contact-det>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+    </fieldset>
+    <div class="cm-section-main" ng-if="vm.showTable">
+      <div class="cm-section-inner padding-bottom-0">
+        <md-button class="md-primary md-raised margin-0"
+                   ng-click="vm.getAllInvoiceDetails();" aria-label="Submit"
+                   ng-disabled="isReadOnly || vm.paymentId || vm.isVoidAndReIssuePayment">SELECT MORE INVOICE</md-button>
+      </div>
+      <div class="cm-section-inner">
+        <div class="content fullpage-datatable" layout="column" flex>
+          <md-table-container class="cm-paid-packing-slip-popup cm-sticky-header-table max-height-300">
+            <table md-table class="md-data-table table-row-select">
+              <thead md-head md-order="vm.query.order">
+                <tr md-row>
+                  <th md-column class="width-30">
+                    <md-checkbox ng-model="vm.isAllSelect"
+                                 ng-disabled="isReadOnly || vm.paymentId || vm.isVoidAndReIssuePayment"
+                                 ng-change="vm.selectAllReceipt()">
+                    </md-checkbox>
+                  </th>
+                  <th md-column class="width-30">
+                    #
+                  </th>
+                  <th md-column md-order-by="systemId" class="width-120 cm-white-space-normal">
+                    {{vm.LabelConstant.COMMON.SystemID}}
+                  </th>
+                  <th md-column md-order-by="receiptName" class="width-110 cm-white-space-normal">
+                    Type
+                  </th>
+                  <th md-column md-order-by="invoiceNumber" class="width-130 cm-white-space-normal">
+                    Invoice#
+                  </th>
+                  <th md-column md-order-by="invoiceDate" class="width-100 cm-white-space-normal">
+                    Invoice Date
+                  </th>
+                  <th md-column md-order-by="creditMemoNumber" class="width-130 cm-white-space-normal">
+                    Credit Memo#
+                  </th>
+                  <th md-column md-order-by="creditMemoDate" class="width-90 cm-white-space-normal">
+                    Credit Memo Date
+                  </th>
+                  <th md-column md-order-by="debitMemoNumber" class="width-130 cm-white-space-normal">
+                    Debit Memo#
+                  </th>
+                  <th md-column md-order-by="debitMemoDate" class="width-90 cm-white-space-normal">
+                    Debit Memo Date
+                  </th>
+                  <th md-column md-order-by="totalExtendedAmount" class="width-120 cm-white-space-normal">
+                    {{vm.LabelConstant.SupplierInvoice.ExtendedInvoiceAmount}}
+                  </th>
+                  <th md-column md-order-by="totalDiscount" class="width-100 cm-white-space-normal">
+                    {{vm.LabelConstant.SupplierInvoice.Discount}}
+                  </th>
+                  <th md-column md-order-by="markedForRefundAmt" class="width-100 cm-white-space-normal">
+                    Marked for Refund Amount
+                  </th>
+                  <th md-column md-order-by="totalPaidAmount" class="width-120 cm-white-space-normal">
+                    {{vm.LabelConstant.SupplierInvoice.PaidAmount}}
+                  </th>
+                  <th md-column md-order-by="paymentAmount" class="width-130 cm-white-space-normal">
+                    Payment Amount
+                  </th>
+                  <th md-column md-order-by="balanceToPayAmount" class="width-120 cm-white-space-normal">
+                    Balance Amount
+                  </th>
+                  <th md-column md-order-by="refInvoiceNumber" class="width-130 cm-white-space-normal">
+                    Ref. Invoice#
+                  </th>
+                  <th md-column md-order-by="packingDetailNote" class="width-100 cm-white-space-normal">
+                    Comments
+                  </th>
+                </tr>
+              </thead>
+              <tbody md-body>
+                <tr md-row ng-repeat="item in vm.packingSlipData | orderBy: vm.query.order">
+                  <td md-cell class="width-30">
+                    <md-checkbox ng-model="item.isSelected"
+                                 ng-disabled="isReadOnly || vm.paymentId || vm.isVoidAndReIssuePayment"
+                                 ng-change="vm.selectReceipt(item)"
+                                 class="margin-top-10 margin-bottom-10">
+                    </md-checkbox>
+                  </td>
+                  <td md-cell class="width-30">{{$index+1}}</td>
+                  <td md-cell class="width-120">{{item.systemId}}</td>
+                  <td md-cell class="width-110">{{item.receiptName}}</td>
+                  <td md-cell class="width-130">
+                    <a class="cm-text-decoration underline" ng-if="!item.isDeleted" ng-click="vm.supplierInvoiceDetail(item);">{{item.invoiceNumber}}</a>
+                    <span ng-if="item.isDeleted">{{item.invoiceNumber}}</span>
+                  </td>
+                  <td md-cell class="width-100">{{item.invoiceDate | date:vm.DefaultDateFormat}}</td>
+                  <td md-cell class="width-130">
+                    <a class="cm-text-decoration underline" ng-if="!item.isDeleted" ng-click="vm.supplierInvoiceDetail(item);">{{item.creditMemoNumber}}</a>
+                    <span ng-if="item.isDeleted">{{item.creditMemoNumber}}</span>
+                  </td>
+                  <td md-cell class="width-90">{{item.creditMemoDate | date:vm.DefaultDateFormat}}</td>
+                  <td md-cell class="width-130">
+                    <a class="cm-text-decoration underline" ng-if="!item.isDeleted" ng-click="vm.supplierInvoiceDetail(item);">{{item.debitMemoNumber}}</a>
+                    <span ng-if="item.isDeleted">{{item.debitMemoNumber}}</span>
+                  </td>
+                  <td md-cell class="width-90">{{item.debitMemoDate | date:vm.DefaultDateFormat}}</td>
+                  <td md-cell class="text-right width-120" ng-class="{'color-red': item.totalExtendedAmount < 0}">{{item.totalExtendedAmount | amount}}</td>
+                  <td md-cell class="text-right width-100" ng-class="{'color-red': item.totalDiscount}">{{item.totalDiscount | amount}}</td>
+                  <td md-cell class="text-right width-100">{{item.markedForRefundAmt | amount}}</td>
+                  <td md-cell class="text-right width-120" ng-class="{'color-red': item.totalPaidAmount < 0}">{{item.totalPaidAmount | amount}}</td>
+
+                  <!--<td md-cell class="text-right width-100" ng-class="{'color-red': item.paymentAmount < 0}">{{item.paymentAmount | amount}}</td>-->
+                <td md-cell class="text-right width-130 padding-right-8-imp" ng-class="{'color-red': item.paymentAmount < 0}">
+                  <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                    <input type="number" id="{{vm.paymentFieldPrefixName}}{{$index}}" name="{{vm.paymentFieldPrefixName}}{{$index}}"
+                           ng-model="item.paymentAmount" placeholder="Payment Amount"
+                           step="{{vm.amountInputStep}}"
+                           flex="100" required ng-disabled="isReadOnly || vm.paymentId || !item.isSelected || vm.isVoidAndReIssuePayment"
+                           custom-blur="vm.onPayableAmountEdit(item)">
+                  </md-input-container>
+                </td>
+
+                  <td md-cell class="text-right width-120" ng-class="{'color-red': item.balanceToPayAmount < 0}">{{item.balanceToPayAmount | amount}}</td>
+                  <td md-cell class="width-130">
+                    <a class="cm-text-decoration underline" ng-if="!item.isDeleted" ng-click="vm.supplierInvoiceDetail(item,true);">{{item.refInvoiceNumber}}</a>
+                    <span ng-if="item.isDeleted">{{item.refInvoiceNumber}}</span>
+                  </td>
+                  <td md-cell class="width-100">
+                    <md-button class="md-warn"
+                               ng-class="{'md-hue-1': !item.packingDetailNote }"
+                               ng-disabled="!item.packingDetailNote"
+                               ng-click="vm.showApproveNote(item, $event)">
+                      View
+                    </md-button>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr md-row>
+                  <td md-cell class="width-30"></td>
+                  <td md-cell class="width-30"></td>
+                  <td md-cell class="width-30"></td>
+                  <td md-cell class="width-110">Total:</td>
+                  <td md-cell class="width-130"></td>
+                  <td md-cell class="width-100"></td>
+                  <td md-cell class="width-130"></td>
+                  <td md-cell class="width-90"></td>
+                  <td md-cell class="width-130"></td>
+                  <td md-cell class="width-90"></td>
+                  <td md-cell class="text-right width-100" ng-class="{'color-red': vm.grandTotalExtendedAmount < 0}">{{vm.getTotalExtendedAmount()}}</td>
+                  <td md-cell class="text-right width-100" ng-class="{'cm-table-footer-font-red': vm.grandTotalDiscountAmount}">{{vm.getTotalDiscountAmount()}}</td>
+                  <td md-cell class="text-right width-100">{{vm.getTotalRefundAmount()}}</td>
+                  <td md-cell class="text-right width-100" ng-class="{'color-red': vm.grandTotalPaidAmount < 0}">{{vm.getTotalPaidAmount()}}</td>
+                  <td md-cell class="text-right width-130 padding-right-8-imp" ng-class="{'color-red': vm.grandTotalPaymentAmount < 0}">{{vm.getTotalPaymentAmount()}}</td>
+                  <td md-cell class="text-right width-100" ng-class="{'color-red': vm.grandTotalBalanceToPayAmount < 0}">{{vm.getTotalBalancetoPayAmount()}}</td>
+                  <td md-cell class="width-130"></td>
+                  <td md-cell class="width-100"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </md-table-container>
+        </div>
+
+      </div>
+    </div>
+</form>
+</div>

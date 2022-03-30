@@ -1,0 +1,120 @@
+﻿@using FJT.ReportViewer.Helper;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report Viewer</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+</head>
+<body onunload="removeTokenRenewInterval()">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <div>
+                    <a class="navbar-brand" asp-area="" asp-controller="Viewer" asp-action="Index"><strong>Report Viewer</strong></a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
+
+                <div class="navbar-collapse collapse d-flex justify-content-center">
+                    <strong>@ViewBag.ReportName</strong>
+                </div>
+
+                <div class="d-flex justify-content-end align-items-center">
+                    @if (ViewBag.status != null)
+                    {
+                        <div class="mr-2">
+                            Status: <Strong>@ViewBag.status</Strong>
+                        </div>
+                    }
+                    <div>
+                        <button type="button" class="rounded px-3 py-1 mr-0 ml-2 btn-light border" onclick="logOutConfirmation();"><strong>Logout</strong></button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid">
+        <!-- LogOut confirmation Modal -->
+        <div class="modal fade z-indez-10k5" id="confirmationModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title text-danger">Confirmation</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="modal-body">
+                        <p id="confirmationModalBody">@ConstantHelper.LOGOUT_CONFIRMATION</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-light border" data-dismiss="modal">NO</button>
+                        <button class="btn btn-primary border" data-dismiss="modal" onclick="logOutConfirmed();">YES</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container-fluid">
+            &copy; 2021 - Report Viewer
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+    <script>
+        var interval = null;
+        var renewTokenURL = null;
+        var tokenRenewInterval = null;
+
+        function logOutConfirmation() {
+            //$("#confirmationModalBody").html('You will be logout from all connected app. Are you sure you want to logout?');
+            $('#confirmationModal').modal({
+                keyboard: false,
+                backdrop: 'static'
+            });
+        }
+        function logOutConfirmed() {
+            var url = '@Url.Action("LogOut", "LogOut")';
+            window.location.href = url;
+        }
+        function RenewToken() {
+            if (interval && renewTokenURL) {
+                $.get(renewTokenURL, function (data) {
+                });
+            }
+            else {
+                renewTokenURL = '@Url.Action("RenewToken", "Utility")';
+                $.get(renewTokenURL, function (data) {
+                    if (data && data > 1) {
+                        interval = data;
+                        if (tokenRenewInterval) {
+                            clearInterval(tokenRenewInterval);
+                        }
+                        tokenRenewInterval = setInterval(function () { RenewToken() }, interval);
+                    }
+                });
+            }
+        }
+        function removeTokenRenewInterval() {
+            clearInterval(tokenRenewInterval);
+        }
+
+    $(function () {
+        RenewToken();
+    });
+    </script>
+</body>
+</html>

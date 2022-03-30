@@ -1,0 +1,302 @@
+<md-dialog aria-label="TravelelrHistory" class="traveler cm-custom-label-common cm-history width-91p" flex-md="95" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.travelerForm">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{vm.data.title}}: {{vm.data.opData.opName}}<span class="cursor-pointer" ng-if="vm.data.opData.isLoopOperation"><md-icon md-font-icon="icon-rotate-3d"></md-icon><md-tooltip>Loop Operation</md-tooltip></span></h2>
+        <span flex></span>
+        <div layout="row" layout-align="center center">
+          <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        </div>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll">
+      <md-content class="ms-form-wizard" layout="column" layout-gt-xs="row">
+        <md-tabs flex="100" md-dynamic-height ng-if="vm.data.isLoad">
+          <md-tab label="Start/Stop History" ng-click="vm.getOperationHistory();">
+            <div class="padding-10 mh-5" flex="100">
+              <div layout="row" class="pb-10" layout-align="space-between center" ng-if="vm.ChildEmployeeData">
+                <div layout="row">
+                  <span flex="100" ng-if="vm.data.opData.isLoopOperation"><b>{{vm.LOOP_OPERATION_PASS_QTY_INFORMATION.message}}</b></span>
+                </div>
+                <div layout="row" flex="40">
+                  <md-input-container class="margin-bottom-0 error-none" flex md-no-float>
+                    <input type="text" ng-model="vm.query.search" ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Type here to search">
+                  </md-input-container>
+                  <!--<md-button class="md-primary md-raised mv-0 mr-0" aria-label="Search" ng-if="!vm.query.search">
+                    Search
+                  </md-button>-->
+                  <md-button class="md-icon-button height-auto width-auto" aria-label="Clear" ng-if="vm.query.search" ng-click="vm.query.search = ''">
+                    <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                  </md-button>
+                </div>
+              </div>
+              <md-content>
+                <div ng-if="vm.ChildEmployeeData">
+                  <md-expansion-panel-group md-component-id="panelGroup" multiple ng-repeat="item in vm.ChildEmployeeData   | filter: vm.query.search" flex="100">
+                    <md-expansion-panel md-component-id="panelOne{{$index}}">
+                      <md-expansion-panel-collapsed>
+                        <table md-table class="md-data-table border table-row-select traveler" md-row-select ng-model="vm.selectedItems">
+                          <thead md-head md-order="vm.query.order" ng-class="{'visible-hidden' : $index != 0}">
+                            <tr md-row>
+                              <th md-column></th>
+                              <th md-column>#</th>
+                              <th class="text-center" md-column>Activity</th>
+                              <th md-column md-numeric>Issue Qty</th>
+                              <th md-column>Start Time</th>
+                              <th md-column>Stop Time</th>
+                              <th md-column>User ID</th>
+                              <th md-column>Total Time</th>
+                              <th md-column>Production Time</th>
+                            </tr>
+                          </thead>
+                          <tbody md-body>
+                            <tr md-row>
+                              <td md-cell>+</td>
+                              <td class="width-20" md-cell>{{$index+1}}</td>
+                              <td class="width-150 text-center" md-cell>
+                                <label class="width-100 padding-0 margin-5 label-box {{item.isSetup ? 'label-warning' : 'label-success'}}">{{item.activityType}}</label>
+                              </td>
+                              <td class="width-100" md-cell md-numeric>
+                                {{vm.checkItemQty(item.issueQty)}}
+                              </td>
+                              <td class="text-center width-170" md-cell>
+                                {{item.checkinTime }}
+                              </td>
+                              <td class="text-center width-170" md-cell>
+                                {{item.checkoutTime}}
+                              </td>
+                              <td md-cell class="width-150">
+                                {{(item.checkOutEmployee?(item.checkOutEmployee.initialName?item.checkOutEmployee.initialName:''):'')}}
+                              </td>
+                              <td class="text-center width-100" md-cell>
+                                {{item.totalTime}}
+                              </td>
+                              <td class="text-center width-100" md-cell>
+                                {{item.productionTime}}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </md-expansion-panel-collapsed>
+                      <div></div>
+                      <md-expansion-panel-expanded>
+                        <md-expansion-panel-content>
+                          <table md-table class="md-data-table table-row-select  traveler" md-row-select ng-model="vm.selectedItems">
+                            <thead md-head ng-click="$panel.collapse()" class="cursor-pointer">
+                              <tr md-row>
+                                <!--<table class="simple traveler" ms-responsive-table>
+                                <thead>
+                                    <tr>-->
+                                <th md-column>
+                                  <md-icon role="img" md-font-icon="icon-minus" class="material-icons mat-icon icon-minus"></md-icon>
+                                </th>
+                                <th md-column>#</th>
+                                <th md-column>Start Time</th>
+                                <th md-column>Stop Time</th>
+                                <th md-column>User ID</th>
+                                <th md-column>Total Time</th>
+                                <th md-column>Production Time</th>
+                              </tr>
+                            </thead>
+                            <tbody md-body ng-repeat="itemData in item.workorderTransEmpinoutAll">
+                              <tr md-row>
+                                <td md-cell class="width-65"></td>
+                                <td md-cell class="width-65">{{$index+1}}</td>
+                                <td class="text-center width-170" md-cell>
+                                  {{itemData.checkinTime }}
+                                </td>
+                                <td class="text-center width-170" md-cell>
+                                  {{itemData.checkoutTime }}
+                                </td>
+                                <td md-cell class="width-150">
+                                  {{(itemData.employee?(itemData.employee.initialName?itemData.employee.initialName:''):'')}}
+                                </td>
+                                <td class="text-center width-100" md-cell>
+                                  {{itemData.totalTime}}
+                                </td>
+                                <td class="text-center width-100" md-cell>
+                                  {{itemData.productionTime}}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </md-expansion-panel-content>
+                      </md-expansion-panel-expanded>
+                    </md-expansion-panel>
+                  </md-expansion-panel-group>
+                </div>
+
+                <div class="empty-state text-center full-height" layout="row" layout-align="center center"
+                     layout-wrap ng-if="!vm.ChildEmployeeData">
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.EmptyMesssageInOut.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title">{{vm.EmptyMesssageInOut.MESSAGE}}</p>
+                </div>
+                <div class="empty-state text-center full-height" layout="row" layout-align="center center"
+                     layout-wrap ng-if="(vm.ChildEmployeeData  | filter: vm.query.search).length == 0 ">
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.emptySearch.IMAGEURL}}" />
+                  </div>
+                  <p class="empty-state-title" flex="100">{{vm.emptySearch.MESSAGE}}</p>
+                </div>
+              </md-content>
+            </div>
+          </md-tab>
+          <md-tab label="Stock History" ng-if="vm.data.opData.qtyControl" ng-click="vm.getStockHistory()">
+            <div class="padding-10 mh-5" flex="100">
+              <div layout="row" class="pb-10" ng-if="vm.stockData" layout-align="space-between center">
+                <div layout="row">
+                  <span flex="100" ng-if="vm.data.opData.isLoopOperation"><b>{{vm.LOOP_OPERATION_PASS_QTY_INFORMATION.message}}</b></span>
+                </div>
+                <div layout="row" flex="40">
+                  <md-input-container class="margin-bottom-0 error-none" flex md-no-float>
+                    <input type="text" ng-model="vm.query.stock_search" ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Type here to search">
+                  </md-input-container>
+                  <!--<md-button class="md-primary md-raised mv-0 mr-0" aria-label="Search" ng-if="!vm.query.stock_search">
+                    Search
+                  </md-button>-->
+                  <md-button class="md-icon-button height-auto width-auto" aria-label="Clear" ng-if="vm.query.stock_search" ng-click="vm.query.stock_search = ''">
+                    <md-icon md-font-icon="icon-close" role="img"></md-icon>
+                  </md-button>
+                </div>
+
+              </div>
+              <md-content>
+                <div class="customer" ng-if="vm.stockData">
+                  <md-expansion-panel-group md-component-id="panelGroup" multiple ng-repeat="item in vm.stockData  | filter: vm.query.stock_search">
+                    <md-expansion-panel md-component-id="panelTwo{{$index}}">
+                      <md-expansion-panel-collapsed>
+                        <table md-table class="md-data-table table-row-select border traveler" md-row-select ng-model="vm.selectedItems">
+                          <thead md-head ng-class="{'visible-hidden' : $index != 0}">
+                            <tr md-row>
+                              <th md-column></th>
+                              <th md-column>#</th>
+                              <th md-column md-numeric>Total</th>
+                              <th md-column md-numeric>Issue Qty</th>
+                              <th md-column>Date</th>
+                              <th md-column>Started By</th>
+                              <th md-column>Stopped By</th>
+                              <th md-column md-numeric>Passed</th>
+                              <th md-column md-numeric>Reprocess Required</th>
+                              <th md-column md-numeric>Defect Observed</th>
+                              <th md-column md-numeric>Rework Required</th>
+                              <th md-column md-numeric>Scrapped</th>
+                              <th md-column md-numeric>Board With Missing Parts</th>
+                              <th md-column md-numeric>Bypassed</th>
+                            </tr>
+                          </thead>
+                          <tbody md-body>
+                            <tr md-row>
+                              <td md-cell>+</td>
+                              <td md-cell>{{$index+1}}</td>
+                              <td md-cell md-numeric>{{vm.checkItemQty(item.TotalQtywoTransIdwise)}}</td>
+                              <td md-cell md-numeric>{{vm.checkItemQty(item.issueQty)}}</td>
+                              <td md-cell>{{item.createdAt}}</td>
+                              <td md-cell>{{item.CheckInemployeeName}}</td>
+                              <td md-cell>{{item.CheckOutemployeeName}}</td>
+                              <td md-cell md-numeric>
+                                {{vm.checkItemQty(item.TotalPassQtywoTransIdwise)}}
+                              </td>
+                              <td md-numeric md-cell>
+                                {{vm.checkItemQty(item.TotalReprocessQtywoTransIdwise)}}
+                              </td>
+                              <td md-numeric md-cell>{{vm.checkItemQty(item.TotalObservedQtywoTransIdwise)}}</td>
+                              <td md-numeric md-cell>{{vm.checkItemQty(item.TotalReworkQtywoTransIdwise)}}</td>
+                              <td md-numeric md-cell>{{vm.checkItemQty(item.TotalScrapQtywoTransIdwise)}}</td>
+                              <td md-numeric md-cell>{{vm.checkItemQty(item.TotalBoardWithMissingPartsQtywoTransIdwise)}}</td>
+                              <td md-numeric md-cell>{{vm.checkItemQty(item.TotalBypassQtywoTransIdwise)}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </md-expansion-panel-collapsed>
+                      <md-expansion-panel-expanded>
+                        <md-expansion-panel-content>
+                          <table md-table class="md-data-table table-row-select  traveler" md-row-select ms-responsive-table ng-if="vm.ProductionStockData.woTransProductionDetails.length > 0" ng-model="vm.selectedItems">
+                            <thead md-head ng-click="$panel.collapse()" class="cursor-pointer">
+                              <tr md-row>
+                                <th md-column>
+                                  <md-icon role="img" md-font-icon="icon-minus" class="material-icons mat-icon icon-minus"></md-icon>
+                                </th>
+                                <!--<th md-column>Action</th>-->
+                                <th md-column>#</th>
+                                <th md-column>User ID</th>
+                                <th md-column md-numeric>Total</th>
+                                <th md-numeric md-column>Passed</th>
+                                <th md-numeric md-column>Reprocess Required</th>
+                                <th md-numeric md-column>Defect Observed</th>
+                                <th md-numeric md-column>Rework Required</th>
+                                <th md-numeric md-column>Scrapped</th>
+                                <th md-numeric md-column>Board With Missing Parts</th>
+                                <th md-numeric md-column>Bypassed</th>
+                              </tr>
+                            </thead>
+
+                            <tbody md-body>
+                              <tr md-row ng-repeat="itemData in item.data">
+                                <td md-cell></td>
+                                <td md-cell>{{$index+1}}</td>
+                                <td md-cell>
+                                  {{(itemData.employee?(itemData.employee.initialName?itemData.employee.initialName:''):'')}}
+                                </td>
+                                <td md-numeric md-cell>
+                                  {{vm.checkItemQty(itemData.totalQty)}}
+                                </td>
+                                <td md-numeric md-cell>
+                                  {{vm.checkItemQty(itemData.passQty)}}
+                                </td>
+                                <td md-numeric md-cell>
+                                  {{vm.checkItemQty(itemData.reprocessQty)}}
+                                </td>
+                                <td md-numeric md-cell>
+                                  {{vm.checkItemQty(itemData.observedQty)}}
+                                </td>
+                                <td md-numeric md-cell>
+                                  {{vm.checkItemQty(itemData.reworkQty)}}
+                                </td>
+                                <td md-numeric md-cell>
+                                  {{vm.checkItemQty(itemData.scrapQty)}}
+                                </td>
+                                <td md-numeric md-cell>
+                                  {{vm.checkItemQty(itemData.boardWithMissingPartsQty)}}
+                                </td>
+                                <td md-numeric md-cell>
+                                  {{vm.checkItemQty(itemData.bypassQty)}}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </md-expansion-panel-content>
+                      </md-expansion-panel-expanded>
+                    </md-expansion-panel>
+                  </md-expansion-panel-group>
+                </div>
+
+                <div class="empty-state text-center full-height" layout="row" layout-align="center center"
+                     layout-wrap ng-if="!vm.stockData">
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.EmptyMesssageStock.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title">{{vm.EmptyMesssageStock.MESSAGE}}</p>
+                </div>
+                <div class="empty-state text-center full-height" layout="row" layout-align="center center"
+                     layout-wrap ng-if="(vm.stockData  | filter: vm.query.stock_search).length == 0 ">
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.emptySearch.IMAGEURL}}" />
+                  </div>
+                  <p class="empty-state-title" flex="100">{{vm.emptySearch.MESSAGE}}</p>
+                </div>
+              </md-content>
+            </div>
+          </md-tab>
+        </md-tabs>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Close</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

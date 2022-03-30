@@ -1,0 +1,280 @@
+<md-dialog aria-label="Transfer Stock" class="cm-custom-label-common reserve-stock-request-popup" draggable>
+  <form name="vm.reserveStockRequestForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Reserve Stock Request</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerData"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="no-padding custom-scroll" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+      <md-content class="md-padding">
+        <!--padding-10-->
+        <div class="cm-section-main border-0" flex="100">
+          <div class="cm-section-inner cm-section-inner-popup" flex="100">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tr>
+
+                <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToCustomerList();" tabindex="-1">{{vm.autoCompleteCustomer.placeholderName}}</a><span ng-if="!vm.requestID" >&nbsp;*</span></p></th>
+                <td colspan="3">
+                  <md-input-container ng-if="vm.autoCompleteCustomer" class="autocompletecustom width-100p" flex="100">
+                    <custom-auto-complete custom-auto-focus="{{vm.requestID ? false : true}}"
+                                          datalist="vm.customerList"
+                                          column-name="vm.autoCompleteCustomer.columnName"
+                                          controller-name="vm.autoCompleteCustomer.controllerName"
+                                          view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                          key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                          input-name="vm.autoCompleteCustomer.inputName"
+                                          placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                          key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                          is-required="vm.autoCompleteCustomer.isRequired"
+                                          is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                          callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                          add-data="vm.autoCompleteCustomer.addData"
+                                          on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn"
+                                          is-disabled="vm.requestID">
+                    </custom-auto-complete>
+                  </md-input-container>
+                </td>
+
+                <th><p class="label-container">Transaction Date<span>&nbsp;*</span></p></th>
+                <td>
+                  <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                    <input name="transactionDate" type="text" class="float-left"
+                           id="transactionDate"
+                           datetime-picker="{{$root.dateDisplayFormat}}"
+                           ui-mask="{{$root.uimaskFormat.date.mask}}"
+                           ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                           ng-model="vm.reserveStockRequestDet.transactionDate"
+                           enable-time="false"
+                           ui-options="{clearOnBlur  : true}"
+                           model-view-value="true"
+                           datepicker-options="vm.transactionDateOptions"
+                           is-open="vm.IsPickerOpen[vm.DATE_PICKER.transactionDate]"
+                           required />
+                    <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.transactionDate] = true">
+                    </md-icon>
+                    <div ng-messages="vm.reserveStockRequestForm.transactionDate.$error" role="alert">
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                      <div ng-message="datetime || mask || parse">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <p flex="20" class="label-container margin-top-0 margin-bottom-0 layout-align-end-start">
+                    <a class="cm-text-decoration underline" ng-click="vm.goToPartList();" tabindex="-1">{{vm.LabelConstant.Assembly.PIDCode}}</a>
+                  </p>
+                </th>
+                <td>
+                  <md-input-container ng-if="vm.autoCompleteAssy" class="autocompletecustom cm-custom-autocomplete margin-0">
+                    <custom-auto-complete datalist="vm.assyList"
+                                          column-name="vm.autoCompleteAssy.columnName"
+                                          controller-name="vm.autoCompleteAssy.controllerName"
+                                          view-template-url="vm.autoCompleteAssy.viewTemplateURL"
+                                          key-column-name="vm.autoCompleteAssy.keyColumnName"
+                                          input-name="vm.autoCompleteAssy.inputName"
+                                          placeholder-name="vm.autoCompleteAssy.placeholderName"
+                                          key-column-id="vm.autoCompleteAssy.keyColumnId"
+                                          is-required="vm.autoCompleteAssy.isRequired"
+                                          is-addnew="vm.autoCompleteAssy.isAddnew"
+                                          callback-fn="vm.autoCompleteAssy.callbackFn"
+                                          add-data="vm.autoCompleteAssy.addData"
+                                          on-select-callback-fn="vm.autoCompleteAssy.onSelectCallbackFn"
+                                          is-disabled="vm.autoCompleteCustomer && !vm.autoCompleteCustomer.keyColumnId ? true : false">
+                    </custom-auto-complete>
+                  </md-input-container>
+                </td>
+                <th><p class="label-container">{{vm.LabelConstant.Assembly.Assy}}</p></th>
+                <td>
+                  <md-input-container flex="100" class="margin-bottom-0">
+                    <input type="text" ng-maxlength="20" capitalize class="input-text-uppercase" id="assyCode" name="assyCode" ng-model="vm.reserveStockRequestDet.assyCode" ng-disabled="true">
+                    <div ng-messages="vm.reserveStockRequestForm.assyCode.$error" role="alert">
+                      <div ng-message="maxlength">
+                        <span>{{vm.getMaxLengthValidation(20, vm.reserveStockRequestForm.assyCode.$viewValue.length)}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </td>
+                <th><p class="label-container">Nickname</p></th>
+                <td>
+                  <!--<md-input-container flex="100" class="margin-bottom-0">
+                  <input type="text" ng-maxlength="50" capitalize class="input-text-uppercase" id="nickName" name="nickName" ng-model="vm.reserveStockRequestDet.nickName" ng-disabled="vm.autoCompleteAssy.keyColumnId">
+                  <div ng-messages="vm.reserveStockRequestForm.$error" role="alert">
+                    <div ng-message="maxlength">
+                      <span>{{vm.getMaxLengthValidation(50, vm.reserveStockRequestForm.nickname.$viewValue.length)}}</span>
+                    </div>
+                  </div>
+                </md-input-container>-->
+                  <md-input-container ng-if="vm.autoCompleteAssyNickname" class="autocompletecustom cm-custom-autocomplete margin-0">
+                    <custom-auto-complete datalist="vm.assyList"
+                                          column-name="vm.autoCompleteAssyNickname.columnName"
+                                          controller-name="vm.autoCompleteAssyNickname.controllerName"
+                                          view-template-url="vm.autoCompleteAssyNickname.viewTemplateURL"
+                                          key-column-name="vm.autoCompleteAssyNickname.keyColumnName"
+                                          input-name="vm.autoCompleteAssyNickname.inputName"
+                                          placeholder-name="vm.autoCompleteAssyNickname.placeholderName"
+                                          key-column-id="vm.autoCompleteAssyNickname.keyColumnId"
+                                          is-required="vm.autoCompleteAssyNickname.isRequired"
+                                          is-addnew="vm.autoCompleteAssyNickname.isAddnew"
+                                          callback-fn="vm.autoCompleteAssyNickname.callbackFn"
+                                          on-select-callback-fn="vm.autoCompleteAssyNickname.onSelectCallbackFn"
+                                          is-disabled="!vm.autoCompleteCustomer.keyColumnId || vm.autoCompleteAssy.keyColumnId">
+                    </custom-auto-complete>
+                  </md-input-container>
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <p class="label-container">
+                    <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToMFGList();">{{vm.LabelConstant.MFG.MFG}}</a><span ng-if="!vm.requestID">&nbsp;*</span>
+                  </p>
+                </th>
+                <td>
+                  <md-input-container ng-if="vm.autoCompletemfgCode" class="autocompletecustom margin-bottom-0" flex="100" id="autoMFGCode">
+                    <custom-auto-complete-search class="min-width-initial"
+                                                 on-search-fn="vm.autoCompletemfgCode.onSearchFn"
+                                                 column-name="vm.autoCompletemfgCode.columnName"
+                                                 controller-name="vm.autoCompletemfgCode.controllerName"
+                                                 view-template-url="vm.autoCompletemfgCode.viewTemplateURL"
+                                                 key-column-name="vm.autoCompletemfgCode.keyColumnName"
+                                                 input-name="vm.autoCompletemfgCode.inputName"
+                                                 placeholder-name="vm.autoCompletemfgCode.placeholderName"
+                                                 key-column-id="vm.autoCompletemfgCode.keyColumnId"
+                                                 is-required="vm.autoCompletemfgCode.isRequired"
+                                                 parent-column-name="vm.autoCompletemfgCode.parentColumnName"
+                                                 is-addnew="vm.autoCompletemfgCode.isAddnew"
+                                                 is-disabled="vm.requestID"
+                                                 add-data="vm.autoCompletemfgCode.addData"
+                                                 callback-fn="vm.autoCompletemfgCode.callbackFn"
+                                                 on-select-callback-fn="vm.autoCompletemfgCode.onSelectCallbackFn">
+                    </custom-auto-complete-search>
+                  </md-input-container>
+                </td>
+                <th><p class="label-container"><a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToPartList();">{{vm.LabelConstant.MFG.MFGPN}}</a><span ng-if="!(!vm.autoCompletemfgCode.keyColumnId || vm.requestID)">&nbsp;*</span></p></th>
+                <td colspan="3">
+                  <md-input-container ng-if="vm.autoCompletecomponent" class="autocompletecustom margin-bottom-0" flex="100">
+                    <custom-auto-complete-search class="min-width-initial"
+                                                 on-search-fn="vm.autoCompletecomponent.onSearchFn"
+                                                 column-name="vm.autoCompletecomponent.columnName"
+                                                 controller-name="vm.autoCompletecomponent.controllerName"
+                                                 view-template-url="vm.autoCompletecomponent.viewTemplateURL"
+                                                 key-column-name="vm.autoCompletecomponent.keyColumnName"
+                                                 input-name="vm.autoCompletecomponent.inputName"
+                                                 placeholder-name="vm.autoCompletecomponent.placeholderName"
+                                                 key-column-id="vm.autoCompletecomponent.keyColumnId"
+                                                 is-required="vm.autoCompletecomponent.isRequired"
+                                                 is-addnew="vm.autoCompletecomponent.isAddnew"
+                                                 is-disabled="!vm.autoCompletemfgCode.keyColumnId || vm.requestID"
+                                                 add-data="vm.autoCompletecomponent.addData"
+                                                 callback-fn="vm.autoCompletecomponent.callbackFn"
+                                                 on-select-callback-fn="vm.autoCompletecomponent.onSelectCallbackFn">
+                    </custom-auto-complete-search>
+                  </md-input-container>
+                </td>
+              </tr>
+              <tr>
+
+                <th><p class="label-container" flex="40" flex-lg="40">Count<span>&nbsp;*</span></p></th>
+                <td>
+                  <md-input-container flex="100" class="margin-bottom-0">
+                    <input type="number" id="count" name="count" ng-model="vm.reserveStockRequestDet.count" placeholder="Count" min="1" step="{{$root.unitInputStep}}" input-number-decimal-place maxlength="10" required custom-auto-focus="{{vm.requestID ? true: false}}">
+                    <div ng-messages="vm.reserveStockRequestForm.count.$error" role="alert">
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                      <div ng-message="min || number || step || maxlength">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </td>
+
+                <th><p class="label-container" flex="30">Unit</p></th>
+                <td>
+                  <md-input-container flex="100" class="margin-bottom-0">
+                    <input type="number" id="unit" name="unit" ng-model="vm.reserveStockRequestDet.unit" placeholder="Unit" min="1" maxlength="16" step="{{$root.unitInputStep}}" input-number-decimal-place required ng-disabled="true">
+                    <div ng-messages="vm.reserveStockRequestForm.unit.$error" role="alert">
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                      <div ng-message="min || max || number || step">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="maxlength">
+                        <span>{{vm.getMaxLengthValidation(16,vm.reserveStockRequestForm.unit.$viewValue.length)}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+
+                </td>
+                <th>
+                  <p flex="40" flex-lg="50" class="label-container">
+                    <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToUOMList();">UOM</a>
+                  </p>
+                </th>
+                <td>
+                  <!--<md-input-container flex="100" class="autocompletecustom min-width-initial margin-bottom-0">
+                  <custom-auto-complete datalist="vm.uomlist"
+                                        column-name="vm.autoCompleteuom.columnName"
+                                        key-column-name="vm.autoCompleteuom.keyColumnName"
+                                        input-name="vm.autoCompleteuom.inputName"
+                                        placeholder-name="vm.autoCompleteuom.placeholderName"
+                                        key-column-id="vm.autoCompleteuom.keyColumnId"
+                                        is-addnew="vm.autoCompleteuom.isAddnew"
+                                        callback-fn="vm.autoCompleteuom.callbackFn"
+                                        on-select-callback-fn="vm.autoCompleteuom.onSelectCallbackFn"
+                                        is-required="vm.autoCompleteuom.isRequired"
+                                        is-disabled="true">
+                  </custom-auto-complete>
+                </md-input-container>-->
+                  <md-input-container flex="100" class="margin-bottom-0">
+                    <input type="text" id="unitName" name="unitName" ng-model="vm.reserveStockRequestDet.unitName" placeholder="Unit" maxlength="100" required ng-disabled="true">
+                    <div ng-messages="vm.reserveStockRequestForm.unitName.$error" role="alert">
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                      <div ng-message="maxlength">
+                        <span>{{vm.getMaxLengthValidation(100,vm.reserveStockRequestForm.unitName.$viewValue.length)}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </td>
+              </tr>
+              <tr>
+                <th><p class="label-container">Description</p></th>
+                <td width="100" colspan="5">
+                  <md-input-container flex="100" class="margin-bottom-0">
+                    <input type="text" name="description" id="description" ng-model="vm.reserveStockRequestDet.description" placeholder="Description" ng-maxlength="1000" />
+                    <div ng-messages="vm.reserveStockRequestForm.description.$error" role="alert">
+                      <div ng-message="maxlength">
+                        <span>{{vm.getMaxLengthValidation(1000,vm.reserveStockRequestForm.description.$viewValue.length)}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised"
+                  ng-class="{'md-formdirty': vm.reserveStockRequestForm.$dirty}"
+                  ng-disabled="vm.saveBtnDisableFlag"
+                 ng-click="vm.saveRequest()">Save</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>
+

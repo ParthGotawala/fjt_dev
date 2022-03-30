@@ -1,0 +1,518 @@
+<md-dialog aria-label="VarificationSlip" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable ng-class="{'flex-80': vm.action === 'AddMemo'}">
+  <!--flex="{{vm.action == 'AddMemo' ? 80 : 40}}"-->
+  <form name="vm.formVarificationPackaging" class="md-inline-form" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2 ng-if="vm.action == 'AddMemo'">Line Variance Approvals</h2>
+        <h2 ng-if="vm.action != 'AddMemo'">Referenced Credit/Debit Memo</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content class="padding-10">
+      <md-content>
+
+        <div class="cm-section-main margin-bottom-5 border-0">
+          <div class="cm-section-inner">
+
+            <div class="cm-labor-table cm-verification-packing-slip-table mb-10" ng-if="vm.action == 'AddMemo'">
+              <table class="table-responsive width-100p">
+                <thead>
+                  <tr class="bgcolor-summary">
+                    <th class="width-35"></th>
+                    <th class="width-35"></th>
+                    <th class="color-white  margin-right-4 width-80">Issue</th>
+                    <th class="color-white cm-ver-pck-cell">Packing Slip Qty</th>
+                    <th class="color-white cm-ver-pck-cell">Received Qty</th>
+                    <th class="color-white cm-ver-pck-cell">Qty Discrepancy</th>
+                    <th class="color-white cm-ver-pck-cell">Invoice Price ($)</th>
+                    <th class="color-white cm-ver-pck-cell">Agreed Purchase Unit Price ($)</th>
+                    <th class="color-white cm-ver-pck-cell">Variance ($)</th>
+                    <th class="color-white cm-ver-pck-cell">Material Extended Charges ($)</th>
+                  </tr>
+                </thead>
+                <tbody class="margin-top-5">
+                  <tr class="ng-scope">
+                    <td class="bgcolor-summary nowrap width-35">
+                      <md-checkbox ng-model="vm.isMemoForPrice" class="mv-0 margin-0" ng-disabled="!vm.verification.priceExtendedCharge || vm.verification.isMemoForPrice || vm.verification.discount"
+                                   ng-change="vm.calculateMemoAmount()"></md-checkbox>
+                    </td>
+                    <td class="margin-right-4 bgcolor-summary nowrap width-80">
+                      <b>Price Issue</b>
+                    </td>
+                    <td class="margin-right-4 cm-ver-pck-cell">
+                      <div>
+                        <input type="number" class="cm-disable-color cm-ver-pck-cell" id="packingSlipQtyForPrice" name="packingSlipQtyForPrice" ng-model="vm.verification.packingSlipQty" placeholder="Packing Slip Qty"
+                               input-number-decimal-place onkeypress="return OnlyNumbersWithDot(event)" min="0" maxlength="18" step="{{$root.unitInputStep}}"
+                               ng-disabled="true">
+                      </div>
+                    </td>
+                    <td class="margin-right-4 cm-ver-pck-cell">
+                      <div>
+                        <input type="number" class="cm-ver-pck-cell cm-disable-color" id="receivedQtyForPrice" name="receivedQtyForPrice" ng-model="vm.verification.receivedQty" placeholder="Received Qty"
+                               input-number-decimal-place onkeypress="return OnlyNumbersWithDot(event)" min="0" maxlength="18" step="{{$root.unitInputStep}}"
+                               ng-disabled="true">
+                      </div>
+                    </td>
+                    <td class="margin-right-4 cm-ver-pck-cell">
+                      <div>
+                        <input type="number" class="cm-disable-color cm-ver-pck-cell" id="differenceQtyForPrice" name="differenceQtyForPrice" ng-model="vm.verification.differenceQty" placeholder="Variance Qty"
+                               input-number-decimal-place onkeypress="return OnlyNumbersWithDot(event)" min="0" maxlength="18" step="{{$root.unitInputStep}}"
+                               ng-disabled="true">
+                      </div>
+                    </td>
+                    <td class="margin-right-4 cm-ver-pck-cell">
+                      <div>
+                        <input type="number" class="cm-ver-pck-cell" ng-class="{'cm-highlight-cell-error': vm.formVarificationPackaging.invoicePrice.$invalid, 'cm-disable-color': vm.memoList.length > 0, 'text-price': vm.memoList.length == 0}"
+                               id="invoicePriceForPrice" name="invoicePriceForPrice" ng-model="vm.verification.invoicePrice" placeholder="Invoice Price"
+                               input-number-decimal-place onkeypress="return OnlyNumbersWithDot(event)" min="0" maxlength="18" step="{{$root.unitInputStep}}"
+                               required custom-blur="vm.calculatePriceDiffrence()" ng-disabled="vm.memoList && vm.memoList.length > 0">
+                      </div>
+                    </td>
+                    <td class="margin-right-4 cm-ver-pck-cell">
+                      <div>
+                        <input type="number" class="cm-ver-pck-cell" ng-class="{'cm-highlight-cell-error': vm.formVarificationPackaging.invoicePrice.$invalid, 'cm-disable-color': vm.memoList.length > 0, 'text-price': vm.memoList.length == 0}"
+                               id="purchasePriceForPrice" name="purchasePriceForPrice" ng-model="vm.verification.purchasePrice" placeholder="Agreed Purchase Unit Price"
+                               input-number-decimal-place onkeypress="return OnlyNumbersWithDot(event)" min="0" maxlength="18" step="{{$root.unitInputStep}}"
+                               required custom-blur="vm.calculatePriceDiffrence()" ng-disabled="vm.memoList && vm.memoList.length > 0">
+                      </div>
+                    </td>
+                    <td class="margin-right-4 cm-ver-pck-cell">
+                      <div>
+                        <input type="text" class="cm-disable-color cm-ver-pck-cell text-right" id="diffrenceForPrice" name="diffrenceForPrice"
+                               ng-model="vm.verification.diffrenceDisplay" placeholder="Variance"
+                               ng-disabled="true">
+                      </div>
+                    </td>
+                    <td class="margin-right-4 cm-ver-pck-cell">
+                      <div layout="row">
+                        <input type="text" class="cm-disable-color cm-ver-pck-cell text-right" id="priceExtendedCharge" name="priceExtendedCharge"
+                               ng-model="vm.verification.priceExtendedChargeDisplay" placeholder="Material Extended Charges"
+                               ng-disabled="true">
+                        <md-icon class="icon-question-mark-circle help-icon margin-top-2 h-16">
+                          <md-tooltip md-direction="top" class="tooltip-height-auto"
+                                      ng-bind-html="vm.CORE_CREDIT_DEBIT_MEMO_PRICE_ISSUE_CALCULATION_TOOLTIP">
+                          </md-tooltip>
+                        </md-icon>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="ng-scope">
+                    <td class="bgcolor-summary nowrap width-35">
+                      <md-checkbox ng-model="vm.isMemoForQty" class="mv-0 margin-0" ng-disabled="!vm.verification.qtyExtendedCharge || vm.verification.isMemoForQty || vm.verification.discount"
+                                   ng-change="vm.calculateMemoAmount()"></md-checkbox>
+                    </td>
+                    <td class="margin-right-4 bgcolor-summary nowrap width-80">
+                      <b>Qty Issue</b>
+                    </td>
+                    <td class="margin-right-4 cm-ver-pck-cell">
+                      <div>
+                        <input type="number" class="cm-disable-color cm-ver-pck-cell" id="packingSlipQtyForQty" name="packingSlipQtyForQty" ng-model="vm.verification.packingSlipQty" placeholder="Packing Slip Qty"
+                               input-number-decimal-place onkeypress="return OnlyNumbersWithDot(event)" min="0" maxlength="18" step="{{$root.unitInputStep}}"
+                               ng-disabled="true">
+                      </div>
+                    </td>
+                    <td class="margin-right-4 cm-ver-pck-cell">
+                      <div>
+                        <input type="number" class="cm-disable-color cm-ver-pck-cell" id="receivedQtyForQty" name="receivedQtyForQty" ng-model="vm.verification.receivedQty" placeholder="Packing Slip Qty"
+                               input-number-decimal-place onkeypress="return OnlyNumbersWithDot(event)" min="0" maxlength="18" step="{{$root.unitInputStep}}"
+                               ng-disabled="true">
+                      </div>
+                    </td>
+                    <td class="margin-right-4 cm-ver-pck-cell">
+                      <div>
+                        <input type="number" class="cm-disable-color cm-ver-pck-cell" id="differenceQtyForQty" name="differenceQtyForQty" ng-model="vm.verification.differenceQty" placeholder="Variance Qty"
+                               input-number-decimal-place onkeypress="return OnlyNumbersWithDot(event)" min="0" maxlength="18" step="{{$root.unitInputStep}}"
+                               ng-disabled="true">
+                      </div>
+                    </td>
+                    <td class="margin-right-4 cm-ver-pck-cell">
+                      <div>
+                        <input type="number" class="cm-ver-pck-cell" ng-class="{'cm-highlight-cell-error': vm.formVarificationPackaging.invoicePrice.$invalid, 'cm-disable-color': vm.memoList.length > 0, 'text-price': vm.memoList.length == 0}"
+                               id="invoicePriceForQty" name="invoicePriceForQty" ng-model="vm.verification.invoicePrice" placeholder="Invoice Price"
+                               input-number-decimal-place onkeypress="return OnlyNumbersWithDot(event)" min="0" maxlength="18" step="{{$root.unitInputStep}}"
+                               required custom-blur="vm.calculateQtyDiffrence()" ng-disabled="vm.memoList && vm.memoList.length > 0">
+                      </div>
+                    </td>
+                    <td class="margin-right-4 cm-ver-pck-cell">
+                      <div>
+                        <input type="number" class="text-price cm-ver-pck-cell" ng-class="{'cm-highlight-cell-error': vm.formVarificationPackaging.invoicePrice.$invalid, 'cm-disable-color': vm.memoList.length > 0, 'text-price': vm.memoList.length == 0}"
+                               id="purchasePriceForQty" name="purchasePriceForQty" ng-model="vm.verification.purchasePrice" placeholder="Agreed Purchase Unit Price"
+                               input-number-decimal-place onkeypress="return OnlyNumbersWithDot(event)" min="0" maxlength="18" step="{{$root.unitInputStep}}"
+                               required custom-blur="vm.calculateQtyDiffrence()" ng-disabled="vm.memoList && vm.memoList.length > 0">
+                      </div>
+                    </td>
+                    <td class="margin-right-4 cm-ver-pck-cell">
+                      <div>
+                        <input type="text" class="cm-disable-color cm-ver-pck-cell text-right" id="diffrenceForQty" name="diffrenceForQty"
+                               ng-model="vm.verification.diffrenceDisplay" placeholder="Variance"
+                               ng-disabled="true">
+                      </div>
+                    </td>
+                    <td class="margin-right-4 cm-ver-pck-cell">
+                      <div layout="row">
+                        <input type="text" class="cm-disable-color cm-ver-pck-cell text-right" id="qtyExtendedCharge" name="qtyExtendedCharge"
+                               ng-model="vm.verification.qtyExtendedChargeDisplay" placeholder="Material Extended Charges"
+                               ng-disabled="true">
+                        <md-icon class="icon-question-mark-circle help-icon margin-top-2 h-16">
+                          <md-tooltip md-direction="top">Formula: Qty Discrepancy * Invoice Price ($)</md-tooltip>
+                        </md-icon>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="8" class="cm-ver-pck-total">&nbsp;</td>
+                    <td class="margin-right-4 bgcolor-summary text-right cm-ver-pck-total-label">
+                      <b>{{vm.CORE.LabelConstant.SupplierInvoice.Discount}} ($)</b>
+                    </td>
+                    <td class="margin-right-4 bgcolor-summary text-right cm-ver-pck-cell">
+                      <div>
+                        <input type="text" class="cm-disable-color text-bold text-right width-100p cm-ver-pck-cell-total text-right"
+                               id="discount" name="discount" ng-model="vm.verification.discountDisplay" placeholder={{vm.CORE.LabelConstant.SupplierInvoice.Discount}} ($)
+                               ng-disabled="true">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="8" class="cm-ver-pck-total">&nbsp;</td>
+                    <td class="margin-right-4 bgcolor-summary text-right cm-ver-pck-total-label">
+                      <b>Variance Amount ($) [A]</b>
+                    </td>
+                    <td class="margin-right-4 bgcolor-summary text-right cm-ver-pck-cell">
+                      <div>
+                        <input type="text" class="cm-disable-color text-bold text-right width-100p cm-ver-pck-cell-total text-right" id="totalCalculateAmount" name="totalCalculateAmount"
+                               ng-model="vm.verification.totalCalculateAmountDisplay" placeholder="Variance Amount ($)"
+                               ng-disabled="true">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="8" class="cm-ver-pck-total">&nbsp;</td>
+                    <td class="margin-right-4 bgcolor-summary text-right cm-ver-pck-total-label">
+                      <b>Credit Memo Amount ($) [B]</b>
+                    </td>
+                    <td class="margin-right-4 bgcolor-summary text-right cm-ver-pck-cell">
+                      <div>
+                        <input type="text" class="cm-disable-color text-bold text-right width-100p cm-ver-pck-cell-total text-right" id="totalCreditMemoAmount" name="totalCreditMemoAmount"
+                               ng-model="vm.totalCreditMemoAmount" placeholder="Credit Memo Amount ($)"
+                               ng-disabled="true">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="8" class="cm-ver-pck-total">&nbsp;</td>
+                    <td class="margin-right-4 bgcolor-summary text-right cm-ver-pck-total-label">
+                      <b>Debit Memo Amount ($) [C]</b>
+                    </td>
+                    <td class="margin-right-4 bgcolor-summary text-right cm-ver-pck-cell">
+                      <div>
+                        <input type="text" class="cm-disable-color text-bold text-right width-100p cm-ver-pck-cell-total text-right" id="totalDebitMemoAmount" name="totalDebitMemoAmount"
+                               ng-model="vm.totalDebitMemoAmount" placeholder="Debit Memo Amount ($)"
+                               ng-disabled="true">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="8" class="cm-ver-pck-total">&nbsp;</td>
+                    <td class="margin-right-4 bgcolor-summary text-right cm-ver-pck-total-label">
+                      <b>Remaining Variance Amount ($) [A-(B+C)]</b>
+                    </td>
+                    <td class="margin-right-4 bgcolor-summary text-right cm-ver-pck-cell">
+                      <div>
+                        <input type="text" class="cm-disable-color text-bold text-right width-100p cm-ver-pck-cell-total text-right" id="remainMemoAmountDisplay" name="remainMemoAmountDisplay"
+                               ng-model="vm.remainMemoAmountDisplay" placeholder="Remaining Variance Amount ($)"
+                               ng-disabled="true">
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div layout="row">
+
+              <div class="cm-section-main margin-bottom-5 border-1 mr-5" ng-if="vm.action == 'AddMemo'" flex="45">
+                <div class="cm-section-header" flex="100" layout-align="space-between-center">
+                  <h2>Credit/Debit Memo Detail</h2>
+                  <span>
+                    Remaining Variance Amount ($): <b>{{vm.remainMemoAmount | amount}}</b>
+                  </span>
+
+                </div>
+                <div class="cm-section-inner cm-overflow-auto">
+
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                    <tbody>
+
+                      <tr ng-if="vm.verification.receiptType == true || vm.verification.receiptType == false">
+                        <label class="font-size-10 label-danger no-bg padding-0 margin-0 margin-left-4" ng-if="!vm.companyConfig">
+                          Default company configuration is not done yet, please configure first from manufacture master.
+                        </label>
+                        <th><p class="label-container pt-2">Memo</p></th>
+                        <td colspan="2">
+                          <md-input-container>
+                            <md-radio-group layout="row" layout-align="start start" layout-wrap ng-change="vm.changeMemo();"
+                                            name="Memo" ng-model="vm.verification.receiptType" class="margin-0">
+                              <md-radio-button class="margin-top-0" ng-repeat="item in vm.RadioGroup.memo.array"
+                                               name="{{item.Value}}" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                            </md-radio-group>
+                          </md-input-container>
+                        </td>
+                        <th></th>
+                        <td>
+                          <md-checkbox ng-model="vm.verification.createNew" class="cm-margin-5" ng-change="vm.changeCreateNew()" id="createNew">Create New</md-checkbox>
+                        </td>
+                      </tr>
+
+                      <tr ng-if="vm.verification.receiptType == true || vm.verification.receiptType == false">
+                        <th>
+                          <p class="label-container pt-2" ng-if="vm.verification.receiptType">Credit Memo#<span>&nbsp;*<check-unique-on-blur ng-if="vm.verification.createNew"></check-unique-on-blur></span></p>
+                          <p class="label-container pt-2" ng-if="!vm.verification.receiptType">Debit Memo#</p>
+                        </th>
+                        <td colspan="2" class="w-200">
+                          <md-input-container flex="100" class="margin-bottom-0" ng-if="vm.verification.createNew">
+                            <input type="text" name="invoiceNumberCMDM" id="invoiceNumberCMDM" ng-model="vm.verification.invoiceNumber" placeholder="Invoice#" ng-maxlength="50"
+                                   ng-required="(vm.verification.receiptType == true) && vm.verification.createNew" ng-blur="vm.checkUniquePackingSlipNumber('CMNo')"
+                                   ng-disabled="!vm.verification.receiptType" capitalize class="input-text-uppercase">
+                            <span class="font-size-10 color-red" ng-if="!vm.verification.receiptType">Note: Debit Memo# will be created once a record is saved.</span>
+                            <div ng-messages="vm.formVarificationPackaging.invoiceNumberCMDM.$error" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(50, vm.formVarificationPackaging.invoiceNumberCMDM.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+
+                          <md-input-container flex="100" ng-if="vm.autoCompleteInvoice && !vm.verification.createNew" class="autocompletecustom min-width-initial margin-bottom-0">
+                            <custom-auto-complete datalist="vm.invoiceNumberList"
+                                                  column-name="vm.autoCompleteInvoice.columnName"
+                                                  controller-name="vm.autoCompleteInvoice.controllerName"
+                                                  view-template-url="vm.autoCompleteInvoice.viewTemplateURL"
+                                                  key-column-name="vm.autoCompleteInvoice.keyColumnName"
+                                                  input-name="vm.autoCompleteInvoice.inputName"
+                                                  placeholder-name="vm.autoCompleteInvoice.placeholderName"
+                                                  key-column-id="vm.autoCompleteInvoice.keyColumnId"
+                                                  is-required="(vm.verification.receiptType == true || vm.verification.receiptType == false) && !vm.verification.createNew ? true : false"
+                                                  is-addnew="vm.autoCompleteInvoice.isAddnew"
+                                                  callback-fn="vm.autoCompleteInvoice.callbackFn"
+                                                  on-select-callback-fn="vm.autoCompleteInvoice.onSelectCallbackFn">
+                            </custom-auto-complete>
+                          </md-input-container>
+                        </td>
+
+                        <th>
+                          <p class="label-container pt-2" ng-if="vm.verification.receiptType">Credit Memo Date<span ng-if="vm.verification.createNew">&nbsp;*</span></p>
+                          <p class="label-container pt-2" ng-if="!vm.verification.receiptType">Debit Memo Date<span ng-if="vm.verification.createNew">&nbsp;*</span></p>
+                        </th>
+                        <td colspan="2" class="w-150">
+                          <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                            <input name="invoiceDate" type="text" class="float-left"
+                                   id="invoiceDate"
+                                   max-value="vm.currentDate"
+                                   max-value-is-today-date="true"
+                                   allow-past-date="true"
+                                   allow-future-date="false"
+                                   datetime-picker="{{$root.dateDisplayFormat}}"
+                                   ng-model="vm.verification.invoiceDate"
+                                   enable-time="false"
+                                   ui-options="{clearOnBlur: true}"
+                                   ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                   ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                   model-view-value="true"
+                                   datepicker-options="vm.invoiceDateOptions"
+                                   ng-change="vm.checkDateValidation()"
+                                   is-open="vm.IsPickerOpen[vm.DATE_PICKER.invoiceDate]"
+                                   ng-required="vm.verification.receiptType == true || vm.verification.receiptType == false"
+                                   ng-disabled="!vm.verification.createNew" />
+                            <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.invoiceDate] = vm.verification.createNew">
+                            </md-icon>
+                            <div ng-messages="vm.formVarificationPackaging.invoiceDate.$error" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxvalue">
+                                <span>{{vm.getMaxDateValidation(vm.verification.receiptType ? 'Credit date' : 'Debit date', 'today date')}}</span>
+                              </div>
+                              <div ng-message="mindate">
+                                <span ng-if="vm.verification.receiptType">{{vm.CORE_MESSAGE_CONSTANT.CREDIT_DATE_GREATER_THAN_INVOICE_DATE}}</span>
+                                <span ng-if="!vm.verification.receiptType">{{vm.CORE_MESSAGE_CONSTANT.DEBIT_DATE_GREATER_THAN_INVOICE_DATE}}</span>
+                              </div>
+                              <div ng-message="datetime || mask || parse">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+
+                      <tr ng-if="vm.verification.receiptType == true || vm.verification.receiptType == false">
+                        <th>
+                          <p class="label-container pt-2 cm-white-space-normal min-width-100">Ref. Supplier Credit Memo#<check-unique-on-blur></check-unique-on-blur></p>
+                        </th>
+                        <td colspan="2">
+                          <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                            <input type="text" id="refSupplierCreditMemoNumber"
+                                   name="refSupplierCreditMemoNumber"
+                                   ng-model="vm.verification.refSupplierCreditMemoNumber"
+                                   ng-blur="vm.checkUniquePackingSlipNumber('RefCMNo')"
+                                   placeholder="Ref. Supplier Credit Memo#"
+                                   ng-maxlength="50"
+                                   ng-disabled="vm.verification.receiptType"
+                                   capitalize class="input-text-uppercase">
+                            <div ng-messages="vm.formVarificationPackaging.refSupplierCreditMemoNumber.$error" role="alert">
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(50, vm.formVarificationPackaging.refSupplierCreditMemoNumber.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container pt-2" ng-if="!vm.verification.createNew">Append Amount ($)</p>
+                          <p class="label-container pt-2" ng-if="vm.verification.createNew">Amount ($)</p>
+                        </th>
+                        <td colspan="2">
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <input type="text" id="totalAmount" name="totalAmount" class="text-right"
+                                   ng-model="vm.verification.totalAmountDisplay" placeholder="Payment Amount"
+                                   ng-required="vm.verification.receiptType == true || vm.verification.receiptType == false"
+                                   ng-disabled="true">
+                          </md-input-container>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <th><p class="label-container">Note<span>&nbsp;*</span></p></th>
+                        <td colspan="5">
+                          <md-input-container flex="100" class="margin-bottom-0">
+                            <textarea id="note" name="note" ng-model="vm.verification.approveNote" placeholder="Note" ng-maxlength="1000"
+                                      max-rows="10" required></textarea>
+                            <div ng-messages="vm.formVarificationPackaging.note.$error" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(1000,vm.formVarificationPackaging.note.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="cm-labor-table cm-verification-packing-slip-table mb-10 ml-5" ng-if="vm.memoList && vm.memoList.length > 0" flex="{{vm.action == 'AddMemo' ? 55 : 100}}">
+                <div class="cm-section-main margin-bottom-5 border-1">
+                  <div class="cm-section-header" flex="100">
+                    <div layout-align="start center" flex>
+                      <h2> Generated Credit/Debit Memo</h2>
+                    </div>
+                    <div layout-align="end center">
+                      <h2>Hint: Open memo to update or to add documents</h2>
+                    </div>
+                  </div>
+                  <div class="cm-section-inner cm-overflow-auto">
+                    <table class="table-responsive width-100p">
+                      <thead>
+                        <tr class="bgcolor-summary">
+                          <th class="color-white margin-right-4 width-30">#</th>
+                          <th class="color-white margin-right-4 width-60">Invoice Line#</th>
+                          <th class="color-white cm-vs-packing-slip-cell">Memo Type</th>
+                          <th class="color-white width-180 width-130-rs">Memo#</th>
+                          <th class="color-white cm-vs-packing-slip-cell">Memo Date</th>
+                          <th class="color-white width-180 width-130-rs">Ref. Supplier Credit Memo#</th>
+                          <th class="color-white width-100">Amount</th>
+                          <th class="color-white width-100">Approve Note</th>
+                          <th class="color-white width-50" ng-if="vm.action != 'ViewMemo'">Delete</th>
+                        </tr>
+                      </thead>
+                      <tbody class="margin-top-5">
+                        <tr ng-repeat="item in vm.memoList track by $index">
+                          <td class="margin-right-4 nowrap width-30">
+                            {{$index + 1}}
+                          </td>
+                          <td class="margin-right-4 nowrap width-60">
+                            {{item.packingSlipSerialNumber}}
+                          </td>
+                          <td class="margin-right-4 nowrap cm-vs-packing-slip-cell">
+                            {{item.displaMemoType}}
+                          </td>
+                          <td class="margin-right-4 nowrap width-180 width-130-rs cm-text-ellipsis">
+                            <a tabindex="-1" ng-click="vm.goToSupplierInvoiceDetail(item)" class="cm-text-decoration underline">
+                              {{item.memoNumber}}<md-tooltip>{{item.memoNumber}}</md-tooltip>
+                            </a>
+                          </td>
+                          <td class="margin-right-4 nowrap cm-vs-packing-slip-cell">
+                            {{item.memoDate}}
+                          </td>
+                          <td class="margin-right-4 nowrap width-180 width-130-rs cm-text-ellipsis">
+                            {{item.refSupplierCreditMemoNumber}}
+                          </td>
+                          <td class="margin-right-4 nowrap width-100 text-right">
+                            {{item.amount | amount}}
+                          </td>
+                          <td class="margin-right-4 width-100">
+                            <md-button class="md-warn md-hue-1 margin-0" ng-disabled="!item.approveNote" ng-click="vm.showApproveNote(item, $event)">View</md-button>
+                          </td>
+                          <td class="width-50" ng-if="vm.action != 'ViewMemo'">
+                            <md-button class="md-primary grid-button md-icon-button bdrbtn"
+                                       ng-class="{'item-disabled': (item.lockStatus === vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin) || item.haltStatus === vm.HaltResumePopUp.HaltStatus || item.markedForRefund === 1}"
+                                       ng-disabled="(item.lockStatus === vm.Transaction.CustomerPaymentLockStatus.Locked && !vm.loginUser.isUserSuperAdmin) || item.haltStatus === vm.HaltResumePopUp.HaltStatus || item.markedForRefund === 1"
+                                       ng-click="vm.deleteMemo(item)">
+                              <md-icon md-font-icon="icon-delete" class="s16"></md-icon>
+                              <md-tooltip>Delete</md-tooltip>
+                            </md-button>
+                          </td>
+                        </tr>
+                        <tr class="ng-scope">
+                          <td class="margin-right-4 width-30"></td>
+                          <td class="margin-right-4 width-60"></td>
+                          <td class="cm-vs-packing-slip-cell"></td>
+                          <td class="width-180 width-130-rs"></td>
+                          <td class="cm-vs-packing-slip-cell"></td>
+                          <td class="width-180 width-130-rs margin-right-4 nowrap bgcolor-summary text-right">
+                            <b>Total</b>
+                          </td>
+                          <td class="bgcolor-summary nowrap width-100 text-right margin-left-10">
+                            <b>{{vm.totalMemoAmount | amount}}</b>
+                          </td>
+                          <td class="width-100"></td>
+                          <td class="width-50" ng-if="vm.action != 'ViewMemo'"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()" ng-if="vm.action !== 'AddMemo'">Close</md-button>
+      <md-button class="md-default md-raised" ng-click="vm.cancel()" ng-if="vm.action === 'AddMemo'">Cancel</md-button>
+      <md-button class="md-primary md-raised"
+                 ng-class="{'md-formdirty': vm.formVarificationPackaging.$dirty && vm.action === 'AddMemo'}"
+                 ng-disabled="vm.saveBtnDisableFlag"
+                 ng-click="vm.saveMemo(false);" aria-label="Submit" ng-if="vm.action === 'AddMemo'">Save</md-button>
+      <md-button class="md-primary md-raised"
+                 ng-class="{'md-formdirty': vm.formVarificationPackaging.$dirty && vm.action === 'AddMemo'}"
+                 ng-disabled="vm.saveBtnDisableFlag"
+                 ng-click="vm.saveMemo(true);" aria-label="Submit" ng-if="vm.action === 'AddMemo'">Save And Exit</md-button>
+    </md-dialog-actions>
+
+  </form>
+</md-dialog>

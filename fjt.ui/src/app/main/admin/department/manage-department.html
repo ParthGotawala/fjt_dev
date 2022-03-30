@@ -1,0 +1,610 @@
+<div id="Manage Department" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <!-- FORM WIZARD -->
+  <ms-form-wizard flex layout>
+    <div class="header md-accent-bg" layout="row" layout-align="start center">
+      <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" aria-label="Go to Departmentlist" ng-click="vm.goBack(msWizard)">
+        <!--<md-icon md-font-icon="icon-arrow-left" class="material-icons icon-arrow-left">
+        </md-icon>-->
+        <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+        </md-icon>
+      </md-button>
+      <div class="white-fg" layout="row" layout-align="space-between center" flex="100">
+        <div layout>
+          <div layout="column">
+            <div class="master-page-title">
+              <pagetitle is-list="false" is-display-menu-name="true" prefix-content="vm.deptID ? 'Update' : 'Add'" suffix-content="vm.manageDepartment.deptName?': '+ vm.manageDepartment.deptName:''"></pagetitle>
+              <md-tooltip ng-if="vm.deptID" md-direction="right">{{vm.manageDepartment.deptName? vm.manageDepartment.deptName:''}}</md-tooltip>
+            </div>
+            <div class="product-count">
+              <breadcrumbs></breadcrumbs>
+            </div>
+          </div>
+          <div class="cm-header-search-add-container">
+            <div>
+              <md-input-container ng-if="vm.autoCompleteDeptHeaderList" class="autocompletecustom margin-0 widget-dashboard-search-area cm-kit-allocation-so-autocomplete part-header-search-area">
+                <custom-auto-complete-search on-search-fn="vm.autoCompleteDeptHeaderList.onSearchFn"
+                                             column-name="vm.autoCompleteDeptHeaderList.columnName"
+                                             key-column-name="vm.autoCompleteDeptHeaderList.keyColumnName"
+                                             key-column-id="vm.autoCompleteDeptHeaderList.keyColumnId"
+                                             input-name="vm.autoCompleteDeptHeaderList.inputName"
+                                             placeholder-name="vm.autoCompleteDeptHeaderList.placeholderName"
+                                             is-required="vm.autoCompleteDeptHeaderList.isRequired"
+                                             is-addnew="vm.autoCompleteDeptHeaderList.isAddnew"
+                                             callback-fn="vm.autoCompleteDeptHeaderList.callbackFn"
+                                             callback-fn-param="msWizard"
+                                             on-select-callback-fn="vm.autoCompleteDeptHeaderList.onSelectCallbackFn">
+                </custom-auto-complete-search>
+              </md-input-container>
+            </div>
+            <div>
+              <md-button class="md-primary md-raised" ng-if="vm.deptID" ng-click="vm.addDepartment()">
+                Add Department
+              </md-button>
+            </div>
+          </div>
+        </div>
+        <div layout="row" layout-align="center center">
+          <!--<md-button ng-if="vm.deptID && vm.selectedIndex=='0'" class="md-raised md-primary"
+                     ng-disabled="vm.isEdit && (msWizard.currentStepInvalid() || vm.checkFormDirty(msWizard.currentStepForm(),vm.checkDirtyObject))">
+              {{vm.isEdit ? 'View' : 'Edit'}}
+          </md-button>-->
+          <md-button class="md-raised md-primary" ng-click="vm.CheckStepAndAction(msWizard,true,true);"
+                     ng-if="vm.selectedTabIndex == '0' || vm.selectedTabIndex == '3'" id="saveBtn"
+                     ng-class="{'md-formdirty': vm.checkFormDirty(msWizard.currentStepForm(),vm.checkDirtyObject)}">
+            <!--ng-disabled="msWizard.currentStepInvalid() || !vm.checkFormDirty(msWizard.currentStepForm(),vm.checkDirtyObject)"-->
+            Save
+          </md-button>
+        </div>
+      </div>
+    </div>
+    <div class="content-card padding-top-side" layout="column" flex="100">
+      <md-content layout="row" flex="100">
+        <md-tabs flex="100" validate-step="true" is-valid="vm.isStepValid" class="fielddetail manage-department-tabing padding-bottom-0" md-dynamic-height md-selected="vm.selectedTabIndex" id="manage-department-tabing">
+          <md-tab md-on-select="vm.onTabChanges(null, msWizard)" ng-disabled="!vm.pageTabRights.DetailTab">
+            <!--<md-tab md-on-select="vm.onTabSelect('detail',msWizard)" ng-click="vm.onTabChanges('detail',msWizard)">-->
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="vm.manageDepartmentForm.$invalid">1</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.manageDepartmentForm.$valid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Details</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <md-content>
+                <form name="vm.manageDepartmentForm" class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate ng-class="{'view-only-content': vm.deptID && !vm.isEdit}" ng-click="!vm.isEdit?vm.CheckForEdit($event):''">
+                  <md-button ng-if="msWizard.selectedIndex == 0" id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+                  <div layout="row" flex="100" class="cm-section-main">
+                    <div class="cm-section-inner" layout="row" layout-wrap flex="100">
+                      <div flex="100" layout="row" layout-align="end center">
+                        <div layout="row" ng-if="vm.showIsActiveDiv">
+                          <div class="" flex="100" layout="row">
+                            <md-radio-group layout="row" class="margin-0" layout-wrap
+                                            name="isActive" ng-model="vm.manageDepartment.isActive" ng-disabled="vm.deptID  && vm.manageDepartment.systemGenerated">
+                              <md-radio-button ng-repeat="item in vm.radioButtonGroup.isActive.array"
+                                               name="{{item.Key}}" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                            </md-radio-group>
+                          </div>
+                        </div>
+                      </div>
+                      <div layout="row" flex="100">
+                        <table class="cm-table-input-main cm-rs-table">
+                          <tbody>
+                            <tr colspan="2">
+                              <th><p class="label-container">Name<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                              <td>
+                                <md-input-container flex="100">
+                                  <input type="text" name="deptName" ng-model="vm.manageDepartment.deptName" ng-disabled="vm.deptID  && vm.manageDepartment.systemGenerated"
+                                         placeholder="Name" required no-special-character ng-maxlength="255"
+                                         custom-auto-focus="{{vm.selectedTabIndex == 0 ? true : false}}"
+                                         custom-blur="vm.checkDuplicateDeptName();">
+                                  <div ng-messages="vm.manageDepartmentForm.deptName.$error"
+                                       role="alert">
+                                    <div ng-message="required">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                    </div>
+                                    <div ng-message="maxlength">
+                                      <span>{{vm.getMaxLengthValidation(255, vm.manageDepartmentForm.deptName.$viewValue.length)}}</span>
+                                    </div>
+                                  </div>                                  
+                                  <div>
+                                    <span ng-if="vm.deptID == vm.QualityDepartmentID">Hint: This person signs-off Quality Certifications.</span>
+                                  </div>
+                                </md-input-container>
+                              </td>
+                              <th>
+                                <p class="label-container">
+                                  <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToPersonnelList();">
+                                    {{vm.autoCompleteManagerDetail.placeholderName}}
+                                  </a>
+                                  <span ng-if="vm.autoCompleteManagerDetail.isRequired">&nbsp;*</span>
+                                </p>
+                              </th>
+                              <td>
+                                <md-input-container flex="100" ng-if="vm.autoCompleteManagerDetail" class="autocompletecustom">
+                                  <custom-auto-complete datalist="vm.EmployeeList" is-disabled="vm.deptID && !vm.isEdit"
+                                                        column-name="vm.autoCompleteManagerDetail.columnName"
+                                                        controller-name="vm.autoCompleteManagerDetail.controllerName"
+                                                        view-template-url="vm.autoCompleteManagerDetail.viewTemplateURL"
+                                                        key-column-name="vm.autoCompleteManagerDetail.keyColumnName"
+                                                        key-column-id="vm.autoCompleteManagerDetail.keyColumnId"
+                                                        input-name="vm.autoCompleteManagerDetail.inputName"
+                                                        placeholder-name="vm.autoCompleteManagerDetail.placeholderName"
+                                                        is-required="vm.autoCompleteManagerDetail.isRequired"
+                                                        add-data="vm.autoCompleteManagerDetail.addData"
+                                                        is-addnew="vm.autoCompleteManagerDetail.isAddnew"
+                                                        callback-fn="vm.autoCompleteManagerDetail.callbackFn">
+                                  </custom-auto-complete>
+                                </md-input-container>
+                              </td>
+                              <th></th>
+                              <td class="width-295">
+                                <md-radio-group layout="row" class="margin-0" flex="100" last-element elementcondition="{{(((vm.deptID && !vm.isEdit) || (!vm.IsSubDepartmentChecked)) ? true : false)}}"
+                                                name="{{vm.isParentDeptID}}" ng-change="vm.CheckSubDepartment()" ng-model="vm.isParentDeptID"
+                                                ng-disabled="vm.deptID && !vm.isEdit">
+                                  <md-radio-button class="margin-top-m2" ng-repeat="item in vm.radioButtonGroup.isParentDeptID.array"
+                                                   name="{{item.Key}}" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                                </md-radio-group>
+                              </td>
+                              <th class="mt-rs-10">
+                                <p class="label-container">{{vm.autoCompleteDepartmentDetail.placeholderName}}<span ng-if="vm.isParentDeptID">&nbsp;*</span></p>
+                              </th>
+                              <td>
+                                <md-input-container ng-if="vm.autoCompleteDepartmentDetail" class="autocompletecustom" flex="100">
+                                  <custom-auto-complete datalist="vm.DepartmentList"
+                                                        is-disabled="(vm.deptID && !vm.isEdit) || (!vm.IsSubDepartmentChecked)"
+                                                        column-name="vm.autoCompleteDepartmentDetail.columnName"
+                                                        controller-name="vm.autoCompleteDepartmentDetail.controllerName"
+                                                        view-template-url="vm.autoCompleteDepartmentDetail.viewTemplateURL"
+                                                        key-column-name="vm.autoCompleteDepartmentDetail.keyColumnName"
+                                                        key-column-id="vm.autoCompleteDepartmentDetail.keyColumnId"
+                                                        input-name="vm.autoCompleteDepartmentDetail.inputName"
+                                                        placeholder-name="vm.autoCompleteDepartmentDetail.placeholderName"
+                                                        is-required=vm.isParentDeptID?vm.isParentDeptID:false
+                                                        add-data="vm.autoCompleteDepartmentDetail.addData"
+                                                        is-addnew="vm.autoCompleteDepartmentDetail.isAddnew"
+                                                        last-element elementcondition="{{(!((vm.deptID && !vm.isEdit) || (!vm.IsSubDepartmentChecked)) ? true : false)}}"
+                                                        callback-fn="vm.autoCompleteDepartmentDetail.callbackFn">
+                                  </custom-auto-complete>
+                                </md-input-container>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+                </md-content>
+</md-tab-body>
+          </md-tab>
+          <md-tab md-on-select="vm.onTabChanges(vm.EmployeeListTitle,msWizard)" ng-disabled="!vm.deptID || !vm.pageTabRights.EmployeeTab" ng-click="vm.DepartmentEmployeeList()">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.deptID">2</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.deptID">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Personnel List</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+
+              <md-content>
+                <div layout="row" layout-gt-xs="row" flex="100" class="update-department-search padding-10-imp" layout-wrap>
+                  <div flex="100" class="cm-section-main">
+                    <!--<md-card flex="100" class="analytics-card">-->
+                    <div class="cm-section-header" flex="100" layout="row" layout-align="space-between center">
+                      <h2><b>{{vm.addEmpInDept.empDeptID ? "Update Personnel To Department" : "Add Personnel To Department"}}</b></h2>
+                    </div>
+                    <div class="cm-section-inner" flex="100" layout="row" layout-wrap>
+                      <form name="vm.employeesInDepartmentForm" flex="100" flex-xs="100" ms-form-wizard-form novalidate flex-sm="100" layout-sm="column">
+                        <md-button ng-if="msWizard.selectedIndex == 1" id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+                        <div layout="row" flex="100" ng-if="vm.AddEmployeeToDepartmentDivShow">
+                          <div class="cm-section-main border-0" flex="100">
+                            <div class="cm-section-inner" flex="100">
+                              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                <tbody>
+                                  <tr>
+                                    <th>
+                                      <p class="label-container">
+                                        <a class="cm-text-decoration underline" ng-click="vm.goToPersonnelList();" tabindex="-1">{{vm.autoCompleteEmployeeInDepartment.placeholderName}}</a>
+                                        <span>&nbsp;*</span>
+                                      </p>
+                                    </th>
+                                    <td>
+                                      <md-input-container ng-if="vm.autoCompleteManagerDetail" ng-disabled="vm.addEmpInDept.empDeptID" class="width-100p autocompletecustom" flex="100">
+                                        <custom-auto-complete datalist="vm.EmployeeList"
+                                                              column-name="vm.autoCompleteEmployeeInDepartment.columnName"
+                                                              controller-name="vm.autoCompleteEmployeeInDepartment.controllerName"
+                                                              view-template-url="vm.autoCompleteEmployeeInDepartment.viewTemplateURL"
+                                                              key-column-name="vm.autoCompleteEmployeeInDepartment.keyColumnName"
+                                                              key-column-id="vm.autoCompleteEmployeeInDepartment.keyColumnId"
+                                                              input-name="vm.autoCompleteEmployeeInDepartment.inputName"
+                                                              placeholder-name="vm.autoCompleteEmployeeInDepartment.placeholderName"
+                                                              is-required="vm.autoCompleteEmployeeInDepartment.isRequired"
+                                                              is-disabled="vm.addEmpInDept.empDeptID"
+                                                              add-data="vm.autoCompleteEmployeeInDepartment.addData"
+                                                              is-addnew="vm.autoCompleteEmployeeInDepartment.isAddnew"
+                                                              callback-fn="vm.autoCompleteEmployeeInDepartment.callbackFn"
+                                                              custom-auto-focus="true">
+                                        </custom-auto-complete>
+                                      </md-input-container>
+                                    </td>
+                                    <th>
+                                      <p class="label-container">
+                                        <a class="cm-text-decoration underline" ng-click="vm.goToGenericCategoryTitleList();" tabindex="-1">{{vm.autoCompleteGenericCategory.placeholderName}}</a>
+                                        <span>&nbsp;*</span>
+                                      </p>
+                                    </th>
+                                    <td>
+                                      <md-input-container ng-if="vm.autoCompleteGenericCategory" class="autocompletecustom width-100p" flex="100">
+                                        <custom-auto-complete datalist="vm.GenericCategoryList"
+                                                              column-name="vm.autoCompleteGenericCategory.columnName"
+                                                              controller-name="vm.autoCompleteGenericCategory.controllerName"
+                                                              view-template-url="vm.autoCompleteGenericCategory.viewTemplateURL"
+                                                              key-column-name="vm.autoCompleteGenericCategory.keyColumnName"
+                                                              input-name="vm.autoCompleteGenericCategory.inputName"
+                                                              placeholder-name="vm.autoCompleteGenericCategory.placeholderName"
+                                                              key-column-id="vm.autoCompleteGenericCategory.keyColumnId"
+                                                              is-required="vm.autoCompleteGenericCategory.isRequired"
+                                                              is-addnew="vm.autoCompleteGenericCategory.isAddnew"
+                                                              add-data="vm.autoCompleteGenericCategory.addData"
+                                                              callback-fn="vm.autoCompleteGenericCategory.callbackFn">
+                                        </custom-auto-complete>
+                                      </md-input-container>
+                                    </td>
+                                    <td>
+                                      <md-input-container class="autocompletecustom nowrap padding-top-0" flex="100" flex-gt-xs="15">
+                                        <md-button class="md-raised md-primary margin-top-0" ng-click="vm.SaveEmployeeInDepartment()">
+
+                                          Save
+                                        </md-button>
+
+                                      </md-input-container>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                  <div class="mt-10" layout="row" flex="100" layout-align="end center" ng-if="vm.EmployeeListInDepartment.length > 0">
+                    <div layout="row" flex-xs="50">
+                      <p class="label-container mt-5" layout="row" flex="20" flex-md="25">
+                        Search
+                      </p>
+                      <div layout="row" flex="80" flex-md="75">
+                        <md-input-container class="md-block search-header margin-0 error-none">
+                          <input type="text" ng-model="vm.query.search" ng-model-options="{debounce: vm.debounceConstant.mdDataTable }" placeholder="Search">
+                        </md-input-container>
+                        <!--<md-button class="md-icon-button toolbar-button margin-0" aria-label="Search" ng-if="!vm.query.search">
+                            <md-icon class="margin-bottom-20" md-font-icon="icon-magnify" role="img"></md-icon>
+                        </md-button>-->
+                        <!--<md-button class="md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.query.search" ng-click="vm.query.search = ''">
+                            <md-icon class="margin-bottom-20" md-font-icon="icon-close" role="img"></md-icon>
+                        </md-button>-->
+                        <!--<md-button class="md-icon-button toolbar-button margin-0" aria-label="Clear" ng-if="vm.query.search" ng-click="vm.query.search = ''">
+                            <md-icon class="margin-bottom-20" md-font-icon="icon-close" role="img"></md-icon>
+                        </md-button>-->
+                        <md-button class="md-primary md-raised margin-0 margin-left-5-imp" aria-label="Clear" ng-click="vm.query.search = ''">Clear</md-button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </md-content>
+              <md-table-container flex="100" ng-if="vm.EmployeeListInDepartment.length > 0">
+                <table md-table class="md-data-table table-row-select cm-manage-department-table" md-row-select ng-model="vm.selectedItems">
+                  <thead md-head md-order="vm.query.order">
+                    <tr md-row>
+                      <th md-column width="80">Action</th>
+                      <th md-column width="20">#</th>
+                      <th md-column md-order-by="employee.firstName">Personnel Name</th>
+                      <th md-column md-order-by="employee.email">Email</th>
+                      <th md-column md-order-by="employee.contact">Contact</th>
+                      <th md-column md-order-by="genericCategory.gencCategoryName">Title</th>
+                      <th md-column width="80">Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody md-body>
+                    <tr md-row ng-repeat="item in vm.EmployeeListInDepartment
+                                                                | filter: vm.query.search
+                                                                | orderBy: vm.query.order
+                                                                | limitTo: vm.query.limit : (vm.query.page -1) * vm.query.limit">
+                      <td md-cell>
+                        <md-button class="md-primary grid-button md-icon-button bdrbtn" aria-label="Update" ng-click="vm.editEmpDept(item)">
+                          <md-icon md-font-icon="icon-pencil" class="s16"></md-icon>
+                          <md-tooltip>Update</md-tooltip>
+                        </md-button>
+                      </td>
+                      <td md-cell width="20" class="nowrap">{{(vm.query.page - 1) *  vm.query.limit  + $index + 1}}</td>
+                      <td md-cell>{{item.name}}</td>
+                      <td md-cell>{{item.employee.email}}</td>
+                      <td md-cell>{{item.employee.contact}}</td>
+                      <td md-cell>{{item.genericCategory.gencCategoryName}}</td>
+                      <td md-cell>
+                        <md-button class="md-primary grid-button md-icon-button bdrbtn" ng-click="vm.DeleteEmployeeDepartment(item)">
+                          <md-icon md-font-icon="icon-delete" class="s16"></md-icon>
+                          <md-tooltip>Delete</md-tooltip>
+                        </md-button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </md-table-container>
+              <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+                   ng-if="vm.query.search && (vm.EmployeeListInDepartment | filter: vm.query.search).length == 0 ">
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.emptySearch.IMAGEURL}}" />
+                </div>
+                <p class="empty-state-title" flex="100">{{vm.emptySearch.MESSAGE}}</p>
+              </div>
+              <md-table-pagination md-limit="vm.query.limit" md-limit-options="limitOptions" md-page="vm.query.page" md-total="{{vm.EmployeeListInDepartment.length}}" md-page-select md-boundary-links="false" ng-if="(vm.EmployeeListInDepartment | filter: vm.query.search).length != 0  && vm.query.isPagination"></md-table-pagination>
+
+
+            </md-tab-body>
+          </md-tab>
+          <md-tab md-on-select="vm.onTabChanges(vm.LocationTitle,msWizard)" ng-disabled="!vm.deptID || !vm.pageTabRights.LocationTab" autoscroll="true">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.deptID">4</span>
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="vm.deptID">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">Geolocation</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="EquipmentDataFields" class="cm-search-tab-operation-list padding-10-imp"
+                    ms-form-wizard-form novalidate>
+                <div flex="100" layout="row" layout-wrap ng-if="vm.isContainMasterDataLocation">
+                  <div flex flex-xs="100" layout="row" layout-wrap>
+                    <div flex="100" flex-xs="100" layout="row"
+                         class="mobilesearch employee-workstaion-search-box userpermissionhead"
+                         layout-align="space-between center">
+                      <md-input-container class="md-block error-none no-label" md-no-float
+                                          flex flex-xs="75"
+                                          ng-class="{'clickedsearch':isButtonDataElementClicked}">
+                        <input id="SearchNoAddedListLocation" type="text"
+                               placeholder="Type here to search Geolocations"
+                               ng-model="vm.SearchNoAddedListLocation"
+                               ng-keyup="vm.SearchLocation(vm.locationNoAddedList, vm.SearchNoAddedListLocation, false)"
+                               custom-blur="vm.SearchLocation(vm.locationNoAddedList, vm.SearchNoAddedListLocation, false)">
+                      </md-input-container>
+                      <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                                 ng-disabled="!vm.SearchNoAddedListLocation"
+                                 ng-click="vm.SearchNoAddedListLocation='';vm.SearchLocation(vm.locationNoAddedList, vm.SearchNoAddedListLocation, false)">
+                        Clear
+                      </md-button>
+                      <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                                 ng-click="vm.refreshData()">
+                        Refresh
+                      </md-button>
+                      <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                                 ng-click="vm.addData()">
+                        Add New
+                      </md-button>
+                    </div>
+                    <md-list flex="100" class="permissiontab custom-scroll dragbox"
+                             ng-class="{'layout-column': vm.locationNoAddedList.length == 0}">
+                      <md-list-item id="locationNoAddedList"
+                                    class="padding-0 items-container" layout="row" flex="100"
+                                    layout-wrap ui-sortable="sortableOptions"
+                                    ng-model="vm.locationNoAddedList" haveadded="false">
+                        <div flex="100" class="md-1-line margin-0 dragsortable"
+                             ng-repeat="location in vm.locationNoAddedList"
+                             ui-sortable-selectable ng-model="location">
+                          <div class="md-list-item-text" layout="row"
+                               layout-align="space-between center">
+                            <p class="label-container margin-bottom-0 operation-dataelement-font" layout-align="start center" flex="70">
+                              <a class="cm-text-decoration" ng-click="vm.goToGenericCategoryManageLocation(location.gencCategoryID);">
+                                {{location.gencCategoryName}}
+                              </a>
+                            </p>
+                          </div>
+                        </div>
+                        <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                             ng-if="vm.locationNoAddedList.length == 0"
+                             ui-sortable-selectable>
+                          <div class="empty-state text-center">
+                            <div class="emty-icon">
+                              <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                            </div>
+                            <p class="empty-state-title font-size-2 useadded-emptytxt"
+                               ng-if="vm.SearchNoAddedListLocation == null && vm.locationNoAddedList.length == 0">
+                              {{vm.EmptyMesssage.ALL_ASSIGNED}}
+                            </p>
+                            <p class="empty-state-title font-size-2 useadded-emptytxt"
+                               ng-if="vm.SearchNoAddedListLocation != null && FilterDataLocationNotAdded != true">
+                              {{vm.EmptyMesssage.EMPTY_SEARCH_MESSAGE}}
+                            </p>
+                          </div>
+                        </div>
+                      </md-list-item>
+                    </md-list>
+                  </div>
+                  <div flex="5" flex-xs="100" layout-xs="row" layout="row"
+                       layout-align="space-between center">
+                    <div flex="100" layout="column" layout-wrap
+                         layout-align="space-between center">
+                      <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                                 ng-disabled="!selectAnyAdded"
+                                 ng-click="vm.ModifyPageAdded('Remove')">
+                        <i class="icon-chevron-left icondrag"></i>
+                        <md-tooltip>Remove</md-tooltip>
+                      </md-button>
+                      <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                                 ng-disabled="vm.locationAddedList.length == 0"
+                                 ng-click="vm.ModifyPageAdded('RemoveAll')">
+                        <i class="icon-chevron-double-left icondrag"></i>
+                        <md-tooltip>Remove All</md-tooltip>
+                      </md-button>
+                      <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                                 ng-disabled="vm.locationNoAddedList.length == 0"
+                                 ng-click="vm.ModifyPageAdded('AddAll')">
+                        <i class="icon-chevron-double-right icondrag"></i>
+                        <md-tooltip>Add All</md-tooltip>
+                      </md-button>
+                      <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                                 ng-disabled="!selectAnyNoAdded"
+                                 ng-click="vm.ModifyPageAdded('Add')">
+                        <i class="icon-chevron-right icondrag"></i>
+                        <md-tooltip>Add</md-tooltip>
+                      </md-button>
+                    </div>
+                  </div>
+                  <div flex flex-xs="100">
+                    <div flex="100" flex-xs="100" layout="row"
+                         class="mobilesearch userpermissionhead"
+                         layout-align="space-between end">
+                      <md-input-container class="md-block error-none no-label" md-no-float
+                                          flex flex-xs="75"
+                                          ng-class="{'clickedsearch':isButtonDataElementAddedClicked}">
+                        <input id="SearchAddedListLocation" type="text"
+                               placeholder="Type here to search added Geolocations"
+                               ng-model="vm.SearchAddedListLocation"
+                               ng-keyup="vm.SearchLocation(vm.locationAddedList, vm.SearchAddedListLocation, true)"
+                               custom-blur="vm.SearchLocation(vm.locationAddedList, vm.SearchAddedListLocation, true)">
+                      </md-input-container>
+                      <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                                 ng-disabled="!vm.SearchAddedListLocation"
+                                 ng-click="vm.SearchAddedListLocation='';vm.SearchLocation(vm.locationAddedList, vm.SearchAddedListLocation, true)">
+                        Clear
+                      </md-button>
+                    </div>
+                    <md-list flex="100" class="permissiontab custom-scroll dragbox"
+                             ng-class="{'layout-column': vm.locationAddedList.length == 0}">
+                      <md-list-item id="locationAddedList"
+                                    class="padding-0 items-container" layout="row" flex="100"
+                                    layout-wrap ui-sortable="sortableOptions"
+                                    ng-model="vm.locationAddedList" haveadded="true">
+                        <div flex="100" class="md-1-line margin-0 dragsortable"
+                             ng-repeat="location in vm.locationAddedList"
+                             ui-sortable-selectable ng-model="location">
+                          <div class="md-list-item-text" layout="row">
+                            <p class="label-container margin-bottom-0 operation-dataelement-font" layout-align="start center" flex="70">
+                              <a class="cm-text-decoration" ng-click="vm.goToGenericCategoryManageLocation(location.gencCategoryID);">
+                                {{location.gencCategoryName}}
+                              </a>
+                            </p>
+                          </div>
+                        </div>
+                        <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                             ng-if="vm.locationAddedList.length == 0"
+                             ui-sortable-selectable>
+                          <div class="empty-state text-center">
+                            <div class="emty-icon">
+                              <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                            </div>
+                            <p class="empty-state-title font-size-2 useadded-emptytxt"
+                               ng-if="vm.SearchAddedListLocation == null && vm.locationAddedList.length == 0">
+                              {{vm.EmptyMesssage.MESSAGE}}
+                            </p>
+                            <p class="empty-state-title font-size-2 useadded-emptytxt"
+                               ng-if="vm.SearchAddedListLocation != null && vm.FilterDataLocationAdded != true">
+                              {{vm.EmptyMesssage.EMPTY_SEARCH_MESSAGE}}
+                            </p>
+                          </div>
+                        </div>
+                      </md-list-item>
+                    </md-list>
+                  </div>
+                </div>
+                <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                     ng-if="!vm.isContainMasterDataLocation">
+                  <div class="empty-state text-center full-height">
+                    <div class="emty-icon">
+                      <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                    </div>
+                    <p class="empty-state-title font-size-2 useadded-emptytxt">
+                      {{vm.EmptyMesssage.MESSAGELIST}}
+                    </p>
+                    <p flex="100">
+                      {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+                    </p>
+                    <p flex="100">
+                      <md-button class="md-fab md-mini" aria-label="Add Geolocations"
+                                 ng-click="vm.addData()">
+                        <md-icon role="img" md-font-icon="icon-plus"
+                                 class="material-icons mat-icon icon-plus"></md-icon>
+                      </md-button>
+                      <md-button class="md-fab md-mini" aria-label="Add Geolocations"
+                                 ng-click="vm.refreshData()">
+                        <md-icon role="img" md-font-icon="icon-refresh"
+                                 class="material-icons mat-icon icon-refresh"></md-icon>
+                      </md-button>
+                    </p>
+                  </div>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+          <md-tab md-on-select="vm.onTabChanges(vm.OtherDetailTabName,msWizard)" ng-disabled="!vm.deptID || !vm.pageTabRights.MiscTab">
+            <!--<md-tab md-on-select="vm.onTabSelect('otherdetail',msWizard)" ng-disabled="!vm.deptID" ng-click="vm.onTabChanges('otherdetail',msWizard)">-->
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.deptID">3</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.deptID">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span class="ms-form-wizard-step-text">{{vm.OtherDetailTitle}}</span>
+              </span>
+            </md-tab-label>
+
+            <md-tab-body>
+              <form name="vm.departmentOtherDetail" class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+                <!--<div layout="column" layout-gt-xs="100" ng-if="vm.IsOtherDetailTab == true">
+                    <view-data-element entity="{{vm.Entity.Department}}" dataelement-list="vm.dataElementList" ref-trans-id="{{vm.deptID}}" entity-id="vm.entityID" file-list="vm.fileList"></view-data-element>
+                </div>-->              
+
+                <div class="cm-section-main" layout="row" layout-wrap flex="100">
+                  <div class="cm-section-header" flex="100">
+                    <h2>Department MISC</h2>
+                  </div>
+                  <div class="cm-section-inner" flex="100">
+                    <div layout="column" class="cm-tab-misc" layout-gt-xs="100" ng-if="vm.IsOtherDetailTab == true">
+                      <view-data-element entity="{{vm.Entity.Department}}" dataelement-list="vm.dataElementList"
+                                         ref-trans-id="{{vm.deptID}}" entity-id="vm.entityID"
+                                         file-list="vm.fileList" curr-active-form="vm.departmentOtherDetail"></view-data-element>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+        <!--</md-tabs>
+        <div flex="100" class="fab-footer fab-footer-left" layout="row" layout-align="start start">
+          <md-button class="md-raised md-primary md-fab"
+                     ng-click="vm.loadPreviousStep(msWizard);"
+                     ng-disabled="msWizard.isFirstStep()">
+            <md-icon class="icon-chevron-left"></md-icon>
+            <md-tooltip md-direction="top">Previous</md-tooltip>
+          </md-button>-->
+          <!--{{msWizard.isFirstStep()}}-->
+          <!--<md-button ng-if="msWizard.selectedIndex != 1" class="md-raised md-primary md-fab" ng-click="vm.CheckStepAndAction(msWizard,true,false);"
+                     ng-disabled="msWizard.currentStepInvalid() || msWizard.isLastStep() || !vm.deptID">
+            <md-icon class="icon-chevron-right"></md-icon>
+            <md-tooltip md-direction="top">Next</md-tooltip>
+          </md-button>-->
+          <!--{{msWizard.currentStepInvalid() || msWizard.isLastStep() || !vm.deptID}}
+          {{msWizard.isLastStep()}}
+          {{!vm.deptID}}-->
+          <!--<md-button ng-if="msWizard.selectedIndex == 1" class="md-raised md-primary md-fab" ng-click="vm.CheckStepAndAction(msWizard,true,false);"
+                     ng-disabled="!vm.deptID">
+            <md-icon class="icon-chevron-right"></md-icon>
+            <md-tooltip md-direction="top">Next</md-tooltip>
+          </md-button>
+        </div>-->
+      </md-content>
+    </div>
+  </ms-form-wizard>
+</div>

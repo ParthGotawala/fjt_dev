@@ -1,0 +1,176 @@
+<div cg-busy="{promise:vm.cgBusyLoading}">
+    <div layout="row" flex="100">
+        <div flex="30" ng-show="vm.isRoleShow">
+            <div class="cm-section-main border-0">
+                <!--<div class="cm-section-header" layout-align="end center">
+                    <md-button class="md-primary md-raised" ng-click="vm.addRole();">
+                        Add New Role
+                    </md-button>
+                </div>-->
+                <div class="content-card margin-right-10" layout="column" flex ng-show="!vm.isRoleNoDataFound">
+                    <div class="cm-section-header pb-4" layout-align="end center" ng-hide="vm.isViewOnly">
+                        <md-button class="md-primary md-raised m-0" ng-click="vm.addRole();">
+                            Add Role
+                        </md-button>
+                    </div>
+                    <md-card layout="column" class="role-page-right-grid margin-0" flex layout-align="space-between stretch" ng-class="{ 'role-grid' : vm.isRoleShow }">
+                        <ui-grid-extention load-data="vm.getRoleList"
+                                           grid-option="vm.roleGridOptions"
+                                           header="vm.roleSourceHeader"
+                                           grid-data="vm.roles"
+                                           total-data-count="vm.totalRoleDataCount"
+                                           reset-grid="vm.resetSourceGrid"
+                                           selectted-rows="vm.selectedRowsList"
+                                           paging-info="vm.pagingInfo"
+                                           current-item="vm.rolesCurrentdata"
+                                           get-data-down="vm.getRoleDataDown"
+                                           empty-state="vm.roleEmptyState"
+                                           get-selected-row="vm.getRoleSelectedRowAlert">
+                    </md-card>
+                </div>
+                <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.isRoleNoDataFound == true">
+                    <div class="emty-icon" flex="100">
+                        <img ng-src="{{vm.RoleEmptyMesssage.IMAGEURL}}" />
+                    </div>
+                    <p flex="100" class="empty-state-title">{{vm.RoleEmptyMesssage.MESSAGE}}</p>
+                    <p flex="100">
+                        {{vm.RoleEmptyMesssage.ADDNEWMESSAGE}}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div flex="{{vm.isRoleShow==true?70:100}}">
+            <div class="content-card cm-role-page-rights" layout="column" flex>
+                <md-card layout="column" class="margin-0" flex layout-align="space-between stretch">
+                    <ms-form-wizard class="cm-page-right-tab" flex>
+                        <md-tabs is-valid="vm.isStepValid" md-selected="msWizard.selectedIndex" validate-step="true" md-dynamic-height class="maintanacetabing cm-role-rights-tab" flex="100" md-border-bottom>
+                            <!--<span ng-hide="vm.pageName == vm.RolePage || vm.pageName == vm.pageRightsRole
+                                  || vm.isPageNoDataFound && (!vm.rightsPagingInfo.RoleId || vm.rightsPagingInfo.RoleId == 0)" class="pr-5-imp line-height-34 cm-font-10-rs">Show Default {{vm.currentTab}}</span>-->
+                          <div class="margin-top-6 margin-right-5" ng-if="vm.pageName != vm.RolePage && vm.pageName != vm.pageRightsRole && !vm.isPageNoDataFound && (vm.rightsPagingInfo.RoleId || vm.rightsPagingInfo.RoleId == 0)">
+                            <md-checkbox ng-model="vm.showDefaultRights" ng-checked="vm.showDefaultRights"
+                                         ng-change="vm.onShowDefaultRights(msWizard)"
+                                         ng-hide="vm.isPageNoDataFound || vm.isViewOnly"                                         
+                                         name="isActive"
+                                         class="margin-0">
+                              Show Default {{vm.currentTab}}
+                            </md-checkbox>  
+                          </div>
+                            <span class="cm-selected-role-name cm-selected-tab cm-font-10-rs" ng-hide="vm.isPageNoDataFound" ng-if="vm.currentRole && vm.currentRole.name"> <b class="cm-select-role-color">Selected Role:</b> &nbsp {{vm.currentRole.name}}</span>
+                            <form name="vm.permisionForm" class="padding-0" ms-form-wizard-form novalidate>
+                                <md-tab label="Permissions" ng-click="vm.onTabChanges(vm.permissionsTabName)">
+                                    <md-content>
+                                        <div id="content-card" class="content-card height-100p" layout="column" flex ng-show="!vm.isPageNoDataFound && (vm.rightsPagingInfo.RoleId || vm.rightsPagingInfo.RoleId == 0)">
+                                            <md-card layout="column" class="role-page-right-grid margin-0 cm-role-rs" flex layout-align="space-between stretch" ng-class="{ 'right-grid' : vm.isRoleShow, 'page-grid' : !vm.isRoleShow }">
+                                                <ui-grid-extention load-data="vm.getPageList"
+                                                                   grid-option="vm.pageGridOptions"
+                                                                   header="vm.pageSourceHeader"
+                                                                   grid-data="vm.pages"
+                                                                   total-data-count="vm.totalPageDataCount"
+                                                                   reset-grid="vm.resetPageSourceGrid"
+                                                                   selectted-rows="vm.selectedPageRowsList"
+                                                                   paging-info="vm.rightsPagingInfo"
+                                                                   current-item="vm.pagesCurrentdata"
+                                                                   get-data-down="vm.getPageDataDown"
+                                                                   empty-state="vm.pageEmptyState">
+                                            </md-card>
+                                        </div>
+                                        <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.isPageNoDataFound == true || (!vm.rightsPagingInfo.RoleId && vm.rightsPagingInfo.RoleId != 0)">
+                                            <div class="emty-icon" flex="100">
+                                                <img ng-src="{{vm.PageEmptyMesssage.IMAGEURL}}" />
+                                            </div>
+                                            <p flex="100" class="empty-state-title">{{vm.PageEmptyMesssage.NOTSELECTEDROLEMASSAGE}}</p>
+                                        </div>
+                                    </md-content>
+                                </md-tab>
+                            </form>
+                            <form name="vm.featureForm" class="padding-0" ms-form-wizard-form novalidate>
+                                <md-tab label="Features" ng-click="vm.onTabChanges(vm.featuresTabName)">
+                                    <md-content>
+                                        <div class="content-card" layout="column" flex ng-show="!vm.isFeatureNoDataFound && (vm.featurePagingInfo.RoleId || vm.featurePagingInfo.RoleId == 0)">
+                                            <md-card layout="column" class="role-page-right-grid margin-0" flex layout-align="space-between stretch" ng-class="{ 'right-grid' : vm.isRoleShow, 'page-grid' : !vm.isRoleShow }">
+                                                <ui-grid-extention load-data="vm.getFeatureList"
+                                                                   grid-option="vm.featureGridOptions"
+                                                                   header="vm.featureSourceHeader"
+                                                                   grid-data="vm.features"
+                                                                   total-data-count="vm.totalFeatureDataCount"
+                                                                   reset-grid="vm.resetFeatureSourceGrid"
+                                                                   selectted-rows="vm.selectedFeatureRowsList"
+                                                                   paging-info="vm.featurePagingInfo"
+                                                                   current-item="vm.featuresCurrentdata"
+                                                                   get-data-down="vm.getFeatureDataDown"
+                                                                   empty-state="vm.featureEmptyState">
+                                            </md-card>
+                                        </div>
+                                        <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.isFeatureNoDataFound == true || (!vm.featurePagingInfo.RoleId && vm.featurePagingInfo.RoleId != 0)">
+                                            <div class="emty-icon" flex="100">
+                                                <img ng-src="{{vm.FeatureEmptyMesssage.IMAGEURL}}" />
+                                            </div>
+                                            <p flex="100" class="empty-state-title">{{vm.FeatureEmptyMesssage.NOTSELECTEDROLEMASSAGE}}</p>
+                                        </div>
+                                    </md-content>
+                                </md-tab>
+                            </form>
+                            <form name="vm.standardForm" class="padding-0" ms-form-wizard-form novalidate>
+                                <md-tab label="{{vm.standardTabName}}" ng-click="vm.onTabChanges(vm.standardTabName)" ng-if="vm.isStandardShow">
+                                    <md-content>
+                                        <div class="content-card" layout="column" flex ng-show="!vm.isStandardNoDataFound">
+                                            <md-card layout="column" class="role-page-right-grid margin-0" flex layout-align="space-between stretch" ng-class="{ 'right-grid' : vm.isRoleShow, 'page-grid' : !vm.isRoleShow }">
+                                                <ui-grid-extention load-data="vm.getstandardList"
+                                                                   grid-option="vm.standardGridOptions"
+                                                                   header="vm.standardSourceHeader"
+                                                                   grid-data="vm.standard"
+                                                                   total-data-count="vm.totalStandardDataCount"
+                                                                   reset-grid="vm.resetStandardSourceGrid"
+                                                                   selectted-rows="vm.selectedRowsList"
+                                                                   paging-info="vm.standardPagingInfo"
+                                                                   current-item="vm.standardCurrentdata"
+                                                                   get-data-down="vm.getStandardDataDown"
+                                                                   empty-state="vm.standardEmptyState">
+                                            </md-card>
+                                        </div>
+                                        <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.isFeatureNoDataFound == true">
+                                            <div class="emty-icon" flex="100">
+                                                <img ng-src="{{vm.StandardEmpltyMessage.IMAGEURL}}" />
+                                            </div>
+                                            <p flex="100" class="empty-state-title">{{vm.StandardEmpltyMessage.MESSAGE}}</p>
+                                        </div>
+                                    </md-content>
+                                </md-tab>
+                            </form>
+                            <form name="vm.dbViewDataSourceForm" class="padding-0" ms-form-wizard-form novalidate>
+                                <md-tab label="{{vm.dbViewDataSourceTabName}}" ng-click="vm.onTabChanges(vm.dbViewDataSourceTabName)" ng-if="vm.isDbViewDataSourceShow">
+                                    <md-content>
+                                        <div class="content-card" layout="column" flex ng-show="!vm.isDbViewDataSourceNoDataFound">
+                                            <md-card layout="column" class="role-page-right-grid margin-0" flex layout-align="space-between stretch"
+                                                     ng-class="{ 'right-grid' : vm.isRoleShow, 'page-grid' : !vm.isRoleShow }">
+                                                <ui-grid-extention load-data="vm.loadDataForDbViewDataSource"
+                                                                   grid-option="vm.gridOptionsForDbViewDataSource"
+                                                                   header="vm.sourceHeaderForDbViewDataSource"
+                                                                   grid-data="vm.sourceDataForDbViewDataSource"
+                                                                   total-data-count="vm.totalSourceDataCountForDbViewDataSource"
+                                                                   reset-grid="vm.resetSourceGridForDbViewDataSource"
+                                                                   selectted-rows="vm.selectedRowsListForDbViewDataSource"
+                                                                   paging-info="vm.pagingInfoForDbViewDataSource"
+                                                                   current-item="vm.currentdataForDbViewDataSource"
+                                                                   get-data-down="vm.getDataDownForDbViewDataSource"
+                                                                   empty-state="vm.emptyStateForDbViewDataSource">
+                                            </md-card>
+                                        </div>
+                                        <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.isFeatureNoDataFound == true">
+                                            <div class="emty-icon" flex="100">
+                                                <img ng-src="{{vm.dbViewEmptyMessage.IMAGEURL}}" />
+                                            </div>
+                                            <p flex="100" class="empty-state-title">{{vm.dbViewEmptyMessage.MESSAGE}}</p>
+                                        </div>
+                                    </md-content>
+                                </md-tab>
+                            </form>
+                        </md-tabs>
+                    </ms-form-wizard>
+
+                </md-card>
+            </div>
+        </div>
+
+    </div>
+</div>

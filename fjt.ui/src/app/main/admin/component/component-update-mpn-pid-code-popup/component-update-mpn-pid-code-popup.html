@@ -1,0 +1,647 @@
+<md-dialog aria-label="Copy-Part-Detail" flex="80" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  
+  <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+  <md-toolbar>
+    <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+      <h2>Update Part {{vm.LabelConstant.MFG.MFGPN}}/{{vm.LabelConstant.MFG.PID}}</h2>
+      <span flex></span>
+      <popup-header-label label-data="vm.headerdata"></popup-header-label>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content class="customer-modal no-padding" layout="column">
+    <md-content class="custom-scroll">
+      <div class="cm-section-main border-0 margin-bottom-5" ng-if="true">
+        <div class="cm-section-inner">
+          <div flex="100" layout="row" layout-wrap>
+            <div layout="row" flex="100" class="pl-10">
+              <p class="font-weight-600"><b>Hint:</b>{{vm.UPDATE_MPN_PID_ASSEMBLY.message}}</p>
+            </div>
+            <div class="part-mfg-detail full-height" layout="row" layout-wrap flex="100" flex-lg="100">
+              <div flex="100" class="pl-5">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th ng-if="vm.autoCompleteComponent" class="pr-5-imp">
+                        <a tabindex="-1" class="cm-text-decoration underline"
+                           ng-click="vm.goToMFGPartList();">{{vm.LabelConstant.MFG.MFGPN}}</a>
+                        </p>
+                      </th>
+                      <td ng-if="vm.autoCompleteComponent">
+                        <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="45" md-no-float>
+                          <custom-auto-complete-search on-search-fn="vm.autoCompleteComponent.onSearchFn" custom-auto-focus="{{true}}"
+                                                       column-name="vm.autoCompleteComponent.columnName"
+                                                       controller-name="vm.autoCompleteComponent.controllerName"
+                                                       parent-column-name="vm.autoCompleteComponent.parentColumnName"
+                                                       view-template-url="vm.autoCompleteComponent.viewTemplateURL"
+                                                       key-column-name="vm.autoCompleteComponent.keyColumnName"
+                                                       input-name="vm.autoCompleteComponent.inputName"
+                                                       placeholder-name="vm.autoCompleteComponent.placeholderName"
+                                                       key-column-id="vm.autoCompleteComponent.keyColumnId"
+                                                       is-required="vm.autoCompleteComponent.isRequired" is-addnew="vm.autoCompleteComponent.isAddnew"
+                                                       callback-fn="vm.autoCompleteComponent.callbackFn" parent-id=""
+                                                       add-data="vm.autoCompleteComponent.addData"
+                                                       on-select-callback-fn="vm.autoCompleteComponent.onSelectCallbackFn"
+                                                       is-uppercase-search-text="vm.autoCompleteComponent.isUppercaseSearchText">
+                          </custom-auto-complete-search>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div flex="100">
+                <form name="vm.UpdateComponentForm" layout novalidate>
+                  <div flex="50" class="pr-5 mb-10">
+                    <fieldset class="container-box margin-bottom-5 ml-5 mt-1 mb-5 full-height cm-overflow-auto-1601">
+                      <legend class="margin-0">Current Detail</legend>
+                      <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                        <tbody>
+                          <tr>
+                            <th ng-if="vm.autoCompleteCategory">
+                              <p class="label-container">
+                                {{vm.autoCompleteCategory.placeholderName}}
+                              </p>
+                            </th>
+                            <td ng-if="vm.autoCompleteCategory">
+                              <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" md-no-float>
+                                <input type="text" name="fromcategoryName"
+                                       placeholder={{vm.autoCompleteCategory.placeholderName}}
+                                       ng-model="vm.currentComponent.categoryName"
+                                       disabled>
+                              </md-input-container>
+                            </td>
+                            <th ng-if="vm.autoCompleteEpicorType">
+                              <p class="label-container">
+                                {{vm.autoCompleteEpicorType.placeholderName}}
+                              </p>
+                            </th>
+                            <td ng-if="vm.autoCompleteEpicorType">
+                              <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" md-no-float>
+                                <input type="text"
+                                       name="fromepicorType"
+                                       placeholder={{vm.autoCompleteEpicorType.placeholderName}}
+                                       ng-model="vm.currentComponent.epicorType"
+                                       disabled>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                            </th>
+                            <td colspan="3">
+                              <md-checkbox ng-model="vm.currentComponent.isCustom"
+                                           disabled
+                                           name="isCustom" class="margin-0">
+                                Custom {{vm.LabelConstant.MFG.MFG}} Part
+                                <md-icon class="icon-question-mark-circle help-icon margin-top-2">
+                                  <md-tooltip md-direction="top">Custom Manufacturer Part</md-tooltip>
+                                </md-icon>
+                              </md-checkbox>
+
+                              <md-checkbox ng-model="vm.currentComponent.isCPN"
+                                           disabled
+                                           class="margin-left-10">
+                                {{vm.LabelConstant.MFG.CPN}}
+                                <md-icon class="icon-question-mark-circle help-icon margin-top-2">
+                                  <md-tooltip md-direction="top">Customer Part#</md-tooltip>
+                                </md-icon>
+                              </md-checkbox>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th ng-if="vm.autoCompleteAssemblyType">
+                              <p class="label-container">
+                                <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToAssyTypeList();">{{vm.autoCompleteAssemblyType.placeholderName}}</a>
+                              </p>
+                            </th>
+                            <td colspan="3" ng-if="vm.autoCompleteAssemblyType">
+                              <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" md-no-float>
+                                <input type="text"
+                                       name="fromassemblyType"
+                                       placeholder={{vm.autoCompleteAssemblyType.placeholderName}}
+                                       ng-model="vm.currentComponent.assyTypeName"
+                                       disabled>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th ng-if="vm.autoCompletemfgCode">
+                              <p class="label-container">
+                                <a class="cm-text-decoration underline" ng-click="vm.goToManufacturerList(vm.MFG_TYPE.MFG);"
+                                   tabindex="-1">{{vm.mfgTypedata=='DIST'?vm.LabelConstant.MFG.Supplier: vm.LabelConstant.MFG.MFG}}</a>
+                              </p>
+                            </th>
+                            <td colspan="3" ng-if="vm.autoCompletemfgCode">
+                              <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" md-no-float>
+                                <input type="text"
+                                       name="fromMFGCode"
+                                       placeholder={{vm.autoCompletemfgCode.placeholderName}}
+                                       ng-model="vm.currentComponent.fullMfgName"
+                                       disabled>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                Part#
+                              </p>
+                            </th>
+                            <td colspan="3">
+                              <md-input-container flex="100" md-no-float
+                                                  ng-class="{'cm-input-ng-messages' : vm.cid}" class="margin-0">
+                                <input type="text"
+                                       name="fromcustAssyPN"
+                                       placeholder="Part#" md-maxlength="100"
+                                       ng-model="vm.currentComponent.custAssyPN"
+                                       disabled>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                Rev
+                              </p>
+                            </th>
+                            <td colspan="3">
+                              <md-input-container flex="100" md-no-float
+                                                  ng-class="{'cm-input-ng-messages' : vm.cid}" class="margin-0">
+                                <input type="text"
+                                       name="fromrev"
+                                       placeholder="Rev" md-maxlength="15"
+                                       ng-model="vm.currentComponent.rev"
+                                       disabled>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                {{vm.mfgTypedata=='DIST'?vm.LabelConstant.MFG.SupplierPN:vm.LabelConstant.MFG.MFGPN}}
+                              </p>
+                            </th>
+                            <td colspan="3">
+                              <div layout="row">
+                                <md-input-container flex md-no-float
+                                                    ng-class="{'cm-input-ng-messages' : vm.cid}" class="margin-0 cm-input-copy-icon">
+                                  <input type="text"
+                                         name="frommfgpn"
+                                         md-maxlength="100"
+                                         placeholder="{{vm.mfgTypedata=='DIST'?vm.LabelConstant.MFG.SupplierPN:vm.LabelConstant.MFG.MFGPN}}"
+                                         ng-model="vm.currentComponent.mfgPN"
+                                         disabled>
+                                  <copy-text ng-if="vm.currentComponent.mfgPN" label="(vm.mfgTypedata=='DIST'?vm.LabelConstant.MFG.SupplierPN:vm.LabelConstant.MFG.MFGPN)" text="vm.currentComponent.mfgPN">
+                                  </copy-text>
+                                </md-input-container>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                Assy Code
+                              </p>
+                            </th>
+                            <td class="width-33p">
+                              <md-input-container flex="100" md-no-float
+                                                  ng-class="{'cm-input-ng-messages' : vm.cid}" class="margin-0">
+                                <input type="text"
+                                       name="frommfgpn" md-maxlength="20"
+                                       placeholder="Assy Code"
+                                       ng-model="vm.currentComponent.assyCode"
+                                       disabled>
+                              </md-input-container>
+                            </td>
+                            <th>
+                              <p class="label-container">
+                                {{vm.LabelConstant.MFG.Nickname}}
+                              </p>
+                            </th>
+                            <td class="width-33p">
+                              <md-input-container flex="100" md-no-float
+                                                  ng-class="{'cm-input-ng-messages' : vm.cid}" class="margin-0">
+                                <input type="text"
+                                       name="fromnickName" md-maxlength="28"
+                                       placeholder={{vm.LabelConstant.MFG.Nickname}}
+                                       ng-model="vm.currentComponent.nickName"
+                                       disabled>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th class="padding-top-8-imp">
+                              <p class="label-container">{{vm.LabelConstant.MFG.PID}}</p>
+                            </th>
+                            <td colspan="3">
+                              <div layout="row" class="cm-pid-code-input"
+                                   ng-class="{'cm-input-ng-messages' : vm.cid}">
+                                <md-input-container md-no-float class="margin-0">
+                                  <input type="text" name="fromPIDCodePrefix" ng-model="vm.currentComponent.PIDCodePrefix"
+                                         placeholder="PID Prefix" ng-disabled="true"
+                                         ng-hide="true">
+                                  <span>{{vm.currentComponent.PIDCodePrefix}}</span>
+                                </md-input-container>
+                                <md-input-container flex="100" md-no-float class="margin-0  cm-input-copy-icon" ng-if="(vm.PIDCodeLength !== null)">
+                                  <input type="text" name="fromPIDCodeSufix" ng-model="vm.currentComponent.PIDCodeSufix"
+                                         placeholder="{{vm.LabelConstant.MFG.PID}}"
+                                         disabled
+                                         md-maxlength="{{((vm.mfgTypedata === vm.MFG_TYPE.DIST ? 109 : vm.PIDCodeLength)-(vm.currentComponent.PIDCodePrefix?vm.currentComponent.PIDCodePrefix.length:0))}}"
+                                         ng-maxlength="{{(vm.mfgTypedata === vm.MFG_TYPE.DIST ? 109 : vm.PIDCodeLength)-(vm.currentComponent.PIDCodePrefix?vm.currentComponent.PIDCodePrefix.length:0)}}"
+                                         ng-Keydown="vm.PIDcodeKeyDown($event)">
+                                  <copy-text ng-if="vm.currentComponent.PIDCodeSufix" label="vm.LabelConstant.MFG.PID" text="(vm.currentComponent.PIDCodePrefix + vm.currentComponent.PIDCodeSufix)">
+                                  </copy-text>
+                                </md-input-container>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr ng-if="vm.mfgTypedata === vm.MFG_TYPE.DIST">
+                            <th>
+                              <p class="label-container">
+                                <a class="cm-text-decoration underline" ng-click="vm.goToManufacturerList(vm.MFG_TYPE.MFG);"
+                                   tabindex="-1">{{vm.LabelConstant.MFG.MFG}}</a>
+                              </p>
+                            </th>
+                            <td colspan="3">
+                              <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" md-no-float>
+                                <input type="text"
+                                       name="fromMFGCode"
+                                       ng-model="vm.currentComponent.refSupplierMfgComponent.mfgCodemst.fullMfgName"
+                                       disabled>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr ng-if="vm.mfgTypedata === vm.MFG_TYPE.DIST">
+                            <th>
+                              <p class="label-container">
+                                <a class="cm-text-decoration underline" ng-click="vm.goToManufacturerList();"
+                                   tabindex="-1">{{vm.LabelConstant.MFG.MFGPN}}</a>
+                              </p>
+                            </th>
+                            <td colspan="3">
+                              <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" md-no-float>
+                                <input type="text"
+                                       name="fromMFGCode"
+                                       ng-model="vm.currentComponent.refSupplierMfgComponent.mfgPN"
+                                       disabled>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </fieldset>
+                  </div>
+                  <div flex="50" class="mb-10">
+                    <fieldset class="container-box margin-bottom-5 ml-5 mr-5 mt-1 mb-5 full-height">
+                      <legend class="margin-0">New Detail</legend>
+                      <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                        <tbody>
+                          <tr>
+                            <th ng-if="vm.autoCompleteCategory">
+                              <p class="label-container">
+                                {{vm.autoCompleteCategory.placeholderName}} <span ng-if="vm.autoCompleteCategory.isRequired && !vm.autoCompleteCategory.keyColumnId">&nbsp;*</span>
+                              </p>
+                            </th>
+                            <td ng-if="vm.autoCompleteCategory">
+                              <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" md-no-float>
+                                <custom-auto-complete datalist="vm.categoryList"
+                                                      column-name="vm.autoCompleteCategory.columnName"
+                                                      key-column-name="vm.autoCompleteCategory.keyColumnName"
+                                                      input-name="vm.autoCompleteCategory.inputName"
+                                                      placeholder-name="vm.autoCompleteCategory.placeholderName"
+                                                      key-column-id="vm.autoCompleteCategory.keyColumnId"
+                                                      is-required="vm.autoCompleteCategory.isRequired"
+                                                      is-disabled="true"
+                                                      on-select-callback-fn="vm.autoCompleteCategory.onSelectCallbackFn">
+                                </custom-auto-complete>
+                              </md-input-container>
+                            </td>
+                            <th>
+                              <p class="label-container">
+                                {{vm.autoCompleteEpicorType.placeholderName}} 
+                              </p>
+                            </th>
+                            <td ng-if="vm.autoCompleteEpicorType">
+                              <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" md-no-float>
+                                <custom-auto-complete datalist="vm.epicorTypeList"
+                                                      column-name="vm.autoCompleteEpicorType.columnName"
+                                                      key-column-name="vm.autoCompleteEpicorType.keyColumnName"
+                                                      input-name="vm.autoCompleteEpicorType.inputName"
+                                                      placeholder-name="vm.autoCompleteEpicorType.placeholderName"
+                                                      key-column-id="vm.autoCompleteEpicorType.keyColumnId"
+                                                      is-required="vm.autoCompleteEpicorType.isRequired"
+                                                      is-disabled="true"
+                                                      on-select-callback-fn="vm.autoCompleteEpicorType.onSelectCallbackFn">
+                                </custom-auto-complete>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                            </th>
+                            <td colspan="3">
+                              <md-checkbox ng-model="vm.component.isCustom" disabled
+                                           name="isCustom" class="margin-0">
+                                Custom {{vm.LabelConstant.MFG.MFG}} Part
+                                <md-icon class="icon-question-mark-circle help-icon margin-top-2">
+                                  <md-tooltip md-direction="top">Custom Manufacturer Part</md-tooltip>
+                                </md-icon>
+                              </md-checkbox>
+
+                              <md-checkbox ng-model="vm.component.isCPN" ng-change="vm.onCPNPartChange()" disabled
+                                           class="margin-left-10">
+                                {{vm.LabelConstant.MFG.CPN}}
+                                <md-icon class="icon-question-mark-circle help-icon margin-top-2">
+                                  <md-tooltip md-direction="top">Customer Part#</md-tooltip>
+                                </md-icon>
+                              </md-checkbox>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToAssyTypeList();">{{vm.autoCompleteAssemblyType.placeholderName}}</a>
+                                <!--<span ng-if="(vm.autoCompleteCategory.keyColumnId == vm.PartCategory.SubAssembly && !vm.component.isCPN)">&nbsp;*</span>-->
+                              </p>
+                            </th>
+                            <td colspan="3" ng-if="vm.autoCompleteAssemblyType">
+                              <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" md-no-float>
+                                <custom-auto-complete datalist="vm.assyTypeList"
+                                                      column-name="vm.autoCompleteAssemblyType.columnName"
+                                                      controller-name="vm.autoCompleteAssemblyType.controllerName"
+                                                      view-template-url="vm.autoCompleteAssemblyType.viewTemplateURL"
+                                                      key-column-name="vm.autoCompleteAssemblyType.keyColumnName"
+                                                      input-name="vm.autoCompleteAssemblyType.inputName"
+                                                      placeholder-name="vm.autoCompleteAssemblyType.placeholderName"
+                                                      key-column-id="vm.autoCompleteAssemblyType.keyColumnId"
+                                                      is-addnew="vm.autoCompleteAssemblyType.isAddnew"
+                                                      add-Data="vm.autoCompleteAssemblyType.addData"
+                                                      callback-fn="vm.autoCompleteAssemblyType.callbackFn"
+                                                      is-disabled="true"
+                                                      is-required="(vm.autoCompleteCategory.keyColumnId == vm.PartCategory.SubAssembly && !vm.component.isCPN)"
+                                                      on-select-callback-fn="vm.autoCompleteAssemblyType.onSelectCallbackFn">
+                                </custom-auto-complete>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th ng-if="vm.autoCompletemfgCode">
+                              <p class="label-container">
+                                <a class="cm-text-decoration underline" ng-click="vm.goToManufacturerList();"
+                                   tabindex="-1">{{vm.mfgTypedata=='DIST'?vm.LabelConstant.MFG.Supplier: vm.LabelConstant.MFG.MFG}}</a>
+                                <!--<span ng-if="(vm.autoCompletemfgCode.isRequired) || !vm.autoCompletemfgCode.keyColumnId">&nbsp;*</span>-->
+                              </p>
+                            </th>
+                            <td colspan="3" ng-if="vm.autoCompletemfgCode">
+                              <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" md-no-float>
+                                <custom-auto-complete-search on-search-fn="vm.autoCompletemfgCode.onSearchFn"
+                                                             column-name="vm.autoCompletemfgCode.columnName"
+                                                             controller-name="vm.autoCompletemfgCode.controllerName"
+                                                             parent-column-name="vm.autoCompletemfgCode.parentColumnName"
+                                                             view-template-url="vm.autoCompletemfgCode.viewTemplateURL"
+                                                             key-column-name="vm.autoCompletemfgCode.keyColumnName"
+                                                             input-name="vm.autoCompletemfgCode.inputName"
+                                                             placeholder-name="vm.autoCompletemfgCode.placeholderName"
+                                                             key-column-id="vm.autoCompletemfgCode.keyColumnId"
+                                                             is-required="vm.autoCompletemfgCode.isRequired" is-addnew="vm.autoCompletemfgCode.isAddnew"
+                                                             callback-fn="vm.autoCompletemfgCode.callbackFn" parent-id=""
+                                                             add-data="vm.autoCompletemfgCode.addData"
+                                                             is-disabled="true"
+                                                             on-select-callback-fn="vm.autoCompletemfgCode.onSelectCallbackFn"
+                                                             is-uppercase-search-text="vm.autoCompletemfgCode.isUppercaseSearchText">
+                                </custom-auto-complete-search>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                Part#<span ng-if="(vm.component.isCustom || vm.component.isCPN || vm.partCategoryID == vm.PartCategory.SubAssembly)">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                              </p>
+                            </th>
+                            <td colspan="3">
+                              <md-input-container flex="100" md-no-float
+                                                  ng-class="{'cm-input-ng-messages' : vm.cid}" class="margin-0">
+                                <input type="text" name="toCustAssyPN" ng-model="vm.component.custAssyPN" placeholder="Part#"
+                                       ng-required="(vm.component.isCustom || vm.component.isCPN || vm.partCategoryID == vm.PartCategory.SubAssembly)"
+                                       ng-maxlength="100" custom-blur="vm.validateDuplicateMFRPN(vm.isAssyPNORRevChange,'toCustAssyPN')" md-maxlength="100"
+                                       ng-disabled="(!vm.component.isCustom && !vm.component.isCPN && vm.partCategoryID != vm.PartCategory.SubAssembly)"
+                                       ng-change="vm.revisionChange()" capitalize class="input-text-uppercase">
+                                <div ng-messages="vm.UpdateComponentForm.toCustAssyPN.$error" role="alert">
+                                  <div ng-message="required">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                  </div>
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(100, vm.UpdateComponentForm.toCustAssyPN.$viewValue.length)}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                Rev<span ng-if="(vm.component.isCustom || vm.component.isCPN || vm.partCategoryID == vm.PartCategory.SubAssembly)">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                              </p>
+                            </th>
+                            <td colspan="3">
+                              <md-input-container flex="100" md-no-float
+                                                  ng-class="{'cm-input-ng-messages' : vm.cid}" class="margin-0">
+                                <input type="text" name="toRev" ng-model="vm.component.rev" placeholder="Rev"
+                                       ng-required="(vm.component.isCustom || vm.component.isCPN || vm.partCategoryID == vm.PartCategory.SubAssembly)"
+                                       ng-disabled="(!vm.component.isCustom && !vm.component.isCPN && vm.partCategoryID != vm.PartCategory.SubAssembly)"
+                                       custom-blur="vm.validateDuplicateMFRPN(vm.isAssyPNORRevChange,'toRev')" capitalize class="input-text-uppercase" md-maxlength="15"
+                                       ng-change="vm.revisionChange()" ng-maxlength="15">
+                                <!--Length was approved by client so don't change before client's approval-->
+                                <div ng-messages="vm.UpdateComponentForm.toRev.$error" role="alert">
+                                  <div ng-message="required">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                  </div>
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(15, vm.UpdateComponentForm.toRev.$viewValue.length)}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                {{vm.mfgTypedata=='DIST'?vm.LabelConstant.MFG.SupplierPN:vm.LabelConstant.MFG.MFGPN}}
+                                <span ng-if="(!(vm.component.isCustom || vm.component.isCPN || vm.partCategoryID == vm.PartCategory.SubAssembly) && !vm.isMfgPnDisabled())">&nbsp;*&nbsp;<check-unique-on-blur></check-unique-on-blur></span>
+                              </p>
+                            </th>
+                            <td colspan="3">
+                              <div layout="row">
+                                <md-input-container flex md-no-float
+                                                    ng-class="{'cm-input-ng-messages' : vm.cid}" class="margin-0 cm-input-copy-icon">
+                                  <!--class="input-text-uppercase"-->
+                                  <input type="text" name="toMfgpn" ng-model="vm.component.mfgPN"
+                                         placeholder="{{vm.mfgTypedata=='DIST'?vm.LabelConstant.MFG.SupplierPN : vm.LabelConstant.MFG.MFGPN}}"
+                                         ng-required="(!vm.component.isCustom || !vm.component.isCPN || !vm.partCategoryID == vm.PartCategory.SubAssembly)"
+                                         ng-change="vm.isComponent?vm.changePN(vm.component.mfgPN):'';vm.changePIDCode();"
+                                         md-maxlength="100" custom-blur="vm.validateDuplicateMFRPN(vm.isAssyPNORRevChange,'toMfgpn')"
+                                         ng-disabled="vm.isMfgPnDisabled()" ng-maxlength="100">
+                                  <!--Length was approved by client so don't change before client's approval-->
+                                  <div ng-messages="vm.UpdateComponentForm.toMfgpn.$error" role="alert">
+                                    <div ng-message="required">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                    </div>
+                                    <div ng-message="maxlength">
+                                      <span>{{vm.getMaxLengthValidation(100, vm.UpdateComponentForm.toMfgpn.$viewValue.length)}}</span>
+                                    </div>
+                                  </div>
+                                  <copy-text ng-if="vm.component.mfgPN" label="(vm.mfgTypedata==vm.distType?vm.LabelConstant.MFG.SupplierPN:vm.LabelConstant.MFG.MFGPN)" text="vm.component.mfgPN">
+                                  </copy-text>
+                                </md-input-container>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>
+                              <p class="label-container">
+                                Assy Code<span ng-if="vm.partCategoryID == vm.PartCategory.SubAssembly">&nbsp;*</span>
+                              </p>
+                            </th>
+                            <td class="width-33p">
+                              <md-input-container flex="100" md-no-float
+                                                  ng-class="{'cm-input-ng-messages' : vm.cid}" class="margin-0">
+                                <input type="text" name="assyCode" ng-model="vm.component.assyCode" placeholder="Assy Code"
+                                       ng-required="vm.partCategoryID == vm.PartCategory.SubAssembly" md-maxlength="20"
+                                       ng-disabled="vm.partCategoryID != vm.PartCategory.SubAssembly" capitalize class="input-text-uppercase"
+                                       ng-change="vm.changeAssyCode()" ng-maxlength="20">
+                                <!--Length was approved by client so don't change before client's approval-->
+                                <div ng-messages="vm.UpdateComponentForm.assyCode.$error" role="alert">
+                                  <div ng-message="required">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                  </div>
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(20, vm.UpdateComponentForm.assyCode.$viewValue.length)}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </td>
+                            <th>
+                              <p class="label-container">
+                                {{vm.LabelConstant.MFG.Nickname}}<span ng-if="vm.partCategoryID == vm.PartCategory.SubAssembly">&nbsp;*</span>
+                              </p>
+                            </th>
+                            <td class="width-33p">
+                              <md-input-container flex="100" md-no-float
+                                                  ng-class="{'cm-input-ng-messages' : vm.cid}" class="margin-0">
+                                <input type="text" name="toNickName" id="toNickName" ng-model="vm.component.nickName" placeholder="Nickname"
+                                       ng-required="vm.partCategoryID == vm.PartCategory.SubAssembly" custom-blur="vm.validateDuplicatePIDCode(vm.isAssyPNORRevChange, 'toNickName')"
+                                       ng-disabled="vm.partCategoryID != vm.PartCategory.SubAssembly" md-maxlength="28"
+                                       ng-change="vm.changePIDCode()" ng-maxlength="28">
+                                <!--Length was approved by client so don't change before client's approval-->
+                                <div ng-messages="vm.UpdateComponentForm.toNickName.$error" role="alert">
+                                  <div ng-message="required">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                  </div>
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(28, vm.UpdateComponentForm.toNickName.$viewValue.length)}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th class="padding-top-8-imp">
+                              <p class="label-container">{{vm.LabelConstant.MFG.PID}}<span ng-if="(vm.mfgTypedata !== vm.MFG_TYPE.DIST && vm.partCategoryID != vm.PartCategory.SubAssembly)">&nbsp;*&nbsp;<check-unique-on-blur></check-unique-on-blur></span></p>
+                            </th>
+                            <td colspan="3">
+                              <div layout="row" class="cm-pid-code-input"
+                                   ng-class="{'cm-input-ng-messages' : vm.cid}">
+                                <md-input-container md-no-float class="margin-0">
+                                  <input type="text" name="PIDCodePrefix" ng-model="vm.component.PIDCodePrefix"
+                                         placeholder="PID Prefix" ng-disabled="true"
+                                         ng-hide="true">
+                                  <span>{{vm.component.PIDCodePrefix}}</span>
+                                </md-input-container>
+                                <md-input-container flex="100" md-no-float class="margin-0 cm-input-copy-icon" ng-if="(vm.PIDCodeLength !== null)">
+                                  <input type="text" name="toPIDCodeSufix" ng-model="vm.component.PIDCodeSufix" ng-change="vm.checkChangePIDCode()"
+                                         placeholder="{{vm.LabelConstant.MFG.PID}}" custom-blur="vm.validateDuplicatePIDCode(vm.isAssyPNORRevChange, 'toPIDCodeSufix')"
+                                         ng-disabled="vm.mfgTypedata === vm.MFG_TYPE.DIST || vm.partCategoryID == vm.PartCategory.SubAssembly"
+                                         md-maxlength="{{((vm.mfgTypedata === vm.MFG_TYPE.DIST ? 109 : vm.PIDCodeLength)-(vm.component.PIDCodePrefix?vm.component.PIDCodePrefix.length:0))}}"
+                                         ng-maxlength="{{(vm.mfgTypedata === vm.MFG_TYPE.DIST ? 109 : vm.PIDCodeLength)-(vm.component.PIDCodePrefix?vm.component.PIDCodePrefix.length:0)}}"
+                                         ng-Keydown="vm.PIDcodeKeyDown($event)" required>
+                                  <copy-text ng-if="vm.component.PIDCodeSufix" label="vm.LabelConstant.MFG.PID" text="(vm.component.PIDCodePrefix + vm.component.PIDCodeSufix)">
+                                  </copy-text>
+                                </md-input-container>
+                              </div>
+                              <div ng-if="(!vm.cid)">
+                                <span flex="100" class="font-size-10">
+                                  <b>Count of characters are excluding prefix.</b>
+                                </span>
+                              </div>
+                              <!--Length was approved by client so don't change before client's approval-->
+                              <div ng-messages="vm.UpdateComponentForm.toPIDCodeSufix.$error" ng-if="vm.UpdateComponentForm.toPIDCodeSufix.$touched || vm.cid" role="alert"
+                                   class="font-size-12 cm-bom-error-message">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(((vm.mfgTypedata === vm.MFG_TYPE.DIST ? 109 : vm.PIDCodeLength)), vm.UpdateComponentForm.PIDCodePrefix.$viewValue.length + vm.UpdateComponentForm.toPIDCodeSufix.$viewValue.length)}}</span>
+                                </div>
+                                <div ng-if="vm.getPIDCodeValidation(vm.component.PIDCodeSufix)">
+                                  <span>{{vm.PIDCodeMultipleHyphenMessage.message}}</span>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr ng-if="vm.mfgTypedata === vm.MFG_TYPE.DIST">
+                            <th>
+                              <p class="label-container">
+                                <a class="cm-text-decoration underline" ng-click="vm.goToManufacturerList(vm.MFG_TYPE.MFG);"
+                                   tabindex="-1">{{vm.LabelConstant.MFG.MFG}}</a>
+                              </p>
+                            </th>
+                            <td colspan="3">
+                              <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" md-no-float>
+                                <input type="text"
+                                       name="fromMFGCode"
+                                       ng-model="vm.currentComponent.refSupplierMfgComponent.mfgCodemst.fullMfgName"
+                                       disabled>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                          <tr ng-if="vm.mfgTypedata === vm.MFG_TYPE.DIST">
+                            <th>
+                              <p class="label-container">
+                                <a class="cm-text-decoration underline" ng-click="vm.goToManufacturerList();"
+                                   tabindex="-1">{{vm.LabelConstant.MFG.MFGPN}}</a>
+                              </p>
+                            </th>
+                            <td colspan="3">
+                              <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100" md-no-float>
+                                <input type="text"
+                                       name="fromMFGCode"
+                                       ng-model="vm.currentComponent.refSupplierMfgComponent.mfgPN"
+                                       disabled>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </fieldset>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </md-content>
+  </md-dialog-content>
+  <md-dialog-actions layout="row">
+    <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+    <md-button class="md-primary md-raised"
+               ng-class="{'md-formdirty': vm.UpdateComponentForm.$dirty}"
+               ng-click="vm.updateComponent()" aria-label="Submit">
+      Update
+    </md-button>
+  </md-dialog-actions>
+</md-dialog>

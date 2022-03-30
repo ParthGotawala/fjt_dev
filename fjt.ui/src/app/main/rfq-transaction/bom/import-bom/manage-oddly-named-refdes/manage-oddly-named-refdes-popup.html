@@ -1,0 +1,106 @@
+<md-dialog aria-label="coustomer-confirmation" flex="70" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.OddlyNamedRefDesForm">
+    <md-toolbar>
+      <div class="md-toolbar-tools padding-right-5" layout="row" layout-align="space-between center">
+        <h2>Manage Oddly Named {{vm.labelConstant.BOM.REF_DES}}</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll" layout="column">
+      <md-content class="relative" style="min-height:200px" flex layout="column">
+        <div class="grouplistbox-btm RFQ-additional-requirement-popup" flex layout="column" ng-cloak>
+          <div layout-align="start center" class="md-padding" flex layout="column" ng-class="dialog.who">
+            <div class="md-whiteframe-4dp width-100p pl-10 pt-10 pr-10" layout>
+              <div flex="50" layout="row">
+                <md-input-container flex="100" class="margin-bottom-0 padding-bottom-5" md-no-float>
+                  <input type="text" name="oddlyRefDes" id="oddlyRefDes" ng-model="vm.OddelyRefDesDet.refDes" placeholder="Enter Oddly Named {{vm.labelConstant.BOM.REF_DES}}"
+                         custom-blur="vm.onBlurOddelyRefDes()"
+                         ng-maxlength="100"
+                         md-maxlength="100"
+                         ng-disabled="vm.isReadOnly || !vm.cid || vm.cid == null || vm.partCategoryID != vm.PartCategory.SubAssembly || vm.isDisableRefDes"
+                         ng-change="vm.checkUniqueOddelyRefDes()"
+                         onkeypress="return restrictCommaandSpace(event)"
+                         ng-keypress="vm.addOddelyRefDesToList($event);"
+                         capitalize class="input-text-uppercase placeholder-text-normal">
+                  <span class="font-size-10">
+                    <b>Type and press Enter.</b>
+                  </span>
+                  <div ng-messages="vm.OddlyNamedRefDesForm.oddlyRefDes.$error"
+                       role="alert">
+                    <div ng-message="maxlength">
+                      <span>{{vm.getMaxLengthValidation(100, vm.OddlyNamedRefDesForm.oddlyRefDes.$viewValue.length)}}</span>
+                    </div>
+                    <div ng-message="duplicate">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.DUPLICATE}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+                <md-button class="md-primary md-raised ml-10 m-0"
+                           ng-click="vm.resetOddelyRefDes()"
+                           ng-disabled="vm.isReadOnly || !vm.cid || vm.cid == null || vm.partCategoryID != vm.PartCategory.SubAssembly">
+                  Clear
+                  <md-tooltip>Clear</md-tooltip>
+                </md-button>
+              </div>
+
+              <div layout="row" flex="50" class="input-wrapper ml-30">
+                <p class="label-container">Search <span>&nbsp;</span></p>
+                <md-input-container md-no-float class="margin-bottom-0 md-block mr-10 mt-0">
+                  <input type="text" name="search" ng-model="vm.searchText" autocomplete="off" ignore-dirty
+                         placeholder="Type here to search" maxlength="100" ng-change="vm.searchOddlyRefdes(false)" ng-model-options="{debounce: vm.debounceTime }">
+                </md-input-container>
+                <md-button class="md-primary md-raised margin-0 margin-left-5-imp" ng-click="vm.searchOddlyRefdes(true);" aria-label="Reset">Reset</md-button>
+              </div>
+            </div>
+            <div class="cm-tracking-chip-container max-height-fit-content min-height-190 cm-overflow-auto pt-10 width-100p" flex layout-align="start start">
+              <div ng-repeat="refDesItem in vm.component.oddelyRefDesListSearch" layout="row" layout-align="start center" class="cm-tracking-chip-mian">
+                <div class="tracking-number-chip tracking-number-copy-chip pv-3" ng-class="{'md-formdirty': refDesItem.isEdited}" layout="row" layout-align="start center">
+                  <label>{{refDesItem.refDes}}</label>
+                  <div class="md-icon-button md-primary m-5 md-mini border-radius-0"
+                       ng-mouseover="vm.checkCopyStatus()"
+                       ng-click="vm.copyrefDesItem($event,refDesItem.refDes);">
+                    <md-icon md-font-icon="icon-content-copy s18" class="material-icons mat-icon"></md-icon>
+                    <md-tooltip md-direction="top" ng-show="!vm.copystatus">Copy {{vm.labelConstant.BOM.REF_DES}}</md-tooltip>
+                    <md-tooltip md-direction="top" ng-show="vm.copystatus">Copied</md-tooltip>
+                  </div>
+                  <md-button class="md-icon-button md-primary md-mini margin-0"
+                             ng-click="vm.editrefDesItem(refDesItem)">
+                    <md-icon md-font-icon="icon-pencil" class="material-icons mat-icon"></md-icon>
+                    <md-tooltip>Update {{vm.labelConstant.BOM.REF_DES}}</md-tooltip>
+                  </md-button>
+                  <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeRefDesItem(refDesItem, $index)" ng-disabled="(vm.compoentn.id && vm.component)">
+                    <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                    <md-tooltip>Remove {{vm.labelConstant.BOM.REF_DES}}</md-tooltip>
+                  </md-button>
+                </div>
+              </div>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.searchText && vm.component.oddelyRefDesListSearch==0">
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.SearchEmptyMesssage.IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title">{{vm.SearchEmptyMesssage.EMPTY_SEARCH_MESSAGE}}</p>
+              </div>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="!vm.searchText && vm.component.oddelyRefDesListSearch==0">
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.OdlyNameEmptyMsg .IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title">{{vm.OdlyNameEmptyMsg .MESSAGE}}</p>
+              </div>
+              <!--for checking tracking number changed or not-->
+              <input type="text" name="oddlyRefDesChanged" ng-model="vm.component.oddelyRefDesChanged" disabled ng-hide="true" />
+            </div>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Close</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.save()" ng-disabled="vm.saveDisable"
+                 ng-class="{'md-formdirty': vm.OddlyNamedRefDesForm.$dirty}">Save</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

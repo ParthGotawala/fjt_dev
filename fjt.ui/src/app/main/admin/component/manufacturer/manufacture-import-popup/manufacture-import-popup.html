@@ -1,0 +1,121 @@
+<md-dialog aria-label="manage-rfq-lineitem-headers" flex="65" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.manufacturerMapping">
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2 ng-if="vm.IsManfucaturer">{{vm.LabelConstant.MFG.Manufacturer}} Mapping</h2>
+        <h2 ng-if="vm.type==vm.mfgType.DIST">{{vm.LabelConstant.MFG.Supplier}} Mapping</h2>
+        <h2 ng-if="vm.IsCustomer">{{vm.LabelConstant.MFG.Customer}} Mapping</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding" layout="column">
+      <md-content class="custom-scroll margin-5 padding-0-10-imp">
+        <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+          <tbody>
+            <tr>
+              <th><p class="label-container mt-10">Mapping Type<span>&nbsp;</span></p></th>
+              <td class="scan-side">
+                <md-radio-group layout="row" class="mv-0 margin-right-0 ml-10" name="scanSide" ng-model="vm.mappingType" required ng-change="vm.changeMappingType(vm.mappingType, '{{vm.mappingType}}')">
+                  <md-radio-button value="{{vm.uploadMappingType.F.Key}}">{{vm.uploadMappingType.F.Value}}</md-radio-button>
+                  <md-radio-button value="{{vm.uploadMappingType.C1.Key}}">{{vm.uploadMappingType.C1.Value}}</md-radio-button>
+                  <md-radio-button value="{{vm.uploadMappingType.C2.Key}}">{{vm.uploadMappingType.C2.Value}}</md-radio-button>
+                </md-radio-group>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div excel-reader er-options="vm.eroOptions" layout-wrap layout="row" ng-if="vm.mappingType == vm.uploadMappingType.F.Key">
+          <div layout="row" flex="100">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <th><p class="label-container padding-left-0-imp pt-10" ng-class="{'padding-top-0 margin-bottom-15': vm.headerMapping.length > 0}">Select File<span>&nbsp;</span></p></th>
+                  <td>
+                    <div layout="row" flex="100">
+                      <md-button class="md-primary md-raised" ng-click="vm.import()">
+                        <span ng-if="vm.IsManfucaturer">Import {{vm.LabelConstant.MFG.Manufacturer}}</span>
+                        <span ng-if="vm.type==vm.mfgType.DIST">Import {{vm.LabelConstant.MFG.Supplier}}</span>
+                        <span ng-if="vm.IsCustomer">Import {{vm.LabelConstant.MFG.Customer}}</span>
+                      </md-button>
+                    </div>
+                    <span class="font-size-10 ml-10" ng-if="vm.headerMapping.length > 0"><b>{{vm.fileName}}</b></span>
+                    <input id="fiexcel" name="file" type="file" class="hidden" style="height:0px;width:0px;left: -100%;position:absolute">
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div flex="40" layout="row" ng-if="vm.headerMapping.length > 0">
+            <md-list flex="100" class="custom-scroll dragbox pt-0" ms-scroll>
+              <md-list-item class="padding-0 items-container md-list-item-text" layout="row" flex="100" layout-wrap>
+                <div class="workorderblog" flex="100" layout="row">
+                  <div class="md-list-item-text" flex="50">
+                    <div class="blogsection" flex="100">
+                      <h3 class="md-primary-fg woTitleClass">{{vm.importCustomerType}} Header</h3>
+                    </div>
+                  </div>
+                  <div class="md-list-item-text" flex="50">
+                    <div class="blogsection" flex="100">
+                      <h3 class="md-primary-fg woTitleClass">Excel Header</h3>
+                    </div>
+                  </div>
+                </div>
+              </md-list-item>
+              <div flex="100" layout="row" ng-repeat="item in vm.headerMapping" class="cm-bom-column">
+                <div flex="50" class="text-right padding-right-15">
+                  <label>{{item.header}}</label>
+                </div>
+                <div flex="50">
+                  <label ng-if="item.column">{{item.column}}</label>
+                  <label ng-if="!item.column">-</label>
+                </div>
+              </div>
+            </md-list>
+          </div>
+        </div>
+        <!--<div id="hot-manufacture-container" class="md-inline-form" flex="100" ng-if="vm.mappingType == vm.uploadMappingType.F.Key" ng-hide="true"></div>-->
+        <div id="hot-manufacture-container" class="md-inline-form" flex="100" ng-show="vm.mappingType == vm.uploadMappingType.C2.Key || vm.mappingType == vm.uploadMappingType.C1.Key">
+          <hot-table class="padding-bottom-48 cm-import-bom-ht-table h-tbl-dir"
+                     settings="vm.settings"
+                     hot-id="hot-manufacture"
+                     name="hot-manufacture"
+                     flex="100"
+                     datarows="vm.hansonModel" ng-if="vm.mappingType == vm.uploadMappingType.C1.Key">
+          </hot-table>
+          <hot-table class="padding-bottom-48 cm-import-bom-ht-table h-tbl-dir"
+                     settings="vm.settings"
+                     hot-id="hot-manufacture"
+                     name="hot-manufacture"
+                     flex="100"
+                     datarows="vm.hansonModel" ng-if="vm.mappingType == vm.uploadMappingType.C2.Key">
+          </hot-table>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row" layout-align="space-between-center">
+      <div>
+        <md-checkbox ng-model="vm.replaceSalesCommissionTo"
+                     ng-if="vm.IsCustomer && (vm.mappingType == vm.uploadMappingType.C1.Key)"
+                     name="replaceSalesCommissionTo" class="margin-0">
+          Check the checkbox to replace "Sales Commission To" for an existing customer.
+        </md-checkbox>
+      </div>
+      <div>
+        <md-button class="md-default md-raised" ng-click="vm.cancel(false)">Close</md-button>
+        <md-button class="md-primary md-raised" ng-class="{'md-formdirty': vm.isChanged}" ng-click="vm.save()">Save</md-button>
+      </div>
+    </md-dialog-actions>
+  </form>
+</md-dialog>
+<style>
+  .ht_editor_hidden {
+    z-index: -1 !important;
+  }
+
+  #hot-manufacture-container {
+    height: 300px !important;
+  }
+</style>

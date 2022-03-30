@@ -1,0 +1,142 @@
+<md-dialog aria-label="Assembly Stock Details" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <!--flex="90"-->
+
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>
+        Export Control Validation
+      </h2>
+      <span flex></span>
+      <popup-header-label label-data="vm.headerdata"></popup-header-label>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content class="customer-modal no-padding custom-scroll mh-5" layout="column">
+    <md-content class="padding-10">
+      <div class="content fullpage-datatable" layout="column">
+        <div ng-if="vm.data.assyList.length > 0" class="margin-top-10 cm-section-main order-detail-form-container payments md-background-bg md-whiteframe-1dp" layout="column" flex="100">
+          <div layout="row" flex="100" class="margin-top-10">
+            <div flex="70">
+              <!--<span><b></b></span>-->
+              <div class="feeder-scan-message padding-left-5">
+                <p>
+                  {{vm.data.errorMessage}}
+                </p>
+              </div>
+            </div>
+            <div flex="30" layout="row" class="manage-component-set-autocomplete layout-row">
+              <div flex layout="row" class="input-wrapper padding-right-10 layout-row flex">
+                <p class="label-container">Search <span>&nbsp;</span></p>
+                <md-input-container class="md-block search-header margin-0 error-none">
+                  <input type="text" ng-model="vm.queryAssemblyList.assembly_search" ng-change="vm.searchAssembly(vm.queryAssemblyList.assembly_search)" ng-model-options="{debounce: 200 }" placeholder="Search">
+                </md-input-container>
+              </div>
+              <div layout-align="end center" class="layout-align-end-center">
+                <md-button class="md-primary md-raised mv-0 ml-0 md-button md-default-theme md-ink-ripple" aria-label="Clear" ng-disabled="!vm.queryAssemblyList.assembly_search" ng-click="vm.queryAssemblyList.assembly_search = ''; vm.searchAssembly(vm.queryAssemblyList.assembly_search)">
+                  Clear
+                </md-button>
+              </div>
+            </div>
+          </div>
+          <div layout="row" layout-align="space-between center" class="cm-section-header">
+            <h2 class="margin-0" flex="100">
+              Export Control Validation
+            </h2>
+          </div>
+          <div class="cm-section-inner">
+            <md-table-container layout="row" flex="100" ng-if="vm.nonExportControlAssyList.length > 0">
+              <table md-table class="md-data-table table-row-select cm-overflow-auto">
+                <thead md-head md-order="vm.queryAssemblyList.order">
+                  <tr md-row>
+                    <th md-column width="50">
+                      #
+                    </th>
+                    <th md-column md-order-by="PIDCode" ng-if="!vm.data.iscustompacking">
+                      SO Line#
+                      <md-tooltip>SO Line#</md-tooltip>
+                    </th>
+                    <th md-column md-order-by="PIDCode">
+                      {{vm.allLabelConstant.Assembly.PIDCode}}
+                      <md-tooltip>{{vm.allLabelConstant.Assembly.PIDCode}}</md-tooltip>
+                    </th>
+                    <th md-column md-order-by="nickName">
+                      {{vm.allLabelConstant.Assembly.NickName}}
+                      <md-tooltip>{{vm.allLabelConstant.Assembly.NickName}}</md-tooltip>
+                    </th>
+                    <th md-column md-order-by="partTypeText">
+                      Part Type
+                      <md-tooltip>Part Type</md-tooltip>
+                    </th>
+                    <th md-column ng-if="vm.data.transType">
+                      {{vm.allLabelConstant.BOM.Standards}}
+                      <md-tooltip>{{vm.allLabelConstant.BOM.Standards}}e</md-tooltip>
+                    </th>
+                    <th md-column md-numeric md-order-by="description">
+                      Qty
+                      <md-tooltip>Qty</md-tooltip>
+                    </th>
+                    <th md-column md-order-by="description" ng-if="vm.data.transType != 'I'">
+                      Shipping Country
+                      <md-tooltip>Shipping Country</md-tooltip>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody md-body>
+                  <tr md-row ng-repeat="item in vm.nonExportControlAssyList
+                                                    | orderBy: vm.queryAssemblyList.order track by $index">
+                    <td md-cell>{{$index+1}}</td>
+                    <td md-cell ng-if="!vm.data.iscustompacking">{{item.lineID}}</td>
+                    <td md-cell>
+                      <common-pid-code-label-link ng-if="item.PIDCode"
+                                                  component-id="item.partID"
+                                                  label="vm.allLabelConstant.Assembly.PIDCode"
+                                                  value="item.PIDCode"
+                                                  rohs-icon="item.rohsIcon"
+                                                  is-copy="item.partID ? true : false"
+                                                  rohs-status="item.rohsText"
+                                                  is-assembly="true"
+                                                  is-custom-part="item.isCustom"></common-pid-code-label-link>
+                    </td>
+                    <td md-cell>{{item.nickName}}</td>
+                    <td md-cell>{{item.partTypeText}}</td>
+                    <td md-cell ng-if="vm.data.transType">
+                      {{item.componentStandardList}}
+                      <!--<label class="margin-2 label-box"
+                             ng-style="{'background-color': standardItem.colorCode}"
+                             ng-repeat="standardItem in item.componentStandardList track by $index">
+                        {{standardItem.className}}
+                      </label>-->
+                    </td>
+                    <td md-cell md-numeric>{{item.qty}}</td>
+                    <td md-cell ng-if="vm.data.transType != 'I'">{{item.countryName}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </md-table-container>
+            <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+                 ng-if="vm.nonExportControlAssyList.length == 0">
+              <div class="emty-icon" flex="100">
+                <img ng-src="{{vm.empty.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title" flex="100">{{vm.empty.MESSAGE}}</p>
+            </div>
+          </div>
+        </div>
+        <div ng-if="!vm.data.assyList || vm.data.assyList.length == 0"
+             class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap>
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.EmptyMesssagePO.IMAGEURL}}" />
+          </div>
+          <p flex="100" class="empty-state-title">{{vm.EmptyMesssagePO.MESSAGE}}</p>
+        </div>
+      </div>
+    </md-content>
+  </md-dialog-content>
+
+  <md-dialog-actions layout="row">
+    <md-button class="md-default md-raised" ng-click="vm.cancel()">Close</md-button>
+  </md-dialog-actions>
+
+</md-dialog>

@@ -1,0 +1,398 @@
+<md-dialog aria-label="Rack Status Popup" draggable cg-busy="{promise:vm.cgBusyLoading}" class="cm-component-detail cm-custom-label-common" flex="80">
+  <form name="vm.rackstatusform" novalidate class="md-inline-form">
+    <md-toolbar ng-class="vm.themeClass">
+      <div class="md-toolbar-tools">
+        <h2>Show Rack Status</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding cm-display-contents-rs cm-rack-popup" layout="column">
+      <md-content class="md-padding">
+        <div layout="row" flex="100" class="margin-vertical-5" layout-wrap>
+          <div flex="100" layout="row">
+            <div class="cm-section-main" flex="100" layout="row">
+              <div class="cm-section-inner" flex="100" layout="column">
+                <div flex="100" layout="column">
+                  <div flex="100" layout="column" class="overflow-auto-rs">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main margin-top-10">
+                      <tbody>
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              <a tabindex="-1" class="cm-text-decoration underline"
+                                 ng-mousedown="vm.gotoRack();$event.preventDefault();">
+                                Scan Rack
+                              </a>
+                              <scan-or-enter></scan-or-enter>
+                            </p>
+                          </th>
+                          <td class="width-300 min-width-auto-600">
+                            <md-input-container class="margin-bottom-0 md-block margin-top-0 scan-label-text">
+                              <input type="text" id="racknumber" name="racknumber" ng-maxlength="10"
+                                     placeholder="Scan Rack#" md-select-on-focus md-autofocus class="input-text-uppercase" capitalize
+                                     ng-keypress="vm.scanRackLabel($event)"
+                                     ng-model="vm.rackStatus.racknumber">
+                              <md-button ng-if="vm.rackStatus.racknumber" class="md-icon-button height-20 width-20 line-height-20 cm-part-filter-clear-btn margin-top-3"
+                                         ng-click="vm.clearRack()">
+                                <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close  color-black"></md-icon>
+                              </md-button>
+                              <span flex="100" class="font-size-10">
+                                <b>{{vm.LabelConstant.ScanOREnter.ScanRack}}</b>
+                              </span>
+                              <div ng-messages="vm.rackstatusform.racknumber.$error"
+                                   role="alert">
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(10,vm.rackstatusform.racknumber.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <td>
+                            <md-button class="md-primary md-raised margin-top-0" ng-if="vm.scanDetail.currentrack"
+                                       ng-click="vm.showRackHistory($event)">
+                              Show Rack History
+                            </md-button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-rack-current-detail-table" ng-if="vm.scanDetail.currentrack">
+                    <tbody class="cm-desktop-table-data">
+                      <tr>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.RACK_MST.Rack}}:</p>
+                        </th>
+                        <td class="padding-top-3 font-size-15-imp">
+                          <b>{{vm.scanDetail.currentrack}}</b>
+                        </td>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration cursor-pointer" ng-if="vm.scanDetail.pwoOperationName"
+                               ng-mousedown="vm.workorderOperation(vm.scanDetail.woID);$event.preventDefault();">
+                              {{vm.LabelConstant.RACK_MST.CurrentOP}}
+                            </a><span ng-if="!vm.scanDetail.pwoOperationName" class="color-black"> {{vm.LabelConstant.RACK_MST.CurrentOP}}</span>:
+                          </p>
+                        </th>
+                        <td class="padding-top-3 font-size-15-imp">
+                          <a tabindex="-1" class="cm-text-decoration cursor-pointer" ng-if="vm.scanDetail.pwoOperationName"
+                             ng-mousedown="vm.manageWorkorderOperation(vm.scanDetail.pcurWoOPID);$event.preventDefault();">
+                            <b>{{vm.scanDetail.pwoOperationName}}</b>
+                          </a>
+                          <span ng-if="!vm.scanDetail.pwoOperationName"><b>-</b></span>
+                        </td>
+                        <th>
+                        </th>
+                        <td class="font-size-15-imp padding-top-3" colspan="3">
+                          <span class="color-black text-bold cm-wo-operation-label">
+                            <span ng-if="vm.scanDetail.visNoCleanOpNumbers">
+                              <md-icon md-font-icon="icon-check-circle"></md-icon>
+                              {{vm.LabelConstant.Operation.NoClean}}
+                              <span class="icon-question-mark-circle help-icon">
+                                <md-tooltip ng-if="vm.scanDetail.visNoCleanOpNumbers">
+                                  {{vm.LabelConstant.Operation.Short_OP}}: {{vm.scanDetail.visNoCleanOpNumbers}}
+                                </md-tooltip>
+                              </span>
+                            </span>
+                            <span ng-if="vm.scanDetail.visWatersolubleOpNumbers">
+                              <md-icon md-font-icon="icon-check-circle"></md-icon>
+                              {{vm.LabelConstant.Operation.WaterSoluble}}
+                              <span class="icon-question-mark-circle help-icon">
+                                <md-tooltip ng-if="vm.scanDetail.visWatersolubleOpNumbers">
+                                  {{vm.LabelConstant.Operation.Short_OP}}: {{vm.scanDetail.visWatersolubleOpNumbers}}
+                                </md-tooltip>
+                              </span>
+                            </span>
+                          </span>
+                          <span ng-if="!vm.scanDetail.visNoCleanOpNumbers && !vm.scanDetail.visWatersolubleOpNumbers"><b>-</b></span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration cursor-pointer"
+                               ng-mousedown="vm.goToPartList();$event.preventDefault();">
+                              Current Assy ID
+                            </a>:
+                          </p>
+                        </th>
+                        <td class="padding-top-3 font-size-15-imp">
+                          <common-pid-code-label-link ng-if="vm.scanDetail.partID" component-id="vm.scanDetail.partID"
+                                                      label="vm.LabelConstant.Assembly.PIDCode"
+                                                      value="vm.scanDetail.pidcode"
+                                                      is-copy="true"
+                                                      rohs-icon="vm.scanDetail.rohsicon"
+                                                      rohs-status="vm.scanDetail.prohsName"
+                                                      is-formated="true"
+                                                      is-assembly="true"></common-pid-code-label-link>
+                          <span ng-if="!vm.scanDetail.partID"><b>-</b></span>
+                        </td>
+
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.RACK_MST.OperationStatus}}:</p>
+                        </th>
+                        <td class="padding-top-2 font-size-15-imp">
+                          <b>{{vm.scanDetail.currentOperationStatus?vm.scanDetail.currentOperationStatus:'-'}}</b>
+                        </td>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.COMMON.GRIDHEADER_SCANNEDBY}}:</p>
+                        </th>
+                        <td class="padding-top-3 font-size-15-imp">
+                          <b>{{vm.scanDetail.puserName?vm.scanDetail.puserName:'-'}}</b>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration cursor-pointer"
+                               ng-mousedown="vm.gotoWOlist();$event.preventDefault();">
+                              {{vm.LabelConstant.RACK_MST.CurrentWO}}
+                            </a>:
+                          </p>
+                        </th>
+                        <td class="padding-top-2 font-size-15-imp">
+                          <a tabindex="-1" class="cm-text-decoration cursor-pointer" ng-if="vm.scanDetail.pwoName"
+                             ng-mousedown="vm.manageWoPage(vm.scanDetail.woID);$event.preventDefault();">
+                            <b>{{vm.scanDetail.pwoName}}</b>
+                          </a>
+                          <span ng-if="!vm.scanDetail.pwoName"><b>-</b></span>
+                        </td>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.RACK_MST.AssyStatus}}:</p>
+                        </th>
+                        <td class="padding-top-2 font-size-15-imp">
+                          <b>{{vm.scanDetail.currentassyStatus?vm.scanDetail.currentassyStatus:'-'}}</b>
+                        </td>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.COMMON.GRIDHEADER_SCANNEDON}}:</p>
+                        </th>
+                        <td class=" padding-top-3 font-size-15-imp">
+                          <b>{{vm.scanDetail.scantime?vm.scanDetail.scantime:'-'}}</b>
+                        </td>
+                      </tr>
+                    </tbody>
+
+                    <tbody class="cm-rs-table-data">
+                      <tr>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.RACK_MST.Rack}}:</p>
+                        </th>
+                        <td class="padding-top-3 font-size-15-imp">
+                          <b>{{vm.scanDetail.currentrack}}</b>
+                        </td>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.COMMON.GRIDHEADER_SCANNEDBY}}:</p>
+                        </th>
+                        <td class="padding-top-3 font-size-15-imp">
+                          <b>{{vm.scanDetail.puserName?vm.scanDetail.puserName:'-'}}</b>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration cursor-pointer" ng-if="vm.scanDetail.pwoOperationName"
+                               ng-mousedown="vm.workorderOperation(vm.scanDetail.woID);$event.preventDefault();">
+                              {{vm.LabelConstant.RACK_MST.CurrentOP}}
+                            </a><span ng-if="!vm.scanDetail.pwoOperationName" class="color-black"> {{vm.LabelConstant.RACK_MST.CurrentOP}}</span>:
+                          </p>
+                        </th>
+                        <td class="padding-top-3 font-size-15-imp">
+                          <a tabindex="-1" class="cm-text-decoration cursor-pointer" ng-if="vm.scanDetail.pwoOperationName"
+                             ng-mousedown="vm.manageWorkorderOperation(vm.scanDetail.pcurWoOPID);$event.preventDefault();">
+                            <b>{{vm.scanDetail.pwoOperationName}}</b>
+                          </a>
+                          <span ng-if="!vm.scanDetail.pwoOperationName"><b>-</b></span>
+                        </td>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration cursor-pointer"
+                               ng-mousedown="vm.gotoWOlist();$event.preventDefault();">
+                              {{vm.LabelConstant.RACK_MST.CurrentWO}}
+                            </a>:
+                          </p>
+                        </th>
+                        <td class="padding-top-2 font-size-15-imp">
+                          <a tabindex="-1" class="cm-text-decoration cursor-pointer" ng-if="vm.scanDetail.pwoName"
+                             ng-mousedown="vm.manageWoPage(vm.scanDetail.woID);$event.preventDefault();">
+                            <b>{{vm.scanDetail.pwoName}}</b>
+                          </a>
+                          <span ng-if="!vm.scanDetail.pwoName"><b>-</b></span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                        </th>
+                        <td class="font-size-15-imp padding-top-3">
+                          <span class="color-black text-bold cm-wo-operation-label">
+                            <span ng-if="vm.scanDetail.visNoCleanOpNumbers">
+                              <md-icon md-font-icon="icon-check-circle"></md-icon>
+                              {{vm.LabelConstant.Operation.NoClean}}
+                              <span class="icon-question-mark-circle help-icon">
+                                <md-tooltip ng-if="vm.scanDetail.visNoCleanOpNumbers">
+                                  {{vm.LabelConstant.Operation.Short_OP}}: {{vm.scanDetail.visNoCleanOpNumbers}}
+                                </md-tooltip>
+                              </span>
+                            </span>
+                            <span ng-if="vm.scanDetail.visWatersolubleOpNumbers">
+                              <md-icon md-font-icon="icon-check-circle"></md-icon>
+                              {{vm.LabelConstant.Operation.WaterSoluble}}
+                              <span class="icon-question-mark-circle help-icon">
+                                <md-tooltip ng-if="vm.scanDetail.visWatersolubleOpNumbers">
+                                  {{vm.LabelConstant.Operation.Short_OP}}: {{vm.scanDetail.visWatersolubleOpNumbers}}
+                                </md-tooltip>
+                              </span>
+                            </span>
+                          </span>
+                          <span ng-if="!vm.scanDetail.visNoCleanOpNumbers && !vm.scanDetail.visWatersolubleOpNumbers"><b>-</b></span>
+                        </td>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.RACK_MST.AssyStatus}}:</p>
+                        </th>
+                        <td class="padding-top-2 font-size-15-imp">
+                          <b>{{vm.scanDetail.currentassyStatus?vm.scanDetail.currentassyStatus:'-'}}</b>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">
+                            <a tabindex="-1" class="cm-text-decoration cursor-pointer"
+                               ng-mousedown="vm.goToPartList();$event.preventDefault();">
+                              Current Assy ID
+                            </a>:
+                          </p>
+                        </th>
+                        <td class="padding-top-3 font-size-15-imp">
+                          <common-pid-code-label-link ng-if="vm.scanDetail.partID" component-id="vm.scanDetail.partID"
+                                                      label="vm.LabelConstant.Assembly.PIDCode"
+                                                      value="vm.scanDetail.pidcode"
+                                                      is-copy="true"
+                                                      rohs-icon="vm.scanDetail.rohsicon"
+                                                      rohs-status="vm.scanDetail.prohsName"
+                                                      is-formated="true"
+                                                      is-assembly="true"></common-pid-code-label-link>
+                          <span ng-if="!vm.scanDetail.partID"><b>-</b></span>
+                        </td>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.COMMON.GRIDHEADER_SCANNEDON}}:</p>
+                        </th>
+                        <td class=" padding-top-3 font-size-15-imp">
+                          <b>{{vm.scanDetail.scantime?vm.scanDetail.scantime:'-'}}</b>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">{{vm.LabelConstant.RACK_MST.OperationStatus}}:</p>
+                        </th>
+                        <td class="padding-top-2 font-size-18">
+                          <b>{{vm.scanDetail.currentOperationStatus?vm.scanDetail.currentOperationStatus:'-'}}</b>
+                        </td>
+                      </tr>
+                      <!--<tr>
+
+        </tr>
+        <tr>
+
+        </tr>
+        <tr>
+
+        </tr>
+        <tr>
+
+        </tr>-->
+                    </tbody>
+                  </table>
+                </div>
+                <md-table-container flex="100" class="mb-10" ng-if="vm.isoperationShow && vm.oprationDetail[0].woNumber">
+                  <table md-table class="md-data-table table-row-select cm-operation-rack-table table-bordered">
+                    <thead md-head>
+                      <tr md-row>
+                        <th md-column class="cm-er-wooperation cm-rs-table-column">{{vm.LabelConstant.Workorder.ReadyForOperation}}</th>
+                        <th class="text-right cm-er-header" md-column>#</th>
+                        <th md-column class="cm-er-wooperation cm-desktop-table-column">{{vm.LabelConstant.Workorder.ReadyForOperation}}</th>
+                        <th md-column class="cm-er-assyid">{{vm.LabelConstant.Assembly.PIDCode}}</th>
+                        <th md-column class="cm-er-wo">{{vm.LabelConstant.Workorder.WO}}</th>
+                      </tr>
+                    </thead>
+                    <tbody md-body>
+                      <tr ng-repeat="item in vm.oprationDetail">
+                        <td class="cm-er-wooperation cm-rs-table-column"><a tabindex="-1" class="cm-text-decoration cursor-pointer" ng-mousedown="vm.gototravellerPage(item.woOPID);$event.preventDefault();">{{item.woopNumber}}</a></td>
+                        <td class="text-right cm-er-header"> {{$index + 1}}</td>
+                        <td class="cm-er-wooperation cm-desktop-table-column"><a tabindex="-1" class="cm-text-decoration cursor-pointer" ng-mousedown="vm.gototravellerPage(item.woOPID);$event.preventDefault();">{{item.woopNumber}}</a></td>
+                        <td class="cm-er-assyid">
+                          <common-pid-code-label-link component-id="vm.scanDetail.partID"
+                                                      label="vm.LabelConstant.Assembly.PIDCode"
+                                                      value="vm.scanDetail.pidcode"
+                                                      is-copy="true"
+                                                      rohs-icon="vm.scanDetail.rohsicon"
+                                                      rohs-status="vm.scanDetail.prohsName"
+                                                      is-formated="true"
+                                                      is-assembly="true"></common-pid-code-label-link>
+                        </td>
+                        <td class="cm-er-wo"> {{item.woNumber}} </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </md-table-container>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--<div layout="row" flex="100">
+          <div flex="100" layout="row">
+            <div class="cm-section-main mb-5" flex="100">
+              <div class="cm-section-header" flex="100">
+                <h2>{{vm.LabelConstant.Workorder.ReadyForOperation}}</h2>
+              </div>
+              <div class="cm-section-inner" flex="100" layout="column">
+                <md-table-container flex="100" class="mb-10" ng-if="vm.isoperationShow && vm.oprationDetail[0].woNumber">
+                  <table md-table class="md-data-table table-row-select cm-operation-rack-table table-bordered">
+                    <thead md-head>
+                      <tr md-row>
+                        <th md-column class="cm-er-wooperation cm-rs-table-column">{{vm.LabelConstant.Workorder.ReadyForOperation}}</th>
+                        <th class="text-right cm-er-header" md-column>#</th>
+                        <th md-column class="cm-er-wooperation cm-desktop-table-column">{{vm.LabelConstant.Workorder.ReadyForOperation}}</th>
+                        <th md-column class="cm-er-assyid">{{vm.LabelConstant.Assembly.PIDCode}}</th>
+                        <th md-column class="cm-er-wo">{{vm.LabelConstant.Workorder.WO}}</th>
+                      </tr>
+                    </thead>
+                    <tbody md-body>
+                      <tr ng-repeat="item in vm.oprationDetail">
+                        <td class="cm-er-wooperation cm-rs-table-column"><a tabindex="-1" class="cm-text-decoration cursor-pointer" ng-mousedown="vm.gototravellerPage(item.woOPID);$event.preventDefault();">{{item.woopNumber}}</a></td>
+                        <td class="text-right cm-er-header"> {{$index + 1}}</td>
+                        <td class="cm-er-wooperation cm-desktop-table-column"><a tabindex="-1" class="cm-text-decoration cursor-pointer" ng-mousedown="vm.gototravellerPage(item.woOPID);$event.preventDefault();">{{item.woopNumber}}</a></td>
+                        <td class="cm-er-assyid">
+                          <common-pid-code-label-link component-id="vm.scanDetail.partID"
+                                                      label="vm.LabelConstant.Assembly.PIDCode"
+                                                      value="vm.scanDetail.pidcode"
+                                                      is-copy="true"
+                                                      rohs-icon="vm.scanDetail.rohsicon"
+                                                      rohs-status="vm.scanDetail.prohsName"
+                                                      is-formated="true"
+                                                      is-assembly="true"></common-pid-code-label-link>
+                        </td>
+                        <td class="cm-er-wo"> {{item.woNumber}} </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </md-table-container>
+                <div layout="row" layout-wrap layout-align="center center" flex="100" ng-if="!vm.isoperationShow && !vm.oprationDetail[0].woNumber">
+                  <div class="emty-icon" flex="100">
+                    <img class="height-100" ng-src="{{vm.empty.IMAGEURL}}" />
+                  </div>
+                  <p class="empty-state-title text-align-center" flex="100">{{vm.scanned?vm.empty.MESSAGERACK:vm.empty.MESSAGE}}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>-->
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

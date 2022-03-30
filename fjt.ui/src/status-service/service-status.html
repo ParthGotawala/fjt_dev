@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<!--ng-app directive tells AngularJS that myApp
+  is the root element of the application -->
+<html ng-app="myApp">
+<head>
+  <title>Application & Service Status</title>
+  <!--import the angularjs libraries-->
+  <script src="../config/config.js"></script>
+  <script src="dependency-libs/angular.min.js"></script>
+  <script src="dependency-libs/angular-route.min.js"></script>
+  <script src="service-status.controller.js"></script>
+  <script src="dependency-libs/angular-busy.js"></script>
+  <script src="dependency-libs/common.js"></script>
+  <script src="dependency-libs/jquery.min.js"></script>
+</head>
+<body>
+  <style>
+    * {
+      margin: 0px;
+      padding: 0px;
+      font-family: 'Arial', sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .no-wrap {
+      white-space: nowrap;
+    }
+
+    .width-80p {
+      width: 80%;
+    }
+
+    .transparent {
+      background-color: transparent;
+    }
+
+    .service-logo {
+      display: block;
+      background: #FFFFFF;
+      width: 32px;
+      min-width: 32px;
+      height: 32px;
+      line-height: 32px;
+      text-align: center;
+      color: #039BE5;
+      font-size: 30px;
+      font-weight: 700;
+      border-radius: 2px;
+    }
+
+    .tbl-main th, .tbl-main td {
+      border: 1px solid #808080;
+      padding: 5px;
+    }
+
+    .tbl-main td {
+      height: 29px;
+    }
+
+      .tbl-main td img {
+        height: 30px;
+      }
+
+    .service-action-btn {
+      padding: 5px;
+      background: #000;
+      border-radius: 2px;
+      min-width: 80px;
+      color: #fff;
+      margin-right: 5px;
+      margin-left: 5px;
+      border: 0;
+    }
+
+      .service-action-btn:hover {
+        box-shadow: 0px 4px 10px #7a7a7a;
+        transition: all 0.2s ease;
+      }
+
+      .service-action-btn[disabled]:hover {
+        box-shadow: none;
+      }
+
+      .service-action-btn[disabled] {
+        background: rgba(0,0,0,0.25);
+      }
+
+    .tbl-main th:not(:last-child), .tbl-main td:not(:last-child) {
+      text-align: center;
+    }
+
+    table thead tr th {
+      text-align: left;
+    }
+
+    .green p, .bg-red p, .orange p, .black p {
+      border-radius: 3px;
+      display: inline-block;
+      padding: 2px 15px;
+      color: #fff;
+      min-width: 105px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .black p {
+      background: #000;
+    }
+
+    .green p {
+      background: #008d00;
+    }
+
+    .orange p {
+      background: #e59400;
+    }
+
+    .bg-red p {
+      background: #c80000;
+    }
+
+    .cm-ml-auto {
+      margin-left: auto !important;
+    }
+
+    .headerbg {
+      color: #fff;
+      background: #039be5 !important;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .cm-align-items-center {
+      -ms-flex-align: center;
+      align-items: center;
+    }
+
+    .display-flex {
+      display: -ms-flexbox !important;
+      display: flex !important;
+      width: 100% !important;
+    }
+
+    .full-height {
+      height: 100% !important;
+    }
+
+    *:before, *:after {
+      box-sizing: border-box;
+    }
+
+    .pt-10 {
+      padding-top: 10px;
+    }
+    .pb-10 {
+      padding-bottom: 10px;
+    }
+
+    .margin-auto {
+      margin: auto !important;
+    }
+
+    .w-608 {
+      width: 608px !important;
+      min-width: 608px !important;
+      max-width: 608px !important;
+    }
+
+    .w-200 {
+      width: 200px !important;
+      min-width: 200px !important;
+      max-width: 200px !important;
+    }
+
+    .mh-16 {
+      margin-left: 16px;
+      margin-right: 16px;
+    }
+
+    .mv-8 {
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+
+    .min-w-430 {
+      min-width: 430px;
+    }
+
+    .pr-30 {
+      padding-right: 30px;
+    }
+
+    .h2 {
+      font-size: 22px;
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+
+    .background-grey {
+      background: #999393 !important;
+    }
+    .text-left {
+        text-align:left !important;
+    }
+
+    .cg-busy {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      right: 0px;
+      bottom: 0px;
+      z-index: 1001;
+    }
+
+    .cg-busy-animation.ng-hide-add,
+    .cg-busy-animation.ng-hide-remove {
+      -webkit-transition: all .3s ease;
+      -moz-transition: all .3s ease;
+      -o-transition: all .3s ease;
+      transition: all .3s ease;
+      display: block !important;
+    }
+
+    .cg-busy-animation.ng-hide-remove {
+      opacity: 0;
+      -webkit-transform: translate(0px,-40px);
+      -moz-transform: translate(0px,-40px);
+      -ms-transform: translate(0px,-40px);
+      -o-transform: translate(0px,-40px);
+      transform: translate(0px,-40px);
+    }
+
+      .cg-busy-animation.ng-hide-remove.ng-hide-remove-active {
+        opacity: 1;
+        -webkit-transform: translate(0px,0px);
+        -moz-transform: translate(0px,0px);
+        -ms-transform: translate(0px,0px);
+        -o-transform: translate(0px,0px);
+        transform: translate(0px,0px);
+      }
+
+    .cg-busy-animation.ng-hide-add {
+      opacity: 1;
+      -webkit-transform: translate(0px,0px);
+      -moz-transform: translate(0px,0px);
+      -ms-transform: translate(0px,0px);
+      -o-transform: translate(0px,0px);
+      transform: translate(0px,0px);
+    }
+
+      .cg-busy-animation.ng-hide-add.ng-hide-add-active {
+        opacity: 0;
+        -webkit-transform: translate(0px,-40px);
+        -moz-transform: translate(0px,-40px);
+        -ms-transform: translate(0px,-40px);
+        -o-transform: translate(0px,-40px);
+        transform: translate(0px,-40px);
+      }
+
+    .cg-busy-backdrop {
+      background-color: white;
+      opacity: .7;
+    }
+
+    .cg-busy-backdrop-animation.ng-hide-add,
+    .cg-busy-backdrop-animation.ng-hide-remove {
+      -webkit-transition: opacity .3s ease;
+      -moz-transition: opacity .3s ease;
+      -o-transition: opacity .3s ease;
+      transition: opacity .3s ease;
+      display: block !important;
+    }
+
+    .cg-busy-backdrop-animation.ng-hide {
+      opacity: 0;
+    }
+
+    /* All styles below are for the default template. */
+
+    .cg-busy-default-wrapper {
+      text-align: center;
+    }
+
+    .cg-busy-default-sign {
+      display: inline-block;
+      position: relative;
+      z-index: 1002;
+      padding-bottom: 6px;
+      color: #333333;
+      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+      background-color: #e9eeee;
+      border: 1px solid #dddddd;
+      border-top-width: 0;
+      -webkit-border-radius: 7px;
+      -moz-border-radius: 7px;
+      border-radius: 7px;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+      -moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+    }
+
+    .cg-busy-default-text {
+      margin: 13px 12px 6px 49px;
+      font-size: 16px;
+      color: #555;
+      text-align: left;
+      max-width: 400px;
+    }
+
+    .cg-busy-default-spinner {
+      position: absolute;
+      width: 25px;
+      height: 25px;
+      display: inline-block;
+      top: 12px;
+      left: 14px;
+    }
+
+      .cg-busy-default-spinner div {
+        width: 12%;
+        height: 26%;
+        background: #000;
+        position: absolute;
+        left: 44.5%;
+        top: 37%;
+        opacity: 0;
+        -webkit-animation: cg-busy-spinner-anim 1s linear infinite;
+        -moz-animation: cg-busy-spinner-anim 1s linear infinite;
+        -ms-animation: cg-busy-spinner-anim 1s linear infinite;
+        -o-animation: cg-busy-spinner-anim 1s linear infinite;
+        animation: cg-busy-spinner-anim 1s linear infinite;
+        -webkit-border-radius: 50px;
+        -moz-border-radius: 50px;
+        border-radius: 50px;
+        -webkit-box-shadow: 0 0 3px rgba(0,0,0,0.2);
+        -moz-box-shadow: 0 0 3px rgba(0,0,0,0.2);
+        box-shadow: 0 0 3px rgba(0,0,0,0.2);
+      }
+
+        .cg-busy-default-spinner div.bar1 {
+          -webkit-transform: rotate(0deg) translate(0, -142%);
+          -moz-transform: rotate(0deg) translate(0, -142%);
+          -ms-transform: rotate(0deg) translate(0, -142%);
+          -o-transform: rotate(0deg) translate(0, -142%);
+          transform: rotate(0deg) translate(0, -142%);
+          -webkit-animation-delay: 0s;
+          -moz-animation-delay: 0s;
+          -ms-animation-delay: 0s;
+          -o-animation-delay: 0s;
+          animation-delay: 0s;
+        }
+
+        .cg-busy-default-spinner div.bar2 {
+          -webkit-transform: rotate(30deg) translate(0, -142%);
+          -moz-transform: rotate(30deg) translate(0, -142%);
+          -ms-transform: rotate(30deg) translate(0, -142%);
+          -o-transform: rotate(30deg) translate(0, -142%);
+          transform: rotate(30deg) translate(0, -142%);
+          -webkit-animation-delay: -0.9167s;
+          -moz-animation-delay: -0.9167s;
+          -ms-animation-delay: -0.9167s;
+          -o-animation-delay: -0.9167s;
+          animation-delay: -0.9167s;
+        }
+
+        .cg-busy-default-spinner div.bar3 {
+          -webkit-transform: rotate(60deg) translate(0, -142%);
+          -moz-transform: rotate(60deg) translate(0, -142%);
+          -ms-transform: rotate(60deg) translate(0, -142%);
+          -o-transform: rotate(60deg) translate(0, -142%);
+          transform: rotate(60deg) translate(0, -142%);
+          -webkit-animation-delay: -0.833s;
+          -moz-animation-delay: -0.833s;
+          -ms-animation-delay: -0.833s;
+          -o-animation-delay: -0.833s;
+          animation-delay: -0.833s;
+        }
+
+        .cg-busy-default-spinner div.bar4 {
+          -webkit-transform: rotate(90deg) translate(0, -142%);
+          -moz-transform: rotate(90deg) translate(0, -142%);
+          -ms-transform: rotate(90deg) translate(0, -142%);
+          -o-transform: rotate(90deg) translate(0, -142%);
+          transform: rotate(90deg) translate(0, -142%);
+          -webkit-animation-delay: -0.75s;
+          -moz-animation-delay: -0.75s;
+          -ms-animation-delay: -0.75s;
+          -o-animation-delay: -0.75s;
+          animation-delay: -0.75s;
+        }
+
+        .cg-busy-default-spinner div.bar5 {
+          -webkit-transform: rotate(120deg) translate(0, -142%);
+          -moz-transform: rotate(120deg) translate(0, -142%);
+          -ms-transform: rotate(120deg) translate(0, -142%);
+          -o-transform: rotate(120deg) translate(0, -142%);
+          transform: rotate(120deg) translate(0, -142%);
+          -webkit-animation-delay: -0.667s;
+          -moz-animation-delay: -0.667s;
+          -ms-animation-delay: -0.667s;
+          -o-animation-delay: -0.667s;
+          animation-delay: -0.667s;
+        }
+
+        .cg-busy-default-spinner div.bar6 {
+          -webkit-transform: rotate(150deg) translate(0, -142%);
+          -moz-transform: rotate(150deg) translate(0, -142%);
+          -ms-transform: rotate(150deg) translate(0, -142%);
+          -o-transform: rotate(150deg) translate(0, -142%);
+          transform: rotate(150deg) translate(0, -142%);
+          -webkit-animation-delay: -0.5833s;
+          -moz-animation-delay: -0.5833s;
+          -ms-animation-delay: -0.5833s;
+          -o-animation-delay: -0.5833s;
+          animation-delay: -0.5833s;
+        }
+
+        .cg-busy-default-spinner div.bar7 {
+          -webkit-transform: rotate(180deg) translate(0, -142%);
+          -moz-transform: rotate(180deg) translate(0, -142%);
+          -ms-transform: rotate(180deg) translate(0, -142%);
+          -o-transform: rotate(180deg) translate(0, -142%);
+          transform: rotate(180deg) translate(0, -142%);
+          -webkit-animation-delay: -0.5s;
+          -moz-animation-delay: -0.5s;
+          -ms-animation-delay: -0.5s;
+          -o-animation-delay: -0.5s;
+          animation-delay: -0.5s;
+        }
+
+        .cg-busy-default-spinner div.bar8 {
+          -webkit-transform: rotate(210deg) translate(0, -142%);
+          -moz-transform: rotate(210deg) translate(0, -142%);
+          -ms-transform: rotate(210deg) translate(0, -142%);
+          -o-transform: rotate(210deg) translate(0, -142%);
+          transform: rotate(210deg) translate(0, -142%);
+          -webkit-animation-delay: -0.41667s;
+          -moz-animation-delay: -0.41667s;
+          -ms-animation-delay: -0.41667s;
+          -o-animation-delay: -0.41667s;
+          animation-delay: -0.41667s;
+        }
+
+        .cg-busy-default-spinner div.bar9 {
+          -webkit-transform: rotate(240deg) translate(0, -142%);
+          -moz-transform: rotate(240deg) translate(0, -142%);
+          -ms-transform: rotate(240deg) translate(0, -142%);
+          -o-transform: rotate(240deg) translate(0, -142%);
+          transform: rotate(240deg) translate(0, -142%);
+          -webkit-animation-delay: -0.333s;
+          -moz-animation-delay: -0.333s;
+          -ms-animation-delay: -0.333s;
+          -o-animation-delay: -0.333s;
+          animation-delay: -0.333s;
+        }
+
+        .cg-busy-default-spinner div.bar10 {
+          -webkit-transform: rotate(270deg) translate(0, -142%);
+          -moz-transform: rotate(270deg) translate(0, -142%);
+          -ms-transform: rotate(270deg) translate(0, -142%);
+          -o-transform: rotate(270deg) translate(0, -142%);
+          transform: rotate(270deg) translate(0, -142%);
+          -webkit-animation-delay: -0.25s;
+          -moz-animation-delay: -0.25s;
+          -ms-animation-delay: -0.25s;
+          -o-animation-delay: -0.25s;
+          animation-delay: -0.25s;
+        }
+
+        .cg-busy-default-spinner div.bar11 {
+          -webkit-transform: rotate(300deg) translate(0, -142%);
+          -moz-transform: rotate(300deg) translate(0, -142%);
+          -ms-transform: rotate(300deg) translate(0, -142%);
+          -o-transform: rotate(300deg) translate(0, -142%);
+          transform: rotate(300deg) translate(0, -142%);
+          -webkit-animation-delay: -0.1667s;
+          -moz-animation-delay: -0.1667s;
+          -ms-animation-delay: -0.1667s;
+          -o-animation-delay: -0.1667s;
+          animation-delay: -0.1667s;
+        }
+
+        .cg-busy-default-spinner div.bar12 {
+          -webkit-transform: rotate(330deg) translate(0, -142%);
+          -moz-transform: rotate(330deg) translate(0, -142%);
+          -ms-transform: rotate(330deg) translate(0, -142%);
+          -o-transform: rotate(330deg) translate(0, -142%);
+          transform: rotate(330deg) translate(0, -142%);
+          -webkit-animation-delay: -0.0833s;
+          -moz-animation-delay: -0.0833s;
+          -ms-animation-delay: -0.0833s;
+          -o-animation-delay: -0.0833s;
+          animation-delay: -0.0833s;
+        }
+
+    @-webkit-keyframes cg-busy-spinner-anim {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0.25;
+      }
+    }
+
+    @-moz-keyframes cg-busy-spinner-anim {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0.25;
+      }
+    }
+
+    @keyframes cg-busy-spinner-anim {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0.25;
+      }
+    }
+  </style>
+  <div ng-controller="ServiceStatusController" class="full-height">
+    <div class="display-flex cm-align-items-center headerbg" href="#!/dashboard">
+      <span class="service-logo mv-8 mh-16">
+        Q
+      </span>
+      <span class="h2 text-center">Application & Service Status</span>
+      <div class="cm-ml-auto min-w-430 pr-10">
+        <span>Last Updated On: </span> <u><b class="pr-30">{{lastUpdatedOn}}</b></u>
+        <span> </span>
+        <span>Refresh After: </span> <b style="font-size:20px;">{{countDown}}</b>
+      </div>
+
+    </div>
+
+    <div class="pt-10 pb-10 full-height" cg-busy="cgBusyLoading">
+      <table cellspacing="0" class="tbl-main margin-auto width-80p" align="center">
+        <thead class="background-grey">
+          <tr>
+            <th>INDEX</th>
+            <th>ACTION</th>
+            <th>STATUS</th>
+            <th class="no-wrap">APPLICATION/SERVICE NAME</th>
+            <th>SERVERITY</th>
+            <th>DESCRIPTION/ACTION TO BE TAKEN</th>
+            <th>AFFECTED FUNCTIONALITY</th>
+            <th>IIS APPLICATION NAME</th>
+          </tr>
+        </thead>
+        <tr ng-repeat="service in ServicesList | orderBy : 'displayOrder'">
+          <td>{{$index+1}}</td>
+          <td class="w-200">
+            <button class="service-action-btn" type="submit" id="btnstart" ng-click="manage(service.endPoint,service.status)" ng-if="(service.status === statusConst.statusStopped || service.status === statusConst.statusUnavailable ) && service.isService" ng-disabled="service.isStartbtnDisable">Start</button>
+            <button class="service-action-btn" type="submit" id="btnstop" ng-click="manage(service.endPoint,service.status)" ng-if="service.status === statusConst.statusRunning && service.isService" ng-disabled="service.isStopbtnDisable ">Stop</button>
+            <button class="service-action-btn" type="submit" id="btnrefresh" ng-click="manage(service.endPoint,statusConst.statusStopped)" ng-if="(service.status === statusConst.statusRunning || service.status === statusConst.statusStopped || service.status === statusConst.statusUnavailable) && service.isService" ng-disabled="service.isRefreshbtnDisable">Refresh</button>
+          </td>
+          <td ng-class="{'bg-red': (service.status == statusConst.statusStopped), 'green': (service.status == statusConst.statusRunning), 'orange':(service.status == statusConst.statusUnavailable) ,'transparent': (service.status == statusConst.checking)}">
+            <p>{{service.status}}</p>
+          </td>
+          <td class="no-wrap text-left">
+            <a target="_blank" ng-if="!service.isService" ng-href="{{service.endPoint}}">{{service.displayName}}</a>
+            <span ng-if="service.isService">{{service.displayName}}</span>
+          </td>
+          <td ng-class="{'orange': (service.category == category.critical), 'black': (service.category == category.intermediate)}">
+            <p>{{service.category}}</p>
+          </td>
+          <td><div class="text-left" ng-bind-html="service.description"></div></td>
+          <td><div class="text-left" ng-bind-html="service.affectedFunctionality"></div></td>
+          <td class="text-left">{{service.iisAppName}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

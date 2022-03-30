@@ -1,0 +1,283 @@
+<form name="vm.serialNumberSelectionForm">
+  <div layout="row" ng-if="vm.IsCheckInOperation" layout-align="space-between center">
+    <div layuot="row" layout-align="start center">
+      <div layout="row" layout-align="start center">
+        <fieldset class="container-box margin-bottom-5">
+          <div class="margin-0" flex="100">
+            <md-radio-group ng-model="vm.selectedValue" class="margin-0"
+                            ng-change="vm.changeselectedSerialFilterValue()" name="rbSerialNumber">
+              <md-radio-button class="md-primary" value="{{vm.WOSerialNoFilterType.SerialNumber}}">
+                <span>Serial#</span>
+              </md-radio-button>
+              <md-radio-button class="md-primary" value="{{vm.WOSerialNoFilterType.Range}}">
+                <span>Range</span>
+              </md-radio-button>
+            </md-radio-group>
+          </div>
+        </fieldset>
+        <fieldset ng-if="vm.IsCheckInOperation && vm.selectedValue ==vm.WOSerialNoFilterType.Range" class="container-box margin-bottom-5 margin-left-10">
+          <div class="margin-0" flex="100">
+            <md-radio-group ng-model="vm.selectedRangeValue" class="margin-0"
+                            ng-change="vm.changeselectedRangeSerialFilterValue()" name="rbRageSerialNumber">
+              <md-radio-button class="md-primary" value="{{vm.WorkorderSerialNumberSelectionType.RangeType.Range}}">
+                <span> Serial# Range</span>
+              </md-radio-button>
+              <md-radio-button class="md-primary" value="{{vm.WorkorderSerialNumberSelectionType.RangeType.QtyRange}}">
+                <span>Qty</span>
+              </md-radio-button>
+            </md-radio-group>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+    <div layuot="row" layout layout-align="end center">
+      <div class="feeder-scan-message margin-left-10">
+        <p ng-if="vm.inValidFormSerialNo">Invalid <span ng-if="vm.selectedValue == vm.WOSerialNoFilterType.Range">From </span>Serial#</p>
+      </div>
+      <div class="feeder-scan-message margin-left-10">
+        <p ng-if="vm.inValidToSerialNo">Invalid To Serial#</p>
+      </div>
+      <div ng-if="vm.IsCheckInOperation && vm.isDisplayTransactionButton" layout="row" class="margin-bottom-5" layout-align="end center">
+        <md-button class="md-primary md-raised mv-0 mr-0" ng-click="vm.viewSerialTransactionHistory($event);">
+          View Processed Serial# Transaction
+        </md-button>
+      </div>
+    </div>
+
+  </div>
+  <div class="cm-section-main flex-100" flex="100" ng-if="vm.IsCheckInOperation">
+    <div class="cm-section-inner layout-row flex-100" layout="row" flex="100">
+      <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+        <tbody>
+          <tr ng-if="vm.selectedValue ==vm.WOSerialNoFilterType.SerialNumber">
+            <th>
+              <p class="label-container">Serial#<scan-or-enter></scan-or-enter></p>
+            </th>
+            <td>
+              <div layout="row" class="layout-row" flex="50">
+                <md-input-container flex>
+                  <input type="text" name="scanSerialNumber" id="scanSerialNumber" custom-auto-focus="true" ng-model="vm.serialNumber"
+                         placeholder="Scan Serial#" capitalize class="input-text-uppercase" 
+                         ng-keypress="vm.scanSerialNumberDetail(vm.serialNumber,'scanSerialNumber',$event)">
+                  <span flex="100" class="font-size-10">
+                    <b>{{vm.LabelConstant.ScanOREnter.ScanSerialNum}}</b>
+                  </span>
+                  <div ng-messages="vm.serialNumberSelectionForm.scanSerialNumber.$error" role="alert">
+                    <div ng-message="required">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                    </div>
+                    <div ng-message="maxlength">
+                      <span>{{vm.getMaxLengthValidation(50, vm.serialNumberSelectionForm.scanSerialNumber.$viewValue.length)}}</span>
+                    </div>
+                  </div>
+                </md-input-container>                
+                <md-button class="md-icon-button toolbar-button margin-0" ng-if="vm.serialNumber" aria-label="Clear" ng-click="vm.serialNumber = '';">
+                  <md-icon md-font-icon="icon-close" role="img" class="mb-10 ml-0"></md-icon>
+                </md-button>
+              </div>
+            </td>
+          </tr>
+          <tr ng-if="vm.selectedValue ==vm.WOSerialNoFilterType.Range && vm.selectedRangeValue == vm.WorkorderSerialNumberSelectionType.RangeType.Range">
+            <th>
+              <p class="label-container">From Serial#<span ng-if="vm.selectedValue ==vm.WOSerialNoFilterType.Range && vm.selectedRangeValue == vm.WorkorderSerialNumberSelectionType.RangeType.Range">&nbsp;*</span><scan-or-enter></scan-or-enter></p>
+            </th>
+            <td>
+              <div layout="row" class="layout-row">
+                <md-input-container flex>
+                  <input type="text" name="scanSerialNumber" id="scanSerialNumber" custom-auto-focus="true" ng-model="vm.serialNumber"
+                         placeholder="Scan Serial#" ng-required="true" capitalize class="input-text-uppercase" 
+                         ng-disabled="vm.selectedValue ==vm.WOSerialNoFilterType.Range && vm.selectedRangeValue == vm.WorkorderSerialNumberSelectionType.RangeType.QtyRange"
+                         ng-keypress="vm.scanSerialNumberDetail(vm.serialNumber,'scanSerialNumber',$event)">
+                  <span flex="100" class="font-size-10">
+                    <b>{{vm.LabelConstant.ScanOREnter.ScanFromSerialNum}}</b>
+                  </span>
+                  <div ng-messages="vm.serialNumberSelectionForm.scanSerialNumber.$error" role="alert">
+                    <div ng-message="required">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                    </div>
+                    <div ng-message="maxlength">
+                      <span>{{vm.getMaxLengthValidation(50, vm.serialNumberSelectionForm.scanSerialNumber.$viewValue.length)}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+                <md-button class="md-icon-button toolbar-button margin-0" ng-if="vm.serialNumber" aria-label="Clear" ng-click="vm.serialNumber = '';">
+                  <md-icon md-font-icon="icon-close" role="img" class="mb-10 ml-0"></md-icon>
+                </md-button>
+              </div>
+            </td>
+            <th>
+              <p class="label-container">To Serial#<span ng-if="vm.selectedValue ==vm.WOSerialNoFilterType.Range && vm.selectedRangeValue == vm.WorkorderSerialNumberSelectionType.RangeType.Range">&nbsp;*</span><scan-or-enter></scan-or-enter></p>
+            </th>
+            <td>
+              <div layout="row" class="layout-row">
+                <md-input-container flex>
+                  <input type="text" name="scanToSerialNumber" id="scanSerialNumber" ng-model="vm.ToSerialNumber"
+                         placeholder="Scan Serial#" ng-required="true" capitalize class="input-text-uppercase" 
+                         ng-disabled="vm.selectedValue ==vm.WOSerialNoFilterType.Range && vm.selectedRangeValue == vm.WorkorderSerialNumberSelectionType.RangeType.QtyRange"
+                         ng-keypress="vm.scanSerialNumberDetail(vm.ToSerialNumber,'scanToSerialNumber',$event)">
+                  <span flex="100" class="font-size-10">
+                    <b>{{vm.LabelConstant.ScanOREnter.ScanToSerialNum}}</b>
+                  </span>
+                  <div ng-messages="vm.serialNumberSelectionForm.scanToSerialNumber.$error" role="alert">
+                    <div ng-message="required">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                    </div>
+                    <div ng-message="maxlength">
+                      <span>{{vm.getMaxLengthValidation(50, vm.serialNumberSelectionForm.scanToSerialNumber.$viewValue.length)}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+                <md-button class="md-icon-button toolbar-button margin-0" ng-if="vm.ToSerialNumber" aria-label="Clear" ng-click="vm.ToSerialNumber = '';">
+                  <md-icon md-font-icon="icon-close" role="img" class="mb-10 ml-0"></md-icon>
+                </md-button>
+              </div>
+            </td>
+          </tr>
+          <tr ng-if="vm.selectedValue ==vm.WOSerialNoFilterType.Range && vm.selectedRangeValue == vm.WorkorderSerialNumberSelectionType.RangeType.QtyRange">
+            <th>
+              <p class="label-container">From Serial#<span ng-if="vm.selectedValue == vm.WOSerialNoFilterType.Range">&nbsp;*</span><scan-or-enter></scan-or-enter></p>
+            </th>
+            <td>
+              <div layout="row" class="layout-row">
+                <md-input-container flex>
+                  <input type="text" name="scanSerialNumberforQty" id="scanSerialNumberforQty" custom-auto-focus="true" ng-model="vm.serialNumberQty"
+                         placeholder="Scan Serial#" ng-required="true" capitalize class="input-text-uppercase" 
+                         ng-disabled="vm.selectedValue == vm.WOSerialNoFilterType.Range && vm.selectedRangeValue == vm.WorkorderSerialNumberSelectionType.RangeType.Range"
+                         ng-keypress="vm.scanSerialNumberDetail(vm.serialNumberQty,'scanSerialNumberforQty',$event)">
+                  <span flex="100" class="font-size-10">
+                    <b>{{vm.LabelConstant.ScanOREnter.ScanFromSerialNum}}</b>
+                  </span>
+                  <div ng-messages="vm.serialNumberSelectionForm.scanSerialNumberforQty.$error" role="alert">
+                    <div ng-message="required">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                    </div>
+                    <div ng-message="maxlength">
+                      <span>{{vm.getMaxLengthValidation(50, vm.serialNumberSelectionForm.scanSerialNumberforQty.$viewValue.length)}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+                <md-button class="md-icon-button toolbar-button margin-0" ng-if="vm.serialNumberQty" aria-label="Clear" ng-click="vm.serialNumberQty = '';">
+                  <md-icon md-font-icon="icon-close" role="img" class="mb-10 ml-0"></md-icon>
+                </md-button>
+              </div>
+            </td>
+            <th>
+              <p class="label-container width-70">Qty<span ng-if="vm.selectedValue == vm.WOSerialNoFilterType.Range && vm.selectedRangeValue == vm.WorkorderSerialNumberSelectionType.RangeType.QtyRange">&nbsp;*</span></p>
+            </th>
+            <td>
+              <div layout="row" class="layout-row">
+                <md-input-container flex>
+                  <input flex="100" type="number" placeholder="Qty" ng-model="vm.Qty" min="1" max={{vm.workorderSerialsList.length}}
+                         name="Qty" ng-required="vm.isRequiredSerialQtyFilter" onkeypress="return OnlyNumeric(event)"
+                         ng-disabled="vm.selectedValue == vm.WOSerialNoFilterType.Range && vm.selectedRangeValue == vm.WorkorderSerialNumberSelectionType.RangeType.Range" />
+                  <div ng-messages="vm.serialNumberSelectionForm.Qty.$error" role="alert">
+                    <div ng-message="required">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                    </div>
+                    <div ng-message="min">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                    </div>
+                    <div ng-message="max">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                    </div>
+                    <div ng-message="number">
+                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                    </div>
+                  </div>
+                </md-input-container>
+              </div>
+            </td>
+          </tr>
+          <tr class="scan-serial-number-detail" ng-if="vm.fromSerialNoDetail || vm.toSerialNoDetail">
+            <th>
+              <p class="label-container" ng-if="vm.fromSerialNoDetail">Scanned {{vm.selectedValue ==vm.WOSerialNoFilterType.Range?'From':''}} Serial#:</p>
+            </th>
+            <td>
+              <md-input-container flex ng-if="vm.fromSerialNoDetail">
+                <span flex="100">
+                  <b>{{vm.fromSerialNoDetail.SerialNo}}</b>
+                </span>
+              </md-input-container>
+            </td>
+            <th>
+              <p class="label-container" ng-if="vm.toSerialNoDetail">Scanned {{vm.selectedValue ==vm.WOSerialNoFilterType.Range?'To':''}} Serial#:</p>
+            </th>
+            <td>
+              <md-input-container flex ng-if="vm.toSerialNoDetail">
+                <span flex="100">
+                  <b>{{vm.toSerialNoDetail.SerialNo}}</b>
+                </span>
+              </md-input-container>
+            </td>
+          </tr>
+          <tr class="scan-serial-number-detail" ng-if="vm.fromSerialNoDetail || vm.toSerialNoDetail">
+            <th>
+              <p class="label-container" ng-if="vm.fromSerialNoDetail">Status:</p>
+            </th>
+            <td>
+              <md-input-container flex ng-if="vm.fromSerialNoDetail">
+                <span flex="100">
+                  <b>{{vm.fromSerialNoDetail.currentStautstext}}</b>
+                </span>
+              </md-input-container>
+            </td>
+            <th>
+              <p class="label-container" ng-if="vm.toSerialNoDetail">Status:</p>
+            </th>
+            <td>
+              <md-input-container flex ng-if="vm.toSerialNoDetail">
+                <span flex="100">
+                  <b>{{vm.toSerialNoDetail.currentStautstext}}</b>
+                </span>
+              </md-input-container>
+            </td>
+          </tr>
+          <tr class="scan-serial-number-detail" ng-if="vm.fromSerialNoDetail.CurrentWoOperation || vm.toSerialNoDetail.CurrentWoOperation">
+            <th>
+              <p class="label-container" ng-if="vm.fromSerialNoDetail.CurrentWoOperation">Current Operation:</p>
+            </th>
+            <td>
+              <md-input-container flex ng-if="vm.fromSerialNoDetail.CurrentWoOperation">
+                <span flex="100">
+                  <b>{{vm.fromSerialNoDetail.CurrentWoOperation}}</b>
+                </span>
+              </md-input-container>
+            </td>
+            <th>
+              <p class="label-container" ng-if="vm.toSerialNoDetail.CurrentWoOperation">Current Operation:</p>
+            </th>
+            <td>
+              <md-input-container flex ng-if="vm.toSerialNoDetail.CurrentWoOperation">
+                <span flex="100">
+                  <b>{{vm.toSerialNoDetail.CurrentWoOperation}}</b>
+                </span>
+              </md-input-container>
+            </td>
+          </tr>
+          <tr class="scan-serial-number-detail" ng-if="vm.fromSerialNoDetail.ProductSerialNo || vm.toSerialNoDetail.ProductSerialNo">
+            <th>
+              <p class="label-container" ng-if="vm.fromSerialNoDetail.ProductSerialNo">{{vm.SerialTypeLabel.FinalSerial.Label}}:</p>
+            </th>
+            <td>
+              <md-input-container flex ng-if="vm.fromSerialNoDetail.ProductSerialNo">
+                <span flex="100">
+                  <b>{{vm.fromSerialNoDetail.ProductSerialNo}}</b>
+                </span>
+              </md-input-container>
+            </td>
+            <th>
+              <p class="label-container" ng-if="vm.toSerialNoDetail.ProductSerialNo">{{vm.SerialTypeLabel.FinalSerial.Label}}:</p>
+            </th>
+            <td>
+              <md-input-container flex ng-if="vm.toSerialNoDetail.ProductSerialNo">
+                <span flex="100">
+                  <b>{{vm.toSerialNoDetail.ProductSerialNo}}</b>
+                </span>
+              </md-input-container>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>

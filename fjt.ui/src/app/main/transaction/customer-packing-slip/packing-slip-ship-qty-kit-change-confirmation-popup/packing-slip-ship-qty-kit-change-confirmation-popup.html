@@ -1,0 +1,146 @@
+<md-dialog aria-label="Customer" flex="55" class="operation-pop-main" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.customerBillingAddressForm">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>
+          {{vm.popupTitle}}
+        </h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll">
+      <md-content layout="row" layout-wrap class="md-padding m-10">
+        <div layout="row" flex="100" class="work-order-bg-main margin-top-10" layout-wrap>
+          <table width="100%" class="opration-table cm-equipment-feeder-header">
+            <tr>
+              <td>
+                <h4>
+                  Packing Slip#:
+                </h4>
+              </td>
+              <td class="nowrap">
+                <span class="value">
+                  {{vm.popupParamData.packingSlipNumber}}
+                </span>
+              </td>
+              <td>
+                <h4 class="underline" ng-click="vm.goToSalesOrderList();" ng-if="vm.popupParamData.soNumber">
+                  {{vm.LabelConstant.SalesOrder.SO}}:
+                </h4>
+              </td>
+              <td>
+                <span class="value cm-text-decoration" ng-click="vm.goToManageSalesOrder();" ng-if="vm.popupParamData.soNumber">
+                  {{vm.popupParamData.soNumber}}
+                </span>
+              </td>
+              <td>
+                <h4 class="underline" ng-click="vm.goToSalesOrderList();" ng-if="vm.popupParamData.poNumber">
+                  {{vm.LabelConstant.SalesOrder.PO}}:
+                </h4>
+              </td>
+              <td>
+                <span class="value cm-text-decoration" ng-if="vm.popupParamData.poNumber" ng-click="vm.goToManageSalesOrder();">
+                  {{vm.popupParamData.poNumber}}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h4 class="underline" ng-click="vm.goToMFGPartList();">
+                  {{vm.LabelConstant.Assembly.PIDCode}}/{{vm.LabelConstant.MFG.PID}}:
+                </h4>
+              </td>
+              <td>
+                <!--<span class="value cm-text-decoration">-->
+                  <common-pid-code-label-link component-id="vm.popupParamData.partId"
+                                              label="vm.LabelConstant.Assembly.PIDCode"
+                                              value="vm.popupParamData.assyID"
+                                              is-copy="true"
+                                              is-custom-part="true "
+                                              rohs-icon="vm.rohsImagePath+vm.popupParamData.rohsIcon"
+                                              rohs-status="vm.popupParamData.rohsName"
+                                              is-search-findchip="false"></common-pid-code-label-link>
+                <!--</span>-->
+              </td>
+              <td>
+                <h4 class="underline" ng-click="vm.goToMFGPartList();">
+                  {{vm.LabelConstant.MFG.MFGPN}}:
+                </h4>
+              </td>
+              <td>
+                <!--<span class="value">-->
+                  <common-pid-code-label-link component-id="vm.popupParamData.partId"
+                                              label="vm.LabelConstant.MFG.MFGPN"
+                                              value="vm.popupParamData.assyNumber"
+                                              rohs-icon="vm.rohsImagePath+vm.popupParamData.rohsIcon"
+                                              rohs-status="vm.popupParamData.rohsName"
+                                              is-copy="true"
+                                              is-custom-part="true">
+                  </common-pid-code-label-link>
+                <!--</span>-->
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div layout="row" layout-wrap flex="100" class="margin-top-15 text-bold">
+          <span ng-if="vm.isNotAvailableQtyCase">{{vm.shipQtyNotAvailableMsg}}</span>
+          <span ng-if="vm.isDeallocateKitCase">{{vm.confmMsgForUMIDKitDeallocate}}</span>
+        </div>
+        <div layout="row" layout-wrap flex="100" class="margin-top-10">
+          <table md-table class="md-data-table">
+            <thead md-head>
+              <tr md-row>
+                <th md-column>#</th>
+                <th md-column ng-if="!vm.popupParamData.componentStockType">Stock Type</th>
+                <th md-column ng-if="!vm.popupParamData.componentStockType">
+                  <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToWorkorderList();">{{vm.LabelConstant.Workorder.PageName}}</a>
+                </th>
+                <th md-column>
+                  <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToUMIDList();">{{vm.LabelConstant.UMIDManagement.UMID}}</a>
+                </th>
+                <th md-column ng-if="!vm.popupParamData.componentStockType">
+                  Build Qty
+                </th>
+                <th md-column>
+                  Available Qty
+                </th>
+                <th md-column>
+                  Selected Shipping Qty
+                </th>
+              </tr>
+            </thead>
+            <tbody md-body>
+              <tr md-row md-auto-select ng-repeat="item in vm.displayShipListOfVerify">
+                <td md-cell>{{$index+1}}</td>
+                <td md-cell ng-if="!vm.popupParamData.componentStockType">{{item.stockTypeName}}</td>
+                <td md-cell ng-if="item.woID && !vm.popupParamData.componentStockType"><a class="cm-text-decoration" ng-click="vm.goToWorkOrder(item.woID);" tabindex="-1">{{item.woNumber}}</a></td>
+                <td md-cell ng-if="!item.woID && !vm.popupParamData.componentStockType">{{item.woNumber}}</td>
+                <td md-cell ng-if="item.UMID">
+                  <a class="cm-text-decoration nowrap" ng-click="vm.goToUMIDDetails(item.refsidid);"
+                     tabindex="-1">{{item.UMID}}</a>
+                </td>
+                <td md-cell ng-if="!item.UMID"><span class="nowrap">{{item.UMID}}</span></td>
+                <td md-cell class="text-right" ng-if="!vm.popupParamData.componentStockType">{{item.buildQty?item.buildQty:'-'}}</td>
+                <td md-cell class="text-right">{{item.availableQty | numberWithoutDecimal}}</td>
+                <td md-cell class="text-right">{{item.shippedqty | numberWithoutDecimal}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()"
+                 ng-hide="vm.isNotAvailableQtyCase">Close</md-button>
+      <md-button class="md-primary md-raised"
+                 ng-click="vm.applyChanges()" aria-label="Yes"
+                 ng-if="vm.isDeallocateKitCase">Yes</md-button>
+      <md-button class="md-primary md-raised"
+                 ng-click="vm.cancel()" aria-label="Ok"
+                 ng-if="vm.isNotAvailableQtyCase">Ok</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

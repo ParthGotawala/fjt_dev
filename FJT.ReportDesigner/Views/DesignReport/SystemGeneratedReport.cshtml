@@ -1,0 +1,71 @@
+﻿@using Stimulsoft.Report.Mvc;
+@using Stimulsoft.Report.Web;
+@using FJT.ReportDesigner.Helper;
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<div id="designer-div" style="position:relative;height:120vh;">
+    @Html.StiNetCoreDesigner(new StiNetCoreDesignerOptions()
+    {
+        Actions = {
+            GetReport = "GetReport",
+            DesignerEvent = "DesignerEvent",
+            SaveReport = "SaveReport",
+            PreviewReport = "PreviewReport",
+            Exit = "ExitDesigner"
+        },
+        Behavior =
+        {
+            SaveReportMode = StiSaveMode.Hidden,
+            ShowSaveDialog = true
+        },
+        FileMenu =
+        {
+            ShowExit = true
+        }
+    });
+</div>
+
+@using (Html.BeginForm("SaveReportFromDialog", "Designer", FormMethod.Post, new { @id = "submit-form" }))
+{
+    <!-- Save Modal -->
+    <div class="modal fade" id="saveModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" style="z-index:10001;">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLongTitle">Save Report</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                    <p>You have to click on Save As button for save report.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+
+    $(function () {
+        $("#discardChangesBtn").hide();
+        $("#stopActivityBtn").hide();
+        $("#LogOut").hide();
+    });
+
+    jsNetCoreDesigner.onready = function () {
+        /* where jsNetCoreDesigner - "js" + designer ID */
+        jsNetCoreDesigner.ActionSaveReport = function (e) {
+            if (jsNetCoreDesigner.options.report) {
+                jsNetCoreDesigner.SendCommandSaveReport();
+            }
+            $('#saveModal').modal('show');
+        }
+    }
+</script>

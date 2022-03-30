@@ -1,0 +1,180 @@
+<div class="cm-available-stock-table cm-section-main" layout="column" flex>
+  <div class="cm-section-header padding-bottom-0 padding-top-0" layout="row" flex="100" ng-if="!isAllocateUmid">
+
+    <p class="margin-0 font-weight-900">{{vm.isSelected?'Selected':'Allocated'}} UMID List</p>
+    <md-checkbox ng-model="isComapnyLevel" name="isComapnyLevel" class="margin-0 margin-right-10 margin-left-10" ng-if="!vm.isSearch" ng-disabled="filterList.length==0">
+      Search Company Level
+      <md-icon class="icon-question-mark-circle help-icon h-16">
+        <md-tooltip md-direction="top">
+          {{vm.CORE_MESSAGE_CONSTANT.SEARCH_COMPANY_LEVEL}}
+        </md-tooltip>
+      </md-icon>
+    </md-checkbox>
+    <div class="cm-switch-light cm-switch-new" ng-if="!vm.isSearch">
+      <md-input-container flex="100" class="md-input-has-value mid">
+        <md-radio-group class="rocker" ng-class="{'cm-show-btn':clickButton,'cm-cancel-btn':(!clickButton && !(checkPartForSearch())),'cm-button-disable':checkPartForSearch() }" ng-change="changeEvent(clickButton,$event)" ng-model="clickButton">
+          <md-radio-button ng-value="true" class="cm-show md-button switch-left" ng-disabled="checkPartForSearch() ||  showStatus">Show Light</md-radio-button>
+          <md-radio-button ng-value="false" class="cm-cancel md-button switch-right" ng-disabled="checkPartForSearch() || !showStatus">Cancel</md-radio-button>
+        </md-radio-group>
+      </md-input-container>
+    </div>
+
+    <div class="margin-left-10" ng-if="!vm.isSearch" layout="row">
+      <form name="travellerFeeder" novalidate>
+        <span ng-if="!vm.isSelected">Timeout</span>  <p ng-if="vm.isSelected" class="margin-top-8">Timeout</p>
+        <md-input-container class="m-0">
+          <input type="number" min="1" max="9999999" step="1" name="timeout" ng-model="vm.timeout" id="timeout">
+          <div ng-messages="travellerFeeder.timeout.$touched && travellerFeeder.timeout.$error" role="alert">
+            <div ng-message="min">
+              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+            </div>
+            <div ng-message="max">
+              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+            </div>
+            <div ng-message="step">
+              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+            </div>
+          </div>
+        </md-input-container>
+      </form>
+    </div>
+    <span ng-if="showStatus && !vm.isSearch" class="margin-left-10"><b>{{vm.CORE_MESSAGE_CONSTANT.INOAUTO_SEARCH_COMMENT}}</b></span>
+    <smart-cart-user ng-if="!vm.isSearch"></smart-cart-user>
+
+  </div>
+  <md-table-container class="cm-md-table-grid-scroll" layout="row" flex="100" ng-if="filterList.length > 0 || vm.isSelected || vm.isSearch">
+    <table md-table class="cm-available-stock-table-ms">
+      <thead md-head md-order="query.order">
+        <tr md-row>
+          <th md-column class="w-60" ng-if="!vm.isSearch && !isAllocateUmid">
+            <md-checkbox ng-model="vm.isCheckedAll" name="isCheckedAll" class="margin-0" ng-change="applyAll(vm.isCheckedAll)" ng-disabled="showStatus">
+            </md-checkbox>
+          </th>
+          <th md-column class="w-80" ng-if="!isAllocateUmid">
+            Action
+          </th>
+          <th md-column class="serial-number">#</th>
+          <th md-column md-order-by="uid" class="w-170">
+            <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToUMIDList();">UMID</a>
+          </th>
+          <th md-column md-order-by="isTransit" class="w-170">
+            In Transit
+          </th>
+          <th md-column md-order-by="inovexStatus" class="w-170" ng-if="showStatus">
+            Smart Cart Status
+          </th>
+          <th md-column md-order-by="PIDCode" class="w-350">
+            {{LabelConstant.MFG.PID}}
+          </th>
+          <th md-column md-order-by="binName" class="w-210">
+            <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToBinList();">Location/Bin</a>
+          </th>
+          <th md-column md-order-by="warehouseName" class="w-210">
+            <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToWHList();">Warehouse</a>
+          </th>
+          <th md-column md-order-by="departmentName" class="w-210">
+            Department
+          </th>
+          <th md-column md-order-by="allocatedUnit" class="text-right w-110">
+            {{LabelConstant.KitAllocation.AllocatedUnits}}
+          </th>
+          <th md-column md-order-by="convertedUnit" class="text-right w-105">
+            Current Units
+          </th>
+          <th md-column md-order-by="dateCode" class="w-100">
+            Internal Date Code
+          </th>
+          <th md-column md-order-by="allocatedUOM" class="units-detail">
+            UOM
+          </th>
+          <th md-column md-order-by="FreeToShare" class="text-right w-120">
+            Free To Allocate
+          </th>
+          <th md-column md-order-by="allocatedToKit" class="w-350">
+            Allocated To Kit
+          </th>
+        </tr>
+      </thead>
+      <tbody md-body>
+        <tr md-row md-auto-select ng-repeat="item in filterList | orderBy: query.order">
+          <td class="w-60" md-cell ng-if="!vm.isSearch && !isAllocateUmid">
+            <md-checkbox ng-model="item.isChecked" name="isChecked" class="margin-0" ng-change="changeCheckbox()" ng-disabled="showStatus || item.warehouseCart!=vm.InoAuto">
+            </md-checkbox>
+          </td>
+          <td class="w-80" md-cell ng-if="!isAllocateUmid">
+            <md-button ng-if="!vm.isSearch" class="md-primary grid-button md-icon-button bdrbtn bdrrcvbtn cm-grid-action-view-icon"
+                       ng-class="item.ledColorCssClass">
+              <md-icon role="img" md-font-icon="icon-lightbulb-outline"></md-icon>
+              <md-tooltip md-direction="top" ng-if="item.ledColorName">{{item.ledColorName}}</md-tooltip>
+            </md-button>
+            <md-button ng-if="vm.isSearch" class="md-primary grid-button md-icon-button bdrbtn" ng-click="vm.addToSmartCart(item)">
+              <md-icon role="img" md-font-icon="icon-cart-outline"></md-icon>
+              <md-tooltip md-direction="top">Add to Cart</md-tooltip>
+            </md-button>
+            <md-button ng-if="vm.isSelected" class="md-primary grid-button md-icon-button bdrbtn" ng-class="{'cursor-not-allow opecity-5':showStatus}" ng-click="vm.RemoveCart(item)" ng-disabled="showStatus">
+              <md-icon role="img" md-font-icon="icon-delete"></md-icon>
+              <md-tooltip md-direction="top">Remove</md-tooltip>
+            </md-button>
+          </td>
+          <td md-cell class="serial-number">{{$index+1}}</td>
+          <td md-cell class="w-170">
+            <span layout="row">
+              <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToUMIDDetail(item.id);">{{item.uid}}</a>              
+              <copy-text ng-if="item.uid" label="LabelConstant.TransferStock.UMID" text="item.uid"></copy-text>
+            </span>
+          </td>
+          <td md-cell class="w-170">
+            <b>{{item.isTransit}}</b>
+          </td>
+          <td md-cell class="w-170" ng-if="showStatus"><span layout="row">{{item.inovexStatus}}</span></td>
+          <td md-cell class="w-350">
+            <common-pid-code-label-link component-id="item.refcompid"
+                                        label="LabelConstant.MFG.PID"
+                                        value="item.PIDCode"
+                                        is-copy="true"
+                                        is-mfg="true"
+                                        mfg-label="LabelConstant.MFG.MFGPN"
+                                        mfg-value="item.mfgPN"
+                                        rohs-icon="rohsImagePath + item.rohsIcon"
+                                        rohs-status="item.rohsName"
+                                        is-copy-ahead-label="true"
+                                        is-custom-part="item.isCustom">
+            </common-pid-code-label-link>
+          </td>
+          <td md-cell class="w-210"><b>{{item.binName}}</b></td>
+          <td md-cell class="w-210"><b>{{item.warehouseName}}</b></td>
+          <td md-cell class="w-210"><b ng-class="{'color-red': item.departmentType == vm.DepartmentType.MaterialDepartment}">{{item.departmentName}}</b></td>
+          <td md-cell class="text-right w-110">{{(item.allocatedUnit || '0')}}</td>
+          <td md-cell class="text-right w-105">{{item.convertedUnit}}</td>
+          <td md-cell class="w-100">{{item.dateCode}}</td>
+          <td md-cell class="units-detail">{{item.allocatedUOM}}</td>
+          <td md-cell class="rec-qty text-right w-120">{{(item.FreeToShare || '0')}}</td>
+          <td md-cell class="cm-show-limit-text-allocationkit w-350">
+            <a ng-click="vm.allocatedKit(item)" ng-if="item.allocatedToKit" tabindex="-1">{{item.allocatedToKit}}</a><span ng-if="!item.allocatedToKit">-</span>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr md-row class="cm-stock-al-total font-weight-900 ml-0">
+          <td class="w-60" ng-if="!vm.isSearch && !isAllocateUmid"></td>
+          <td class="w-80" md-cell ng-if="!isAllocateUmid"></td>
+          <td md-cell class="serial-number"></td>
+          <td md-cell class="w-170"></td>
+          <td md-cell class="w-170"></td>
+          <td md-cell class="w-170" ng-if="showStatus"></td>
+          <td md-cell class="w-350"></td>
+          <td md-cell class="w-210"></td>
+          <td md-cell class="w-210"></td>
+          <td md-cell class="w-210 text-right">Total:</td>
+          <td md-cell class="rec-qty cm-white-space-nowrap text-right w-110">{{vm.getFooterAllocationTotal()}}</td>
+          <td md-cell class="rec-qty text-right cm-white-space-nowrap w-105"></td>
+          <td md-cell class="w-100"></td>
+          <td md-cell class="units-detail"></td>
+          <td md-cell class="rec-qty text-right w-120">{{vm.getFooterFreeUnitsTotal()}}</td>
+          <td md-cell class="cm-show-limit-text-allocationkit w-350">
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </md-table-container>
+</div>

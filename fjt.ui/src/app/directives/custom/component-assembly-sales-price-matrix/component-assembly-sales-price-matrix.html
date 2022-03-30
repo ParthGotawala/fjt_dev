@@ -1,0 +1,358 @@
+
+<div class="cm-custom-label-common pb-35" style="position:relative;" id="splitterDiv">
+  <split-pane split-pane-properties="splitPaneProperties">
+    <split-pane-component height="60%" layout="column" class="min-height-100">
+      <div class="padding-5-imp" flex>
+        <form name="vm.componentAssemblySalesPriceMatrix" class="md-inline-form padding-10-imp" read-only-form isreadonly="{{vm.isReadOnly}}" ms-form-wizard-form novalidate>
+          <div class="cm-section-main" flex="100">
+            <div class="cm-section-inner padding-bottom-0" flex="100">
+              <div layout="row">
+                <div layout="row" layout-align="start center">
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main middle-align-table">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="label-container padding-top-3">
+                            Quote#
+                            <span ng-if="!(vm.salesPriceList && vm.salesPriceList.length)">&nbsp;*</span><check-unique-on-blur ng-if="!(vm.salesPriceList && vm.salesPriceList.length)"></check-unique-on-blur>
+                          </p>
+                        </th>
+                        <td ng-class="{'width-200':!(vm.salesPriceList && vm.salesPriceList.length),'width-auto':(vm.salesPriceList && vm.salesPriceList.length)}" class="width-200">
+                          <md-input-container class="margin-0 width-100p" flex="100" md-no-float ng-if="!(vm.salesPriceList && vm.salesPriceList.length)">
+                            <input type="text" name="rfqNumber" ng-model="vm.rfqNumber" ng-maxlength="15" custom-auto-focus="true"
+                                   custom-blur="vm.getSalesCommissionDetailsFromRfq()" ng-required="vm.salesPriceList.length > 0"
+                                   ng-disabled="vm.salesPriceList && vm.salesPriceList.length"
+                                   capitalize class="input-text-uppercase">
+                            <div ng-messages="vm.componentAssemblySalesPriceMatrix.rfqNumber.$error" role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(15, vm.componentAssemblySalesPriceMatrix.rfqNumber.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                          <div class="text-left" ng-if="vm.salesPriceList && vm.salesPriceList.length">
+                            <label class="padding-top-8"
+                                   ng-class="{'text-decoration-underline cursor-pointer':vm.objRFQ.rfqAssyID}"
+                                   ng-click="vm.objRFQ.rfqAssyID ? vm.goToSummary(vm.objRFQ.rfqAssyID):''">{{vm.rfqNumber ? vm.rfqNumber : '-'}}</label>
+                          </div>
+                        </td>
+                        <th ng-if="vm.quoteValidTillDate">
+                          <p class="label-container padding-top-3">
+                            Quote Valid Till
+                          </p>
+                        </th>
+                        <td ng-if="vm.quoteValidTillDate">
+                          <span class="cm-bo-font-large  cm-bom-t-desc">
+                            <b>{{vm.quoteValidTillDate?(vm.quoteValidTillDate |  date : vm.DateTimeFormat):'-'}}</b>
+                          </span>
+                        </td>
+                        <td class="pl-5">
+                          <md-button class="md-raised md-primary margin-left-0"
+                                     ng-click="vm.reQuote($event);"
+                                     ng-if="vm.rfqNumber && vm.salesPriceList && vm.salesPriceList.length">
+                            Re-Quote
+                          </md-button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div layout="row" layout-align="end center" class="margin-left-auto-imp">
+                  <md-button name="btnAddNewLine" class="md-raised md-primary margin-left-0"
+                             ng-click="vm.addCommissionNewRow(null,$event,true);"
+                             ng-if="vm.rfqNumber">
+                    Add New Line
+                  </md-button>
+                  <md-button name="btnAddNewLine" class="md-raised md-primary margin-left-0"
+                             ng-click="vm.refreshData();">
+                    Reset
+                  </md-button>
+                </div>
+              </div>
+            </div>
+            <div class="cm-section-main margin-5">
+              <div class="cm-section-inner">
+                <p class="margin-bottom-5"><b>{{vm.LabelConstant.MANUAL_ASSEMBLY_SALES_PRICE_MATRIX_MSG.CELL_COLOR}}</b>:&nbsp;{{vm.LabelConstant.MANUAL_ASSEMBLY_SALES_PRICE_MATRIX_MSG.MESSAGE_VAL1}},&nbsp; {{vm.LabelConstant.MANUAL_ASSEMBLY_SALES_PRICE_MATRIX_MSG.MESSAGE_VAL2}}</p>
+
+              </div>
+            </div>
+            <div class="cm-section-inner overflow-auto-rs" flex="100">
+              <table class="cm-table-input-main" border="1" flex="100">
+                <tr>
+                  <th class="text-right padding-5 width-60 cm-white-space-normal">
+                    #
+                  </th>
+                  <th class="text-right padding-5 width-80 cm-white-space-normal">
+                    Qty
+                  </th>
+                  <th class="text-right padding-5 width-80 cm-white-space-normal">
+                    Turn Time
+                  </th>
+                  <th class="text-left padding-5 width-100 cm-white-space-normal">
+                    Unit Of Time
+                  </th>
+                  <th class="text-right padding-5 width-80 cm-white-space-normal">
+                    Unit Price ($)
+                  </th>
+                  <th class="text-right padding-5 width-80 cm-white-space-normal">
+                    Ext. Price ($)
+                  </th>
+                  <th class="text-right padding-5 width-90 cm-white-space-normal">
+                    Sales Commission (%)
+                  </th>
+                  <th class="text-right padding-5 width-85 cm-white-space-normal">
+                    Sales Commission ($)
+                  </th>
+                  <th class="text-right padding-5 width-85 cm-white-space-normal">
+                    Ext. Sales Commission ($)
+                  </th>
+                  <th class="text-left padding-5 width-400 cm-white-space-normal">
+                    Sales Commission Note
+                  </th>
+                  <th class="text-center padding-5">
+                    Action
+                  </th>
+                </tr>
+                <tr ng-repeat="item in vm.salesPriceList">
+                  <td class="text-right padding-right-5 width-60 padding-top-10">
+                    {{$index+1}}
+                  </td>
+                  <td class="padding-5-imp width-80">
+                    <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                      <input type="number" name="priceBreak{{$index}}" min="1" max="9999999" step="1" ng-paste="$event.preventDefault()" class="text-right"
+                             ng-model="item.priceBreak" required
+                             custom-blur="vm.checkDuplicateValidation(); vm.checkQtyWisePriceValidation();"
+                             onkeypress="return OnlyNumeric(event, this)"
+                             ng-change="vm.calculateExtPrice(item, true)"
+                             ng-class="{'background-red' : item.duplicateQty}">
+                      <div ng-messages="vm.componentAssemblySalesPriceMatrix['priceBreak'+$index].$error" role="alert">
+                        <div ng-message="number || min || max || step">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <td class="padding-5-imp width-80">
+                    <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                      <input type="number" min="1" max="99999" step="1" ng-paste="$event.preventDefault()" name="turnTime{{$index}}" class="text-right"
+                             ng-model="item.turnTime" required
+                             custom-blur="vm.checkDuplicateValidation()"
+                             onkeypress="return OnlyNumeric(event, this)"
+                             ng-class="{'background-red' : item.duplicateQty}">
+                      <div ng-messages="vm.componentAssemblySalesPriceMatrix['turnTime'+$index].$error" role="alert">
+                        <div ng-message="number || min || max || step">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <td class="padding-5-imp width-100">
+                    <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                      <md-select ng-model="item.unitOfTime" name="unitOfTime{{$index}}" required
+                                 custom-blur="vm.checkDuplicateValidation()"
+                                 ng-class="{'background-red' : item.duplicateQty}">
+                        <md-option ng-value="vm.unitOfTime.BUSINESS_DAY.VALUE">{{vm.unitOfTime.BUSINESS_DAY.TYPE}}</md-option>
+                        <md-option ng-value="vm.unitOfTime.WEEK_DAY.VALUE">{{vm.unitOfTime.WEEK_DAY.TYPE}}</md-option>
+                        <md-option ng-value="vm.unitOfTime.WEEK.VALUE">{{vm.unitOfTime.WEEK.TYPE}}</md-option>
+                      </md-select>
+                    </md-input-container>
+                  </td>
+                  <td class="padding-5-imp width-80">
+                    <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                      <input type="number" name="unitPrice{{$index}}" ng-paste="$event.preventDefault()" class="text-right"
+                             min="0.00001" step="{{vm.unitPriceInputStep}}" max="99999.99999" ng-model="item.unitPrice" required
+                             custom-blur="vm.checkQtyWisePriceValidation(); vm.calculatePercentageAndAmount(item, true);"
+                             onkeypress="return OnlyNumbersWithDot(event, this)"
+                             ng-change="vm.calculateExtPrice(item, true)"
+                             ng-class="{'background-red' : item.invalidPrice}">
+                      <div ng-messages="vm.componentAssemblySalesPriceMatrix['unitPrice'+$index].$error" role="alert">
+                        <div ng-message="number || min || max || step">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <td class="padding-5-imp width-80">
+                    <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                      <input type="text" name="extendedPrice{{$index}}" class="text-right"
+                             step="{{vm.unitPriceInputStep}}"
+                             ng-model="item.extendedPrice"
+                             disabled>
+                      <div ng-messages="vm.componentAssemblySalesPriceMatrix['extendedPrice'+$index].$error" role="alert">
+                        <div ng-message="number || min || max || step">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <td class="padding-5-imp width-90">
+                    <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                      <input type="number" name="salesCommissionPercentage{{$index}}" ng-paste="$event.preventDefault()" class="text-right"
+                             min="0" step="0.01" max="100" ng-model="item.salesCommissionPercentage" required
+                             custom-blur="vm.calculatePercentageAndAmount(item, true)"
+                             ng-change="vm.calculatePercentageAndAmount(item, true)"
+                             onkeypress="return OnlyNumbersWithDot(event, this)">
+                      <div ng-messages="vm.componentAssemblySalesPriceMatrix['salesCommissionPercentage'+$index].$error" role="alert">
+                        <div ng-message="number || min || max || step">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <td class="padding-5-imp width-85">
+                    <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                      <input type="number" name="salesCommissionAmount{{$index}}" ng-paste="$event.preventDefault()" class="text-right"
+                             min="0" step="{{vm.unitPriceInputStep}}" max="9999999.99999" ng-model="item.salesCommissionAmount" required
+                             custom-blur="vm.calculatePercentageAndAmount(item, false)"
+                             ng-change="vm.calculatePercentageAndAmount(item, false)"
+                             onkeypress="return OnlyNumbersWithDot(event, this)">
+                      <div ng-messages="vm.componentAssemblySalesPriceMatrix['salesCommissionAmount'+$index].$error" role="alert">
+                        <div ng-message="number || min || max || step">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <td class="padding-5-imp width-80">
+                    <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                      <input type="text" name="extendedSalesCommissionAmt{{$index}}" class="text-right"
+                             ng-model="item.extendedSalesCommissionAmt"
+                             disabled>
+                      <div ng-messages="vm.componentAssemblySalesPriceMatrix['extendedSalesCommissionAmt'+$index].$error" role="alert">
+                        <div ng-message="number || min || max || step">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <td class="padding-5-imp width-400">
+                    <md-input-container class="margin-0 width-100p" flex="100" md-no-float>
+                      <input type="text" name="salesCommissionNotes{{$index}}" ng-maxlength="255"
+                             ng-model="item.salesCommissionNotes"
+                             ng-Keydown="vm.addCommissionNewRow(item, $event)">
+                      <div ng-messages="vm.componentAssemblySalesPriceMatrix['salesCommissionNotes'+$index].$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255, vm.componentAssemblySalesPriceMatrix['salesCommissionNotes'+$index].$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <td class="padding-5-imp text-center">
+                    <md-button class="md-primary md-icon-button bdrbtn" ng-click="vm.removeRow(item)">
+                      <md-icon role="img" md-font-icon="icon-trash"></md-icon>
+                      <md-tooltip md-direction="top">Delete</md-tooltip>
+                    </md-button>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </form>
+      </div>
+    </split-pane-component>
+    <split-pane-divider data-height="5px" width="100%"></split-pane-divider>
+    <split-pane-component layout="column" class="min-width-100">
+      <split-pane layout="column" flex split-pane-properties="splitSubPaneProperties">
+        <split-pane-component layout="column" flex width="45%" class="min-width-100">
+          <div class="padding-5-imp cm-part-full-height" layout="column" flex>
+            <div class="cm-section-main"  layout="column" flex>
+              <div class="content-card" layout="column" flex ng-show="!vm.isNoDataFound">
+                <md-card layout="column" class="margin-0 cm-manage-customer-cpn" flex layout-align="space-between stretch">
+                  <ui-grid-extention layout="column" flex class="cm-update-customer-cpn-grid cm-allmfgs-grid-height Common-grid min-height-248" load-data="vm.loadData"
+                                     grid-id="vm.gridQuoteHistory"
+                                     grid-option="vm.gridOptions"
+                                     header="vm.sourceHeader"
+                                     grid-data="vm.sourceData"
+                                     total-data-count="vm.totalSourceDataCount"
+                                     reset-grid="vm.resetSourceGrid"
+                                     selectted-rows="vm.selectedRowsList"
+                                     paging-info="vm.pagingInfo"
+                                     current-item="vm.currentdata"
+                                     get-data-down="vm.getDataDown"
+                                     empty-state="vm.emptyState"
+                                     get-selected-row="vm.getSelectedQuoteRow">
+                </md-card>
+              </div>
+              <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound">
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+              </div>
+            </div>
+          </div>
+        </split-pane-component>
+        <split-pane-divider width="5px"></split-pane-divider>
+        <split-pane-component layout="column" class="min-width-100">
+          <div class="padding-5-imp cm-part-full-height" layout="column" flex>
+            <div class="cm-section-main border-0" layout="column" flex ng-if="vm.SelectedRfqNumber">
+              <div class="cm-section-inner padding-bottom-0">
+                <div layout="row">
+                  <div layout="row" layout-align="start center" flex="15">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-table-cell-height-auto">
+                      <tbody>
+                        <tr ng-if="vm.SelectedRfqNumber">
+                          <th>
+                            <p class="label-container padding-top-3 m-0">
+                              Quote#:
+                            </p>
+                          </th>
+                          <td ng-if="vm.SelectedRfqNumber " class="width-200 p-0-imp">
+                            <div class="text-left">
+                              <label class="pt-6 m-0"
+                                     ng-class="{'text-decoration-underline cursor-pointer':vm.rfqAssyID}"
+                                     ng-click="vm.rfqAssyID ? vm.goToSummary(vm.rfqAssyID):''">{{vm.SelectedRfqNumber  ? vm.SelectedRfqNumber : '-'}}</label>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="cm-section-inner overflow-auto-rs padding-bottom-0" flex layout="column">
+                <div class="content-card" layout="column" flex ng-show="!vm.isHistoryDetNoDataFound">
+                  <md-card layout="column" class="margin-0 cm-manage-customer-cpn" flex layout-align="space-between stretch">
+                    <ui-grid-extention class="cm-update-customer-cpn-grid cm-allmfgs-grid-height Common-grid min-height-210" layout="column" load-data="vm.HistoryDetailloadData"
+                                       grid-id="vm.gridQuoteHistoryDetail"
+                                       grid-option="vm.HistoryDetailgridOptions"
+                                       header="vm.HistoryDetailsourceHeader"
+                                       grid-data="vm.historyDetSourceData"
+                                       total-data-count="vm.historyDetSourceDataCount"
+                                       reset-grid="vm.historyDetresetSourceGrid"
+                                       paging-info="vm.HistoryDetailPageInfo"
+                                       empty-state="vm.HistoryDetemptyState"
+                                       current-item="vm.historyDetcurrentdata">
+                  </md-card>
+                </div>                
+              </div>
+            </div>
+          </div>
+        </split-pane-component>
+      </split-pane>
+    </split-pane-component>
+  </split-pane>
+</div>

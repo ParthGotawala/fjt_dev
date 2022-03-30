@@ -1,0 +1,160 @@
+<form name="operationDataFields" class="padding-10-imp cm-search-tab-operation-list" cg-busy="{promise:vm.cgBusyLoading}" ms-form-wizard-form novalidate>
+  <div flex="100" layout="row" layout-wrap ng-if="vm.isContainMasterDataField">
+    <div flex flex-sm="100" flex-xs="100" layout="row" layout-wrap>
+      <div flex="100" flex-xs="100" layout="row" class="mobilesearch employee-workstaion-search-box userpermissionhead" layout-align="space-between center">
+        <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75" ng-class="{'clickedsearch':isButtonDataElementClicked}">
+          <input id="SearchNoAddedListElement" type="text"
+                 placeholder="Type here to search fields" ng-model="vm.SearchNoAddedListElement"
+                 ng-keyup="vm.SearchElement(vm.SearchNoAddedListElement, false)"
+                 custom-blur="vm.SearchElement(vm.SearchNoAddedListElement, false)">
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-disabled="!vm.SearchNoAddedListElement"
+                   ng-click="vm.SearchNoAddedListElement='';vm.SearchElement(vm.SearchNoAddedListElement, false)">
+          Clear
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.refreshData()">
+          Refresh
+        </md-button>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.addData()">
+          Add New
+        </md-button>
+      </div>
+      <md-list flex="100" class="permissiontab custom-scroll dragbox" ng-class="{'layout-column': vm.dataElementNoAddedList.length == 0}">
+        <md-list-item id="dataElementNoAddedList" class="padding-0 items-container" layout="row" flex="100" layout-wrap
+                      ui-sortable="sortableOptions"
+                      ng-model="vm.dataElementNoAddedList"
+                      haveadded="false">
+          <div flex="100" class="md-1-line margin-0 dragsortable"
+               ng-repeat="dataElement in vm.dataElementNoAddedList"
+               ui-sortable-selectable
+               ng-model="dataElement" layout-wrap>
+            <div class="md-list-item-text" layout-wrap layout="row">
+              <md-icon layout-align="start center" class="md-avatar avatar margin-top-0 margin-bottom-0" role="img" md-font-icon="{{dataElement.icon.IconClass}}"></md-icon>
+              <p class="label-container margin-bottom-0 operation-dataelement-font" layout-align="start center" flex="70">
+                <a class="cm-text-decoration" ng-click="vm.goToElementManage(dataElement.entityID,dataElement.dataElementID);">
+                  {{dataElement.dataElementName}}
+                </a>
+              </p>
+              <p class="label-container margin-bottom-0 text-right" layout-align="end center" flex="20">{{dataElement.dataelement_use_at}}</p>
+            </div>
+          </div>
+          <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+               ng-if="vm.dataElementNoAddedList.length == 0"
+               ui-sortable-selectable>
+            <div class="empty-state text-center">
+              <div class="emty-icon">
+                <img ng-src="{{vm.EmptyMesssageForDataField.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchNoAddedListElement == null && vm.dataElementNoAddedList.length == 0">
+                {{vm.EmptyMesssageForDataField.ALL_ASSIGNED}}
+              </p>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchNoAddedListElement != null && vm.FilterDataElementNotAdded != true">
+                {{vm.EmptyMesssageForDataField.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+    <div layout-align="space-between center" layout="row" class="cm-data-fields-buttons" flex-xs="100" flex-sm="100">
+      <div flex="100" layout-xs="row" layout-sm="row" layout="column" layout-align="space-between center">
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="!selectAnyAddedElement"
+                   ng-click="vm.ModifyPageAdded('Remove')">
+          <i class="icon-chevron-left icondrag"></i>
+          <md-tooltip>Remove</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="vm.dataElementAddedList.length == 0"
+                   ng-click="vm.ModifyPageAdded('RemoveAll')">
+          <i class="icon-chevron-double-left icondrag"></i>
+          <md-tooltip>Remove All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="vm.dataElementNoAddedList.length == 0"
+                   ng-click="vm.ModifyPageAdded('AddAll')">
+          <i class="icon-chevron-double-right icondrag"></i>
+          <md-tooltip>Add All</md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                   ng-disabled="!selectAnyNoAddedElement"
+                   ng-click="vm.ModifyPageAdded('Add')">
+          <i class="icon-chevron-right icondrag"></i>
+          <md-tooltip>Add</md-tooltip>
+        </md-button>
+      </div>
+    </div>
+    <div flex flex-xs="100" flex-sm="100">
+      <div flex="100" flex-xs="100" layout="row" class="mobilesearch userpermissionhead" layout-align="space-between end">
+        <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75" ng-class="{'clickedsearch':isButtonDataElementAddedClicked}">
+          <input id="SearchAddedListElement" type="text"
+                 placeholder="Type here to search added fields" ng-model="vm.SearchAddedListElement"
+                 ng-keyup="vm.SearchElement(vm.SearchAddedListElement, true)"
+                 custom-blur="vm.SearchElement(vm.SearchAddedListElement, true)">
+        </md-input-container>
+        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                   ng-disabled="!vm.SearchAddedListElement"
+                   ng-click="vm.SearchAddedListElement='';vm.SearchElement(vm.SearchAddedListElement, true)">
+          Clear
+        </md-button>
+      </div>
+      <md-list flex="100" class="permissiontab custom-scroll dragbox" ng-class="{'layout-column': vm.dataElementAddedList.length == 0}">
+        <md-list-item id="dataElementAddedList" class="padding-0 items-container drag-container-item" layout="row" flex="100" layout-wrap
+                      ui-sortable="sortableOptions"
+                      ng-model="vm.dataElementAddedList"
+                      haveadded="true">
+          <div flex="100" class="md-1-line margin-0 dragsortable"
+               ng-repeat="dataElement in vm.dataElementAddedList"
+               ui-sortable-selectable ng-model="dataElement" layout-wrap>
+            <div class="md-list-item-text" layout-wrap layout="row">
+              <md-icon layout-align="start center" class="md-avatar avatar margin-top-0 margin-bottom-0" role="img" md-font-icon="{{dataElement.icon.IconClass}}"></md-icon>
+              <p class="label-container margin-bottom-0 operation-dataelement-font" layout-align="start center" flex="70">
+                <a class="cm-text-decoration" ng-click="vm.goToElementManage(dataElement.entityID,dataElement.dataElementID);">
+                  {{dataElement.dataElementName}}
+                </a>
+              </p>
+              <p class="label-container margin-bottom-0 text-right" layout-align="end center" flex="20">{{dataElement.dataelement_use_at}}</p>
+            </div>
+          </div>
+          <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+               ng-if="vm.dataElementAddedList.length == 0"
+               ui-sortable-selectable>
+            <div class="empty-state text-center">
+              <div class="emty-icon">
+                <img ng-src="{{vm.EmptyMesssageForDataField.IMAGEURL}}" />
+              </div>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchAddedListElement == null && vm.dataElementAddedList.length == 0">
+                {{vm.EmptyMesssageForDataField.MESSAGE}}
+              </p>
+              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchAddedListElement != null && vm.FilterDataElementAdded != true">
+                {{vm.EmptyMesssageForDataField.EMPTY_SEARCH_MESSAGE}}
+              </p>
+            </div>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+  </div>
+  <div flex="100" class="md-1-line margin-0 cursor-not-allow" ng-if="!vm.isContainMasterDataField">
+    <div class="empty-state text-center full-height">
+      <div class="emty-icon">
+        <img ng-src="{{vm.EmptyMesssageForDataField.IMAGEURL}}" />
+      </div>
+      <p class="empty-state-title font-size-2 useadded-emptytxt">
+        {{vm.EmptyMesssageForDataField.MESSAGE}}
+      </p>
+      <p flex="100">
+        {{vm.EmptyMesssageForDataField.ADDNEWMESSAGE}}
+      </p>
+      <p flex="100">
+        <md-button class="md-fab md-mini" aria-label="Add DataField" ng-click="vm.addData()">
+          <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+        </md-button>
+        <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.refreshData()">
+          <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-refresh"></md-icon>
+        </md-button>
+      </p>
+    </div>
+  </div>
+</form>

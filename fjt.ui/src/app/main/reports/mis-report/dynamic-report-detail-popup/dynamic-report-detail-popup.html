@@ -1,0 +1,309 @@
+<md-dialog aria-label="Add Report details" class="cm-custom-label-common receiving-pop-main" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.MISCommonReportDetailsForm" class="md-inline-form" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2 class="text-white">{{vm.miscommonreport.ID ? "Update" : "Add"}} Report Details</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal custom-scroll padding-10-imp mh-5">
+      <div class="cm-section-main margin-bottom-5" flex="100">
+        <div class="cm-section-inner">
+          <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+            <tbody>
+              <tr>
+                <th>
+                  <p class="label-container">Report Type</p>
+                </th>
+                <td>
+                  <md-input-container class="md-block margin-0" flex="100">
+                    <md-radio-group flex="100" flex-xs="100" name="reportType" layout="row" class="margin-top-0" ng-model="vm.miscommonreport.ReportType" md-autofocus>
+                      <md-radio-button class="margin-top-0" value="{{vm.MISCommonReportType.Detail}}">
+                        <span>Detail</span>
+                      </md-radio-button>
+                      <md-radio-button class="margin-top-0" value="{{vm.MISCommonReportType.Summary}}">
+                        <span>Summary</span>
+                      </md-radio-button>
+                    </md-radio-group>
+                  </md-input-container>
+                </td>
+                <th>
+                  <p class="label-container">Report Name<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p>
+                </th>
+                <td>
+                  <md-input-container class="margin-0" flex="100">
+                    <input type="text" id="ReportName" name="ReportName" ng-model="vm.miscommonreport.ReportName"
+                           placeholder="Report Name" required ng-maxlength="255"
+                           custom-blur="vm.checkDuplicateReportName()">
+                    <div ng-messages="vm.MISCommonReportDetailsForm.ReportName.$error"
+                         role="alert">
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                      <div ng-message="maxlength">
+                        <span>{{vm.getMaxLengthValidation(255, vm.MISCommonReportDetailsForm.ReportName.$viewValue.length)}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </td>
+              </tr>
+              <tr>
+                <th></th>
+                <td>
+                  <p class="label-container">
+                    <md-checkbox name="isPinToDashboard" class="margin-0 margin-left-9" ng-model="vm.miscommonreport.isPinToDashboard">Pin to Dashboard</md-checkbox>
+                  </p>
+                </td>
+                <th><p class="label-container">{{vm.autoCompleteChartCategory.placeholderName}}<span>&nbsp;*</span></p></th>
+                <td>
+                  <md-input-container ng-if="vm.autoCompleteChartCategory" class="autocompletecustom" flex="100">
+                    <custom-auto-complete datalist="vm.chartCategoryList"
+                                          column-name="vm.autoCompleteChartCategory.columnName"
+                                          controller-name="vm.autoCompleteChartCategory.controllerName"
+                                          view-template-url="vm.autoCompleteChartCategory.viewTemplateURL"
+                                          key-column-name="vm.autoCompleteChartCategory.keyColumnName"
+                                          input-name="vm.autoCompleteChartCategory.inputName"
+                                          placeholder-name="vm.autoCompleteChartCategory.placeholderName"
+                                          key-column-id="vm.autoCompleteChartCategory.keyColumnId"
+                                          is-required="vm.autoCompleteChartCategory.isRequired"
+                                          is-addnew="vm.autoCompleteChartCategory.isAddnew"
+                                          callback-fn="vm.autoCompleteChartCategory.callbackFn"
+                                          add-data="vm.autoCompleteChartCategory.addData">
+                    </custom-auto-complete>
+                  </md-input-container>
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <p class="label-container">
+                    <a class="cm-text-decoration" ng-click="vm.goDataSourceList(); " tabindex="-1">Data Source</a>
+                    <span ng-hide="vm.miscommonreport.ID">&nbsp;*</span>
+                  </p>
+                </th>
+                <td>
+                  <md-input-container ng-if="vm.autoCompleteDataSource" flex="100" class="autocompletecustom">
+                    <custom-auto-complete datalist="vm.dataSourceList"
+                                          column-name="vm.autoCompleteDataSource.columnName"
+                                          controller-name="vm.autoCompleteDataSource.controllerName"
+                                          view-template-url="vm.autoCompleteDataSource.viewTemplateURL"
+                                          key-column-name="vm.autoCompleteDataSource.keyColumnName"
+                                          input-name="vm.autoCompleteDataSource.inputName"
+                                          placeholder-name="vm.autoCompleteDataSource.placeholderName"
+                                          key-column-id="vm.autoCompleteDataSource.keyColumnId"
+                                          is-required="vm.autoCompleteDataSource.isRequired"
+                                          is-addnew="vm.autoCompleteDataSource.isAddnew"
+                                          is-disabled="vm.miscommonreport.ID"
+                                          callback-fn="vm.autoCompleteDataSource.callbackFn"
+                                          on-select-callback-fn="vm.autoCompleteDataSource.onSelectCallbackFn">
+                    </custom-auto-complete>
+                  </md-input-container>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <div class="cm-section-main margin-bottom-5" flex="100" ng-if="vm.autoCompleteDataSource.keyColumnId && vm.fieldsList.length > 0">
+        <div class="cm-section-inner margin-right-5">
+          Select Report Fields <strong><span class="color-red">(Note: To change fields ordering do drag and drop in selected fields section)</span></strong>
+        </div>
+        <div layout="row" flex="100" ng-if="vm.autoCompleteDataSource.keyColumnId && vm.fieldsList.length > 0">
+          <div class="content" flex="100" layout-wrap>
+            <div class="price-tables manage-standard cm-report-manage-standard mb-5" flex="100" layout="row" layout-wrap>
+
+              <div class="md-whiteframe-1dp cm-section-main" flex="100" flex-xs="100">
+
+                <!-- MIS report CODE FOR ADD REMOVE FIELDS-->
+
+                <div flex="100" layout="row" layout-sm="column" layout-wrap>
+                  <div flex="100" layout="row" class="cm-standard-permissiontab">
+                    <div flex flex-xs="100" flex-sm="100" layout="row" layout-wrap>
+                      <div flex="100" flex-xs="100" layout="row"
+                           class="mobilesearch employee-workstaion-search-box userpermissionhead"
+                           layout-align="space-between center">
+                        <md-input-container class="clickedsearch md-block error-none no-label" md-no-float flex flex-xs="75">
+                          <input id="SearchNoAddedFieldList" type="text" placeholder="Type here to search fields"
+                                 ng-model="vm.SearchNotAssignedFieldList"
+                                 ng-change="vm.searchFieldsFromNotAssignedList()"
+                                 max="255" ignore-dirty>
+
+                        </md-input-container>
+                        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                                   ng-disabled="!vm.SearchNotAssignedFieldList"
+                                   ng-click="vm.SearchNotAssignedFieldList='';vm.searchFieldsFromNotAssignedList()">
+                          Clear
+                        </md-button>
+                      </div>
+
+                      <md-list flex="100" class="permissiontab custom-scroll dragbox"
+                               ng-class="{'layout-column': vm.NotAssignedFieldList.length == 0}">
+                        <md-list-item id="NoAddedFieldList" class="padding-0 items-container" layout="row" flex="100"
+                                      layout-wrap ui-sortable="sortableOptionsFields" ng-model="vm.NotAssignedFieldList"
+                                      haveadded="false">
+                          <div flex="100" class="md-1-line margin-0 dragsortable padding-top-0 padding-bottom-0"
+                               id="{{values.field}}"
+                               ng-if="(!values.selected)"
+                               ng-repeat="values in vm.NotAssignedFieldList" ui-sortable-selectable ng-model="values.selected"
+                               layout="row" layout-align="start center">
+
+                            <div class="md-list-item-text" md-force-height="'40px'" layout-align="start center" layout="row" layout-wrap>
+                              <div flex class="text-main" tabindex="1">
+                                <h3 class="name margin-0 md-primary-fg" flex="100">
+                                  {{values.displayName}}
+                                </h3>
+                              </div>
+                            </div>
+                          </div>
+                          <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                               ng-if="vm.NotAssignedFieldList.length == 0" ui-sortable-selectable>
+                            <div class="empty-state text-center">
+                              <div class="emty-icon">
+                                <img ng-src="{{vm.EmptyMesssageForNotAssigned.IMAGEURL}}" />
+                              </div>
+                              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                                 ng-if="!vm.SearchNotAssignedFieldList">
+                                {{vm.EmptyMesssageForNotAssigned.MESSAGE}}
+                              </p>
+                              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                                 ng-if="vm.SearchNotAssignedFieldList">
+                                {{vm.EmptyMesssageForNotAssigned.EMPTY_SEARCH_MESSAGE}}
+                              </p>
+                            </div>
+                          </div>
+                        </md-list-item>
+                      </md-list>
+
+                    </div>
+                    <div class="cm-data-fields-buttons" flex-xs="100" layout="row" layout-align="space-between center">
+                      <div flex="100" layout-sm="row" layout-xs="row" layout="column" layout-align="space-between center">
+                        <md-button class="md-fab md-raised md-mini"
+                                   ng-disabled="selectedFieldListAdded.length == 0"
+                                   ng-click="vm.ManageField('Remove', $event)">
+                          <i class="icon-chevron-left icondrag"></i>
+                          <md-tooltip>Remove</md-tooltip>
+                        </md-button>
+                        <md-button class="md-fab md-raised md-mini"
+                                   ng-disabled="vm.AssignedFieldList.length == 0"
+                                   ng-click="vm.ManageField('RemoveAll', $event)">
+                          <i class="icon-chevron-double-left icondrag"></i>
+                          <md-tooltip>Remove All</md-tooltip>
+                        </md-button>
+                        <md-button class="md-fab md-raised md-mini"
+                                   ng-disabled="vm.NotAssignedFieldList.length == 0"
+                                   ng-click="vm.ManageField('AddAll', $event)">
+                          <i class="icon-chevron-double-right icondrag"></i>
+                          <md-tooltip>Add All</md-tooltip>
+                        </md-button>
+                        <md-button class="md-fab md-raised md-mini"
+                                   ng-disabled="selectedFieldListNotAdded.length == 0"
+                                   ng-click="vm.ManageField('Add', $event)">
+                          <i class="icon-chevron-right icondrag"></i>
+                          <md-tooltip>Add</md-tooltip>
+                        </md-button>
+                      </div>
+                    </div>
+                    <div flex flex-xs="100" flex-sm="100" layout="row" layout-wrap>
+                      <div flex="100" flex-xs="100" layout="row"
+                           class="mobilesearch employee-workstaion-search-box userpermissionhead"
+                           layout-align="space-between center">
+                        <md-input-container class="clickedsearch md-block error-none no-label" md-no-float flex flex-xs="75">
+                          <input id="SearchAddedListEmployee" type="text" placeholder="Type here to search selected fields"
+                                 ng-model="vm.SearchAssignedFieldList"
+                                 ng-change="vm.searchFieldsFromAssignedList()"
+                                 max="255" ignore-dirty>
+                          <!-- Add ng-change event above -->
+                        </md-input-container>
+                        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                                   ng-disabled="!vm.SearchAssignedFieldList"
+                                   ng-click="vm.SearchAssignedFieldList='';vm.searchFieldsFromAssignedList()">
+                          Clear
+                        </md-button>
+                      </div>
+                      <md-list flex="100" class="permissiontab custom-scroll dragbox"
+                               ng-class="{'layout-column': vm.AssignedFieldList.length == 0}">
+                        <md-list-item id="AddedFieldList" name="AddedFieldList" class="padding-0 items-container" layout="row" flex="100"
+                                      layout-wrap ui-sortable="sortableOptionsFields" ng-model="vm.AssignedFieldList"
+                                      haveadded="true">
+                          <div flex="100" class="md-1-line margin-0 dragsortable padding-top-0 padding-bottom-0"
+                               id="{{values.field}}"
+                               ng-repeat="values in vm.AssignedFieldList" ui-sortable-selectable ng-model="values.selected"
+                               layout="row" layout-align="start center">
+
+                            <div class="md-list-item-text" md-force-height="'40px'" layout-align="start center" layout="row" layout-wrap>
+                              <div flex class="text-main" tabindex="1">
+                                <h3 class="name margin-0 md-primary-fg" flex="100">
+                                  {{values.displayName}}
+                                </h3>
+                              </div>
+                            </div>
+
+                          </div>
+                          <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                               ng-if="vm.AssignedFieldList.length == 0" ui-sortable-selectable>
+                            <div class="empty-state text-center">
+                              <div class="emty-icon">
+                                <img ng-src="{{vm.EmptyMesssageForAssigned.IMAGEURL}}" />
+                              </div>
+                              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                                 ng-if="!vm.SearchAssignedFieldList">
+                                {{vm.EmptyMesssageForAssigned.MESSAGE}}
+                              </p>
+                              <p class="empty-state-title font-size-2 useadded-emptytxt"
+                                 ng-if="vm.SearchAssignedFieldList">
+                                {{vm.EmptyMesssageForAssigned.EMPTY_SEARCH_MESSAGE}}
+                              </p>
+                            </div>
+                          </div>
+                        </md-list-item>
+                      </md-list>
+                    </div>
+                  </div>
+                </div>
+                <!-- END OF CODE FOR ADD REMOVE FIELDS-->
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div layout="row" flex="100" class="workorderblog">
+        <div class="md-list-item-text" flex="100" layout-wrap>
+          <div class="cm-section-main">
+            <div class="cm-section-header" layout="row">
+              <h2 class="margin-right-5">Filter Options</h2>
+              <md-icon class="md-primary md-raised small-icon cursor-pointer margin-0 filter-ico" md-font-icon="icon-pencil"
+                       ng-click="vm.addCondition($event)">
+                <md-tooltip md-direction="bottom">Add Condition</md-tooltip>
+              </md-icon>
+              <md-icon class="md-primary md-raised small-icon cursor-pointer margin-0 filter-ico" md-font-icon="icon-close"
+                       ng-click="vm.clearCondition()">
+                <md-tooltip md-direction="bottom">Clear Filter</md-tooltip>
+              </md-icon>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <div flex="100" layout="row" class="padding-5">
+        <small class="font-size-13"><b ng-bind-html="expressionui"></b></small>
+      </div>
+      <!--</md-content>-->
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised md-button md-ink-ripple" ng-class="vm.themeClass" ng-click="vm.cancel()">
+        cancel
+      </md-button>
+      <md-button class="md-raised md-primary md-button md-ink-ripple text-white"
+                 ng-click="vm.saveMISReportData()"
+                 ng-class="{'md-formdirty': vm.MISCommonReportDetailsForm.$dirty}">
+        Save
+      </md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

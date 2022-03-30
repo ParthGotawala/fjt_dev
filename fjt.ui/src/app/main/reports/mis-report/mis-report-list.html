@@ -1,0 +1,224 @@
+<div id="misreportforms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="center margin-left-0 margin-right-0" layout="column" flex>
+
+    <div class="header md-accent-bg" layout="row" layout-align="start center">
+      <div class="white-fg" layout="column" layout-align="start start">
+        <div class="h2" layout="row" layout-align="start center">
+          <!--<md-icon md-font-icon="icon-view-list"></md-icon>&nbsp;
+          <span class="header-title">MIS Report</span>-->
+          <pagetitle is-list="true" is-display-menu-name="true"></pagetitle>
+        </div>
+        <div layout="row" layout-align="start center">
+          <breadcrumbs></breadcrumbs>
+        </div>
+      </div>
+    </div>
+    <div class="content-card padding-top-side" layout="column" flex="100">
+      <div layout="row" flex>
+        <ms-form-wizard flex="100" class="pivot-table-main">
+          <md-tabs class="manage-customer-tabing padding-0" md-dynamic-height md-selected="msWizard.selectedIndex">
+            <div class="cm-mis-report-filter-text" ng-if="msWizard.selectedIndex == 0">
+              <div flex="100" layout="row" class="float-right margin-0" ng-if="expressionui">
+                Filter:&nbsp;
+                <small><b ng-bind-html="expressionui"></b></small>
+              </div>
+            </div>
+            <md-tab>
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+                  <span class="ms-form-wizard-step-text">Generate Report</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <form name="vm.MISCommonReportForm" class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+                  <div layout="row" layout-align="space-between start" class="margin-0 advanced-filters">
+                    <div class="input-wrapper" flex="30" flex-sm="50" layout="row">
+                      <p class="margin-top-0 margin-bottom-0 label-container" layout-align="start start" layout="row">Report Name</p>
+                      <md-input-container class="md-block margin-bottom-0 margin-top-20 autocompletecustom" flex="100" flex-sm="100">
+                        <custom-auto-complete datalist="vm.dynamicReportMstlist"
+                                              column-name="vm.autoCompleteDynamicReportName.columnName"
+                                              controller-name="vm.autoCompleteDynamicReportName.controllerName"
+                                              view-template-url="vm.autoCompleteDynamicReportName.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteDynamicReportName.keyColumnName"
+                                              input-name="vm.autoCompleteDynamicReportName.inputName"
+                                              placeholder-name="vm.autoCompleteDynamicReportName.placeholderName"
+                                              key-column-id="vm.autoCompleteDynamicReportName.keyColumnId"
+                                              is-required="vm.autoCompleteDynamicReportName.isRequired"
+                                              is-addnew="vm.autoCompleteDynamicReportName.isAddnew"
+                                              callback-fn="vm.autoCompleteDynamicReportName.callbackFn"
+                                              on-select-callback-fn="vm.autoCompleteDynamicReportName.onSelectCallbackFn"
+                                              custom-auto-focus="{{msWizard.selectedIndex == 0 ? true : false}}">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </div>
+                    <div layout="row" flex="">
+                      <md-menu>
+                        <md-button class="margin-0 cm-add-report-button" ng-click="$mdOpenMenu()" md-menu-origin
+                                   md-menu-align-target
+                                   aria-label="Options">
+                          <md-icon md-font-icon="icon-dots-vertical" class="icon"></md-icon>
+                        </md-button>
+                        <md-menu-content width="3" class="cm-mis-menu">
+                          <!-- Show Update/Delete and Add button for superadmin and other all user who has feature rights -->
+                          <md-menu-item ng-if="vm.autoCompleteDynamicReportName.keyColumnId && vm.misReportFilterDetails.ID">
+                            <md-button class="md-raised cm-feture-btn-color"
+                                       ng-disabled="!vm.isUserSuperAdmin && !vm.enableEditMISReport"
+                                       ng-click="(!vm.isUserSuperAdmin && !vm.enableEditMISReport) || vm.openReportFilterDetailPopup($event,vm.ReportOperation.Update)">
+                              <md-icon md-font-icon="icon-pencil" class="icon"></md-icon>
+                              Update Detail
+                            </md-button>
+                          </md-menu-item>
+                          <md-menu-item ng-if="vm.autoCompleteDynamicReportName.keyColumnId && vm.misReportFilterDetails.ID">
+                            <md-button class="md-raised cm-feture-btn-color"
+                                       ng-disabled="!vm.isUserSuperAdmin && !vm.enableEditMISReport"
+                                       ng-click="(!vm.isUserSuperAdmin && !vm.enableEditMISReport) || vm.selectMISReportEmployee($event)">
+                              <md-icon md-font-icon="icon-account-multiple" class="icon"></md-icon>
+                              Invite Personnel
+                            </md-button>
+                          </md-menu-item>
+                          <md-menu-item ng-if="vm.autoCompleteDynamicReportName.keyColumnId && vm.misReportFilterDetails.ID">
+                            <md-button ng-click="vm.pinUnpinMISReportToDashboard()">
+                              <!--<md-icon md-font-icon="{{vm.misReportFilterDetails.isPinToDashboard ? 'icon-pin-off' : 'icon-pin'}}" class="icon"></md-icon>-->
+                              <md-icon md-font-icon="{{vm.misReportFilterDetails.isPinToDashboard ? 'icons-pin' : 'icons-unpin'}}" class="icon"></md-icon>
+                              {{vm.misReportFilterDetails.isPinToDashboard ? 'Unpin from Dashboard' : 'Pin to Dashboard'}}
+                            </md-button>
+                          </md-menu-item>
+                          <md-menu-item ng-if="vm.autoCompleteDynamicReportName.keyColumnId">
+                            <md-button class="md-raised cm-feture-btn-color"
+                                       ng-disabled="!vm.isUserSuperAdmin && !vm.enableDeleteMISReport"
+                                       ng-click="(!vm.isUserSuperAdmin && !vm.enableDeleteMISReport) || vm.deleteMISReport()">
+                              <md-icon md-font-icon="icon-trash" class="icon"></md-icon>
+                              Delete
+                            </md-button>
+                          </md-menu-item>
+                          <md-menu-item ng-if="vm.autoCompleteDynamicReportName.keyColumnId && vm.misReportFilterDetails.ID">
+                            <md-button ng-click="vm.loadPivotUiForSelectedReport(msWizard)">
+                              <md-icon md-font-icon="icon-eye" class="icon"></md-icon>
+                              View Pivot Report
+                            </md-button>
+                          </md-menu-item>
+                          <md-menu-item ng-if="vm.autoCompleteDynamicReportName.keyColumnId && vm.misReportFilterDetails.ID">
+                            <md-button class="md-raised"
+                                       ng-disabled="(!vm.isUserSuperAdmin && !vm.enableAddMISReport)"
+                                       ng-click="(!vm.isUserSuperAdmin && !vm.enableAddMISReport) || vm.openCopyReportDetailPopup($event)">
+                              <md-icon md-font-icon="icon-content-copy" class="icon"></md-icon>
+                              Copy Report
+                            </md-button>
+                          </md-menu-item>
+                          <md-menu-item>
+                            <md-button class="md-raised cm-feture-btn-color"
+                                       ng-disabled="(!vm.isUserSuperAdmin && !vm.enableAddMISReport)"
+                                       ng-click="(!vm.isUserSuperAdmin && !vm.enableAddMISReport) || vm.openReportFilterDetailPopup($event,vm.ReportOperation.Add)">
+                              <md-icon md-font-icon="icon-plus" class="icon"></md-icon>
+                              Add Report
+                            </md-button>
+                          </md-menu-item>
+                        </md-menu-content>
+                      </md-menu>
+                    </div>
+                    <div layout="row">
+                      <md-button class="md-primary mv-0 mr-0 md-raised md-ink-ripple mt-0-imp"
+                                 ng-if="vm.autoCompleteDynamicReportName.keyColumnId && vm.misReportFilterDetails.ID && vm.isFilter"
+                                 ng-click="vm.clearCondition($event)">
+                        Clear Filter
+                      </md-button>
+                      <md-button ng-if="vm.autoCompleteDynamicReportName.keyColumnId && vm.misReportFilterDetails.ID"
+                                 class="md-primary mv-0 mr-0 md-raised md-ink-ripple mt-0-imp"
+                                 ng-click="vm.addCondition($event)">
+                        Filter Options
+                      </md-button>
+                    </div>
+                  </div>
+                  <!--<div class="content-card" layout="column" flex ng-show="!vm.isNoDataFoundForMISCommonReport">
+                      <md-card class="mis-report-grid margin-0" layout="column" flex layout-align="space-between stretch">
+                          <ui-grid-extention load-data="vm.loadDataForMISCommonReport"
+                                             grid-option="vm.gridOptionsForMISCommonReport"
+                                             header="vm.sourceHeaderForMISCommonReport"
+                                             grid-data="vm.sourceDataForMISCommonReport"
+                                             total-data-count="vm.totalSourceDataCountForMISCommonReport"
+                                             reset-grid="vm.resetSourceGridForMISCommonReport"
+                                             selectted-rows="vm.selectedRowsListForMISCommonReport"
+                                             paging-info="vm.pagingInfoForMISCommonReport"
+                                             current-item="vm.currentdataForMISCommonReport"
+                                             empty-state="vm.emptyStateForMISCommonReport"
+                                             scroll-class="vm.setScrollClass">
+                      </md-card>
+                  </div>
+                  <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFoundForMISCommonReport == true">
+                      <div class="emty-icon" flex="100">
+                          <img ng-src="{{vm.commonReportEmptyState.IMAGEURL}}" />
+                      </div>
+                      <p flex="100" class="empty-state-title">{{vm.commonReportEmptyState.MESSAGE}}</p>
+                  </div>-->
+                  <div class="content-card" layout="column" ng-if="vm.isLoadReport">
+                    <dynamic-mis-report report-id="vm.reportID" report-name="vm.selectedReportNameFromAutoComplete"
+                                        filter-option-in-paging-info="vm.filterOptionInPagingInfo"></dynamic-mis-report>
+                  </div>
+                  <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap
+                       ng-if="!vm.isLoadReport">
+                    <div class="emty-icon" flex="100">
+                      <img ng-src="{{vm.commonReportEmptyState.IMAGEURL}}" />
+                    </div>
+                    <p flex="100" class="empty-state-title">{{vm.commonReportEmptyState.MESSAGE}}</p>
+                  </div>
+                </form>
+              </md-tab-body>
+            </md-tab>
+            <md-tab ng-click="vm.loadPivotReportTab()">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg">2</span>
+                  <span class="ms-form-wizard-step-text">Pivot Report</span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <form name="PivotReportForm" class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+                  <div layout="row" class="padding-top-5 advanced-filters">
+                    <div layout="row" class="input-wrapper" flex="30" flex-sm="50">
+                      <p class="label-container">{{vm.autoCompleteDynamicReportNameForPivotReport.placeholderName}}</p>
+                      <md-input-container class="md-block margin-bottom-0 autocompletecustom">
+                        <custom-auto-complete datalist="vm.dynamicReportMstlist"
+                                              column-name="vm.autoCompleteDynamicReportNameForPivotReport.columnName"
+                                              controller-name="vm.autoCompleteDynamicReportNameForPivotReport.controllerName"
+                                              view-template-url="vm.autoCompleteDynamicReportNameForPivotReport.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteDynamicReportNameForPivotReport.keyColumnName"
+                                              input-name="vm.autoCompleteDynamicReportNameForPivotReport.inputName"
+                                              placeholder-name="vm.autoCompleteDynamicReportNameForPivotReport.placeholderName"
+                                              key-column-id="vm.autoCompleteDynamicReportNameForPivotReport.keyColumnId"
+                                              is-required="vm.autoCompleteDynamicReportNameForPivotReport.isRequired"
+                                              is-addnew="vm.autoCompleteDynamicReportNameForPivotReport.isAddnew"
+                                              on-select-callback-fn="vm.autoCompleteDynamicReportNameForPivotReport.onSelectCallbackFn"
+                                              callback-fn="vm.autoCompleteDynamicReportNameForPivotReport.callbackFn"
+                                              custom-auto-focus="{{msWizard.selectedIndex == 1 ? true : false}}">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </div>
+                    <md-button ng-if="vm.isUserSuperAdmin || vm.enableAddMISReport" class="md-primary mv-0 mr-0 md-raised md-ink-ripple mt-0-imp"
+                               ng-disabled="!vm.autoCompleteDynamicReportNameForPivotReport.keyColumnId || !vm.isDataFoundForPivotReport"
+                               ng-click="vm.saveReportData($event)">
+                      Save Report
+                    </md-button>
+                    <md-button ng-if="vm.isUserSuperAdmin || vm.enableAddMISReport" class="md-primary mv-0 mr-0 md-raised md-ink-ripple mt-0-imp"
+                               ng-disabled="!vm.autoCompleteDynamicReportNameForPivotReport.keyColumnId || !vm.isDataFoundForPivotReport"
+                               ng-click="vm.printReport('pvtRendererArea')">
+                      Print Report
+                    </md-button>
+                  </div>
+                  <div id="outputForPivotReport" layout="row" flex="100" class="padding-top-15"
+                       ng-if="vm.isDataFoundForPivotReport"></div>
+                  <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="!vm.isDataFoundForPivotReport">
+                    <div class="emty-icon" flex="100">
+                      <img ng-src="{{vm.commonReportEmptyState.IMAGEURL}}" />
+                    </div>
+                    <p flex="100" class="empty-state-title">{{vm.commonReportEmptyState.MESSAGE}}</p>
+                  </div>
+                </form>
+              </md-tab-body>
+            </md-tab>
+          </md-tabs>
+        </ms-form-wizard>
+      </div>
+    </div>
+  </div>
+</div>

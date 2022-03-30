@@ -1,0 +1,177 @@
+
+<form name="partDetails" class="md-inline-form cm-custom-label-common wo-details-list rs-manage-wo-details" novalidate>
+    <div layout="row" layout-align="space-between center" class="padding-bottom-10 overflow-auto-rs" layout-align-md="start-stretch" layout-align-sm="start-stretch" layout-md="column" layout-sm="column">
+        <p class="margin-0">
+            <md-button class="md-raised md-primary mv-0 ml-0" ng-click="vm.SelectAllPart($event)"
+                       ng-disabled="vm.SelectedPartList.length == 0 || vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange">
+                {{vm.diplayButtonText}}
+            </md-button>
+            <md-button class="mv-0 ml-0 md-raised md-warn" ng-class="{'item-disabled':vm.getSelectedPartCount() == 0}"
+                       ng-disabled="vm.getSelectedPartCount() == 0 || vm.isWoInSpecificStatusNotAllowedToChange"
+                       ng-click="vm.DeletePartFromWorkorder(vm.selectedPartList, 'Multiple',$event)">
+                Remove Selected
+            </md-button>
+        </p>
+        <div layout="row" layout-align="space-between center">
+            <div class="search searchbar" flex layout="row" layout-align="start center"
+                 ng-if="vm.isDiplaySearFilterForWOParts">
+                <input id="SearchSelectedPartTxt" class="search-input" type="text" placeholder="Type here to search supplies, materials & tools"
+                       ng-model="vm.SearchSelectedPartTxt"
+                       ng-change="vm.SearchSelectedPart()"
+                       ng-model-options="{debounce: vm.debounceTime }" max="255">
+            </div>
+            <md-button class="md-raised md-primary mv-0 margin-right-0"
+                       ng-disabled="!vm.SearchSelectedPartTxt"
+                       ng-click="vm.SearchSelectedPartTxt='';vm.SearchSelectedPart();"
+                       ng-if="vm.isDiplaySearFilterForWOParts">
+                Clear
+            </md-button>
+            <md-button class="md-raised md-primary mv-0 margin-right-0" ng-click="vm.AddNewPartToWorkOrder($event)"
+                       ng-disabled="vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange"
+                       ng-if="vm.isDiplaySearFilterForWOParts">
+                Add Supplies, Materials & Tools
+            </md-button>
+            <md-button class="md-raised md-primary mv-0 margin-right-0" ng-click="vm.getWorkorderPartList()" ng-if="vm.SelectedPartList.length != 0 && vm.workorder.workorderOperation.length != 0">
+                Refresh
+            </md-button>
+        </div>
+    </div>
+    <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap
+         ng-if="vm.workorder.workorderOperation.length == 0">
+        <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.EmptyMesssageForOperationNotAdded.IMAGEURL}}" />
+        </div>
+        <p class="empty-state-title font-size-2 useadded-emptytxt">
+            {{vm.EmptyMesssageForOperationNotAdded.NO_SELECTED}}
+        </p>
+        <p flex="100">
+            <md-button class="md-primary md-raised margin-0" aria-label="Add Operation" ng-click="vm.moveToAddOperationsTab()">
+                Go to Operations
+            </md-button>
+        </p>
+    </div>
+    <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap
+         ng-if="vm.SelectedPartList.length == 0 && vm.workorder.workorderOperation.length > 0">
+        <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.EmptyMesssagePart.IMAGEURL}}" />
+        </div>
+        <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchSelectedPartTxt == null && vm.SelectedPartList.length == 0">
+            {{vm.EmptyMesssagePart.NO_SELECTED}}
+        </p>
+        <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchSelectedPartTxt != null && vm.SelectedPartList.length == 0">
+            {{vm.EmptyMesssagePart.EMPTY_SEARCH_MESSAGE}}
+        </p>
+        <p flex="100" ng-if="!vm.SearchSelectedPartTxt">
+            <md-button class="md-fab md-mini" ng-hide="vm.isWOUnderTermination" ng-click="vm.AddNewPartToWorkOrder($event)"
+                       ng-disabled="vm.isWoInSpecificStatusNotAllowedToChange">
+                <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+                <md-tooltip md-direction="top">Add New</md-tooltip>
+            </md-button>
+            <md-button class="md-fab md-mini" aria-label="Refresh Data Fields" ng-click="vm.getWorkorderPartList()">
+                <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon"></md-icon>
+                <md-tooltip md-direction="top">Refresh</md-tooltip>
+            </md-button>
+        </p>
+    </div>
+    <div class="cm-manage-wo-step-part">
+    <div class="price-tables cm-Wo-eqp-list manage-standard manage-smt" flex="100" layout="row" layout-wrap ng-if="vm.SelectedPartList.length > 0">
+        <div class="templatelist style-1 md-whiteframe-1dp" layout="row" flex="100">
+            <md-list layout="row" layout-wrap layout-align="start start" flex="100">
+                <md-list-item class="overflow-auto-rs" ng-repeat="part in vm.SelectedPartList | orderBy:'partNumber'" flex="100">
+                    <div flex="100" layout="row" layout-align="space-between center" layout-align-sm="center-start" layout-sm="column">
+                        <div layout="row" flex="50" flex-sm="100">
+                            <md-checkbox class="margin-0 cm-manage-checkbox" ng-model="part.selected"
+                                         ng-disabled="vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange">
+                            </md-checkbox>
+                            <div flex class="text-main" layout="row" layout-align="center center">
+                                <i class="icon-checkbox-blank-circle-outline normal"></i>
+                                <i class="icon-check-circle checked"></i>
+                            </div>
+                            <div class="avatar-wrapper" layout="row">
+                                <img class="md-avatar avatar" ng-src="{{part.imageURL}}" />
+                            </div>
+                            <div flex="85" layout="row" layout-align="center center">
+                                <div class="md-list-item-text" flex="100" layout="row" layout-wrap layout-align="start center">
+                                    <h3 class="name margin-0 md-primary-fg"
+                                        ng-style="{'background-color': part.isObsoletePart ? vm.obsoletePartErrorColor : '' }"
+                                        ng-class="{'text-line-through': part.restrictUSEwithpermission || part.restrictUsePermanently
+                                            || part.restrictPackagingUseWithpermission || part.restrictPackagingUsePermanently
+                                            || part.restrictUseInBOMStep ,
+                                        'text-double-line-through': part.restrictUseInBOMWithPermissionStep}">
+                                        <common-pid-code-label-link component-id="part.id"
+                                                                    label="vm.allLabelConstant.MFG.PID"
+                                                                    value="part.PIDCode"
+                                                                    is-copy="true"
+                                                                    is-mfg="true"
+                                                                    mfg-label="vm.allLabelConstant.MFG.MFGPN"
+                                                                    mfg-value="part.mfgPN"
+                                                                    rohs-icon="part.rohsIcon"
+                                                                    rohs-status="part.rohsStatus"
+                                                                    is-formated="true"
+                                                                    is-copy-ahead-label="true"
+                                                                    is-search-digi-key="true" is-search-findchip="true"
+                                                                    is-custom-part="part.isCustom"></common-pid-code-label-link>
+                                        <md-tooltip ng-if="part.isObsoletePart">Obsolete</md-tooltip>
+                                    </h3>
+                                    <div flex="100" layout="row">
+                                        <span>
+                                            {{part.functionalCategoryName}}
+                                            <md-tooltip ng-if="part.functionalCategoryName">Functional Type</md-tooltip>
+                                        </span>&nbsp;|&nbsp;
+                                        <span>
+                                            {{part.mountingTypeName}}
+                                            <md-tooltip ng-if="part.mountingTypeName">
+                                                Mounting Type
+                                            </md-tooltip>
+                                        </span>
+                                    </div>
+                                    <div flex="100">
+                                        <div class="cm-document-name cm-document-name-list">
+                                            {{part.mfgPNDescription}}
+                                            <md-tooltip>{{part.mfgPNDescription}}</md-tooltip>
+                                        </div>
+                                    </div>
+                                  <div flex="100">
+                                        <div>
+                                            <operation-flux-type-icon flux-type="part.SMTFluxTypeList"></operation-flux-type-icon>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--<div class="last-message-time"></div>-->
+                        </div>
+                        <div layout="row" flex="50" flex-sm="100" layout-align="end center">
+                            <div layout="column" flex>
+                                <label class="cursor-pointer label-box label-primary no-bg margin-top-10 text-right margin-bottom-0" flex>
+                                    {{part.isMountingGroupTools ? 'Total Estimated Required Tools:' : 'Total Estimated QPA:'}}
+                                    <span ng-if="part.totalQPA" class="cm-word-break">{{part.totEstimatedQPABuild}}&nbsp;{{part.UOMUnitName}}</span>
+                                    <span ng-if="!part.totalQPA" class="cm-word-break">N/A</span>
+                                    <md-tooltip>{{part.isMountingGroupTools ? vm.AllLabels.TotalToolsQtyInWO : vm.AllLabels.TotalSMQtyInWO}}</md-tooltip>
+                                </label>
+                                <label class="cursor-pointer label-box label-primary no-bg text-right" flex>
+                                    {{part.isMountingGroupTools ? 'Total Actual Required Tools:' : 'Total Actual QPA:'}}
+                                    <span ng-if="part.totalActualQPA" class="cm-word-break"
+                                          ng-class="{'label-danger' : part.totalQPA && part.isGreaterTotActualQPABuild , 'label-success' : part.totalQPA && !part.isGreaterTotActualQPABuild}">
+                                        {{part.totActualQPABuild}}&nbsp;{{part.UOMUnitName}}
+                                    </span>
+                                    <span ng-if="!part.totalActualQPA" class="cm-word-break">N/A</span>
+                                    <md-tooltip>{{part.isMountingGroupTools ? vm.AllLabels.TotalActualToolsQtyInWO : vm.AllLabels.TotalActualSMQtyInWO}}</md-tooltip>
+                                </label>
+                            </div>
+                            <md-button class="md-raised md-primary" layout="column" layout-align="center center" ng-click="vm.ViewOperationByPartFromWorkorder(part, $event)"
+                                       ng-disabled="vm.isWOUnderTermination">
+                                View Operation
+                            </md-button>
+                            <md-button class="md-raised md-warn" layout="column" layout-align="center center"
+                                       ng-disabled="vm.isWOUnderTermination || vm.isWoInSpecificStatusNotAllowedToChange"
+                                       ng-click="vm.DeletePartFromWorkorder(part, 'Single',$event)">
+                                Remove
+                            </md-button>
+                        </div>
+                    </div>
+                </md-list-item>
+            </md-list>
+        </div>
+    </div>
+    </div>
+</form>

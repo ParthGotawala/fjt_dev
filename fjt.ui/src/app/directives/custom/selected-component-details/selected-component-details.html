@@ -1,0 +1,109 @@
+<table class="tbl-part-details">
+  <tr>
+    <td class="lbl-pidocde text-bold" colspan="2">
+      <a ng-if="vm.isShow" class="cursor-pointer underline" ng-click="gotoPartMatster(rowData)">
+        {{selectedPIDCode}}
+      </a>
+      <span ng-if="!vm.isShow" style="color:rgb(0,150,136)">{{selectedPIDCode}}</span>
+      <a ng-if="vm.isShow" style="float:right" class="cursor-pointer underline margin-right-5" ng-click="vm.getPricing(rowData,requestQty,$event)">
+        Part Price Matrix
+      </a>
+      <span style="float:right;color:rgb(0,150,136)" ng-if="!vm.isShow" class="margin-right-5">Part Price Matrix</span>
+    </td>
+    <td class="lbl-pidocde text-bold" ng-if="weightage">
+      <label>Weightage:&nbsp;</label>{{weightage}}%
+    </td>
+    <td class="lbl-qty">
+      <label>Quote Qty:&nbsp; </label>{{quoteQtyEach | numberWithoutDecimal}}&nbsp;EA
+    </td>
+    <td ng-if="!weightage"></td>
+  </tr>
+  <tr ng-if="connectorTypeID== -2 || rowData.uomID > 0">
+    <td class="lbl-qty">
+      <label>Quote Unit(s):&nbsp; </label>{{totalQty | numberWithoutDecimal}}&nbsp;{{connectorTypeID==-2?'Pin':unitName}}
+    </td>
+    <td class="lbl-unit-price">
+      <label>Supplier Unit Price:&nbsp;</label>{{unitPrice | unitPrice}}&nbsp;/&nbsp;{{connectorTypeID==-2?'Pin':unitName}}
+    </td>
+    <td class="lbl-qty">
+      <label>Stock:&nbsp; </label>{{ rowData.uomID>0?supplierEachStcok : (supplierEachStcok | numberWithoutDecimal)}} EA
+    </td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="lbl-qty">
+      <span>
+        <label>{{(rowData.uomID>0)?'Reqd. Unit(s)':'Reqd. Qty'}}:&nbsp;</label>{{ rowData.uomID>0?reqQty : (reqQty | numberWithoutDecimal)}}&nbsp;{{unitName}}
+        <md-tooltip md-direction="top">Required Qty: ({{(rowData.uomID>0)?'Reqd. Unit(s)':'Reqd. Qty'}} * QPA)</md-tooltip>
+      </span>
+    </td>
+    <td class="lbl-qty">
+      <span>
+        <label>{{(rowData.uomID>0)?'Consolidate Reqd. Unit(s)':'Consolidate Reqd. Qty'}}:&nbsp;</label>{{rowData.uomID>0?totalRequiredQty : (totalRequiredQty | numberWithoutDecimal)}}&nbsp;{{unitName}}
+        <!--<md-tooltip md-direction="top">Required Consolidate Qty: (Requested Qty * QPA)</md-tooltip>-->
+      </span>
+    </td>
+    <td class="lbl-unit-price" ng-class="{'text-bold':(SelectedTabName == ReviewPricingTabs.PartCosting.Name || SelectedTabName == ReviewPricingTabs.CustomRules.Name ||SelectedTabName == ReviewPricingTabs.NotQuoted.Name)}">
+      <label>Unit Price:&nbsp;</label>{{unitEachPrice | unitPrice}} <span>
+        /&nbsp;EA
+        <md-icon ng-if="isanyUpdate" md-font-icon class="icon s18 icon-alert color-red"></md-icon>
+        <md-tooltip ng-if="isanyUpdate" md-direction="top">Alternate part added, Line Updated</md-tooltip>
+      </span>
+    </td>
+    <td class="lbl-price" ng-class="{'text-bold':(SelectedTabName == ReviewPricingTabs.PartCosting.Name || SelectedTabName == ReviewPricingTabs.CustomRules.Name)}">
+      <label>Ext. Price:&nbsp;<md-tooltip md-direction="top">Extended Price Formula: {{connectorTypeID==-2?'(QPA * Supplier Unit Price * Pin Count)':rowData.uomID>0?'(QPA * Supplier Unit Price)':'(QPA * Unit Price)'}}</md-tooltip></label>{{totalPrice | unitPrice}}
+    </td>
+  </tr>
+  <tr>
+    <td class="lbl-qty" ng-class="{'pricing-grey':authorizeType==supplierAuthorize[1].id,'pricing-light-grey':authorizeType==supplierAuthorize[2].id}">
+      <label>Supplier:&nbsp; </label>{{supplier}} <span ng-if="selectionMode">({{selectionMode}} Price)</span>
+      <md-tooltip ng-if="authorizeType==supplierAuthorize[1].id || authorizeType==supplierAuthorize[2].id">{{authorizeType==supplierAuthorize[1].id?supplierAuthorize[1].Value:supplierAuthorize[2].Value}}</md-tooltip>
+    </td>
+    <td class="lbl-stock text-bold" ng-class="{'green-fg': isSufficientQty, 'red-fg': !isSufficientQty}">
+      <label>Stock:&nbsp; </label>{{rowData.uomID>0?currentStock : (currentStock | numberWithoutDecimal)}}&nbsp;<span>{{connectorTypeID==-2?'Pin':unitName}}</span>
+    </td>
+    <td class="lbl-price" ng-class="{'text-bold':(SelectedTabName == ReviewPricingTabs.LeadTimeRisk.Name)}">
+      <label>Lead Time:&nbsp;{{vm.checkNull(leadTime, "weeks")}} </label>
+    </td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="lbl-min-mult">
+      <label>Min/Mult:&nbsp; </label><span ng-if="min">{{min | numberWithoutDecimal}}</span> <span ng-if="mult">/ {{mult | numberWithoutDecimal}}</span>
+    </td>
+    <td class="lbl-qty" ng-class="{'text-bold':(SelectedTabName == ReviewPricingTabs.ExcessMaterialExposure.Name)}">
+      <label>Excess Qty:&nbsp;<md-tooltip md-direction="top">Excess Qty Formula: {{connectorTypeID==-2?'(Quote Unit(s) - (Reqd. Qty * Pin Count))':rowData.uomID>0? '(Quote Unit * Reqd. Unit)':'(Quote Qty - Reqd. Qty)'}}</md-tooltip></label>{{rowData.uomID>0?excessQty : (excessQty | numberWithoutDecimal)}}&nbsp;{{connectorTypeID==-2?'Pin':unitName}}
+    </td>
+    <td class="lbl-price" ng-class="{'text-bold':(SelectedTabName == ReviewPricingTabs.ExcessMaterialExposure.Name)}">
+      <label>Excess Price:&nbsp;<md-tooltip md-direction="top">Excess Price Formula: {{connectorTypeID==-2?'(Excess Qty * Supplier Unit Price)':rowData.uomID>0? '(Excess Qty * Supplier Unit Price)':'(Excess Qty * Unit price)'}}</md-tooltip></label>{{excessPrice | amount}}
+    </td>
+    <td class="lbl-price" ng-class="{'text-bold':(SelectedTabName == ReviewPricingTabs.ExcessMaterialExposure.Name)}">
+      <label>Actual Reqd. Qty Price:&nbsp;<md-tooltip md-direction="top">Actual Reqd. Qty Price Formula: {{rowData.uomID>0?'(Reqd. Unit * Unit Price)':'(Reqd. Qty * Unit price)'}}</md-tooltip></label>{{actualReqQtyPrice | amount}}
+    </td>
+  </tr>
+  <tr>
+    <td class="lbl-stock text-bold" ng-class="{'green-fg': isSufficientQty, 'red-fg': !isSufficientQty}">
+      <label>Diff.:&nbsp; <md-tooltip md-direction="top">Diff Formula: {{connectorTypeID==-2?'(Stock - (Reqd. Qty * Pin Count)) (Stock/(Reqd. Qty * Pin Count) x)':'(Stock - Reqd. Qty) (Stock/Reqd. Qty x)'}}</md-tooltip></label>{{differenceQty | numberWithoutDecimal}} <span ng-if="noOfTimes">({{noOfTimes}})</span>
+    </td>
+    <td class="lbl-supplier-stk">
+      <label>Supplier Stock:&nbsp; <md-tooltip md-direction="top">Supplier Stock Formula: Sum of selected supplier stock</md-tooltip></label>{{rowData.uomID>0? supplierStock: (supplierStock | numberWithoutDecimal)}}&nbsp;<span ng-if="unitPrice">{{connectorTypeID==-2?'Pin':unitName}}</span>
+    </td>
+    <td class="lbl-qty">
+      <label>Cost Per Assy(w/o excess):&nbsp;<md-tooltip md-direction="top">Cost Per Assy(w/o excess) Formula: {{connectorTypeID==-2?'(Reqd. Qty * Supplier Unit Price * Pin Count)':rowData.uomID>0? '(Reqd. Unit * Supplier Unit Price)':'(Reqd. Qty * Unit Price)'}}</md-tooltip></label>{{actualPrice | amount}}
+    </td>
+    <td class="lbl-price" ng-class="{'text-bold':(SelectedTabName == ReviewPricingTabs.ExcessMaterialExposure.Name)}">
+      <label>Assy Price:&nbsp;<md-tooltip md-direction="top">Assy Price Formula: {{connectorTypeID==-2?'(QPA * Supplier Unit Price)':'(QPA * Unit price)'}}</md-tooltip></label>{{assyPrice | amount}}
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="lbl-gross-stk" ng-class="{'green-fg': isSufficientCumulativeQty, 'red-fg': !isSufficientCumulativeQty}">
+      <label>Aggregate Supplier Stock:&nbsp; <md-tooltip md-direction="top">Aggregate Supplier Stock Formula: Sum of all supplier stock which are not copied from another</md-tooltip></label>{{rowData.uomID>0?grossStock:(grossStock | numberWithoutDecimal)}}&nbsp;<span ng-if="unitPrice">{{connectorTypeID==-2?'Pin':unitName}}</span>&nbsp; <span ng-if="pricingSuppliers">(</span><span ng-if="pricingSuppliers" class="price-select-supplier">{{pricingSuppliers}}<md-tooltip md-direction="top" ng-if="pricingSuppliers">Aggregate Suppliers: ({{pricingSuppliers}})</md-tooltip></span><span ng-if="pricingSuppliers">)</span>
+    </td>
+    <td class="lbl-qty">
+      <label>Cost Per Assy(w/ excess):&nbsp;<md-tooltip md-direction="top">Cost Per Assy(w/ excess) Formula: {{rowData.uomID>0? '(Quote Unit * Supplier Unit Price)':'(Quote Qty * Unit Price)'}}</md-tooltip></label>{{totalCostQty | amount}}
+    </td>
+    <td>
+      <span ng-if="ApiNoOfPosition"><label>API Pin Count:&nbsp; </label>{{ApiNoOfPosition}}</span>
+    </td>
+  </tr>
+</table>

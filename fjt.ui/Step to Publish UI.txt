@@ -1,0 +1,309 @@
+Following steps to publish UI and API project.
+- Before start publish check iis node is installed or not by checking with click on Modules in Admin Home in IIS.
+- If not than download it from https://github.com/azure/iisnode/releases/download/v0.2.21/iisnode-full-v0.2.21-x64.msi
+- Install iis node and check in iis in module list is exists or not. If you can see iis node in module list than it is installed.
+- Check URL rewrite module is installed or not.
+- If not than download web plateform installer (if not exists) from https://www.microsoft.com/web/downloads/platform.aspx
+- Click on web plateform installer and click on prodcuts and find url rewrite. click and install it. restart iis to see option.
+https://www.microsoft.com/en-us/download/details.aspx?id=47337
+- Create two different web application folder for iis [API and UI]
+
+
+API Project
+===============================
+1) Copy of whole api folder to publish folder.
+2) Open IIS and "Add Website" if not added than select target source as "API" folder from publish folder. (one time only)
+3) Open "sever.js" file and find and replace "config.PORT" to "process.env.PORT". (2 place)
+4) Open "config/config.js" and Change url for WebsiteBaseUrl, 
+e.g. WebsiteBaseUrl : 'https://192.168.0.208:4430'.
+5) Change database, host name.
+e.g. database: 'flexjobtracking_local'
+       host: '192.168.0.2'
+6) Change virtualhost and Emailvirtualhost.
+e.g. virtualhost : 'PricingService_Local'
+       Emailvirtualhost: 'FJTEmailService_Local'
+7) Unhide "node_modules" folder, if it hidden.
+8) Open "mongodb.js" file and change dbname "fjtpricing_dev".
+
+
+UI Project [Two Methods]
+============================
+Method - 1 [Whole Source for debug]
+-------------------------------------------
+1) Copy of whole "src" folder to publish folder.
+2) Copy "bower_components" into "src" folder and Remove from hidden files
+3) Copy "index.html" from ".tmp/serve" folder to "src" folder.
+4) Copy "index.css" from ".tmp/serve/app" folder to "src/app" folder.
+5) Open IIS and "Add Website" and select target source as "src" folder of publish folder.
+6) Open "config.js" file from "src" folder and change path of "APIProjectURL".
+
+Method - 2 [Minified without debug] Updated
+-------------------------------------------
+1) Open command prompt and go to ui project folder location.
+2) Type command "gulp default --max_old_space_size=8048".
+3) Copy all files from "dist" folder to Publish folder.
+4) Copy config folder and paste in Publish folder.
+5) Open IIS and "Add Website" and select target source as "src" folder of publish folder.(one time only)
+6) Open "config.js" file from "src" folder and change path of "APIProjectURL".
+e.g. WebsiteBaseUrl: "https://192.168.0.208:4430"
+     APIProjectURL: "https://192.168.0.208:4439"
+
+NOTE: If 'gulp build' command gives error of memory then use 'gulp default --max_old_space_size=8048' to generate 'dist' folder.
+
+After publish need to put separate folder in UI project
+--------------------------------------------------------
+1.pdf.js-viewer
+  - Create bower_component folder in ui project
+  - Under that create 'pdf.js-viewer' and put cmaps and images folder, pdf.worker.js and viewer.css from 'fjt.ui\bower_components\pdf.js-viewer'
+
+Email Or Pricing Services
+==============================
+- Check version of .Net Framework installed on system and update it from service properties
+- Double click on service file to open design mode.
+- Right click on design section and Add Installer.
+- Right Click on "ServiceInstaller1" and Set Properties as below
+	Misc- 
+		Account: LocalSystem
+- Right Click on "Service1" and Set Properties as below
+	Design
+		Name: FJTEmailService
+	Misc
+		Description: FJT Email Service created by TGS
+		Display Name: FJT Email Service
+		Service Name: FJTEmailService
+		Start Type: Automatic
+- Right click on service and publish this service on path, Take this path bin\Debug folder for install service.
+- Open Command prompt with administrator rights
+- Go to windows Framework folder  like  c:\windows\Microsoft.Net\Framework64\v4.0.30319
+- Execute below command for register FirmWare Upgrade into server services
+	Installutil.exe "<FirmWareUpgrade folder path>"
+	e.g.- Installutil.exe "../../bin/Debug/fjt.pricingservice.exe"
+		- Installutil.exe "../../bin/Debug/fjt.emailservice.exe"
+
+Republish Service with different name and description
+------------------------------------------------------
+sc create MyService binPath= "MyService.exe" DisplayName= "MyService"  
+sc description MyService "My description"
+
+e.g
+----
+sc create FJTEmailService_Local binPath= "C:\inetpub\wwwroot\FJT\FJTTrain\emailservice\fjt.emailservice.exe" DisplayName= "FJTEmailService_Local"  
+sc description FJTEmailService_Local "FJT Email Service Local developed by TGS"
+
+
+In case of delete service from list
+-----------------------------------
+sc delete <ServiceName>
+e.g.- sc delete FJTEmailService
+	- sc delete FJTPricingService
+
+RDLC Report 
+=================
+- Add one Web Site if not added on IIS.
+- Right click on FJT.Reporting Project and publish this project on local folder.
+- Copy this publish folder on the IIS new added report site 
+- Change the web.config file appSettings -> Key Value content as per required
+- Restart Reporting site on IIS.
+
+Elastic Search 
+=================
+- To Install Elastic Search functionality please follow this sheet
+https://docs.google.com/spreadsheets/d/1ei_Fj65XIoW7vtICYd9KDy-LVl56m1IplP6WvmFVGXY/edit#gid=1777258487
+
+
+Brother Scanner
+=================
+
+
+Bartender
+=================
+
+  Step of import file of replace special character file in barcode btw file
+  ============================
+  1. Open barcode template .btw file.
+  2. On template select field and do right click and select properties of the field which have to be replaced.
+  3. In text properties pop-up, the left section side selects the value of the data source.
+  4. In text properties pop-up, right section side select Transforms option.
+  5. In that option select Search and Replace option.
+  6. Before import need to check Action and Search method of 'Search and Replace' and we can check after step 5 by export template. If action number is not equal to 3 then need to change in xml file before import.
+  7. In that pop-up select Import button of left - bottom side and import your special character file.
+  8. Press ok and close all pop-up
+  9. Do Deploy Integration from integration file.
+
+  https://www.toptal.com/designers/htmlarrows/
+  https://allwebco-templates.com/support/S_hex.htm
+  https://www.w3schools.com/tags/ref_charactersets.asp
+
+Add .btw file in integration file
+------------------------------------
+1.Intergration
+	- Name: 1D Barcode For Search Material
+2.Service
+	- Port: 8090
+	- Configured in data key
+3.Input Data: JSON variable
+3.Response
+	- Content-type: Application/json
+	- Source: Action Summary
+4.PRintDocument
+	- Document
+		- Select .btw file
+		- Checked Close at the end of job
+		- UnChecked Save Document at the end of job
+	- Print Option
+		- PRinter: %printerName%
+		- Copies: %numberOfPrint%
+		- Verification Options
+			- Verify the print job has been printed before continuing
+			- Include print data
+			- Include print summary
+	- Named Data Source
+		- Check option for Specify value
+		- searchMaterialPrintLabel: %searchMaterialPrintLabel%
+	- Action
+		- NAme: 1D Barcode For Search Material
+		- Check Ignore Error and continue running action
+
+
+
+Database Backup
+=================
+- Right click on FJT.AutoBackup project and publish on local folder.
+- Take this folder on server or any where you have to use add window schedule for take auto backup.
+- Create Windows schedule using this fjt.autobackup.exe path.
+- Change the app.config file appSettings -> Key Value content as per required for all app settings key.
+
+************************************************************
+				Steps to Publish on FJT Server
+************************************************************
+166 Steps for (UI and API)
+---------------------------------------------
+1. Take 166 servers remotely.
+2. Go to google chrome and http://localhost:8080/login.
+3. Login with the credential. (Bhavin/triveni@123)
+4. Go to FJT_Dev Pipeline.
+5. Click on Run Button.
+6. Go to IIS and Explore folder where we have given a release of UI and API.
+7. Make zip of all project (API, UI, Email and Pricing Services, Report Project).
+8. Upload in fjt.publish@gmail.com account drive.
+
+Production Server Steps 
+--------------------------------
+1. Take Production server remotely.
+2. Go to IIS and Explore folder where we have given a release of UI and API. 
+3. Go to FJT Folder. Create a new folder with "TodayDate". Create two folders "backup" and "publish" in a new " TodayDate" folder.
+4. Take a backup of old folders in "backup".
+5. Take Backup of mysql database from sqlyog and copy the file into "backup" folder.
+6. Take Backup of MongoDB database with following.
+-------------------------------------
+	- Run cmd as Administrator
+	- Go to "C:\Program Files\MongoDB\Server\4.4\bin"
+	- Without authentication, Run Command
+        "mongodump --db yourdatabasename"
+  - With authentication, Run Command
+        "mongodump --host localhost --port 27017 --username fjt --password triveni123 --db {yourdatabasename} --authenticationDatabase admin"
+  - With authentication, Direct from any folder location,
+        "C:\Program Files\MongoDB\Server\4.4\bin\mongodump" --host localhost --port 27017 --{username} fjt --password {password} --db {DBName} --authenticationDatabase admin --out "{BackupFolderPath}"
+	- dump folder will be created at  "C:\Program Files\MongoDB\Server\4.4\bin"
+	- .bson and .json file will be created.
+7. Copy "dump/yourdatabasename" generated folder in "backup".
+7. Open fjt.publish@gmail.com account drive and download.
+8. Copy download files into "publish". Unzip all.
+9. Go to services and Stop "FJTEmailService_Dev" and "FJTPricingService_Dev". 
+10. Stop Projects "devapi.fjt.i-nnate.com", "dev.fjt.i-nnate.com" and "devrep.fjt.i-nnate.com".
+
+11. Delete and copy new Files from API except following folder/files. (http://devapi.fjt.i-nnate.com)
+-------------------------
+- upload, config, mongodb.js, iisnode, logs, server.js, Web.config
+
+12. Delete and copy new files from UI except following folder/files. (http://dev.fjt.i-nnate.com/)
+-------------------------
+- config
+
+Before paste modified file on service have to stop service and then after you able to update file, Once all file updated then need to start service for same.
+13. Copy last modified by files from "FJT_PricingService" folder and paste and Replace into "fjt.pricing" folder.
+14. Copy last modified by files from "FJT_EmailService" folder and paste and Replace into "emailservice" folder.
+15. Copy last modified by files from "FJT.Reporting" folder and paste and Replace into "fjt.reporting" folder. (http://devrep.fjt.i-nnate.com/)
+
+16. For Report publish need to replace "bin", "ReportDataSet" and "Reports" folder and files.
+
+17. Start Services and Project.
+--------------------------------------------
+After all above done
+
+(This steps we have to follow for socket IO connection issue)
+1. Restart MongoDB (Optional)
+2. Restart API from IIS,
+3. Restart pricing service.
+
+Follow below steps if not done
+--------------------------------------------1. Permission on app pool to resources & upload folders
+  - IIS Apppool\fjt.ui;IIS Apppool\fjt.api;IIS_IUSRS;2. api project web.config change - remove webdav module (Reason is the WebDavModule was blocking my PUT requests). 
+  <system.webServer>
+    ...
+    <modules>
+       <remove name="WebDAVModule"/>
+    </modules>
+  </system.webServer>3.Give permission on iisnode folder on api project
+4.For API project, uploaded image gives error 401 on UI in API response and while open Image from folder it shows Access Denied. To Resolve that change Status of Application Pool.
+  - Anonymous Authentication to Enabled
+5.Above all steps need to perform on following folders
+Report project -> Reports, API Project -> constant_json, upload
+
+
+Restore Steps
+====================================================
+Step 1: Go to "C:\Program Files\MongoDB\Server\4.4\bin"
+
+Step 2:  Restore 
+---------------------------------
+To restore all data:
+mongorestore --verbose \path\dump
+
+To restore individual dump
+mongorestore --db databasename --verbose \path\dump\<dumpfolder>
+
+with different name
+mongorestore -d fjtpricing_pilot "C:\Program Files\MongoDB\Server\4.4\bin\dump\fjtpricing_dev"
+
+With Authentication
+>mongorestore --host {hostname} --port {portnumber} --username {user} --password {password} --authenticationDatabase admin --db {databasename} {path}
+ mongorestore --host localhost --port 27017 --username fjt --password triveni123 --authenticationDatabase admin --db  flexjobtracking_pilot_12152020 "D:\ProjectMaterial\fjt\Sprint 105\12-15-2020\fjtpricing_pilot"
+
+After publish on IIS in image/document path have any plus(+) sign
+---------------------------------
+Then need to give this settings on IIS,
+https://forums.iis.net/t/1226370.aspx
+
+Request Filtering icon -> Edit Feature Settings ->  Allow Double Escaping
+
+
+Enable IIS on server
+https://enterprise.arcgis.com/en/web-adaptor/latest/install/iis/enable-iis-2012-components-server.htm
+
+
+How to add SSL on server
+=====================================
+- Go to root of iis
+- Find "Server Certificates" and click on it.
+- Check any existing certificate or not
+- if not found any existing certificate, create new self-signed certificate.
+- give name of certificate, it will create new certificate with one year validity.
+
+How to apply SSL certificate 
+=====================================
+- Go to binding of each project
+- Add new bindings
+- Select "https"
+- Select IP address and give port number and save your binding.
+- This is done SSL binding with web application.
+=====================================================
+SearchEngine Direct Publish Steps
+-------
+cd FJT.EnterpriseService
+dotnet publish -r win-x64 -c Release
+
+
+cd FJT-SearchEngine
+dotnet publish -c Release
+

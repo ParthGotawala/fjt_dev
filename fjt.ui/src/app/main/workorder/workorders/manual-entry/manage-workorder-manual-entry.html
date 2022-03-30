@@ -1,0 +1,301 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed" layout-align="start start" layout="row"
+    layout-wrap cg-busy="{promise:vm.cgBusyLoading}">
+    <ms-form-wizard flex>
+        <div class="header md-accent-bg" layout="row" layout-align="space-between center">
+            <div flex layout="row">
+                <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button"
+                    ng-click="vm.goBack()">
+                    <!--<md-icon md-font-icon="icon-arrow-left" class="material-icons icon-arrow-left">
+                    </md-icon>-->
+                    <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+                    </md-icon>
+                </md-button>
+                <div class="white-fg" layout="column" layout-align="start startr" flex="100">
+                    <div class="h2" layout="row" layout-align="start center">
+                        <!--<span>Work Order Manual Entry</span>-->
+                        <pagetitle is-list="false" is-display-menu-name="true"
+                            prefix-content="vm.woTransID ? 'Update' : 'Add'" suffix-content=""></pagetitle>
+                        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+                    </div>
+                    <div>
+                        <breadcrumbs></breadcrumbs>
+                    </div>
+                </div>
+            </div>
+            <div layout="row" layout-align="start center">
+                <span class="margin-left-5 cm-bom-t-title text-right">WO Status:</span>
+                <span class="margin-left-5 cm-bom-t-title text-right label-box" ng-class="vm.woStatusClassName">
+                    {{vm.woStatusText}}
+                </span>
+                <md-button class="md-raised md-primary" ng-click="vm.saveWorkorderTransaction()" aria-label="Submit"
+                    ng-disabled="!vm.IsValidQty() || vm.woManualEntryForm.$invalid || !vm.checkFormDirty(vm.woManualEntryForm,vm.checkDirtyObject) || vm.isWoInSpecificStatusNotAllowedToChange">
+                    Save
+                </md-button>
+            </div>
+        </div>
+        <!-- / CONTENT HEADER -->
+        <!-- CONTENT CARD -->
+        <div class="content-card padding-top-side pos-rel full-height">
+            <div layout="row" layout-wrap class="cm-custom-label-common">
+                <!-- FORM WIZARD -->
+                <div flex>
+                    <md-tabs class="fielddetail manage-workorder-tabing" md-dynamic-height id="manage-workorder-tabing"
+                        md-selected="msWizard.selectedIndex">
+                        <md-tab md-on-select="vm.onTabChanges(msWizard)">
+                            <md-tab-label>
+                                <span class="ms-form-wizard-step-label">
+                                    <span class="ms-form-wizard-step-number md-accent-bg"
+                                        ng-if="vm.woManualEntryForm.$invalid">1</span>
+                                    <span class="ms-form-wizard-step-number md-accent-bg"
+                                        ng-if="vm.woManualEntryForm.$valid">
+                                        <i class="icon-check s16"></i>
+                                    </span>
+                                    <span class="ms-form-wizard-step-text">Details</span>
+                                </span>
+                            </md-tab-label>
+                            <md-tab-body>
+                                <form name="vm.woManualEntryForm" class="md-inline-form padding-10-imp cm-fullwidth"
+                                    ms-form-wizard-form novalidate>
+                                    <div layout="row">
+                                        <div class="package-detail" flex="100">
+                                            <div flex="100" layout="row" layout-wrap class="cm-section-main">
+                                                <!--<div flex="100" layout="row" class="cm-section-header">
+                                                    <h2>Detail</h2>
+                                                </div>-->
+                                                <div class="cm-section-inner overflow-auto-rs" flex="100">
+                                                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                                        <tbody>
+                                                            <tr>
+                                                                <th></th>
+                                                                <td>
+                                                                    <md-radio-group flex="100" layout="row"
+                                                                        layout-align="start start" name="isSetup"
+                                                                        ng-model="vm.workorder_trans.isSetup"
+                                                                        ng-change="vm.onChange()" class="margin-0"
+                                                                                    ng-disabled="vm.isWoInSpecificStatusNotAllowedToChange">
+                                                                        <md-radio-button
+                                                                            ng-repeat="item in vm.RadioGroup.Activity.array"
+                                                                            ng-value="{{item.Value}}">{{item.Key}}
+                                                                        </md-radio-button>
+                                                                    </md-radio-group>
+                                                                </td>
+                                                                <th>
+                                                                    <p class="label-container"><a
+                                                                            class="cm-text-decoration"
+                                                                            ng-click="vm.employeelist();"
+                                                                            tabindex="-1">Personnel</a><span>&nbsp;*</span>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container
+                                                                        class="autocompletecustom margin-0" flex="100"
+                                                                        ng-if="vm.autoCompleteEmployee && vm.EmployeeList.length > 0"
+                                                                        custom-auto-focus="true">
+                                                                        <custom-auto-complete datalist="vm.EmployeeList"
+                                                                            column-name="vm.autoCompleteEmployee.columnName"
+                                                                            key-column-name="vm.autoCompleteEmployee.keyColumnName"
+                                                                            key-column-id="vm.autoCompleteEmployee.keyColumnId"
+                                                                            input-name="vm.autoCompleteEmployee.inputName"
+                                                                            placeholder-name="vm.autoCompleteEmployee.placeholderName"
+                                                                            is-required="vm.autoCompleteEmployee.isRequired"
+                                                                            is-addnew="vm.autoCompleteEmployee.isAddnew"
+                                                                            is-disabled="vm.workorder_trans.woTransID || vm.isWoInSpecificStatusNotAllowedToChange"
+                                                                            callback-fn="vm.autoCompleteEmployee.callbackFn"
+                                                                            on-select-callback-fn="vm.autoCompleteEmployee.onSelectCallbackFn">
+                                                                        </custom-auto-complete>
+                                                                    </md-input-container>
+                                                                </td>
+                                                                <th>
+                                                                    <p class="label-container">Work Order Operation<span
+                                                                            ng-if="vm.autoCompleteEmployee.keyColumnId">&nbsp;*</span>
+                                                                    </p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container
+                                                                        class="autocompletecustom margin-bottom-0 cm-rs-width-175"
+                                                                        flex="100"
+                                                                        ng-if="vm.autoCompleteWorkorderOperation">
+                                                                        <custom-auto-complete class="min-width-initial"
+                                                                            datalist="vm.WorkorderOperationList"
+                                                                            column-name="vm.autoCompleteWorkorderOperation.columnName"
+                                                                            key-column-name="vm.autoCompleteWorkorderOperation.keyColumnName"
+                                                                            key-column-id="vm.autoCompleteWorkorderOperation.keyColumnId"
+                                                                            input-name="vm.autoCompleteWorkorderOperation.inputName"
+                                                                            placeholder-name="vm.autoCompleteWorkorderOperation.placeholderName"
+                                                                            is-required="vm.autoCompleteWorkorderOperation.isRequired"
+                                                                            is-addnew="vm.autoCompleteWorkorderOperation.isAddnew"
+                                                                            is-disabled="vm.workorder_trans.woTransID || !vm.autoCompleteEmployee.keyColumnId || vm.isWoInSpecificStatusNotAllowedToChange"
+                                                                            callback-fn="vm.autoCompleteWorkorderOperation.callbackFn"
+                                                                            on-select-callback-fn="vm.autoCompleteWorkorderOperation.onSelectCallbackFn">
+                                                                        </custom-auto-complete>
+                                                                    </md-input-container>
+                                                                </td>
+                                                                <th>
+                                                                    <p class="label-container"><a
+                                                                            class="cm-text-decoration"
+                                                                            ng-click="vm.goToEquipment()"
+                                                                            tabindex="-1">Equipment</a></p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container
+                                                                        class="autocompletecustom margin-bottom-0"
+                                                                        flex="100"
+                                                                        ng-if="vm.autoCompleteEquipment && vm.EquipmentList.length > 0">
+                                                                        <custom-auto-complete
+                                                                            datalist="vm.EquipmentList"
+                                                                            column-name="vm.autoCompleteEquipment.columnName"
+                                                                            key-column-name="vm.autoCompleteEquipment.keyColumnName"
+                                                                            key-column-id="vm.autoCompleteEquipment.keyColumnId"
+                                                                            input-name="vm.autoCompleteEquipment.inputName"
+                                                                            placeholder-name="vm.autoCompleteEquipment.placeholderName"
+                                                                            is-required="vm.autoCompleteEquipment.isRequired"
+                                                                            is-addnew="vm.autoCompleteEquipment.isAddnew"
+                                                                            callback-fn="vm.autoCompleteEquipment.callbackFn"
+                                                                                              is-disabled="vm.isWoInSpecificStatusNotAllowedToChange">
+                                                                        </custom-auto-complete>
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>
+                                                                    <p class="label-container">Start Date
+                                                                        Time<span>&nbsp;*</span></p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container
+                                                                        class="margin-0 padding-right-0-imp" flex="100">
+                                                                        <input type="text" class="float-left width-100p"
+                                                                            max-value="vm.workorder_trans.checkoutTime > vm.todayDate ? vm.workorder_trans.checkoutTime : vm.todayDate"
+                                                                            max-value-is-today-date="vm.workorder_trans.checkoutTime > vm.todayDate ? false : true"
+                                                                            allow-past-date="true"
+                                                                            allow-future-date="false"
+                                                                            datetime-picker="{{$root.dateTimeDisplayFormat}}"
+                                                                            ng-change="vm.onChangeCheckinTime(vm.workorder_trans.checkoutTime)"
+                                                                            ng-model="vm.workorder_trans.checkinTime"
+                                                                            datepicker-options="vm.checkInDateOptions"
+                                                                            ui-mask="{{$root.uimaskFormat.datetime.mask}}"
+                                                                            ui-mask-placeholder="{{$root.uimaskFormat.datetime.placeholder}}"
+                                                                            model-view-value="true" name="CheckinTime"
+                                                                            is-open="vm.checkInDateOptions.checkinTimeOpenFlag"
+                                                                            required
+                                                                               ng-disabled="vm.isWoInSpecificStatusNotAllowedToChange"
+                                                                               />
+                                                                        <md-icon
+                                                                            md-font-icon="icon-calendar calender-icon"
+                                                                            ng-click="vm.checkInDateOptions.checkinTimeOpenFlag = true">
+                                                                        </md-icon>
+                                                                        <div class="error-msg"
+                                                                            ng-messages="vm.woManualEntryForm.CheckinTime.$error"
+                                                                            role="alert">
+                                                                            <div ng-message="maxvalue">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_CHECKIN_DATETIME}}</span>
+                                                                            </div>
+                                                                            <div ng-message="required">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                            </div>
+                                                                            <div ng-message="datetime">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </md-input-container>
+                                                                </td>
+                                                                <th>
+                                                                    <p class="label-container">In-Process Setup Time</p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container md-no-float class="margin-0"
+                                                                        flex="100">
+                                                                        <input type="text" name="checkoutSetupTime"
+                                                                            ng-model="vm.workorder_trans.checkoutSetupTime"
+                                                                            class="text-right" placeholder="HH:mm"
+                                                                            ng-pattern="vm.OperationTimePattern"
+                                                                            mask="{{vm.OperationTimeMask}}"
+                                                                            validate="false"
+                                                                               ng-disabled="vm.isWoInSpecificStatusNotAllowedToChange">
+                                                                        <div ng-messages="vm.woManualEntryForm.checkoutSetupTime.$error"
+                                                                            role="alert">
+                                                                            <div ng-message="pattern">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </md-input-container>
+                                                                </td>
+                                                                <th>
+                                                                    <p class="label-container">Stop Date
+                                                                        Time<span>&nbsp;*</span></p>
+                                                                </th>
+                                                                <td>
+                                                                    <md-input-container
+                                                                        class="margin-0 padding-right-0-imp cm-rs-width-175"
+                                                                        flex="100">
+                                                                        <input type="text" class="float-left"
+                                                                            min-value="vm.workorder_trans.checkinTime < vm.todayDate ? vm.workorder_trans.checkinTime : vm.todayDate"
+                                                                            min-value-is-today-date="vm.workorder_trans.checkinTime < vm.todayDate ? false : true"
+                                                                            max-value="vm.todayDate"
+                                                                            max-value-is-today-date="true"
+                                                                            allow-past-date="true"
+                                                                            allow-future-date="false"
+                                                                            name="CheckoutTime"
+                                                                            datetime-picker="{{$root.dateTimeDisplayFormat}}"
+                                                                            ng-model="vm.workorder_trans.checkoutTime"
+                                                                            datepicker-options="vm.checkOutDateOptions"
+                                                                            is-open="vm.checkOutDateOptions.checkoutTimeOpenFlag"
+                                                                            ui-mask="{{$root.uimaskFormat.datetime.mask}}"
+                                                                            ui-mask-placeholder="{{$root.uimaskFormat.datetime.placeholder}}"
+                                                                            model-view-value="true" required
+                                                                               ng-disabled="vm.isWoInSpecificStatusNotAllowedToChange"/>
+                                                                        <md-icon
+                                                                            md-font-icon="icon-calendar calender-icon"
+                                                                            ng-click="vm.checkOutDateOptions.checkoutTimeOpenFlag = true">
+                                                                        </md-icon>
+                                                                        <div class="error-msg"
+                                                                            ng-messages="vm.woManualEntryForm.CheckoutTime.$error"
+                                                                            role="alert">
+                                                                            <div ng-message="required">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                            </div>
+                                                                            <div ng-message="minvalue">
+                                                                                <!--<span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_CHECKOUT_DATETIME}}</span>-->
+                                                                            </div>
+                                                                            <div ng-message="maxvalue">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_CHECKOUT_DATETIME}}</span>
+                                                                            </div>
+                                                                            <div ng-message="datetime">
+                                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </md-input-container>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div layout="row" class="margin-top-10">
+                                        <md-input-container class="md-block margin-bottom-0" flex="100">
+                                            <div layout="column" flex="100" flex-xs="100">
+                                                <span
+                                                    ng-style="{'color':vm.woManualEntryForm.remark.$error.taMaxText?'red':''}">Comment</span>
+                                                <span class="margin-bottom-10"
+                                                    style="color:red; font-size:12px">{{vm.getMaxLengthValidation(vm.taToolbar.MAX_LENGTH,vm.woManualEntryForm.remark.$viewValue.length)}}</span>
+                                            </div>
+                                            <text-angular ta-toolbar="vm.taToolbar.INLINE" cg-busy-loading="vm.cgBusyLoading"
+                                                ng-model="vm.workorder_trans.remark"
+                                                ng-class="{'text-angular-custom-border':vm.woManualEntryForm.remark.$error.taMaxText}"
+                                                ta-max-text="{{vm.taToolbar.MAX_LENGTH}}" name="remark"
+                                                          ta-disabled="vm.isWoInSpecificStatusNotAllowedToChange"></text-angular>
+                                        </md-input-container>
+                                    </div>
+                                </form>
+                            </md-tab-body>
+                        </md-tab>
+                    </md-tabs>
+                </div>
+                <!-- / FORM WIZARD -->
+            </div>
+        </div>
+        <!-- / CONTENT CARD -->
+    </ms-form-wizard>
+</div>

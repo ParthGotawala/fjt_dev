@@ -1,0 +1,1067 @@
+
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common cm-manage-component" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <ms-form-wizard flex="100" layout="row">
+    <div class="header part-header md-accent-bg z-index-11 cm-part-master-manage-rs" layout="row" flex="100" layout-align="start center"
+         ng-class="{'part-master-header-height-75px': !(vm.displayComponentDetail.category === vm.PartCategory.SubAssembly || vm.displayComponentDetail.isActivityStart),'part-master-header-height-100px': (vm.displayComponentDetail.category === vm.PartCategory.SubAssembly || vm.displayComponentDetail.isActivityStart)}">
+      <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" aria-label="Go to Part List" ng-click="vm.goBack(msWizard)">
+        <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+        </md-icon>
+      </md-button>
+      <div class="layout-wrap-rs-1024" layout="row" layout-align="start center" flex="100">
+        <div flex="30" layout="column" class="white-fg" flex-md="100" flex-sm="100">
+          <div flex="100" flex-lg="15" flex-gt-md="15" flex-md="15" layout-align="start-center" layout="row">
+            <div layput="row" flex="70">
+              <div class="h2" layout="row" flex="100" layout-align="start center">
+                <pagetitle is-list="false" is-display-menu-name="true"
+                           prefix-content="(vm.headerActionTitle()) + vm.mfgTypeName" prefix-page-title="vm.displayComponentDetail.mfgPN"></pagetitle>
+                <label class="part-detail-info-header cm-part-pid-code-header relative margin-left-5 mb-0" ng-if="vm.displayComponentDetail.PIDCode" layout-align="start center">
+                  <common-pid-code-label-link component-id="vm.displayComponentDetail.id"
+                                              label="vm.LabelConstant.MFG.PID"
+                                              value="vm.displayComponentDetail.PIDCode"
+                                              is-mfg="true"
+                                              mfg-label="(vm.mfgType | uppercase) == vm.mfgTypeDist ? vm.LabelConstant.MFG.SupplierPN : vm.LabelConstant.MFG.MFGPN"
+                                              mfg-value="vm.displayComponentDetail.mfgPN"
+                                              rohs-icon="vm.displayComponentDetail.rohsIcon"
+                                              rohs-status="vm.displayComponentDetail.rohsName"
+                                              has-sub-assembly="vm.displayComponentDetail.vuSubAssemblyCount[0].subAssemblyCount"
+                                              is-copy="true"
+                                              is-copy-ahead-label="true"
+                                              redirection-disable="true"
+                                              is-search-findchip="false"
+                                              is-search-digi-key="false">
+                  </common-pid-code-label-link>
+                </label>
+              </div>
+              <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0 search-part widget-dashboard-search-area part-header-search-area"
+                                  md-no-float flex="100" ng-if="vm.autoCompleteSearchPart">
+                <custom-auto-complete-search on-search-fn="vm.autoCompleteSearchPart.onSearchFn"
+                                             column-name="vm.autoCompleteSearchPart.columnName"
+                                             parent-column-name="vm.autoCompleteSearchPart.parentColumnName"
+                                             key-column-name="vm.autoCompleteSearchPart.keyColumnName"
+                                             input-name="vm.autoCompleteSearchPart.inputName"
+                                             placeholder-name="vm.autoCompleteSearchPart.placeholderName"
+                                             key-column-id="vm.autoCompleteSearchPart.keyColumnId"
+                                             is-required="vm.autoCompleteSearchPart.isRequired"
+                                             is-addnew="vm.autoCompleteSearchPart.isAddnew"
+                                             callback-fn="vm.autoCompleteSearchPart.callbackFn"
+                                             has-sub-assembly="vm.displayComponentDetail.vuSubAssemblyCount[0].subAssemblyCount"
+                                             parent-id=""
+                                             add-data="vm.autoCompleteSearchPart.addData"
+                                             on-select-callback-fn="vm.autoCompleteSearchPart.onSelectCallbackFn"
+                                             custom-auto-focus="{{true}}"
+                                             is-disabled="false">
+                </custom-auto-complete-search>
+              </md-input-container>
+            </div>
+            <div class="padding-horizontal-10 pt-25" flex="30" ng-if="vm.displayComponentDetail.id">
+              <md-button class="md-icon-button md-primary md-raised md-mini margin-left-0 margin-right-0 btn-datasheet-link mb-0 mt-25" ng-click="vm.addPart(false)">
+                <md-icon md-font-icon="t-icons-add-mfr-pn add-icon" ng-if="((vm.mfgType | uppercase) !== vm.mfgTypeDist)" class="material-icons"></md-icon>
+                <md-icon md-font-icon="t-icons-supplier-part add-icon" ng-if="((vm.mfgType | uppercase) === vm.mfgTypeDist)" class="material-icons"></md-icon>
+                <md-tooltip>Add {{vm.mfgTypeName}} Part In New Tab</md-tooltip>
+              </md-button>
+              <md-button class="md-icon-button md-primary md-raised md-mini margin-left-0 margin-right-0 btn-datasheet-link mb-0 mt-25" ng-click="vm.addPart(true)">
+                <md-icon md-font-icon="t-icons-add-mfr-pn add-icon same-tab-icon" ng-if="((vm.mfgType | uppercase) !== vm.mfgTypeDist)" class="material-icons"></md-icon>
+                <md-icon md-font-icon="t-icons-supplier-part add-icon same-tab-icon" ng-if="((vm.mfgType | uppercase) === vm.mfgTypeDist)" class="material-icons"></md-icon>
+                <md-tooltip>Add {{vm.mfgTypeName}} Part</md-tooltip>
+              </md-button>
+            </div>
+          </div>
+          <div class="ph-10 cm-bom-img shortcuts-container" flex="100" layout="row" ng-if="vm.cid && vm.displayComponentDetail.category === vm.PartCategory.SubAssembly">
+            <bom-part-to-watch part-id="vm.cid" show-lable="true"></bom-part-to-watch>
+          </div>
+        </div>
+        <!--flex-lg="95" flex-gt-md="95" flex-md="95"-->
+        <div layout="column" flex="70" class="pl-15" flex-md="100" flex-sm="100">
+          <div flex="75" flex-lg="85" flex-gt-md="85" flex-md="85" layout="row" layout-align="start center" class="cm-mfg-header">
+            <div layout="row" class="separator" layout-align="start center">
+              <div layout="column">
+                <div layout="row" class="manage-part-header-icon" layout-align="start-center">
+                  <div layout="row" flex="nogrow" class="separator header-content cm-mfg-header" layout-wrap layout-align="start start">
+                    <div flex layout="row" class="nowrap cm-part-header-detail separator ml-5">
+                      <label class="part-detail-info-header relative margin-right-5 mb-0"
+                             layout-align="start center">
+                        <a class="cm-text-decoration" ng-click="vm.editManufacturer()">
+                          {{vm.displayComponentDetail.mfgCodemst.mfgCode}}
+                        </a>
+                        <md-tooltip>{{(vm.mfgType | uppercase) ==vm.mfgTypeDist?vm.LabelConstant.MFG.SupplierCode : vm.LabelConstant.MFG.MFGCode}}: ({{vm.displayComponentDetail.mfgCodemst.mfgCode}}) {{vm.displayComponentDetail.mfgCodemst.mfgName}}</md-tooltip>
+                      </label>
+                    </div>
+                  </div>
+                  <span class="color-white" ng-if="(vm.cid)">&nbsp;|</span>
+                  <label class="part-detail-info-header relative margin-right-5 mb-0"
+                         ng-if="vm.displayComponentDetail.mfgPN"
+                         layout-align="start center">
+                    <common-pid-code-label-link component-id="vm.displayComponentDetail.id"
+                                                label="(vm.mfgType | uppercase) == vm.mfgTypeDist ? vm.LabelConstant.MFG.SupplierPN : vm.LabelConstant.MFG.MFGPN"
+                                                value="vm.displayComponentDetail.mfgPN"
+                                                is-mfg="false"
+                                                mfg-label="(vm.mfgType | uppercase) == vm.mfgTypeDist ? vm.LabelConstant.MFG.SupplierPN : vm.LabelConstant.MFG.MFGPN"
+                                                mfg-value="vm.displayComponentDetail.mfgPN"
+                                                rohs-icon="vm.displayComponentDetail.rohsIcon"
+                                                rohs-status="vm.displayComponentDetail.rohsName"
+                                                is-copy="true"
+                                                has-sub-assembly="vm.displayComponentDetail.vuSubAssemblyCount[0].subAssemblyCount"
+                                                is-copy-ahead-label="false"
+                                                is-search-findchip="false"
+                                                is-search-digi-key="false">
+                    </common-pid-code-label-link>
+                  </label>
+                  <!--Api-images-->
+                  <common-part-search-external-api ng-if="vm.displayComponentDetail.id > 0 && !vm.displayComponentDetail.isCustom && vm.displayComponentDetail.partType!=vm.PartType.Other"
+                                                   mfgpn="vm.displayComponentDetail.mfgPN">
+                  </common-part-search-external-api>
+                </div>
+              </div>
+            </div>
+            <div layout="row" flex="nogrow" class="separator header-content cm-mfg-header pr-10" layout-wrap layout-align="start start"
+                 ng-if="vm.displayComponentDetail.bomLock && vm.displayComponentDetail.id && vm.displayComponentDetail.category === vm.PartCategory.SubAssembly">
+              <div flex layout="row" class="nowrap cm-part-header-detail separator ml-5">
+                <span class="margin-0" layout="row" layout-align="start-center">
+                  <label ng-class="{'underline':vm.selectedTabIndex!=0, 'cursor-pointer':vm.selectedTabIndex!=0}" ng-click="vm.gotoPartNumber()">
+                    {{vm.LabelConstant.BOM.BOM_LOCK_STATUS}}
+                    <md-tooltip ng-if="vm.selectedTabIndex!=0">{{vm.LabelConstant.BOM.BOM_STATUS}}</md-tooltip>
+                  </label>
+                </span>
+              </div>
+            </div>
+            <div layout="row" flex="nogrow" class="separator header-content cm-mfg-header pr-10" layout-wrap layout-align="start start">
+              <div flex layout="row" class="nowrap cm-part-header-detail separator ml-5" ng-if="vm.displayComponentDetail.category">
+                <span class="width-30" ng-if="vm.displayComponentDetail.partStatus === vm.inActivePartStatus">
+                  <img ng-src="{{vm.inActiveImagePath}}">
+                  <md-tooltip>This part is {{vm.displayComponentDetail.selectedPartStatus}}</md-tooltip>
+                </span>
+                <span class="margin-0" layout="row" layout-align="start-center">
+                  Part Type:&nbsp;
+                  <label>
+                    {{vm.displayComponentDetail.categoryName}}
+                  </label>
+                </span>
+              </div>
+            </div>
+            <div layout="row" flex="70" class="separator header-content cm-mfg-header" layout-wrap layout-align="start start">
+              <div flex layout="row" class="cm-part-header-detail separator ml-10" layout-align="start center" layout-wrap>
+                <label ng-if="vm.displayComponentDetail.partPackage">
+                  {{vm.displayComponentDetail.partPackage}}
+                  <md-tooltip>External Package/Case(Shape) Type: {{vm.displayComponentDetail.partPackage}}</md-tooltip>
+                </label>
+                <label ng-if="vm.displayComponentDetail.rfq_packagecasetypemst.name">
+                  {{vm.displayComponentDetail.rfq_packagecasetypemst.name}}
+                  <md-tooltip>Package/Case(Shape) Type: {{vm.displayComponentDetail.rfq_packagecasetypemst.name}}</md-tooltip>
+                </label>
+                <label ng-if="vm.displayComponentDetail.component_packagingmst.name">
+                  {{vm.displayComponentDetail.component_packagingmst.name}}
+                  <md-tooltip>Packaging: {{vm.displayComponentDetail.component_packagingmst.name}}</md-tooltip>
+                </label>
+                <label ng-if="vm.displayComponentDetail.deviceMarking">
+                  {{vm.displayComponentDetail.deviceMarking}}
+                  <md-tooltip>Device Marking: {{vm.displayComponentDetail.deviceMarking}}</md-tooltip>
+                </label>
+              </div>
+              <div layout="row" class="cm-part-header-detail separator pl-10 mr-10" layout-align="end center">
+                <span class="label-box ng-binding ng-scope label-danger ml-10 restrict-part-status"
+                      ng-if="vm.displayComponentDetail.restrictUsePermanently">
+                  Restricted Use Including Packaging Alias Permanently
+                </span>
+                <span class="label-box ng-binding ng-scope label-danger ml-10 restrict-part-status"
+                      ng-if="vm.displayComponentDetail.restrictUSEwithpermission">
+                  Restricted Use Including Packaging Alias With Permission
+                </span>
+                <span class="label-box ng-binding ng-scope label-danger ml-10 restrict-part-status"
+                      ng-if="vm.displayComponentDetail.restrictPackagingUsePermanently">
+                  Restricted Use Excluding Packaging Alias Permanently
+                </span>
+                <span class="label-box ng-binding ng-scope label-danger ml-10 restrict-part-status"
+                      ng-if="vm.displayComponentDetail.restrictPackagingUseWithpermission">
+                  Restricted Use Excluding Packaging Alias With Permission
+                </span>
+              </div>
+            </div>
+          </div>
+          <div flex="70" flex-lg="80" flex-gt-md="80" flex-md="80" layout="row" layout-align="start center" class="cm-mfg-header">
+            <div flex="20" layout="row" layout-align="start center">
+              <span ng-if="vm.isExportControlled" class="width-30">
+                <img ng-src="{{vm.exportControlledIcon}}">
+                <md-tooltip>This part is Export Controlled</md-tooltip>
+              </span>
+              <span ng-if="vm.displayComponentDetail.isTemperatureSensitive" class="width-50 mr-5">
+                <img ng-src="{{vm.tmaxIcon}}">
+                <md-tooltip ng-if="vm.temperatureSensetiveTooltip">{{vm.temperatureSensetiveTooltip}}</md-tooltip>
+              </span>
+              <span ng-if="!vm.displayComponentDetail.isTemperatureSensitive && vm.displayComponentDetail.rfqPartType.isTemperatureSensitive" class="width-50 mr-5">
+                <img ng-src="{{vm.tmaxYellowIcon}}">
+                <md-tooltip ng-if="vm.temperatureSensetiveTooltip">{{vm.temperatureSensetiveTooltip}}</md-tooltip>
+              </span>
+              <span ng-repeat="item in vm.PartOperationalAttributeDetails track by $index" class="mr-5">
+                <img class="h-20 w-20" ng-src="{{item.icon}}">
+                <md-tooltip ng-if="item.description">{{item.description}}</md-tooltip>
+              </span>
+            </div>
+            <div flex="35" class="cm-part-standard-label separator">
+              <span class="margin-0" layout="row" layout-align="start-center" ng-if="vm.selectedStandard.length > 0">
+                Standards:&nbsp;
+                <label ng-repeat="standard in vm.selectedStandard">
+                  {{standard.standard + (standard.class?('  '+ standard.class):'')}}
+                  <md-tooltip direction="top">{{standard.standard + (standard.class?('  '+ standard.class):'')}}</md-tooltip>
+                </label>
+              </span>
+            </div>
+            <div flex-gt-lg="45" flex-lg flex-md flex-sm layout="column" class="ml-5">
+              <div flex="100" layout="row" class="cm-square-icon-btn cm-btn-group" layout-align="end center">
+                <md-button class="md-icon-button md-primary md-raised md-mini" ng-if="vm.cid"
+                           ng-click="vm.goToUMIDDetail()">
+                  <md-icon md-font-icon="t-icons-umid-management add-icon" class="material-icons"></md-icon>
+                  <md-tooltip>Add {{vm.LabelConstant.UMIDManagement.UMID}}</md-tooltip>
+                </md-button>
+                <md-button class="md-icon-button md-primary md-raised md-mini" ng-if="vm.cid"
+                           ng-click="vm.addSupplierQuote(vm.displayComponentDetail.id)">
+                  <md-icon md-font-icon="t-icons-supplier-quote add-icon" class="material-icons"></md-icon>
+                  <md-tooltip>Add {{vm.LabelConstant.SupplierQuote.SupplierQuote}}</md-tooltip>
+                </md-button>
+                <md-button class="md-primary md-raised md-ink-ripple" ng-if="vm.cid && vm.displayComponentDetail.category === vm.PartCategory.SubAssembly"
+                           ng-disabled="(vm.pageTabRights[0].DetailTab.isReadOnly)" ng-click="vm.manageSerialNumberConfiguration($event)">
+                  Configure SR#
+                </md-button>
+                <md-button class="md-primary md-raised md-ink-ripple" ng-if="vm.cid && vm.displayComponentDetail.category === vm.PartCategory.SubAssembly" ng-click="vm.AssyAtGlance()">
+                  Assy at Glance
+                </md-button>
+                <md-button class="md-primary md-raised md-ink-ripple"
+                           ng-if="vm.cid" ng-disabled="(vm.pageTabRights[0].DetailTab.isReadOnly)"
+                           ng-click="vm.createAssemblyRevision($event)">
+                  Create Duplicate Part
+                </md-button>
+                <md-button class="md-raised md-primary"
+                           ng-class="{'cm-feture-btn-color':(!vm.componentForm.$dirty && vm.IsDetailTab && vm.displayComponentDetail.createdBy === 'Auto'),
+                           'md-formdirty': vm.componentForm.$dirty || vm.componentstandardDetails.$dirty || vm.wizardOtherDetail.$dirty || vm.componentAssemblySalesPriceMatrixForm.$dirty}"
+                           ng-click="vm.CheckStepAndAction(msWizard,true,$event);" id="saveBtn"
+                           ng-disabled="vm.isSaveDisabled(msWizard) || ((vm.IsDetailTab && vm.pageTabRights[0].DetailTab.isReadOnly) || (vm.IsStandardsTab && vm.pageTabRights[0].StandardTab.isReadOnly)
+                           || (vm.IsOtherDetailTab && vm.pageTabRights[0].OtherDetailTab.isReadOnly) || (vm.AssemblySalesPriceMatrixTab && vm.pageTabRights[0].AssemblySalesPriceMatrixTab.isReadOnly))"
+                           ng-show="vm.IsDetailTab || vm.IsStandardsTab || vm.IsOtherDetailTab || vm.AssemblySalesPriceMatrixTab">
+                  Save
+                </md-button>
+                <md-menu-bar ng-if="vm.cid" class="pv-0" layout-align="start-center" layout="row">
+                  <md-menu md-position-mode="left bottom">
+                    <md-button class="md-primary  md-icon-button pr-20" ng-click="vm.openMenu($mdMenu,$event)"
+                               aria-label="User settings" md-prevent-menu-close="md-prevent-menu-close">
+                      <md-icon md-font-icon="icon-dots-vertical" class="icon s24"></md-icon>
+                    </md-button>
+                    <md-menu-content width="3">
+                      <md-menu-item>
+                        <md-button class="cm-feture-btn-color" ng-click="vm.deleteRecord($mdMenu,$event);"
+                                   ng-disabled="!vm.cid || (!vm.enableDeleteOperation)"
+                                   ng-class="{'item-disabled': !vm.cid || (!vm.enableDeleteOperation)}" title="{{vm.LabelConstant.FeatureEnableText}}">
+                          <md-icon md-font-icon="icon-trash" class="icon s24"></md-icon>
+                          Delete Part
+                          <md-tooltip>{{vm.LabelConstant.FeatureEnableText}}</md-tooltip>
+                        </md-button>
+                      </md-menu-item>
+                    </md-menu-content>
+                  </md-menu>
+                </md-menu-bar>
+              </div>
+              <!--|| vm.IsStandardsTab || vm.IsOtherDetailTab-->
+              <span class="font-weight-600 line-height-10 pr-8" layout="row" layout-align="end-center"
+                    ng-show="vm.IsDetailTab"
+                    ng-if="!vm.enableEditAutoEntry && vm.displayComponentDetail.createdBy === 'Auto'">
+                <span class="font-size-10">
+                  Allow feature to enable save button (Auto Generated Part)
+                </span>
+              </span>
+            </div>
+          </div>
+          <div flex="70" flex-lg="80" flex-gt-md="80" flex-md="80" layout="row" layout-align="start center" class="cm-mfg-header"
+               ng-if="vm.displayComponentDetail.bomLock && vm.displayComponentDetail.id && vm.displayComponentDetail.category === vm.PartCategory.SubAssembly">
+            <div layout="row" class="separator" layout-align="start center" ng-if="vm.displayComponentDetail.bomLock">
+              <a class="cm-text-decoration" ng-click="vm.goToElementManage(dataElement.entityID,dataElement.dataElementID);">
+                {{dataElement.dataElementName}}
+              </a>
+            </div>
+          </div>
+          <div flex="70" flex-lg="80" flex-gt-md="80" flex-md="80" layout="row" layout-align="start center" class="cm-mfg-header"
+               ng-if="vm.bomActivityDetails.isActivityStart && vm.displayComponentDetail.id && vm.displayComponentDetail.category === vm.PartCategory.SubAssembly">
+            <span class="text-right pr-5" ng-if="vm.bomActivityDetails.isActivityStart&&(vm.loginUser.userid === vm.bomActivityDetails.activityStartBy || vm.loginUser.isUserSuperAdmin) && vm.displayComponentDetail.id && vm.displayComponentDetail.category === vm.PartCategory.SubAssembly">
+              BOM Activity Started At
+              <span>
+                <b>{{vm.bomActivityDetails.activityStartAtDisplayFormat}}</b>
+              </span>
+              By <b>{{vm.bomActivityDetails.activityStartedByUserName}}</b>.
+              <label flex="100" layout-align="start center" layout="row"
+                     class="label-box label-warning">
+                {{vm.bomActivityDetails.currentTimerDiff}}
+              </label>
+            </span>
+            <md-button class="md-raised md-primary md-ink-ripple margin-vertical-0 margin-left-0 margin-top-m2"
+                       ng-click="vm.stopBOMActivity()"
+                       ng-if="vm.bomActivityDetails.isActivityStart&&(vm.loginUser.userid === vm.bomActivityDetails.activityStartBy || vm.loginUser.isUserSuperAdmin)">
+              Stop Activity
+            </md-button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="content-card cm-part-master-manage-rs-top" layout="column" flex="100"
+         ng-class="{'part-master-padding-top-side-75px': !(vm.displayComponentDetail.category === vm.PartCategory.SubAssembly || vm.displayComponentDetail.isActivityStart),'part-master-padding-top-side-100px': (vm.displayComponentDetail.category === vm.PartCategory.SubAssembly || vm.displayComponentDetail.isActivityStart)}">
+      <div layout="row" flex="100">
+        <div flex ng-if="vm.displayComponentDetail || !vm.cid">
+          <md-tabs validate-step="true" is-valid="vm.isStepValid" class="fielddetail manage-customer-tabing padding-0 cm-part-tab cm-clean-tab-view cm-manage-com-doc"
+                   md-dynamic-height md-selected="vm.selectedTabIndex" id="manage-customer-tabing">
+            <!--Part Detail-->
+            <md-tab md-on-select="vm.onTabChanges(vm.componentDetailTabName, msWizard)" ng-disabled="!vm.pageTabRights[0].DetailTab.hasPermission">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg">0</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].DetailTab.hasPermission)}" class="ms-form-wizard-step-text">
+                    DETAILS
+                    <md-tooltip>Details</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <!--<form name="vm.componentForm" class="md-inline-form" ms-form-wizard-form novalidate>-->
+                <div layout="column" layout-gt-xs="100" ng-if="vm.IsDetailTab === true">
+                  <component-detail id="vm.cid" component="true" is-edit-component="vm.isEditComponent"></component-detail>
+                  <!--<form>-->
+                </div>
+                <!--<form>-->
+              </md-tab-body>
+            </md-tab>
+
+            <!--Purchase Order List-->
+            <md-tab ng-disabled="!vm.cid || !vm.pageTabRights[0].POListTab.hasPermission" md-on-select="vm.onTabChanges(vm.POListTabName,msWizard)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">1</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].POListTab.hasPermission)}" class="ms-form-wizard-step-text">
+                    PO LIST
+                    <md-tooltip>Purchase Order List</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div class="padding-10-imp" flex="100" ng-if="vm.IsPOListTab === true">
+                  <purchase-order-part-detail-grid part-id-filter="vm.cid" is-no-data-found="vm.isNoDataFound"></purchase-order-part-detail-grid>
+                </div>
+              </md-tab-body>
+            </md-tab>
+
+            <!--Standards-->
+            <md-tab ng-disabled="!vm.cid || !vm.pageTabRights[0].StandardTab.hasPermission" md-on-select="vm.onTabChanges(vm.standardTabName,msWizard)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">2</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].StandardTab.hasPermission)}" class="ms-form-wizard-step-text">
+                    STD
+                    <md-tooltip>Standards</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <form name="vm.componentstandardDetails" class="md-inline-form p-10-imp" ms-form-wizard-form novalidate read-only-form isreadonly="{{vm.pageTabRights[0].StandardTab.isReadOnly}}">
+                  <div class="content" ng-if="vm.IsStandardsTab === true">
+                    <component-standard component-id="vm.cid" rfq-forms-id="null" is-read-only="vm.pageTabRights[0].StandardTab.isReadOnly"
+                                        apply-from-rfq-page="false" parent-page-form="vm.componentstandardDetails"></component-standard>
+                  </div>
+                </form>
+              </md-tab-body>
+            </md-tab>
+
+            <!--Document-->
+            <md-tab ng-disabled="!vm.cid || !vm.pageTabRights[0].DocumentTab.hasPermission" md-on-select="vm.onTabChanges(vm.documentTabName,msWizard)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">3</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].DocumentTab.hasPermission)}" class="ms-form-wizard-step-text">
+                    DOCS
+                    <md-tooltip>Documents</md-tooltip>
+                    <b>({{(vm.documentCount)}})</b>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <!--<form name="vm.componentDocuments" class="cm-document-component" ms-form-wizard-form novalidate>-->
+                <div ng-if="vm.IsDocumentTab" class="cm-type-document-scroll">
+                  <documents entity="vm.entityName" ref-trans-id="vm.cid" is-title="null" doc-open-type="vm.docOpenType"
+                             is-read-only="vm.pageTabRights[0].DocumentTab.isReadOnly" doc-inside-folder-name="vm.documentFolderName"> </documents>
+                </div>
+                <!--</form>-->
+              </md-tab-body>
+            </md-tab>
+
+            <!--Comments-->
+            <md-tab md-on-select="vm.onTabChanges(vm.CommentsTabName,msWizard)" ng-disabled="!vm.cid || !vm.pageTabRights[0].CommentsTab.hasPermission">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">8</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].CommentsTab.hasPermission)}" class="ms-form-wizard-step-text">
+                    REQT
+                    <md-tooltip>Requirement & Comments</md-tooltip>
+                    <b>({{(vm.displayComponentDetail && vm.displayComponentDetail.componenet_inspection_requirement_det) ? vm.displayComponentDetail.componenet_inspection_requirement_det.length : 0}})</b>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div layout="column" class="cm-full-height-tab-data" ng-if="vm.IsCommentsTab === true">
+                    <split-pane id="splitterDiv" split-pane-properties="splitPaneProperties">
+                        <split-pane-component height="50%" class="min-height-100">
+                            <split-pane split-pane-properties="splitSubPaneProperties">
+                                <split-pane-component layout="column" width="50%" class="min-width-100">
+                                    <!--Top Left-->
+                                    <div class="padding-5-imp" layout="column" flex>
+                                        <component-inspection-requirement-det ng-if="vm.displayComponentDetail"
+                                                                              part-id="vm.cid"
+                                                                              part-detail="vm.displayComponentDetail"
+                                                                              is-supplier="(vm.mfgType | uppercase) == vm.mfgTypeDist ? true : false"
+                                                                              requirment-category="vm.RequirmentCategory.PurchasingAndIncomingInspectionComments"
+                                                                              is-read-only="vm.pageTabRights[0].CommentsTab.isReadOnly">
+                                        </component-inspection-requirement-det>
+                                    </div>
+                                </split-pane-component>
+                                <split-pane-divider width="5px"></split-pane-divider>
+                                <split-pane-component layout="column" class="min-width-100">
+                                    <!--Top Right-->
+                                    <div class="padding-5-imp" layout="column" flex>
+                                        <component-inspection-requirement-det ng-if="vm.displayComponentDetail"
+                                                                              part-id="vm.cid"
+                                                                              part-detail="vm.displayComponentDetail"
+                                                                              is-supplier="(vm.mfgType | uppercase) == vm.mfgTypeDist ? true : false"
+                                                                              requirment-category="vm.RequirmentCategory.ManufacturingAndProductionComments"
+                                                                              is-read-only="vm.pageTabRights[0].CommentsTab.isReadOnly">
+                                        </component-inspection-requirement-det>
+                                    </div>
+                                </split-pane-component>
+                            </split-pane>
+                        </split-pane-component>
+                        <split-pane-divider height="5px"></split-pane-divider>
+                        <split-pane-component class="min-height-100">
+                            <split-pane>
+                                <split-pane-component layout="column" width="50%" class="min-width-100">
+                                    <!--Bottom Left-->
+                                    <div layout="column" flex>
+                                        <form name="vm.commentsForm" ms-form-wizard-form class="tabsdemoDynamicHeight full-height assembly-comment-list padding-5-imp" novalidate>
+                                            <div layout="column" layout-gt-xs="100" class="full-height">
+                                                <assembly-revision-comments is-supplier="(vm.mfgType | uppercase) === vm.mfgTypeDist ? true : false"
+                                                                            is-read-only="vm.pageTabRights[0].CommentsTab.isReadOnly">
+                                                </assembly-revision-comments>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </split-pane-component>
+                                <split-pane-divider width="5px"></split-pane-divider>
+                                <split-pane-component layout="column" class="min-width-100">
+                                    <!--Bottom Right-->
+                                    <div class="padding-5-imp" layout="column" flex>
+                                        <component-inspection-requirement-det ng-if="vm.displayComponentDetail"
+                                                                              part-id="vm.cid"
+                                                                              part-detail="vm.displayComponentDetail"
+                                                                              is-supplier="(vm.mfgType | uppercase) == vm.mfgTypeDist ? true : false"
+                                                                              requirment-category="vm.RequirmentCategory.ShippingComments"
+                                                                              is-read-only="vm.pageTabRights[0].CommentsTab.isReadOnly">
+                                        </component-inspection-requirement-det>
+                                    </div>
+                                </split-pane-component>
+                            </split-pane>
+                        </split-pane-component>
+                    </split-pane>
+                </div>
+              </md-tab-body>
+            </md-tab>
+
+            <!--DataFields-->
+            <md-tab md-on-select="vm.onTabChanges(vm.DataFieldTabName,msWizard)" ng-disabled="!vm.cid || !vm.pageTabRights[0].DataFieldTab.hasPermission">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">4</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].DataFieldTab.hasPermission)}" class="ms-form-wizard-step-text">
+                    TRAK DATA
+                    <md-tooltip>Trak Data</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <form name="vm.componentDataFields" class="padding-10-imp cm-search-tab-operation-list cm-data-field" ms-form-wizard-form novalidate>
+                  <div flex="100" layout="row" layout-wrap ng-if="vm.isContainMasterDataField">
+                    <div flex flex-sm="100" flex-xs="100" layout="row" layout-wrap>
+                      <div flex="100" flex-xs="100" layout="row" class="mobilesearch employee-workstaion-search-box userpermissionhead" layout-align="space-between center">
+                        <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75" ng-class="{'clickedsearch':isButtonDataElementClicked}">
+                          <input id="SearchNoAddedListElement" type="text"
+                                 placeholder="Type here to search fields" ng-model="vm.SearchNoAddedListElement"
+                                 ng-keyup="vm.SearchElement(vm.dataElementNoAddedList, vm.SearchNoAddedListElement, false)"
+                                 custom-blur="vm.SearchElement(vm.dataElementNoAddedList, vm.SearchNoAddedListElement, false)">
+                        </md-input-container>
+                        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                                   ng-disabled="!vm.SearchNoAddedListElement"
+                                   ng-click="vm.SearchNoAddedListElement='';vm.SearchElement(vm.dataElementNoAddedList, vm.SearchNoAddedListElement, false)">
+                          Clear
+                        </md-button>
+                        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.refreshData()">
+                          Refresh
+                        </md-button>
+                        <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.addData()">
+                          Add New
+                        </md-button>
+                      </div>
+                      <md-list flex="100" class="permissiontab custom-scroll dragbox" ng-class="{'layout-column': vm.dataElementNoAddedList.length === 0}">
+                        <md-list-item id="dataElementNoAddedList" class="padding-0 items-container" layout="row" flex="100" layout-wrap
+                                      ui-sortable="sortableOptions"
+                                      ng-model="vm.dataElementNoAddedList"
+                                      haveadded="false">
+                          <div flex="100" class="md-1-line margin-0 dragsortable"
+                               ng-class="{'cursor-not-allow' : vm.pageTabRights[0].DataFieldTab.isReadOnly}"
+                               ng-repeat="dataElement in vm.dataElementNoAddedList"
+                               ng-model="dataElement" layout-wrap>
+                            <div class="md-list-item-text" layout-wrap layout="row">
+                              <md-icon layout-align="start center" class="md-avatar avatar margin-top-0 margin-bottom-0" role="img" md-font-icon="{{dataElement.icon.IconClass}}"></md-icon>
+                              <p class="label-container margin-bottom-0 operation-dataelement-font" layout-align="start center" flex="70">
+                                <a class="cm-text-decoration" ng-click="vm.goToElementManage(dataElement.entityID,dataElement.dataElementID);">
+                                  {{dataElement.dataElementName}}
+                                </a>
+                              </p>
+                              <p class="label-container margin-bottom-0 text-right" layout-align="end center" flex="20">{{dataElement.dataelement_use_at}}</p>
+                            </div>
+                          </div>
+                          <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                               ng-if="vm.dataElementNoAddedList.length === 0"
+                               ui-sortable-selectable>
+                            <div class="empty-state text-center">
+                              <div class="emty-icon">
+                                <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                              </div>
+                              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchNoAddedListElement == null && vm.dataElementNoAddedList.length == 0">
+                                {{vm.EmptyMesssage.ALL_ASSIGNED}}
+                              </p>
+                              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchNoAddedListElement != null && vm.FilterDataElementNotAdded != true">
+                                {{vm.EmptyMesssage.EMPTY_SEARCH_MESSAGE}}
+                              </p>
+                            </div>
+                          </div>
+                        </md-list-item>
+                      </md-list>
+                    </div>
+                    <div layout-align="space-between center" layout="row" class="cm-data-fields-buttons" flex-xs="100" flex-sm="100">
+                      <div flex="100" layout-xs="row" layout-sm="row" layout="column" layout-align="space-between center">
+                        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                                   ng-disabled="(!selectAnyAdded || vm.pageTabRights[0].DataFieldTab.isReadOnly)"
+                                   ng-click="vm.ModifyPageAdded('Remove')">
+                          <i class="icon-chevron-left icondrag"></i>
+                          <md-tooltip>Remove</md-tooltip>
+                        </md-button>
+                        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                                   ng-disabled="(vm.dataElementAddedList.length == 0 || vm.pageTabRights[0].DataFieldTab.isReadOnly)"
+                                   ng-click="vm.ModifyPageAdded('RemoveAll')">
+                          <i class="icon-chevron-double-left icondrag"></i>
+                          <md-tooltip>Remove All</md-tooltip>
+                        </md-button>
+                        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                                   ng-disabled="(vm.dataElementNoAddedList.length == 0 || vm.pageTabRights[0].DataFieldTab.isReadOnly)"
+                                   ng-click="vm.ModifyPageAdded('AddAll')">
+                          <i class="icon-chevron-double-right icondrag"></i>
+                          <md-tooltip>Add All</md-tooltip>
+                        </md-button>
+                        <md-button class="md-fab md-raised md-mini margin-horizontal-0"
+                                   ng-disabled="(!selectAnyNoAdded || vm.pageTabRights[0].DataFieldTab.isReadOnly)"
+                                   ng-click="vm.ModifyPageAdded('Add')">
+                          <i class="icon-chevron-right icondrag"></i>
+                          <md-tooltip>Add</md-tooltip>
+                        </md-button>
+                      </div>
+                    </div>
+                    <div flex flex-xs="100" flex-sm="100">
+                      <div flex="100" flex-xs="100" layout="row" class="mobilesearch userpermissionhead" layout-align="space-between end">
+                        <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75" ng-class="{'clickedsearch':isButtonDataElementAddedClicked}">
+                          <input id="SearchAddedListElement" type="text"
+                                 placeholder="Type here to search added fields" ng-model="vm.SearchAddedListElement"
+                                 ng-keyup="vm.SearchElement(vm.dataElementAddedList, vm.SearchAddedListElement, true)"
+                                 custom-blur="vm.SearchElement(vm.dataElementAddedList, vm.SearchAddedListElement, true)">
+                        </md-input-container>
+                        <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                                   ng-disabled="!vm.SearchAddedListElement"
+                                   ng-click="vm.SearchAddedListElement='';vm.SearchElement(vm.dataElementAddedList, vm.SearchAddedListElement, true)">
+                          Clear
+                        </md-button>
+                      </div>
+                      <md-list flex="100" class="permissiontab custom-scroll dragbox" ng-class="{'layout-column': vm.dataElementAddedList.length == 0}">
+                        <md-list-item id="dataElementAddedList" class="padding-0 items-container drag-container-item" layout="row" flex="100" layout-wrap
+                                      ui-sortable="sortableOptions"
+                                      ng-model="vm.dataElementAddedList"
+                                      haveadded="true">
+                          <div flex="100" class="md-1-line margin-0 dragsortable"
+                               ng-repeat="dataElement in vm.dataElementAddedList"
+                               ng-class="{'cursor-not-allow' : vm.pageTabRights[0].DataFieldTab.isReadOnly}"
+                               ui-sortable-selectable ng-model="dataElement" layout-wrap>
+                            <div class="md-list-item-text" layout-wrap layout="row">
+                              <md-icon layout-align="start center" class="md-avatar avatar margin-top-0 margin-bottom-0" role="img" md-font-icon="{{dataElement.icon.IconClass}}"></md-icon>
+                              <p class="label-container margin-bottom-0 operation-dataelement-font" layout-align="start center" flex="70">
+                                <a class="cm-text-decoration" ng-click="vm.goToElementManage(dataElement.entityID,dataElement.dataElementID);">
+                                  {{dataElement.dataElementName}}
+                                </a>
+                              </p>
+                              <p class="label-container margin-bottom-0 text-right" layout-align="end center" flex="20">{{dataElement.dataelement_use_at}}</p>
+                            </div>
+                          </div>
+                          <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                               ng-if="vm.dataElementAddedList.length == 0"
+                               ui-sortable-selectable>
+                            <div class="empty-state text-center">
+                              <div class="emty-icon">
+                                <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                              </div>
+                              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchAddedListElement == null && vm.dataElementAddedList.length == 0">
+                                {{vm.EmptyMesssage.MESSAGE}}
+                              </p>
+                              <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchAddedListElement != null && vm.FilterDataElementAdded != true">
+                                {{vm.EmptyMesssage.EMPTY_SEARCH_MESSAGE}}
+                              </p>
+                            </div>
+                          </div>
+                        </md-list-item>
+                      </md-list>
+                    </div>
+                  </div>
+                  <div flex="100" class="md-1-line margin-0 cursor-not-allow " ng-if="!vm.isContainMasterDataField">
+                    <div class="empty-state empty-state-data-f text-center full-height">
+                      <div class="emty-icon">
+                        <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                      </div>
+                      <p class="empty-state-title font-size-2 useadded-emptytxt">
+                        {{vm.EmptyMesssage.MESSAGE}}
+                      </p>
+                      <p flex="100">
+                        {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+                      </p>
+                      <p flex="100">
+                        <md-button class="md-fab md-mini" aria-label="Add DataField" ng-click="vm.addData()">
+                          <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+                        </md-button>
+                        <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.refreshData()">
+                          <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-refresh"></md-icon>
+                        </md-button>
+                      </p>
+                    </div>
+                  </div>
+                </form>
+              </md-tab-body>
+            </md-tab>
+
+            <!--Miscellaneous-->
+            <md-tab md-on-select="vm.onTabChanges(vm.OtherDetailTabName,msWizard)" ng-disabled="!vm.cid || !vm.pageTabRights[0].OtherDetailTab.hasPermission">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">5</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].OtherDetailTab.hasPermission)}" class="ms-form-wizard-step-text">
+                    {{vm.OtherDetailTitle}}
+                    <md-tooltip>{{vm.OtherDetailTitle}}</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <form name="vm.wizardOtherDetail" class="md-inline-form full-height" ms-form-wizard-form novalidate>
+                  <div layout="column" layout-gt-xs="100" ng-if="vm.IsOtherDetailTab === true" class="full-height cm-view-misc">
+                    <view-data-element entity="{{vm.Entity}}" dataelement-list="vm.dataElementList" ref-trans-id="{{vm.cid}}"
+                                       entity-id="vm.entityID" file-list="vm.fileList" is-read-only="vm.pageTabRights[0].OtherDetailTab.isReadOnly"
+                                       curr-active-form="vm.wizardOtherDetail"></view-data-element>
+                  </div>
+                </form>
+              </md-tab-body>
+            </md-tab>
+
+            <!--Pricing History-->
+            <md-tab md-on-select="vm.onTabChanges(vm.pricingHistory,msWizard)"
+                    ng-disabled="!vm.cid || !vm.pageTabRights[0].PricingHistoryTab.hasPermission">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">6</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].PricingHistoryTab.hasPermission)}" class="ms-form-wizard-step-text">
+                    SPLR $$ HIST
+                    <md-tooltip>Supplier Pricing History</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div ng-if="vm.IspricingHistoryTab === true">
+                  <component-quote-price-history part-id="vm.cid" mfg-type="vm.mfgType" is-custom="vm.displayComponentDetail.isCustom"
+                                                 is-cpn="vm.displayComponentDetail.isCPN"
+                                                 disable-external-api="(vm.displayComponentDetail.isCustom || vm.displayComponentDetail.partType == vm.PartType.Other)"
+                                                 mfg-pn="vm.displayComponentDetail.mfgPN" mfg-code="vm.displayComponentDetail.mfgCodemst.mfgCode"></component-quote-price-history>
+                </div>
+              </md-tab-body>
+            </md-tab>
+
+            <!--Sales Price Matrix-->
+            <md-tab md-on-select="vm.onTabChanges(vm.ComponentAssemblySalesPriceMatrixTabName,msWizard)"
+                    md-tab-class="{{vm.setTabClass(vm.PartMasterTabs.AssemblySalesPriceMatrix.Name)}}"
+                    ng-disabled="(!vm.cid || !vm.pageTabRights[0].AssemblySalesPriceMatrixTab.hasPermission || (vm.mfgType | uppercase) == vm.mfgTypeDist || !vm.displayComponentDetail.isCustom)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">16</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].AssemblySalesPriceMatrixTab.hasPermission || (vm.mfgType | uppercase) == vm.mfgTypeDist || !vm.displayComponentDetail.isCustom)}"
+                        class="ms-form-wizard-step-text">
+                    SALE PRICE
+                    <md-tooltip>Sales Price Matrix</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div layout="column" class="tabsdemoDynamicHeight cm-part-full-height"
+                     layout-gt-xs="100" ng-if="vm.AssemblySalesPriceMatrixTab">
+                  <component-assembly-sales-price-matrix ng-if="vm.displayComponentDetail"
+                                                         part-id="vm.cid"
+                                                         is-read-only="vm.pageTabRights[0].AssemblySalesPriceMatrixTab.isReadOnly"
+                                                         quote-valid-date="vm.displayComponentDetail.quoteValidTillDate"
+                                                         rfq-number="vm.displayComponentDetail.rfqNumber"
+                                                         form-name="vm.componentAssemblySalesPriceMatrixForm">
+                  </component-assembly-sales-price-matrix>
+                </div>
+              </md-tab-body>
+            </md-tab>
+
+            <!--Supplier Quote-->
+            <md-tab md-on-select="vm.onTabChanges(vm.SupplierQuoteTabName,msWizard)"
+                    ng-disabled="!vm.cid || !vm.pageTabRights[0].SupplierQuoteTab.hasPermission">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">6</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].SupplierQuoteTab.hasPermission)}" class="ms-form-wizard-step-text">
+                    SPLR QTE
+                    <md-tooltip>Supplier Quotes</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div ng-if="vm.IsSpleQuoteListTab === true">
+                  <supplier-quote-detail-grid part-id="vm.cid"></supplier-quote-detail-grid>                  
+                </div>
+              </md-tab-body>
+            </md-tab>
+
+            <!--RFQ-->
+            <md-tab md-on-select="vm.onTabChanges(vm.RFQTabName,msWizard)"
+                    ng-disabled="!vm.cid || !vm.pageTabRights[0].RFQTab.hasPermission ||
+                                (vm.displayComponentDetail.rfq_partcategory.partCategory==vm.PartCategory.Component)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">10</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].RFQTab.hasPermission||
+                                (vm.displayComponentDetail.rfq_partcategory.partCategory==vm.PartCategory.Component))}" class="ms-form-wizard-step-text">
+                    RFQ List
+                    <md-tooltip>RFQ List</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div class="tabsdemoDynamicHeight padding-10-imp full-height" layout-gt-xs="100" ng-if="vm.IsRFQTab === true">
+                  <rfq-list partid="vm.cid"></rfq-list>
+                </div>
+              </md-tab-body>
+            </md-tab>
+
+            <!--BOM-->
+            <md-tab md-on-select="vm.onTabChanges(vm.BOMTabName,msWizard)"
+                    ng-disabled="!vm.cid || !vm.pageTabRights[0].BOMTab.hasPermission ||
+                                (vm.displayComponentDetail.rfq_partcategory.partCategory==vm.PartCategory.Component)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">9</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].BOMTab.hasPermission ||
+                                                                        (vm.displayComponentDetail.rfq_partcategory.partCategory==vm.PartCategory.Component))}"
+                        class="ms-form-wizard-step-text">
+                    BOM
+                    <md-tooltip>BOM</md-tooltip>
+                    <b>({{(vm.bomLineItemCount)}})</b>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <!-- <form name="vm.bomForm" ms-form-wizard-form class="tabsdemoDynamicHeight full-height assembly-comment-list padding-10-imp">-->
+                <div layout="column" class="cm-part-master-bom full-height" layout-gt-xs="100" ng-if="vm.IsBOMTab === true">
+                  <bom-assembly-tab partid="vm.cid" sub-partid="vm.subcoid" is-disabled="vm.pageTabRights[0].BOMTab.hasPermission"
+                                    class="full-height"></bom-assembly-tab>
+                  <!--<import-bom id="null" part-id="vm.cid" is-from-component="true" ui-view="bom"></import-bom>-->
+                </div>
+                <!--</form>-->
+              </md-tab-body>
+            </md-tab>
+
+            <!--DFM-->
+            <md-tab md-on-select="vm.onTabChanges(vm.DFMTabName,msWizard)"
+                    ng-disabled="!vm.cid || !vm.pageTabRights[0].DFMTab.hasPermission || (vm.displayComponentDetail.rfq_partcategory.partCategory==vm.PartCategory.Component)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">12</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].DFMTab.hasPermission ||(vm.displayComponentDetail.rfq_partcategory.partCategory==vm.PartCategory.Component))}" class="ms-form-wizard-step-text">
+                    ECO/DFM
+                    <md-tooltip>ECO/DFM</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <form name="vm.DFMForm" ms-form-wizard-form class="tabsdemoDynamicHeight cm-dfm-grid padding-10-imp">
+                  <div layout="column" layout-gt-xs="100" ng-if="vm.IsDFMTab === true">
+                    <component-assy-dfm partid="vm.cid"></component-assy-dfm>
+                  </div>
+                </form>
+              </md-tab-body>
+            </md-tab>
+
+            <!--Initial Stock-->
+            <md-tab md-on-select="vm.onTabChanges(vm.OpeningStockTabName,msWizard)"
+                    ng-disabled="!vm.cid || !vm.pageTabRights[0].OpeningStockTab.hasPermission || (vm.displayComponentDetail.rfq_partcategory.partCategory==vm.PartCategory.Component)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">14</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].OpeningStockTab.hasPermission || (vm.displayComponentDetail.rfq_partcategory.partCategory==vm.PartCategory.Component))}"
+                        class="ms-form-wizard-step-text">
+                    ASSY STK
+                    <md-tooltip>Assembly Stock Detail</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div layout="column" class="tabsdemoDynamicHeight full-height" layout-gt-xs="100" ng-if="vm.IsOpeningStockTab === true">
+                  <!--<assembly-opening-stock-list assy-id="vm.cid"></assembly-opening-stock-list>-->
+                  <assembly-stock-detail-list assy-id="vm.cid" mfg-type="vm.mfgType"></assembly-stock-detail-list>
+                </div>
+              </md-tab-body>
+            </md-tab>
+
+            <!--UMID-->
+            <md-tab md-on-select="vm.onTabChanges(vm.UMIDListTabName,msWizard)"
+                    ng-disabled="!vm.cid || !vm.pageTabRights[0].UMIDListTab.hasPermission">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">11</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].UMIDListTab.hasPermission)}" class="ms-form-wizard-step-text">
+                    UMID LIST
+                    <md-tooltip>UMID List</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <!--<form name="vm.UMIDListForm" ms-form-wizard-form class="tabsdemoDynamicHeight padding-10-imp">-->
+                <div layout="column" layout-gt-xs="100" class="tabsdemoDynamicHeight padding-10-imp"
+                     ng-if="vm.IsUMIDListTab === true && vm.displayComponentDetail && vm.displayComponentDetail.mfgPN">
+                  <receiving-material is-filter-hidden="true" part-id="vm.displayComponentDetail.id" is-show-packaging-alias="true"></receiving-material>
+                </div>
+                <!--</form>-->
+              </md-tab-body>
+            </md-tab>
+
+            <!--Kit Allocation-->
+            <md-tab md-on-select="vm.onTabChanges(vm.KitAllocationTabName,msWizard)"
+                    ng-disabled="!vm.cid || !vm.pageTabRights[0].KitAllocationTab.hasPermission">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">10</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].KitAllocationTab.hasPermission)}" class="ms-form-wizard-step-text">
+                    KIT ALLOC
+                    <md-tooltip>Kit Allocation</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <!--<form name="vm.kitAllocationForm" ms-form-wizard-form class="tabsdemoDynamicHeight padding-10-imp">-->
+                <div layout="column" class="tabsdemoDynamicHeight padding-10-imp full-height" layout-gt-xs="100" ng-if="vm.IsKitAlllocationTab === true">
+                  <component-kit-allocation></component-kit-allocation>
+                </div>
+                <!--</form>-->
+              </md-tab-body>
+            </md-tab>
+
+            <!--Workorder-->
+            <md-tab md-on-select="vm.onTabChanges(vm.WorkorderListTabName,msWizard)"
+                    ng-disabled="!vm.cid || !vm.pageTabRights[0].WorkorderListTab.hasPermission || vm.displayComponentDetail.rfq_partcategory.partCategory===vm.PartCategory.Component">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">11</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].WorkorderListTab.hasPermission)}" class="ms-form-wizard-step-text">
+                    WO LIST
+                    <md-tooltip>Work Order List</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div layout="column" layout-gt-xs="100" class="tabsdemoDynamicHeight padding-10-imp"
+                     ng-if="vm.IsWorkorderListTab === true && vm.cid">
+                  <workorder-list part-id="vm.cid"></workorder-list>
+                </div>
+              </md-tab-body>
+            </md-tab>
+
+            <!--Customer LOA-->
+            <md-tab md-on-select="vm.onTabChanges(vm.customerLOATabName,msWizard)" ng-disabled="!vm.cid || !vm.pageTabRights[0].CustomerLOATab.hasPermission">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">7</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].CustomerLOATab.hasPermission)}" class="ms-form-wizard-step-text">
+                    CUST LOA
+                    <md-tooltip>Customer LOA</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <form name="vm.customerLOA" class="padding-10-imp cm-component-customer-popup full-height" ms-form-wizard-form novalidate>
+                  <component-customer-loa partid="vm.cid" ng-if="vm.IsComponentLOATab === true" class="full-height" is-read-only="vm.pageTabRights[0].CustomerLOATab.isReadOnly"></component-customer-loa>
+                </form>
+              </md-tab-body>
+            </md-tab>
+
+            <!--Approved Disapproved Supplier-->
+            <md-tab md-on-select="vm.onTabChanges(vm.ApprovedDisapprovedSupplierTabName,msWizard)"
+                    md-tab-class="{{vm.setTabClass(vm.PartMasterTabs.ApprovedDisapprovedSupplier.Name)}}"
+                    ng-disabled="!vm.cid || !vm.pageTabRights[0].ApprovedDisapprovedSupplierTab.hasPermission || (vm.mfgType | uppercase) == vm.mfgTypeDist">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">15</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].ApprovedDisapprovedSupplierTab.hasPermission || (vm.mfgType | uppercase) == vm.mfgTypeDist)}"
+                        class="ms-form-wizard-step-text">
+                    DIS APRV SPLR
+                    <md-tooltip>Disapproved Supplier</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div layout="column" class="tabsdemoDynamicHeight padding-10-imp cm-part-full-height"
+                     layout-gt-xs="100" ng-if="vm.IsApprovedDisapprovedSupplierTab">
+                  <component-approved-disapproved-supplier is-read-only="vm.pageTabRights[0].ApprovedDisapprovedSupplierTab.isReadOnly">
+
+                  </component-approved-disapproved-supplier>
+                </div>
+              </md-tab-body>
+            </md-tab>
+
+            <!--Supplier API Response-->
+            <md-tab md-on-select="vm.onTabChanges(vm.SupplierApiResponseTabName,msWizard)"
+                    ng-disabled="!vm.cid || !vm.pageTabRights[0].SupplierApiResponseTab.hasPermission || (vm.displayComponentDetail.rfq_partcategory.partCategory==vm.PartCategory.SubAssembly)">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">13</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].SupplierApiResponseTab.hasPermission || (vm.displayComponentDetail.rfq_partcategory.partCategory==vm.PartCategory.SubAssembly))}"
+                        class="ms-form-wizard-step-text">
+                    CALL SPLR API
+                    <md-tooltip>Call Supplier API</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div layout="column" class="tabsdemoDynamicHeight full-height" layout-gt-xs="100" ng-if="vm.IsSupplierApiResponseTab === true">
+                  <component-supplier-api-response part-id="(vm.mfgType | uppercase) == vm.mfgTypeDist ? vm.displayComponentDetail.refSupplierMfgComponent.id : vm.cid"
+                                                   mfg-pn="(vm.mfgType | uppercase) == vm.mfgTypeDist ? vm.displayComponentDetail.refSupplierMfgComponent.mfgPN : vm.displayComponentDetail.mfgPN"
+                                                   supplier-pn="(vm.mfgType | uppercase) == vm.mfgTypeDist ? vm.displayComponentDetail.mfgPN : null"
+                                                   supplier="(vm.mfgType | uppercase) == vm.mfgTypeDist ? vm.displayComponentDetail.supplier : null"
+                                                   is-supplier="(vm.mfgType | uppercase) == vm.mfgTypeDist ? true : false"
+                                                   mfg-type="vm.mfgType"
+                                                   mfg-code-id="(vm.mfgType | uppercase) == vm.mfgTypeDist ? vm.displayComponentDetail.refSupplierMfgComponent.mfgcodeID : vm.displayComponentDetail.mfgcodeID"
+                                                   packaging-id="vm.displayComponentDetail.packagingID"
+                                                   ng-if="vm.cid && vm.displayComponentDetail && vm.displayComponentDetail.mfgPN">
+                  </component-supplier-api-response>
+                </div>
+              </md-tab-body>
+            </md-tab>
+
+            <!--History-->
+            <md-tab md-on-select="vm.onTabChanges(vm.HistoryTabName,msWizard)"
+                    ng-disabled="!vm.cid || !vm.pageTabRights[0].ComponentHistoryTab.hasPermission">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">17</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights[0].ComponentHistoryTab.hasPermission)}"
+                        class="ms-form-wizard-step-text">
+                    HIST
+                    <md-tooltip>History</md-tooltip>
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <div layout="column" class="cm-part-master-history tabsdemoDynamicHeight padding-10-imp" layout-gt-xs="100" ng-if="vm.IsHistoryTab === true">
+                  <component-change-history part-id="vm.cid"></component-change-history>
+                </div>
+              </md-tab-body>
+            </md-tab>
+
+          </md-tabs>
+        </div>
+      </div>
+    </div>
+  </ms-form-wizard>
+</div>

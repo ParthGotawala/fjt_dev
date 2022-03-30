@@ -1,0 +1,325 @@
+<div id="PictureStationController" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="header md-accent-bg" layout="row" layout-align="space-between center">
+    <div class="white-fg" layout="column" layout-align="start start">
+      <div class="h2" layout="row" layout-align="start center">
+        <pagetitle is-list="true" is-display-menu-name="true"></pagetitle>
+      </div>
+      <div layout="row" layout-align="start center">
+        <breadcrumbs></breadcrumbs>
+      </div>
+    </div>
+  </div>
+  <div class="content-card padding-top-side" layout="column" flex>
+    <div data-split-pane class="cm-bill-to-tab-split-pane-height" flex="100" data-split-pane-properties="vm.splitPaneFirstProperties">
+      <div data-split-pane-component data-height="70%" class="min-height-100">
+        <div layout="row" flex layout-md="column" layout-sm="column" class="margin-10 max-height-fit-content">
+          <div class="input-wrapper" layout="row" flex="100" flex-md="100" flex-sm="100" flex-lg="35" flex-xl="35">
+            <fieldset flex="100" class="container-box">
+              <legend class="margin-0"></legend>
+              <div layout="row" flex="100" layout-wrap layout-md="column" layout-sm="column" layout-align="start start">
+                <form name="vm.CameraGroupForm" flex="55" layout-align="start start">
+                  <div class="input-wrapper pt-5" style="justify-content: space-between;" layout="row">
+                    <p class="margin-top-0 margin-bottom-0 label-container" layout-align="start start" layout="row">
+                      <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToCameraList()">Group</a><span>&nbsp;*</span>
+                    </p>
+                    <md-input-container ng-if="vm.autoCompleteCamGroup" class="autocompletecustom margin-bottom-0" flex="100">
+                      <custom-auto-complete-search on-search-fn="vm.autoCompleteCamGroup.onSearchFn"
+                        column-name="vm.autoCompleteCamGroup.columnName"
+                        parent-column-name="vm.autoCompleteCamGroup.parentColumnName"
+                        key-column-name="vm.autoCompleteCamGroup.keyColumnName"
+                        input-name="vm.autoCompleteCamGroup.inputName"
+                        placeholder-name="vm.autoCompleteCamGroup.placeholderName"
+                        key-column-id="vm.autoCompleteCamGroup.keyColumnId" is-required="true"
+                        search-text="vm.autoCompleteCamGroup.searchText"
+                        on-select-callback-fn="vm.autoCompleteCamGroup.onSelectCallbackFn"
+                        is-disabled="vm.isActivityStarted">
+                      </custom-auto-complete-search>
+                    </md-input-container>
+                  </div>
+                </form>
+                <div class="flex mt-5 text-right">
+                  <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-disabled=" !vm.cameraList.length > 0" ng-click="vm.testCamera()">
+                    Test Camera
+                  </md-button>
+                  <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-disabled="!vm.cameraList.length > 0 || vm.isActivityStarted" ng-click="vm.refreshCameraList()">
+                    Refresh
+                  </md-button>
+                </div>
+                <md-table-container layout="row" flex="100">
+                  <table md-table flex class="md-data-table table-row-select width-auto cm-scroll-table" ng-if="vm.cameraList.length > 0">
+                    <thead md-head layout="row">
+                      <tr md-row flex>
+                        <th md-column flex="20">Action</th>
+                        <th md-column flex="40">Name</th>
+                        <th md-column flex="40">Live stream URL</th>
+                      </tr>
+                    </thead>
+                    <tbody md-body class="cm-pic-sta-tbody">
+                      <tr md-row ng-repeat="item in vm.cameraList">
+                        <td md-cell flex="20">
+                          <md-button ng-click="vm.addEditRecord(item)" class="md-primary grid-button md-icon-button bdrbtn bdrrcvbtn cm-grid-action-view-icon mv-4">
+                            <md-icon role="img" md-font-icon="icon-pencil"></md-icon>
+                            <md-tooltip md-direction="top">
+                              Edit
+                            </md-tooltip>
+                          </md-button>
+                          <md-button class="md-primary grid-button md-icon-button bdrbtn bdrrcvbtn cm-grid-action-view-icon mv-4 bg-white">
+                            <md-icon ng-class="{'cm-redbgblink cm-rec-icon':item.status}" class="cm-blinking-icon" role="img" md-font-icon="icon-video-camera"></md-icon>
+                            <md-tooltip md-direction="top" ng-if="item.status ">
+                              Live
+                            </md-tooltip>
+                            <md-tooltip md-direction="top" ng-if="!item.status ">
+                              Offline
+                            </md-tooltip>
+                          </md-button>
+                        </td>
+                        <td md-cell flex="40">{{ item.name }}</td>
+                        <td md-cell flex="40">{{ item.cameraURL }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </md-table-container>
+                <div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div layout="row" flex="65" flex-md="100" flex-sm="100">
+            <fieldset flex="100" class="container-box cm-supplier-check-box margin-left-5 margin-pro-rs-left-0">
+              <legend class="margin-0"></legend>
+              <div class="input-wrapper margin-left-10" layout="row" flex="100" layout-align="start start">
+                <div layout="column" flex="100">
+                  <form name="vm.CameraForm">
+                    <div class="cm-section-main" flex="100" style="border: 0;">
+                      <div class="cm-section-inner" flex="100">
+                        <table cellspacing="0" cellpadding="0" class="cm-table-input-main width-100p">
+                          <tbody>
+                            <tr>
+                              <th class="padding-top-5">
+                                <p class="label-container padding-top-5">
+                                  <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToAssyIDList()">{{vm.LabelConstant.Assembly.PIDCode}}</a><span>&nbsp;*</span>
+                                </p>
+                              </th>
+                              <td>
+                                <div class="input-wrapper" layout="row" layout-align="start center" flex="100">
+                                  <md-input-container ng-if="vm.autoCompleteAssy" class="autocompletecustom margin-bottom-0" flex="100">
+                                    <custom-auto-complete-search on-search-fn="vm.autoCompleteAssy.onSearchFn"
+                                      column-name="vm.autoCompleteAssy.columnName"
+                                      parent-column-name="vm.autoCompleteAssy.parentColumnName"
+                                      key-column-name="vm.autoCompleteAssy.keyColumnName"
+                                      input-name="vm.autoCompleteAssy.inputName"
+                                      placeholder-name="vm.autoCompleteAssy.placeholderName"
+                                      key-column-id="vm.autoCompleteAssy.keyColumnId" is-required="true"
+                                      search-text="vm.autoCompleteAssy.searchText"
+                                      on-select-callback-fn="vm.autoCompleteAssy.onSelectCallbackFn"
+                                      is-disabled="vm.isActivityStarted">
+                                    </custom-auto-complete-search>
+                                  </md-input-container>
+                                </div>
+                              </td>
+                              <th class="padding-top-5">
+                                <p class="label-container padding-top-5">{{vm.LabelConstant.Assembly.MFGPN}}</p>
+                              </th>
+                              <td>
+                                <div class="input-wrapper" layout="row" layout-align="start center" flex="100">
+                                  <md-input-container flex="100" class="margin-bottom-0">
+                                    <input type="text" id="assemblyHash" name="assemblyHash" ng-model="vm.assemblyHash" placeholder="{{vm.LabelConstant.Assembly.MFGPN}}" ng-disabled="true" />
+                                  </md-input-container>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <th class="padding-top-0">
+                                <p class="label-container">{{vm.LabelConstant.Assembly.Description}}</p>
+                              </th>
+                              <td colspan="3">
+                                <md-input-container flex="100" class="margin-bottom-0">
+                                  <input type="text" id="assemblyDescr" name="assemblyDescr" ng-model="vm.assemblyDescr" placeholder="{{vm.LabelConstant.Assembly.Description}}" ng-disabled="true" />
+                                </md-input-container>
+                              </td>
+                            </tr>
+                            <tr>
+                              <th class="padding-top-0">
+                                <p class="label-container">Folder Name</p>
+                              </th>
+                              <td class="width-45p">
+                                <md-input-container flex="100" class="margin-bottom-0">
+                                  <input type="text" id="folderName" name="folderName" ng-model="vm.folderName" placeholder="Folder Name" ng-disabled="vm.isActivityStarted"/>
+                                </md-input-container>
+                              </td>
+                              <th class="padding-top-0">
+                                <p flex="15" flex-lg="40" class="margin-top-0 margin-bottom-0 label-container"
+                                  layout-align="start start" layout="row">
+                                  <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToRoleList()">Role</a><span>&nbsp;*</span>
+                                </p>
+                              </th>
+                              <td class="width-45p">
+                                <div class="margin-left-10">
+                                  <md-input-container ng-if="vm.autoCompleteRoles" class="autocompletecustom" flex-xs="100">
+                                    <custom-auto-complete datalist="vm.roles"
+                                      column-name="vm.autoCompleteRoles.columnName"
+                                      key-column-name="vm.autoCompleteRoles.keyColumnName"
+                                      input-name="vm.autoCompleteRoles.inputName"
+                                      placeholder-name="vm.autoCompleteRoles.placeholderName"
+                                      key-column-id="vm.autoCompleteRoles.keyColumnId" is-required="true"
+                                      is-addnew="vm.autoCompleteRoles.isAddnew" is-disabled="!vm.assyID || vm.isActivityStarted"
+                                      callback-fn="vm.autoCompleteRoles.callbackFn"
+                                      on-select-callback-fn="vm.autoCompleteRoles.onSelectCallbackFn">
+                                    </custom-auto-complete>
+                                  </md-input-container>
+                                </div>
+                              </td>
+                            </tr>
+                            <!-- <tr>
+                              <th class="padding-top-0">
+                                <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.browseResult()"
+                                  ng-disabled="true">
+                                  Browse to save locally
+                                </md-button>
+                                <input class="md-primary md-raised md-ink-ripple mv-0" ng-disabled="true"
+                                  id="fileselector" type="file" onchange="browseResult(event)" webkitdirectory multiple
+                                  style="display:none" />
+                              </th>
+                              <td colspan="3">
+                                <md-input-container class="margin-bottom-0" layout-align="center" flex="100">
+                                  <input type="text" name="folderName" ng-model="vm.folderModel.gencFolderName"
+                                    placeholder="Folder Name" ng-maxlength="255">
+                                </md-input-container>
+
+                              </td>
+                            </tr> -->
+                            <tr>
+                              <th class="padding-top-0">
+                                <p class="label-container">Per turn table rotation<span>*</span></p>
+                              </th>
+                              <td class="width-45p">
+                                <div style="display: flex;">
+                                  <md-input-container flex="100" class="margin-bottom-0">
+                                    <input id="rotationTime" name="rotationTime" type="number" min="1" step="1" input-number-decimal-place  ng-model="vm.pictureStation.rotationTime" ng-change="vm.calculateRotationSymmary()" placeholder="Enter" required ng-disabled="vm.isActivityStarted" onkeypress="return OnlyNumeric(event)"/>
+                                    <div ng-messages="vm.CameraForm.rotationTime.$error" role="alert">
+                                      <div ng-message="required">
+                                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                      </div>
+                                    </div>
+                                  </md-input-container>
+                                  <span class="pt-10">(seconds)</span>
+                                </div>
+                              </td>
+                              <th class="padding-top-0 padding-left-5">
+                                <p class="label-container">Take picture for every<span>*</span></p>
+                              </th>
+                              <td class="width-45p">
+                                <div style="display: flex;">
+                                  <md-input-container flex="100" class="margin-bottom-0">
+                                    <input id="captureInterval" name="captureInterval" type="number" min="1" step="1" input-number-decimal-place  ng-change="vm.calculateRotationSymmary()" ng-model="vm.pictureStation.captureInterval" placeholder="Enter" required  ng-disabled="vm.isActivityStarted" onkeypress="return OnlyNumeric(event)" />
+                                    <div ng-messages="vm.CameraForm.captureInterval.$error" role="alert">
+                                      <div ng-message="required">
+                                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                      </div>
+                                    </div>
+                                  </md-input-container>
+                                  <span class="pt-10">(seconds)</span>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <th class="padding-top-0">
+                                <p class="label-container">Pictures per camera per rotation</p>
+                              </th>
+                              <td class="width-45p" colspan="1">
+                                <md-input-container flex="100" class="margin-bottom-0">
+                                  <input type="number" id="capturePerCamera" name="capturePerCamera" ng-disabled="true"ng-model="vm.pictureStation.capturePerCamera" placeholder="-" />
+                                </md-input-container>
+                              </td>
+                              <th class="padding-top-0">
+                                <p class="label-container">Number of camera</p>
+                              </th>
+                              <td class="width-45p">
+                                <md-input-container flex="100" class="margin-bottom-0">
+                                  <input type="number" id="noOfCamera" name="noOfCamera" ng-disabled="true" ng-model="vm.pictureStation.noOfCamera" placeholder="-" />
+                                </md-input-container>
+                              </td>
+                            </tr>
+                            <tr>
+                              <th class="padding-top-0">
+                                <p class="label-container">Total picture per rotation</p>
+                              </th>
+                              <td class="width-45p" colspan="1">
+                                <md-input-container flex="100" class="margin-bottom-0">
+                                  <input type="number" id="capturePerRotation" name="capturePerRotation" ng-disabled="true" ng-model="vm.pictureStation.capturePerRotation"placeholder="-" />
+                                </md-input-container>
+                              </td>
+                              <th class="padding-top-0">
+                                <p class="label-container">Number of Live camera</p>
+                              </th>
+                              <td class="width-45p">
+                                <md-input-container flex="100" class="margin-bottom-0">
+                                  <input type="number" id="noOfLiveCamera" name="noOfLiveCamera" ng-disabled="true"ng-model="vm.noOfLiveCamera" placeholder="-" />
+                                </md-input-container>
+                              </td>
+                            </tr>
+                            <tr>
+                              <!--<th class="padding-top-0">
+                              </th>-->
+                              <td  colspan="2" class="text-right vertical-middle-align">
+                                <md-input-container flex="100" class="margin-bottom-0">
+                                  <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-disabled="vm.isActivityStarted" ng-click="vm.start()">
+                                    Start
+                                  </md-button>
+                                  <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-disabled="!vm.isActivityStarted" ng-click=" vm.stop()">
+                                    Stop
+                                  </md-button>
+                                  <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-disabled="vm.isActivityStarted" ng-click="vm.reset()">
+                                    Reset
+                                  </md-button>
+                                </md-input-container>
+                              </td>
+                              <td colspan="2">
+                                <table md-table flex class="md-data-table table-row-select width-auto cm-scroll-table"
+                                  style="display: block;" ng-if="vm.progressTable">
+                                  <thead md-head layout="row">
+                                    <tr md-row flex>
+                                      <th md-column flex="20">Image Upload Status</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody md-body class="cm-img-upload-status">
+                                    <tr md-row>
+                                      <th md-cell flex="40">Total Captured</th>
+                                      <th md-cell flex="40">In Progress</th>
+                                      <th md-cell flex="40">Completed</th>
+                                      <th md-cell flex="40">Upload Failed</th>
+                                      <th md-cell flex="40">Capture Failed</th>
+                                    </tr>
+                                    <tr md-row>
+                                      <td md-cell flex="40">{{vm.pictureStation.captureCounter}}</td>
+                                      <td md-cell flex="40">{{(vm.picturesStatus.totalCaptured - vm.picturesStatus.inProgress - vm.picturesStatus.uploadFailed)}}</td>
+                                      <td md-cell flex="40">{{vm.picturesStatus.completed}}</td>
+                                      <td md-cell flex="40">{{vm.picturesStatus.uploadFailed}}</td>
+                                      <td md-cell flex="40">{{vm.picturesStatus.captureFailed}}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+      <div data-split-pane-divider data-height="5px" ng-show="vm.assyID"></div>
+      <div data-split-pane-component data-height="30%" class="min-height-100" layout="column">
+        <div layout="row" flex layout-md="column" layout-sm="column" ng-if="vm.assyID">
+          <documents entity="vm.entityName" ref-trans-id="vm.assyID" doc-open-type="vm.docOpenType">
+          </documents>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

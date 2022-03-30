@@ -1,0 +1,391 @@
+<!doctype html>
+<html>
+<!--ng-app="fuse"-->
+
+<head>
+  <!--<link rel="stylesheet" href="app/index.css">
+  <link rel="stylesheet" href="../bower_components/angular-material/angular-material.css" />-->
+
+  <script type="text/javascript" src="assets/oidc-client/oidc-client.js"></script>
+  <script src="config/config.js"></script>
+  <script>
+
+    const lastPageLocation = sessionStorage.getItem('lastPageLocation');
+    if (lastPageLocation) {
+      new UserManager(_IdentityUserManagerconfig).signinRedirect({
+        //state: location.hash
+      }).catch(err => {
+        console.log(err);
+        window.location.href = "site-unavailable.html";
+      });
+    }
+    else {
+      new UserManager().signinSilentCallback().then((user) => {
+        // console.log('Token renewed!!');
+      }).catch((err) => {
+        console.log('in html: ', err);
+      });
+    }
+  </script>
+  <style>
+    #splash-screen {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #3C4252;
+      z-index: 99999;
+    }
+
+      #splash-screen.ng-leave {
+        opacity: 1;
+        transition: all linear 200ms;
+      }
+
+      #splash-screen.ng-leave-active {
+        opacity: 0;
+      }
+
+      #splash-screen .center {
+        display: block;
+        width: 100%;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      #splash-screen .logo {
+        width: 96px;
+        height: 96px;
+        line-height: 96px;
+        margin: 0 auto;
+        font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+        font-size: 56px;
+        text-align: center;
+        border-radius: 2px;
+        background-color: #039BE5;
+        color: #FFFFFF;
+        box-shadow: 0 2px 14px 0 rgba(0, 0, 0, 0.22);
+      }
+
+      #splash-screen .spinner-wrapper {
+        display: block;
+        position: relative;
+        width: 100%;
+        min-height: 100px;
+        height: 100px;
+      }
+
+        #splash-screen .spinner-wrapper .spinner {
+          position: absolute;
+          overflow: hidden;
+          left: 50%;
+          margin-left: -50px;
+          animation: outer-rotate 2.91667s linear infinite;
+        }
+
+          #splash-screen .spinner-wrapper .spinner .inner {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            animation: sporadic-rotate 5.25s cubic-bezier(0.35, 0, 0.25, 1) infinite;
+          }
+
+            #splash-screen .spinner-wrapper .spinner .inner .gap {
+              position: absolute;
+              left: 49px;
+              right: 49px;
+              top: 0;
+              bottom: 0;
+              border-top: 10px solid;
+              box-sizing: border-box;
+            }
+
+            #splash-screen .spinner-wrapper .spinner .inner .left,
+            #splash-screen .spinner-wrapper .spinner .inner .right {
+              position: absolute;
+              top: 0;
+              height: 100px;
+              width: 50px;
+              overflow: hidden;
+            }
+
+              #splash-screen .spinner-wrapper .spinner .inner .left .half-circle,
+              #splash-screen .spinner-wrapper .spinner .inner .right .half-circle {
+                position: absolute;
+                top: 0;
+                width: 100px;
+                height: 100px;
+                box-sizing: border-box;
+                border: 10px solid #4285F4;
+                border-bottom-color: transparent;
+                border-radius: 50%;
+              }
+
+            #splash-screen .spinner-wrapper .spinner .inner .left {
+              left: 0;
+            }
+
+              #splash-screen .spinner-wrapper .spinner .inner .left .half-circle {
+                left: 0;
+                border-right-color: transparent;
+                animation: left-wobble 1.3125s cubic-bezier(0.35, 0, 0.25, 1) infinite;
+                -webkit-animation: left-wobble 1.3125s cubic-bezier(0.35, 0, 0.25, 1) infinite;
+              }
+
+            #splash-screen .spinner-wrapper .spinner .inner .right {
+              right: 0;
+            }
+
+              #splash-screen .spinner-wrapper .spinner .inner .right .half-circle {
+                right: 0;
+                border-left-color: transparent;
+                animation: right-wobble 1.3125s cubic-bezier(0.35, 0, 0.25, 1) infinite;
+                -webkit-animation: right-wobble 1.3125s cubic-bezier(0.35, 0, 0.25, 1) infinite;
+              }
+
+    @keyframes outer-rotate {
+      0% {
+        transform: rotate(0deg) scale(0.5);
+      }
+
+      100% {
+        transform: rotate(360deg) scale(0.5);
+      }
+    }
+
+    @keyframes left-wobble {
+      0%, 100% {
+        transform: rotate(130deg);
+      }
+
+      50% {
+        transform: rotate(-5deg);
+      }
+    }
+
+    @keyframes right-wobble {
+      0%, 100% {
+        transform: rotate(-130deg);
+      }
+
+      50% {
+        transform: rotate(5deg);
+      }
+    }
+
+    @keyframes sporadic-rotate {
+      12.5% {
+        transform: rotate(135deg);
+      }
+
+      25% {
+        transform: rotate(270deg);
+      }
+
+      37.5% {
+        transform: rotate(405deg);
+      }
+
+      50% {
+        transform: rotate(540deg);
+      }
+
+      62.5% {
+        transform: rotate(675deg);
+      }
+
+      75% {
+        transform: rotate(810deg);
+      }
+
+      87.5% {
+        transform: rotate(945deg);
+      }
+
+      100% {
+        transform: rotate(1080deg);
+      }
+    }
+
+    .ms-timeline .ms-timeline-loader {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      margin: 0 auto;
+      background: #FFFFFF;
+      font-weight: 500;
+      opacity: 0;
+      z-index: 11;
+      border-radius: 50%;
+    }
+
+      .ms-timeline .ms-timeline-loader.show {
+        opacity: 1;
+      }
+
+      .ms-timeline .ms-timeline-loader .spinner {
+        width: 24px;
+        height: 24px;
+        border: 3px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #FFFFFF;
+        border-radius: 50%;
+      }
+
+    #splash-screen .logo {
+      font-size: 60px !important;
+      font-weight: 700;
+    }
+
+    #splash-screen .logo {
+      width: 96px;
+      height: 96px;
+      line-height: 96px;
+      margin: 0 auto;
+      font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+      font-size: 56px;
+      text-align: center;
+      border-radius: 2px;
+      background-color: #039BE5;
+      color: #FFFFFF;
+      box-shadow: 0 2px 14px 0 rgb(0 0 0 / 22%);
+    }
+
+    .logo {
+      min-width: 30px !important;
+    }
+  </style>
+  <!--<style>
+    .logo {
+      background: #039BE5;
+    }
+
+    #login-form-wrapper {
+      background: #3c4253;
+    }
+
+    #login #login-form-wrapper #login-form {
+      background: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      position: relative;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+    }
+
+    #login {
+      height: 100%;
+      background: url(/assets/images/backgrounds/march.jpg) no-repeat;
+      background-size: cover;
+    }
+
+    .layout-column {
+      flex-direction: column;
+    }
+
+    .flex-scrollable {
+      position: relative;
+      overflow-x: auto;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #login #login-form-wrapper {
+      -ms-flex: 1 0 auto;
+      flex: 1 0 auto;
+      padding: 32px;
+      background: #3c4253;
+    }
+
+    .layout-align-center-center {
+      align-items: center;
+      align-content: center;
+      max-width: 100%;
+      justify-content: center;
+    }
+
+    #login #login-form-wrapper #login-form {
+      width: 384px;
+      max-width: 384px;
+      padding: 32px;
+      background: transparent;
+      text-align: center;
+    }
+
+      #login #login-form-wrapper #login-form .logo {
+        width: 128px;
+        height: 128px;
+        line-height: 128px;
+        font-size: 86px;
+        font-weight: 700;
+        margin: 32px auto;
+        color: #FFFFFF;
+        border-radius: 2px;
+      }
+
+    .logo {
+      background: #039BE5;
+    }
+
+    .md-whiteframe-8dp {
+      box-shadow: 0px 5px 5px -3px rgb(0 0 0 / 20%), 0px 8px 10px 1px rgb(0 0 0 / 14%), 0px 3px 14px 2px rgb(0 0 0 / 12%);
+    }
+
+    .logo {
+      min-width: 30px !important;
+    }
+
+    .color-light-blue {
+      color: #039be5 !important;
+    }
+  </style>-->
+</head>
+<body>
+
+  <div id="splash-screen">
+    <div class="center">
+      <div class="logo">
+        <span>Q</span>
+      </div>
+      <!-- Material Design Spinner -->
+      <div class="spinner-wrapper">
+        <div class="spinner">
+          <div class="inner">
+            <div class="gap"></div>
+            <div class="left">
+              <div class="half-circle"></div>
+            </div>
+            <div class="right">
+              <div class="half-circle"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- / Material Design Spinner -->
+    </div>
+  </div>
+
+  <!--<div id="login" class="flex-scrollable custom-scroll layout-column">
+    <div id="login-form-wrapper" class="layout-column layout-align-center-center">
+      <div id="login-form" class="md-whiteframe-8dp">
+        <div class="logo md-accent-bg">
+          <span>Q</span>
+        </div>
+        <div class="title">Redirecting...</div>
+      </div>
+    </div>
+  </div>-->
+
+</body>
+</html>

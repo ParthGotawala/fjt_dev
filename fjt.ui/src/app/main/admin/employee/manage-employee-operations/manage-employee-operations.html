@@ -1,0 +1,207 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <!-- CONTENT HEADER -->
+  <div class="header md-accent-bg" layout="row" layout-align="start center">
+    <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" aria-label="Go to products" ng-click="vm.goBack()">
+      <!--<md-icon md-font-icon="icon-arrow-left" class="material-icons icon-arrow-left">
+      </md-icon>-->
+      <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+      </md-icon>
+    </md-button>
+    <div class="white-fg" layout="column" layout-align="start start">
+      <div class="h2" layout="row" layout-align="start center">
+        <!--<md-icon md-font-icon="icon-codepen"></md-icon>&nbsp;-->
+        <!--<span ng-if="vm.employee.id">Employee Operation - {{(vm.employee.firstName ? vm.employee.firstName : "") + " " + (vm.employee.lastName ? vm.employee.lastName : "")}}</span>-->
+        <pagetitle is-list="false" is-display-menu-name="true" prefix-content="" suffix-content="vm.employeeTitle"></pagetitle>
+      </div>
+      <div class="product-count">
+        <!--<span>No of Operation:</span>
+        <span>{{vm.operationAddedList.length}}</span>-->
+        <!--<div layout="row" layout-align="start center" class="product-count">-->
+        <breadcrumbs></breadcrumbs>
+        <!--</div>-->
+      </div>
+    </div>
+  </div>
+  <!-- / CONTENT HEADER -->
+  <!-- CONTENT CARD -->
+  <div class="content-card padding-top-side" layout="column" flex>
+    <form name="vm.operationTemplateForm" class="md-inline-form minfullheight padding-10">
+      <div flex="100" layout="row" layout-align="space-between stretch" layout-wrap ng-if="vm.isContainOpMasterEmployee">
+        <div flex flex-xs="100" flex-sm="100" layout="row" layout-wrap>
+          <div flex="100" flex-xs="100" layout="row" class="mobilesearch employee-workstaion-search-box userpermissionhead" layout-align="space-between center">
+            <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75" ng-class="{'clickedsearch':isButtonNoAddedClicked}">
+              <input id="SearchNoAddedListOperation" type="text"
+                     placeholder="Type here to search operations" ng-model="vm.SearchNoAddedListOperation"
+                     ng-keyup="vm.SearchOperation(vm.operationNoAddedList, vm.SearchNoAddedListOperation, false)"
+                     custom-blur="vm.SearchOperation(vm.operationNoAddedList, vm.SearchNoAddedListOperation, false)">
+            </md-input-container>
+            <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                       ng-disabled="!vm.SearchNoAddedListOperation"
+                       ng-click="vm.SearchNoAddedListOperation='';vm.SearchOperation(vm.operationNoAddedList, vm.SearchNoAddedListOperation,false)">
+              Clear
+            </md-button>
+            <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.refreshDataEmployee()">
+              Refresh
+            </md-button>
+            <md-button class="md-raised md-primary md-ink-ripple margin-0" ng-click="vm.addDataEmployee()">
+              Add New
+            </md-button>
+          </div>
+          <md-list flex="100" class="permissiontab custom-scroll dragbox permissions" id="permission1" ng-class="{'layout-column': vm.operationNoAddedList.length == 0}">
+            <md-list-item id="operationNoAddedList" class="padding-0 items-container" layout="row" flex="100" layout-wrap
+                          ui-sortable="sortableOptions"
+                          ng-model="vm.operationNoAddedList"
+                          haveadded="false">
+              <div flex="100" class="md-1-line margin-0 dragsortable"
+                   ng-repeat="operation in vm.operationNoAddedList"
+                   ui-sortable-selectable
+                   ng-model="operation">
+                <div class="md-list-item-text">
+                  <h4>
+                    <a class="cm-text-decoration" ng-click="vm.goToManageOperation(operation.opID);">
+                      {{operation.opName}}
+                    </a>
+                  </h4>
+                  <div class="last-message margin-0" layout ng-if="operation.shortDescription">
+                    <span class="cm-text-ellipsis">
+                      {{operation.shortDescription}}
+                      <md-tooltip>Short Description</md-tooltip>
+                    </span>
+                    <button class="md-primary grid-button md-icon-button" ng-if="operation.shortDescription && operation.shortDescription !== '-'" ng-click="vm.showDescription(operation, $event)">
+                      <md-icon md-font-icon="icon icon-eye" class="s16"></md-icon>
+                      <md-tooltip>View</md-tooltip>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                   ng-if="vm.operationNoAddedList.length == 0"
+                   ui-sortable-selectable>
+                <div class="empty-state text-center">
+                  <div class="emty-icon">
+                    <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                  </div>
+                  <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchNoAddedListOperation == null && vm.operationNoAddedList.length == 0">
+                    {{vm.EmptyMesssage.ALL_ASSIGNED}}
+                  </p>
+                  <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchNoAddedListOperation != null && vm.FilterOperationNotAdded != true">
+                    {{vm.EmptyMesssage.EMPTY_SEARCH_MESSAGE}}
+                  </p>
+                </div>
+              </div>
+            </md-list-item>
+          </md-list>
+        </div>
+        <div flex="5" flex-sm="100" flex-xs="100" layout-xs="row" layout="column" layout-align="center center">
+          <div flex="100" layout-xs="row" layout-sm="row" layout="column" layout-align="center center">
+            <md-button class="md-fab md-raised md-mini"
+                       ng-disabled="!selectAnyAdded"
+                       ng-click="vm.ModifyPageAdded('Remove')">
+              <i class="icon-chevron-left icondrag"></i>
+              <md-tooltip>Remove</md-tooltip>
+            </md-button>
+
+            <md-button class="md-fab md-raised md-mini"
+                       ng-disabled="vm.operationAddedList.length == 0"
+                       ng-click="vm.ModifyPageAdded('RemoveAll')">
+              <i class="icon-chevron-double-left icondrag"></i>
+              <md-tooltip>Remove All</md-tooltip>
+            </md-button>
+            <md-button class="md-fab md-raised md-mini"
+                       ng-disabled="vm.operationNoAddedList.length == 0"
+                       ng-click="vm.ModifyPageAdded('AddAll')">
+              <i class="icon-chevron-double-right icondrag"></i>
+              <md-tooltip>Add All</md-tooltip>
+            </md-button>
+            <md-button class="md-fab md-raised md-mini"
+                       ng-disabled="!selectAnyNoAdded"
+                       ng-click="vm.ModifyPageAdded('Add')">
+              <i class="icon-chevron-right icondrag"></i>
+              <md-tooltip>Add</md-tooltip>
+            </md-button>
+
+          </div>
+        </div>
+        <div flex flex-xs="100" flex-sm="100">
+          <div flex="100" flex-xs="100" layout="row" class="mobilesearch userpermissionhead" layout-align="space-between end">
+            <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75" ng-class="{'clickedsearch':isButtonAddedClicked}">
+              <input id="SearchAddedListOperation" type="text"
+                     placeholder="Type here to search added operations" ng-model="vm.SearchAddedListOperation"
+                     ng-keyup="vm.SearchOperation(vm.operationAddedList, vm.SearchAddedListOperation, true)"
+                     custom-blur="vm.SearchOperation(vm.operationAddedList, vm.SearchAddedListOperation, true)">
+            </md-input-container>
+            <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                       ng-hide="!vm.SearchAddedListOperation"
+                       ng-click="vm.SearchAddedListOperation='';vm.SearchOperation(vm.operationAddedList, vm.SearchAddedListOperation,true)">
+              Clear
+            </md-button>
+          </div>
+          <md-list flex="100" class="permissiontab custom-scroll dragbox permissions" id="permission2" ng-class="{'layout-column': vm.operationAddedList.length == 0}">
+            <md-list-item id="operationAddedList" class="padding-0 items-container" layout="row" flex="100" layout-wrap
+                          ui-sortable="sortableOptions"
+                          ng-model="vm.operationAddedList"
+                          haveadded="true">
+              <div flex="100" class="md-1-line margin-0 dragsortable"
+                   ng-repeat="operation in vm.operationAddedList"
+                   ui-sortable-selectable ng-model="operation">
+                <div class="md-list-item-text">
+                  <h4>
+                    <a class="cm-text-decoration" ng-click="vm.goToManageOperation(operation.opID);">
+                      {{operation.opName}}
+                    </a>
+                  </h4>
+                  <div class="last-message margin-0" layout ng-if="operation.shortDescription">
+                    <span class="cm-text-ellipsis">
+                      {{operation.shortDescription}}
+                      <md-tooltip>Short Description</md-tooltip>
+                    </span>
+                    <button class="md-primary grid-button md-icon-button" ng-if="operation.shortDescription && operation.shortDescription !== '-'" ng-click="vm.showDescription(operation, $event)">
+                      <md-icon md-font-icon="icon icon-eye" class="s16"></md-icon>
+                      <md-tooltip>View</md-tooltip>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div flex="100" class="md-1-line margin-0 cursor-not-allow"
+                   ng-if="vm.operationAddedList.length == 0"
+                   ui-sortable-selectable>
+                <div class="empty-state text-center">
+                  <div class="emty-icon">
+                    <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                  </div>
+                  <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchAddedListOperation == null && vm.operationAddedList.length == 0">
+                    {{vm.EmptyMesssage.MESSAGE}}
+                  </p>
+                  <p class="empty-state-title font-size-2 useadded-emptytxt" ng-if="vm.SearchAddedListOperation != null && vm.FilterOperationAdded != true">
+                    {{vm.EmptyMesssage.EMPTY_SEARCH_MESSAGE}}
+                  </p>
+                </div>
+              </div>
+            </md-list-item>
+          </md-list>
+        </div>
+      </div>
+      <div flex="100" class="md-1-line margin-0 cursor-not-allow" ng-if="!vm.isContainOpMasterEmployee">
+        <div class="empty-state text-center full-height">
+          <div class="emty-icon">
+            <img ng-src="{{vm.EmptyMesssageForOpDataFields.IMAGEURL}}" />
+          </div>
+          <p class="empty-state-title font-size-2 useadded-emptytxt">
+            {{vm.EmptyMesssageForOpDataFields.MESSAGE}}
+          </p>
+          <p flex="100">
+            {{vm.EmptyMesssageForOpDataFields.ADDNEWMESSAGE}}
+          </p>
+          <p flex="100">
+            <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.addDataEmployee()">
+              <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+            </md-button>
+            <md-button class="md-fab md-mini" aria-label="Add Elements" ng-click="vm.refreshDataEmployee()">
+              <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-refresh"></md-icon>
+            </md-button>
+          </p>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

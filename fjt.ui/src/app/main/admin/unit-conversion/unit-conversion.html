@@ -1,0 +1,137 @@
+﻿<div id="unit-conversion" class="page-layout carded fullwidth breadcrumb-fixed" layout="row" cg-busy="{promise:vm.cgBusyLoading}">
+    <div class="top-bg md-accent-bg"></div>
+    <div class="center margin-left-0 margin-right-0" layout="column" flex>
+
+        <div class="header" layout="row" layout-align="space-between center">
+            <div class="white-fg" layout="column" layout-align="start start">
+
+                <div class="h2" layout="row" layout-align="start center">
+                    <pagetitle is-list="true" is-display-menu-name="true"></pagetitle>
+                </div>
+
+                <div layout="row" layout-align="start center" class="product-count">
+                    <breadcrumbs></breadcrumbs>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card padding-top-side cm-custom-label-common" layout="column" flex>
+            <div layout="column" class="cm-county-list-grid padding-10" flex layout-align="space-between stretch">
+                <form name="vm.UnitConversion" class="md-inline-form padding-0" novalidate>
+                    <div flex="100" layout="row" layout-wrap>
+                        <div flex="30">
+                            <div class="cm-section-main manage-coversion margin-right-10" flex="100" layout="row" layout-wrap>
+                                <div class="cm-section-header" flex="100">
+                                    <h2>Measurement Type</h2>
+                                </div>
+                                <div class="cm-section-inner padding-0" layout="column" flex="100" flex-xs="100">
+                                    <md-list class="dragbox cm-mesasurement-type-list padding-0"> <!--flex="100"--> 
+                                        <md-list-item ng-repeat="type in vm.measurementTypeList" class="noright" ng-class="{'active':vm.selectedIndex === $index}" ng-click="vm.categoryChanged(type,$index)">
+                                            <p>{{type.name}}</p>
+                                        </md-list-item>
+                                    </md-list>
+                                </div>
+                            </div>
+                        </div>
+                        <div flex="70">
+                            <div class="cm-section-main manage-coversion" flex="100" layout="row" layout-wrap>
+                                <div class="cm-section-header" flex="100">
+                                    <h2>{{vm.selectedUnit}}</h2>
+                                </div>
+                                <div class="cm-section-inner" layout="column" flex="100" flex-xs="100">
+                                    <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                                        <tbody>
+                                            <tr>
+                                                <th>
+                                                    <p class="label-container">From Value<span>&nbsp;*</span></p>
+                                                </th>
+                                                <td>
+                                                    <md-input-container flex="100" class="md-block">
+                                                        <input type="text" name="fromValue" ng-model="vm.fromValue" onkeypress="return OnlyNumbersWithDot(event)" onchange="ToDecimalTwoDigit(this, true)" required placeholder="From Value" ng-change="vm.fromValueChanged();" md-autofocus>
+                                                        <div ng-messages="vm.UnitConversion.fromValue.$error" role="alert">
+                                                            <div ng-message="required">
+                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                            </div>
+                                                        </div>
+                                                    </md-input-container>
+                                                </td>
+                                                <th class="cm-count-conversion">
+                                                    <p class="label-container">=</p>
+                                                </th>
+                                                <th>
+                                                    <p class="label-container">To Value<span>&nbsp;*</span></p>
+                                                </th>
+                                                <td>
+                                                    <md-input-container flex="100" class="md-block">
+                                                        <input type="text" name="toValue" ng-model="vm.toValue" onkeypress="return OnlyNumbersWithDot(event)" onchange="ToDecimalTwoDigit(this, true)" required placeholder="To Value" ng-change="vm.toValueChanged();" md-autofocus>
+                                                        <div ng-messages="vm.UnitConversion.toValue.$error" role="alert">
+                                                            <div ng-message="required">
+                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                            </div>
+                                                        </div>
+                                                    </md-input-container>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>
+                                                    <p class="label-container">
+                                                        <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToUnitList();">{{vm.autoCompleteFromUnit.placeholderName}}</a>
+                                                        <span>&nbsp;*</span>
+                                                    </p>
+                                                </th>
+                                                <td>
+                                                    <md-input-container ng-if="vm.autoCompleteFromUnit" class="autocompletecustom cm-custom-autocomplete margin-0">
+                                                        <custom-auto-complete datalist="vm.unitOfMeasurementList"
+                                                                              column-name="vm.autoCompleteFromUnit.columnName"
+                                                                              controller-name="vm.autoCompleteFromUnit.controllerName"
+                                                                              view-template-url="vm.autoCompleteFromUnit.viewTemplateURL"
+                                                                              key-column-name="vm.autoCompleteFromUnit.keyColumnName"
+                                                                              input-name="vm.autoCompleteFromUnit.inputName"
+                                                                              placeholder-name="vm.autoCompleteFromUnit.placeholderName"
+                                                                              key-column-id="vm.autoCompleteFromUnit.keyColumnId"
+                                                                              is-required="vm.autoCompleteFromUnit.isRequired"
+                                                                              is-addnew="vm.autoCompleteFromUnit.isAddnew"
+                                                                              callback-fn="vm.autoCompleteFromUnit.callbackFn"
+                                                                              on-select-callback-fn="vm.autoCompleteFromUnit.onSelectCallbackFn">
+                                                        </custom-auto-complete>
+                                                    </md-input-container>
+                                                </td>
+                                                <th class="cm-count-conversion"></th>
+                                                <th>
+                                                    <p class="label-container">
+                                                        <a tabindex="-1" class="cm-text-decoration underline" ng-click="vm.goToUnitList();">{{vm.autoCompleteToUnit.placeholderName}}</a>
+                                                        <span>&nbsp;*</span>
+                                                    </p>
+                                                </th>
+                                                <td>
+                                                    <md-input-container ng-if="vm.autoCompleteToUnit" class="autocompletecustom cm-custom-autocomplete">
+                                                        <custom-auto-complete datalist="vm.unitOfMeasurementList"
+                                                                              column-name="vm.autoCompleteToUnit.columnName"
+                                                                              controller-name="vm.autoCompleteToUnit.controllerName"
+                                                                              view-template-url="vm.autoCompleteToUnit.viewTemplateURL"
+                                                                              key-column-name="vm.autoCompleteToUnit.keyColumnName"
+                                                                              input-name="vm.autoCompleteToUnit.inputName"
+                                                                              placeholder-name="vm.autoCompleteToUnit.placeholderName"
+                                                                              key-column-id="vm.autoCompleteToUnit.keyColumnId"
+                                                                              is-required="vm.autoCompleteToUnit.isRequired"
+                                                                              is-addnew="vm.autoCompleteToUnit.isAddnew"
+                                                                              callback-fn="vm.autoCompleteToUnit.callbackFn"
+                                                                              on-select-callback-fn="vm.autoCompleteToUnit.onSelectCallbackFn">
+                                                        </custom-auto-complete>
+                                                    </md-input-container>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>

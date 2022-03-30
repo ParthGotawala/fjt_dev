@@ -1,0 +1,114 @@
+<md-dialog aria-label="SelectLine" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="95">
+  <form name="vm.formPackingSlipStock" class="md-inline-form" novalidate>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>Packing Slip Line Stock</h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content class="customer-modal no-padding custom-scroll" layout="column">
+      <md-content class="padding-10 mh-5">
+        <div flex="100" layout="row" layout-align="start start" class="notification-condition pb-5">
+          <div class="title text-bold" ng-bind-html="vm.packingSlipNote"></div>
+        </div>
+        <div class="flex-100 layout-row layout-wrap">
+          <div class="content fullpage-datatable" layout="column" flex>
+            <md-table-container layout="row" flex="100">
+              <table md-table class="md-data-table table-row-select">
+                <thead md-head md-order="vm.query.order">
+                  <tr>
+                    <th></th>
+                    <th md-column class="w-50">
+                      #
+                    </th>
+                    <th md-column class="w-150" md-order-by="packingSlipNumber">
+                      Packing Slip#
+                    </th>
+                    <th md-column class="w-150" md-order-by="packingSlipModeStatus">
+                      PS Posting Status
+                    </th>
+                    <th class="w-150" md-column md-order-by="packingSlipSerialNumber">
+                      PS Line#
+                    </th>
+                    <th md-column md-order-by="receivedStatus">
+                      Received Status
+                    </th>
+                    <th md-column>
+                      Customer Consigned
+                    </th>
+                    <th md-column md-order-by="packagingType">
+                      Packaging
+                    </th>
+                    <th md-column md-order-by="receivedQty" class="w-110">
+                      Received Qty
+                    </th>
+                    <th md-column md-order-by="UMIDCreatedQty" class="w-150">
+                      UMID Created Qty
+                    </th>
+                    <th md-column md-order-by="returnQty" class="w-110">
+                      Returned Qty
+                    </th>
+                    <th md-column md-order-by="BalanceQty" class="w-150">
+                      UMID Pending Qty
+                    </th>
+                    <th md-column class="w-110">
+                      Count
+                    </th>
+                  </tr>
+                </thead>
+                <tbody md-body>
+                  <tr md-row ng-repeat="item in vm.packingSlipLineList | orderBy: vm.query.order">
+                    <td md-cell>
+                      <md-checkbox ng-model="item.isSelect" id="line{{item.packingSlipDetID}}" ng-disabled="item.isDisable" ng-change="vm.selectPackingSlipLine(item);" custom-auto-focus="{{$first ? true : false}}"></md-checkbox>
+                    </td>
+                    <td md-cell>{{$index+1}}</td>
+                    <td md-cell>
+                      <a tabindex="-1" ng-click="vm.goToManagePackingSlipDetail(item.packingSlipDetID)" class="cursor-pointer">{{item.packingSlipNumber}}</a>
+                    </td>
+                    <td md-cell class="text-center">
+                      <span ng-if="item.packingSlipModeStatus === vm.PackingSlipModeStatus[0].ID" class="label-box label-warning">{{vm.PackingSlipModeStatus[0].Name}}</span>
+                      <span ng-if="item.packingSlipModeStatus === vm.PackingSlipModeStatus[1].ID" class="label-box label-primary">{{vm.PackingSlipModeStatus[1].Name}}</span>
+                    </td>
+                    <td md-cell class="text-right">{{item.packingSlipSerialNumber}}</td>
+                    <td md-cell class="text-center">
+                      <span ng-if="item.receivedStatus === vm.packingSlipReceivedStatus[0].value" class="label-box label-warning">{{vm.packingSlipReceivedStatus[0].key}}</span>
+                      <span ng-if="item.receivedStatus === vm.packingSlipReceivedStatus[1].value" class="label-box label-success">{{vm.packingSlipReceivedStatus[1].key}}</span>
+                      <span ng-if="item.receivedStatus === vm.packingSlipReceivedStatus[2].value" class="label-box label-danger">{{vm.packingSlipReceivedStatus[2].key}}</span>
+                      <span ng-if="item.receivedStatus === vm.packingSlipReceivedStatus[3].value" class="label-box light-green-bg">{{vm.packingSlipReceivedStatus[3].key}}</span>
+                    </td>
+                    <td md-cell>
+                      <md-checkbox ng-model="item.isLineCustConsigned" ng-disabled="true"></md-checkbox>
+                    </td>
+                    <td md-cell>{{item.packagingType}}</td>
+                    <td md-cell class="text-right">{{item.receivedQty}}</td>
+                    <td md-cell class="text-right">{{item.UMIDCreatedQty || 0}}</td>
+                    <td md-cell class="text-right">{{item.returnQty}}</td>
+                    <td md-cell class="text-right">{{item.BalanceQty}}</td>
+                    <td md-cell class="text-center w-150">
+                      <input class="width-100p" type="number" id="umidCount" name="umidCount" ng-model="item.umidCount" placeholder="UMID Count" min="{{$root.unitInputStep}}" maxlength="18"
+                             onkeypress="return OnlyNumbersWithDot(event);" ng-disabled="!item.isSelect || item.isDisable" ng-keyup="vm.checkCountValueChange(item);"
+                             ng-class="{'text-angular-custom-border': item.inValidCount && item.isSelect}">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+            </md-table-container>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.confirmSelect()" ng-disabled="vm.isDisable" ng-class="{'md-formdirty': vm.formPackingSlipStock.$dirty}" aria-label="Submit">
+        Select
+      </md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

@@ -1,0 +1,139 @@
+========================================================
+Temproray Solution - Function Issue
+========================================================
+- If any function not getting executed than execute below query
+SET GLOBAL log_bin_trust_function_creators = 1; 
+
+========================================================
+Permanent Solution - Recursion, Group concate, function, group by follow stricitly
+========================================================
+Step 1: Go to following path "C:\ProgramData\MySQL\MySQL Server 8.0".
+Step 2: Open "my.ini" file and add following line at last line.
+# ALLOW TO CREATE FUNCTION WITHOUT ANY ERROR.
+log_bin_trust_function_creators = 1
+Step 3: Find SQL Mode and append below for group by follow strictly in my.ini
+sql-mode="ONLY_FULL_GROUP_BY"
+Step 4: Add following for allow recursion call limit
+#Recursion Depth -- permit deeper recursion
+cte_max_recursion_depth = 10000
+Step 5: Add following for group concat case.
+#ALLOW TO concat more then 1000000 character.
+group_concat_max_len = 1000000
+Step 6: Get all deadlock logs in log file.
+#Log the deadlock.
+innodb_print_all_deadlocks = 1
+Step 7: Go to services and Restart "MySQL" Service.
+
+========================================================
+Update/Delete Issue
+========================================================
+- any error in update than go to workbench query editor
+Edit => Preference => SQL Editor => Turn off Safe Update
+
+========================================================
+Allow to access mysql 
+========================================================
+USE mysql;
+DROP USER 'root'@'%';
+
+CREATE USER 'root'@'%' IDENTIFIED BY 'triveni@123';
+GRANT ALL ON *.* TO 'root'@'%';
+FLUSH PRIVILEGES;
+
+======================================================
+Execute TimeZone related script after configure server
+======================================================
+Step 1: Open timezone_posix.sql file from below link.
+https://dev.azure.com/ZFlexnet/FJT/_versionControl?path=%24/FJT/FJT/FJT.IdentityServer/timezone_posix.sql
+Step 2: Copy script from it and execute in mysql tool.
+
+===========================
+MYSQL Replication
+===========================
+Steps to Start with Replication
+1. Take back up of your all databases.
+2. Create Copy of following folder
+	Source: 	C:\ProgramData\MySQL\MySQL Server 8.0
+	Destination: <Path where you want to create new instance>
+				e.g. D:\MYSQLDEV
+3. Now consider following as Master & Slave Folder
+	Master: C:\ProgramData\MySQL\MySQL Server 8.0
+	configuration file: my.ini
+	Slave: D:\MYSQLDEV 
+	configuration file: mysqldev.ini
+4. Stop MySQL80 service from Services.
+5. Master: Make following changes in my.ini file
+	Find innodb_flush_log_at_trx_commit and after this line paste following configuration
+		sync_binlog=1
+		binlog_format=mixed
+		binlog_do_db=flexjobtracking_dev
+		binlog_do_db=flexjobtracking_identity_dev
+	Check with server-id should be one
+		server-id=1
+6. Slave: Make following changes in mysqldev.ini file.
+	Find socket=MYSQLDEV
+		Change it to Another name of MySQL. 
+			e.g. MYSQLDEV
+	Uncomment following lines
+		enable-named-pipe=
+		shared-memory=
+	Uncomment and change MYSQL to MYSQLDEV
+		shared-memory-base-name=MYSQLDEV
+		socket=MYSQLDEV
+	Find Port and Make changes as below
+		port=3307
+		report_port=3307
+	Make changes for server ID
+		server-id=2
+	Change datadir Path
+		datadir=D:/MYSQLDEV/Data
+	Change secure-file-priv Path
+		secure-file-priv=D:/MYSQLDEV/Uploads 	
+	Find innodb_flush_log_at_trx_commit and after this line paste following configuration
+		sync_binlog=1
+		binlog-format=mixed
+		relay-log="LAPTOP-4OLDNHDI.log"
+		log-slave-updates=1
+		read-only=1
+	Find following configuration and change as below
+		loose_mysqlx_port=33061
+7. Master: Start MYSQL Service of master.
+8. Slave: Open another cmd with Administrator rights and Go to below path: "C:\Program Files\MySQL\MySQL Server 8.0\bin"
+	Execute below command: It will create new instance of MYSQLDEV with base directory of MYSQL master.
+		mysqld --install MYSQLDEV --defaults-file="D:\MySQLDEV\mysqldev.ini"
+	To start above instance execute following command
+		net start MYSQLDEV
+9. Master: Open cmd with Administrator rights and Go to below path: "C:\Program Files\MySQL\MySQL Server 8.0\bin"
+	Execute following command and enter password of root
+		mysql -u root -P3306 -p
+	Execute following script to create user for replica
+		create user 'replica'@'%' identified WITH mysql_native_password by 'triveni@123';
+		grant replication slave on *.* to 'replica'@'%';
+	Execute following command to lock tables
+		FLUSH TABLES WITH READ LOCK;
+	Execute following command to show master status
+		SHOW MASTER STATUS;
+	Copy Name of relay file	and its position
+		e.g. filename: LAPTOP-4OLDNHDI-bin.000252
+		e.g. position: 665
+10. Slave: Go to Slave cmd window again
+	Execute below command and password, to enter in mysql mode with another port
+		mysql -u root -P3307 -p
+	Execute following script to set master relay and position in slave [MASTER_LOG_FILE and MASTER_LOG_POS details will come from show master status]
+		CHANGE MASTER TO MASTER_HOST='localhost', MASTER_USER='replica', MASTER_PASSWORD='triveni@123', MASTER_LOG_FILE='LAPTOP-4OLDNHDI-bin.000252', MASTER_LOG_POS=665;
+	Open auto.cnf file from Slave Data folder path and update new uuid, 
+		in our case path is "D:\MYSQLDEV\Data"
+	To generate new uuid, go to this link and copy uuid and paste in file.
+		https://www.uuidgenerator.net/
+		server-uuid=dc4d6f8b-af3e-4767-9c69-0aa1d8c0e5c9
+11. Slave: Restart MySQLDEV service.
+12. On Slave: 
+	Now, Execute Start Slave Command
+		start slave;
+	To check status of slave, execute following command
+		show slave status \G
+	Check following should be in running mode
+		Slave_IO_Running:YES
+		Slave_SQL_Running:YES
+13. Master: unlock all tables
+	UNLOCK TABLES;

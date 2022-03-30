@@ -1,0 +1,210 @@
+<md-dialog aria-label="Add Personnel" cg-busy="{promise:vm.cgBusyLoading}" flex="55" flex-lg="65" draggable class="form cm-custom-label-common">
+  <form name="vm.AddEmployeeForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{vm.addEmployee.id ? 'Update' : 'Add'}} Personnel</h2>
+        <span flex></span>
+        <md-button class="md-primary md-raised" id="headerAddBtn" ng-click="vm.saveAndProceed(vm.BUTTON_TYPE.ADDNEW)">
+          Add Personnel
+        </md-button>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding custom-scroll" layout="column">
+      <md-content class="md-padding">
+        <div layout="row" layout-wrap class="cm-section-main border-0" flex="100">
+          <div class="cm-section-inner" flex="100">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <th><p class="label-container">First Name<span>&nbsp;*</span></p></th>
+                  <td>
+                    <md-input-container class="md-block">
+                      <input type="text" name="employeefirstname" ng-model="vm.addEmployee.firstName" id="firstName"
+                             placeholder="First Name" required ng-maxlength="50" md-autofocus md-maxlength="50">
+                      <div ng-messages="vm.AddEmployeeForm.employeefirstname.$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50,vm.AddEmployeeForm.employeefirstname.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">Middle Name</p></th>
+                  <td>
+                    <md-input-container>
+                      <input type="text" name="employeemiddlename" ng-model="vm.addEmployee.middleName"
+                             placeholder="Middle Name" ng-maxlength="50" md-maxlength="50">
+                      <div ng-messages="vm.AddEmployeeForm.employeemiddlename.$error"
+                           role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50,vm.AddEmployeeForm.employeemiddlename.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">Last Name<span>&nbsp;*</span></p></th>
+                  <td>
+                    <md-input-container>
+                      <input type="text" name="employeelastname" ng-model="vm.addEmployee.lastName"
+                             placeholder="Last Name" required ng-maxlength="50" md-maxlength="50">
+                      <div ng-messages="vm.AddEmployeeForm.employeelastname.$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50,vm.AddEmployeeForm.employeelastname.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">Initial<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                  <td>
+                    <md-input-container class="md-block">
+                      <input type="text" id="initialNamePopUp" name="initialName" ng-model="vm.addEmployee.initialName" capitalize
+                             class="input-text-uppercase" placeholder="Initial" required ng-maxlength="50" md-maxlength="50" no-special-character
+                             custom-blur="vm.checkEmailIDAlreadyExists(vm.employeeDetail,'initialName')">
+                      <div ng-messages="vm.AddEmployeeForm.initialName.$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="minlength">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.CODE_LENGTH}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50,vm.AddEmployeeForm.initialName.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">User ID<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                  <td>
+                    <md-input-container class="autocompletecustom">
+                      <input type="text" id="codePopUp" name="employeecode" ng-model="vm.addEmployee.code" ng-disabled="vm.addEmployee.id"
+                             class="input-text-uppercase" capitalize placeholder="User ID" required ng-maxlength="50" md-maxlength="50" no-special-character
+                             custom-blur="vm.checkEmailIDAlreadyExists(vm.employeeDetail,'code')">
+                      <div ng-messages="vm.AddEmployeeForm.employeecode.$error"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50,vm.AddEmployeeForm.employeecode.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th ng-if="!vm.addEmployee.id"><p class="label-container">Confirm User ID<span ng-if="vm.addEmployee.code">&nbsp;*</span></p></th>
+                  <td ng-if="!vm.addEmployee.id">
+                    <md-input-container class="autocompletecustom">
+                      <input type="text" name="confirmEmployeecode"
+                             ng-model="vm.addEmployee.confirmCode"
+                             ng-match="vm.addEmployee.code"
+                             class="input-text-uppercase" capitalize placeholder="Confirm User ID"
+                             required ng-maxlength="50" md-maxlength="50" no-special-character
+                             ng-paste="$event.preventDefault()"
+                             ng-required="vm.addEmployee.code">
+                      <div ng-messages="vm.AddEmployeeForm.confirmEmployeecode.$error || vm.AddEmployeeForm.confirmEmployeecode.$touched" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50,vm.AddEmployeeForm.confirmEmployeecode.$viewValue.length)}}</span>
+                        </div>
+                        <div ng-message="match">{{vm.CORE_MESSAGE_CONSTANT.NOT_MATCH}}</div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">Email&nbsp;<check-unique-on-blur></check-unique-on-blur></p></th>
+                  <td>
+                    <md-input-container>
+                      <input type="email"
+                             id="emailPopUp"
+                             ng-model="vm.addEmployee.email"
+                             name="email"
+                             placeholder="Email"
+                             ng-paste="$event.preventDefault()"
+                             lowercase
+                             custom-blur="vm.checkEmailIDAlreadyExists(vm.employeeDetail,'email')"
+                             ng-maxlength="255"
+                             md-maxlength="255"
+                             ng-pattern="vm.EmailPattern" />
+                      <div ng-messages="vm.AddEmployeeForm.email.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255,vm.AddEmployeeForm.email.$viewValue.length)}}</span>
+                        </div>
+                        <div ng-message="pattern">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="email">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-if="vm.EmailIDAlreadyExists">
+                          <span>{{vm.EmailIDAlreadyExists}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th ng-if="(!vm.addEmployee.id && vm.addEmployee.email) || (vm.addEmployee.id && vm.addEmployee.email && vm.addEmployee.email.$dirty)">
+                    <p class="label-container">Confirm Email<span>&nbsp;*</span></p>
+                  </th>
+                  <td ng-init="vm.addEmployee.confirmEmail = ''"
+                      ng-if="(!vm.addEmployee.id && vm.addEmployee.email) || (vm.addEmployee.id && vm.addEmployee.email && vm.addEmployee.email.$dirty)">
+                    <md-input-container>
+                      <input type="email" name="confirmEmail"
+                             lowercase
+                             ng-model="vm.addEmployee.confirmEmail"
+                             ng-match="vm.addEmployee.email"
+                             placeholder="Confirm Email"
+                             ng-maxlength="255"
+                             md-maxlength="255"
+                             ng-paste="$event.preventDefault()"
+                             ng-required="vm.addEmployee.email" />
+                      <div ng-messages="vm.AddEmployeeForm.confirmEmail.$error || vm.AddEmployeeForm.confirmEmail.$touched"
+                           role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255,vm.AddEmployeeForm.confirmEmail.$viewValue.length)}}</span>
+                        </div>
+                        <div ng-message="email">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="match">{{vm.CORE_MESSAGE_CONSTANT.NOT_MATCH}}</div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-disabled="vm.saveDisable"
+                 ng-class="{'md-formdirty': vm.checkFormDirty(vm.AddEmployeeForm)}"
+                 ng-click="vm.SaveEmployee(true,vm.BUTTON_TYPE.SAVE)" aria-label="Submit">Save</md-button>
+      <md-button class="md-primary md-raised" data-focusButton="headerAddBtn" last-element elementcondition="true"
+                 ng-click="vm.SaveEmployee(true,vm.BUTTON_TYPE.SAVEANDEXIT);" aria-label="Submit"
+                 ng-class="{'md-formdirty': vm.checkFormDirty(vm.AddEmployeeForm)}">
+        {{vm.CORE_MESSAGE_CONSTANT.SAVE_AND_EXIT}}
+      </md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

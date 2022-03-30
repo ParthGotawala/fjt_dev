@@ -1,0 +1,121 @@
+<md-dialog aria-label="Add MFG Code"  cg-busy="{promise:vm.cgBusyLoading}" draggable class="width-50p">
+    <form name="vm.AddMfgCodeForm" class="md-inline-form" novalidate>
+        <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>Mapping {{vm.aliasMaster.name}}</h2>
+                <span flex></span>
+                <popup-header-label label-data="vm.headerdata"></popup-header-label>
+                <md-button class="md-icon-button" ng-click="vm.cancel()">
+                    <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content class="customer-modal padding-10 cm-custom-label-common" layout="column">
+            <md-content class="md-padding">
+                <div layout="row" flex="100">
+                    <div flex="100" layout-wrap>
+                        <div class="cm-section-main border-0" flex="100">
+                            <div class="cm-section-inner" flex="100">
+                                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                    <tr>
+                                        <th>
+                                            <p class="label-container">Search Code and Add</p>
+                                        </th>
+                                        <td colspan="3">
+                                            <md-input-container flex="100" ng-if="vm.autoCompletemfgCode" class="autocompletecustom margin-top-0" custom-auto-focus="true" md-no-float>
+                                                <custom-auto-complete-search on-search-fn="vm.autoCompletemfgCode.onSearchFn"
+                                                                             column-name="vm.autoCompletemfgCode.columnName"
+                                                                             parent-column-name="vm.autoCompletemfgCode.parentColumnName"
+                                                                             key-column-name="vm.autoCompletemfgCode.keyColumnName"
+                                                                             view-template-url="vm.autoCompletemfgCode.viewTemplateURL"
+                                                                             controller-name="vm.autoCompletemfgCode.controllerName"
+                                                                             input-name="vm.autoCompletemfgCode.inputName"
+                                                                             placeholder-name="vm.autoCompletemfgCode.placeholderName"
+                                                                             key-column-id="vm.autoCompletemfgCode.keyColumnId"
+                                                                             is-required="vm.autoCompletemfgCode.isRequired"
+                                                                             is-addnew="vm.autoCompletemfgCode.isAddnew"
+                                                                             on-select-callback-fn="vm.autoCompletemfgCode.onSelectCallbackFn"
+                                                                             callback-fn="vm.autoCompletemfgCode.callbackFn"
+                                                                             search-text="vm.autoCompletemfgCode.searchText"
+                                                                             md-require-match="false"
+                                                                             add-data="vm.autoCompletemfgCode.addData"
+                                                                             >
+                                                </custom-auto-complete-search>
+                                            </md-input-container>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div layout="row" flex="100">
+                            <div layout="column" flex>
+                                <div layout="column" class="cm-common-line alias-list-main cm-manufacture-alias-list" flex>
+                                    <div class="mobilesearch title alias-list-title userpermissionhead" layout="row" flex="100">
+                                        <div layout="row" flex="100" layout-align="space-between center" ng-if="vm.mappedMfgList.length > 0">
+                                            <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75">
+                                                <input type="text" class="font-weight-400" placeholder="Type here to search {{vm.aliasMaster.name}}" ng-model="vm.Search">
+                                            </md-input-container>
+                                            <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                                                       ng-disabled="vm.Search =='' || vm.Search ==null"
+                                                       ng-click="vm.Search=''">
+                                                Clear
+                                            </md-button>
+                                        </div>
+                                    </div>
+                                    <div layout="row" flex="100" layout-wrap class="permissiontab detail dossection padding-5 custom-scroll" ng-if="vm.mappedMfgList.length > 0">
+                                        <table class="simple no-padding" ms-responsive-table="">
+                                            <thead>
+                                                <tr>
+                                                    <th width="120">{{vm.labelHead}}</th>
+                                                    <th class="text-center">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="alias in vm.mappedMfgList | filter: { mfgCode: vm.Search }" class="height-40">
+                                                    <td width="300" class="font-size-14">
+                                                        {{alias.mfgCode}}
+                                                    </td>
+                                                    <td width="100" class="text-center font-size-14">
+                                                        <button class="md-mini md-icon-button margin-0" >
+                                                            <md-icon md-font-icon="icon-eye"></md-icon>
+                                                            <md-tooltip md-direction="top" class="tt-multiline">
+                                                                Created By: {{alias.employeeName}} <br />
+                                                                Created At: {{alias.createdAt | date:vm.DefaultDateFormat}}
+                                                            </md-tooltip>
+                                                        </button>
+                                                        <md-button class="md-mini md-icon-button margin-0"  ng-click="vm.removeAliasFromList($event,$index,alias)">
+                                                            <md-icon md-font-icon="icon-trash"></md-icon><md-tooltip>Delete</md-tooltip>
+                                                        </md-button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div flex="100" class="md-1-line margin-0 dragsortable" layout="row" layout-align="start center"
+                                             ng-if="(vm.mappedMfgList | filter:vm.Search).length==0 && vm.mappedMfgList.length > 0">
+                                            <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap flex="100">
+                                                <div class="emty-icon" flex="100">
+                                                    <img ng-src="{{vm.EmptyMesssageAliaslist.SEARCH_IMAGE_URL}}" />
+                                                </div>
+                                                <p flex="100" class="empty-state-title">{{vm.EmptyMesssageAliaslist.EMPTY_SEARCH_MESSAGE}}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div flex="100" class="md-1-line margin-0 dragsortable" layout="row" layout-align="start center" ng-if="!vm.mappedMfgList || vm.mappedMfgList.length == 0">
+                                        <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap flex="100">
+                                            <p flex="100" class="empty-state-title">{{vm.EmptyMesssageAliaslist.MESSAGE}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </md-content>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+            <md-button name="btnSave" class="md-primary md-raised" ng-class="{'md-formdirty': vm.checkDirty}" ng-click="vm.saveMfgMappDetail()" aria-label="Submit">Save</md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

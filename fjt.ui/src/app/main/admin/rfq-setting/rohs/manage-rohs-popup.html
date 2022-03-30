@@ -1,0 +1,269 @@
+<md-dialog aria-label="addRoHS" class="cm-custom-label-common receiving-pop-main cm-manage-rohs-popup" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <!--flex="90"-->
+  <form name="vm.AddRoHSForm" class="md-inline-form" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>{{(vm.rohsModel.id || vm.rohsModel.id==0) ? 'Update' : 'Add'}} RoHS<span ng-if="vm.rohsModel.name || vm.autoCompleteRoHS.searchText">:&nbsp;{{vm.isMaster ? vm.rohsModel.name : vm.autoCompleteRoHS.searchText}}</span></h2>
+        <span flex></span>
+        <md-button class="md-primary md-raised" id="headerAddBtn" ng-click="vm.saveAndProceed(vm.BUTTON_TYPE.ADDNEW)">Add RoHS</md-button>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding" layout="column">
+      <md-content class="padding-10">
+        <div flex="100" layout="row" class="md-padding" layout-md="column" layout-sm="column">
+          <div flex="45" layout="column" class="cm-section-main mr-5 border-black">
+            <div class="cm-section-inner" flex layout="column">
+              <div class="cm-section-main border-0" flex="nogrow">
+                <div class="cm-section-inner overflow-auto-rs">
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                    <tbody>
+                      <tr>
+                        <th>
+                          <p class="label-container">{{vm.isMaster?'Name':'Search RoHS or Add'}}<span ng-hide="vm.rohsModel.systemGenerated">&nbsp;*</span><check-unique-on-blur></check-unique-on-blur></p>
+                        </th>
+                        <td colspan="4">
+                          <md-input-container class="margin-bottom-0 md-block margin-top-0" flex="100" flex-gt-xs="100" md-no-float ng-if="vm.isMaster">
+                            <input type="text" name="rohs" id="rohs" ng-model="vm.rohsModel.name" ng-disabled="vm.rohsModel.systemGenerated ||vm.rohsModel.id "
+                                   placeholder="Name" required ng-maxlength="50" md-maxlength="50" custom-auto-focus="{{(vm.rohsModel.systemGenerated || vm.rohsModel.id)? false:true}}" custom-blur="vm.checkDuplicateName()">
+                            <div ng-messages="vm.AddRoHSForm.rohs.$error"
+                                 role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(50, vm.AddRoHSForm.rohs.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                          <md-input-container flex="100" ng-if="vm.autoCompleteRoHS && !vm.isMaster" class="autocompletecustom margin-top-0" custom-auto-focus="true" md-no-float>
+                            <custom-auto-complete-search on-search-fn="vm.autoCompleteRoHS.onSearchFn"
+                                                         column-name="vm.autoCompleteRoHS.columnName"
+                                                         key-column-name="vm.autoCompleteRoHS.keyColumnName"
+                                                         input-name="vm.autoCompleteRoHS.inputName"
+                                                         placeholder-name="vm.autoCompleteRoHS.placeholderName"
+                                                         key-column-id="vm.autoCompleteRoHS.keyColumnId"
+                                                         is-required="vm.autoCompleteRoHS.isRequired"
+                                                         is-addnew="vm.autoCompleteRoHS.isAddnew"
+                                                         on-select-callback-fn="vm.autoCompleteRoHS.onSelectCallbackFn"
+                                                         callback-fn="vm.autoCompleteRoHS.callbackFn"
+                                                         search-text="vm.autoCompleteRoHS.searchText"
+                                                         md-require-match="vm.autoCompleteRoHS.mdRequiredMatch"
+                                                         max-length="50">
+                            </custom-auto-complete-search>
+                          </md-input-container>
+                        </td>
+                        <td class="width-100px">
+                          <div flex="100" class="margin-bottom-5">
+                            <md-radio-group ng-disabled="vm.rohsModel.systemGenerated" class="" flex="100" layout="row" ng-model="vm.rohsModel.isActive" name="isActive">
+                              <md-radio-button ng-value="true" class="md-primary">Enable</md-radio-button>
+                              <md-radio-button ng-value="false" class="md-primary">Disable</md-radio-button>
+                            </md-radio-group>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>
+                          <p class="label-container">Category<span>&nbsp;*</span></p>
+                        </th>
+                        <td colspan="2">
+                          <md-input-container class="min-width-initial" layout-align="center" flex="100">
+                            <md-select id="category" placeholder="Select Category" ng-model="vm.rohsModel.refMainCategoryID" name="category" ng-disabled="vm.rohsModel.id" required ng-change="vm.RohsCategoryChange(vm.rohsModel.refMainCategoryID)">
+                              <md-option ng-repeat="obj in vm.rohsCategoryList" ng-value="obj.id">{{obj.name}}</md-option>
+                            </md-select>
+                            <div ng-messages="vm.AddRoHSForm.category.$error"
+                                 role="alert">
+                              <div ng-message="required">
+                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                        <th>
+                          <p class="label-container">Parent RoHS</p>
+                        </th>
+                        <td colspan="2">
+                          <md-input-container ng-if="vm.autoCompleteParentRoHS" class="md-block autocompletecustom" flex="100">
+                            <custom-auto-complete datalist="vm.RoHSListForParent"
+                                                  column-name="vm.autoCompleteParentRoHS.columnName"
+                                                  key-column-name="vm.autoCompleteParentRoHS.keyColumnName"
+                                                  input-name="vm.autoCompleteParentRoHS.inputName"
+                                                  placeholder-name="vm.autoCompleteParentRoHS.placeholderName"
+                                                  key-column-id="vm.autoCompleteParentRoHS.keyColumnId"
+                                                  is-required="vm.autoCompleteParentRoHS.isRequired"
+                                                  is-addnew="vm.autoCompleteParentRoHS.isAddnew"
+                                                  callback-fn="vm.autoCompleteParentRoHS.callbackFn">
+                            </custom-auto-complete>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th><p class="label-container">Description</p></th>
+                        <td colspan="5">
+                          <md-input-container class="md-block margin-bottom-0" flex="100" flex-xs="100">
+                            <textarea custom-auto-focus="{{(vm.rohsModel.systemGenerated || vm.rohsModel.id)? true:false}}" name="description" ng-model="vm.rohsModel.description" rows="1" ng-maxlength="250" md-maxlength="250" placeholder="Description"></textarea>
+                            <div ng-messages="vm.AddRoHSForm.description.$error"
+                                 role="alert">
+                              <div ng-message="maxlength">
+                                <span>{{vm.getMaxLengthValidation(250, vm.AddRoHSForm.description.$viewValue.length)}}</span>
+                              </div>
+                            </div>
+                          </md-input-container>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div layout="row" layout-wrap class="cm-section-main mb-10" flex="100">
+                  <div class="cm-section-header" flex="100">
+                    <h2>RoHS Peers</h2>
+                  </div>
+                  <div class="cm-section-inner" flex="100">
+                    <div flex="100" layout="row" layout-align="start center">
+                      <b>RoHS Peers:&nbsp;</b>
+                      <md-button name="btnAddRoHSPeers" class="md-primary md-icon-button md-raised md-mini"
+                                 ng-click="vm.ManageRoHSPeers($event)">
+                        <md-icon md-font-icon="icons-add-edit-black" class="material-icons mat-icon"></md-icon>
+                        <md-tooltip>Add RoHS Peers</md-tooltip>
+                      </md-button>
+                      <div flex>
+                        <span ng-repeat="objRoHSPeer in vm.RoHSPeersList  track by $index" ng-if="vm.RoHSPeersList.length > 0">
+                          <label class="margin-5 label-box label-primary" ng-if="objRoHSPeer.peerRoHS.name">{{objRoHSPeer.peerRoHS.name}}</label>
+                          <label class="margin-5 label-box label-primary" ng-if="objRoHSPeer.name">{{objRoHSPeer.name}}</label>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="cm-section-inner overflow-auto-rs">
+                  <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                    <tbody>
+                      <tr>
+                        <th><p class="label-container">Alias</p></th>
+                        <td colspan="5">
+                          <div layout="row" flex>
+                            <md-input-container class="margin-bottom-0 md-block margin-top-0" flex="100" md-no-float>
+                              <input type="text" name="mountalias" ng-model="vm.alias" my-enter="vm.updateAliasList($event,vm.alias)"
+                                     placeholder="Alias" ng-maxlength="255" class="blue" data-focusButton="saveRohsBtn" md-maxlength="255"
+                                     last-element elementcondition="{{(!vm.alias && (vm.rohsModel.alias.length <= 0) ? true : false)}}">
+                              <div ng-messages="vm.AddRoHSForm.mountalias.$error"
+                                   role="alert">
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(255, vm.AddRoHSForm.mountalias.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                            <div>
+                              <md-button class="md-primary md-raised margin-0" ng-disabled="!vm.alias || (!vm.isMaster && !vm.autoCompleteRoHS.searchText)"
+                                         ng-click="vm.updateAliasList($event,vm.alias);" data-focusButton="saveRohsBtn"
+                                         last-element elementcondition="{{(vm.alias && (vm.rohsModel.alias.length <= 0) ? true : false)}}"
+                                         aria-label="Add">Add Alias</md-button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div layout="row" flex="noshrink">
+                <div layout="column" flex>
+                  <div layout="column" class="cm-common-line common-alias-list-main cm-add-cus cm-manufacture-alias-list" flex>
+                    <div class="mobilesearch title alias-list-title userpermissionhead" layout="row" flex="100" layout-align="space-between center">
+                      <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75">
+                        <input type="text" class="font-weight-400" placeholder="Type here to search alias" ng-model="vm.Search">
+                      </md-input-container>
+                      <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                                 ng-disabled="vm.Search =='' || vm.Search ==null"
+                                 ng-click="vm.Search=''">
+                        Clear
+                      </md-button>
+                    </div>
+                    <div layout="row" flex="100" layout-wrap class="permissiontab detail dossection padding-5 custom-scroll" ng-if="vm.rohsModel.alias.length > 0">
+                      <table class="simple no-padding" ms-responsive-table="">
+                        <thead>
+                          <tr>
+                            <th width="120">Alias</th>
+                            <th class="text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr ng-repeat="alias in vm.rohsModel.alias | filter:vm.Search | orderBy:'index'" class="height-40 border-bottom-gray">
+                            <td width="280" class="font-size-14 border-0 mt-10 ng-binding word-break" layout="row">
+                              {{alias.alias}}
+                              <div layout="row" class="cm-custom-chips">
+                                <md-chips ng-repeat="source in alias.mfgCodeList">
+                                  <md-chip>{{source}}</md-chip>
+                                </md-chips>
+                              </div>
+                            </td>
+                            <td width="120" class="text-center font-size-14">
+                              <md-button class="md-mini md-icon-button margin-0" data-focusButton="saveRohsBtn" ng-disabled="!alias.id"
+                                         last-element elementcondition="{{(alias.systemGenerated && ((vm.rohsModel.alias.length - 1) == $index) ? true : false)}}">
+                                <md-icon md-font-icon="icon-eye"></md-icon>
+                                <md-tooltip md-direction="top" class="tt-multiline" ng-if="alias.id">
+                                  Created By: {{alias.fullName}} <br />
+                                  Created At: {{alias.createdAt | date:vm.DefaultDateFormat}}
+                                </md-tooltip>
+                              </md-button>
+                              <md-button class="md-mini md-icon-button margin-0" ng-if="alias.id"
+                                         ng-disabled="alias.isDefaultAlias"
+                                         ng-click="vm.setAliasAsDefault(alias)" data-focusButton="saveRohsBtn" last-element
+                                         elementcondition="{{(((alias.id) || alias.isDefaultAlias) && ((vm.rohsModel.alias.length - 1) == $index) ? true : false)}}">
+                                <md-icon md-font-icon="{{alias.isDefaultAlias ? 'icons-pin' : 'icons-unpin'}}"></md-icon><md-tooltip>Set as Default</md-tooltip>
+                              </md-button>
+                              <md-button class="md-mini md-icon-button margin-0" ng-class="{'cursor-not-allow opecity-5':alias.systemGenerated || alias.isDefaultAlias}" ng-disabled="alias.systemGenerated || alias.isDefaultAlias"
+                                         ng-click="vm.removeAliasFromList(alias)" data-focusButton="saveRohsBtn"
+                                         last-element elementcondition="{{((vm.rohsModel.alias.length - 1) == $index ? true : false)}}">
+                                <md-icon md-font-icon="icon-trash"></md-icon><md-tooltip>Delete</md-tooltip>
+                              </md-button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div flex="100" class="md-1-line margin-0 dragsortable" layout="row" layout-align="start center"
+                           ng-if="(vm.rohsModel.alias | filter:vm.Search).length==0 && vm.rohsModel.alias.length > 0">
+                        <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap flex="100">
+                          <div class="emty-icon" flex="100">
+                            <img ng-src="{{vm.EmptyMesssageAliaslist.SEARCH_IMAGE_URL}}" />
+                          </div>
+                          <p flex="100" class="empty-state-title">{{vm.EmptyMesssageAliaslist.EMPTY_SEARCH_MESSAGE}}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div flex="100" class="md-1-line margin-0 dragsortable" layout="row" layout-align="start center" ng-if="!vm.rohsModel.alias || vm.rohsModel.alias.length == 0">
+                      <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap flex="100">
+                        <p flex="100" class="empty-state-title">{{vm.EmptyMesssageAliaslist.MESSAGE}}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div flex="100" flex-gt-xs="100" layout="row" class="cm-section-main border-black">
+            <div class="cm-section-inner" flex layout="row">
+              <common-type-list table-name="vm.tables" module-name="vm.searchType" is-disable="(vm.rohsModel.id || vm.rohsModel.id==0)?false:true" apply-as-common-callback-fn="vm.selectedPart" is-change-from-popup="true"></common-type-list>
+            </div>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" id="saveRohsBtn" ng-click="vm.saveRoHS(vm.BUTTON_TYPE.SAVE)" aria-label="Submit" ng-class="{'md-formdirty': vm.checkFormDirty(vm.AddRoHSForm) || vm.checkDirty}" ng-disabled="vm.saveBtnDisableFlag">Save</md-button>
+      <md-button class="md-primary md-raised" data-focusButton="headerAddBtn" last-element elementcondition="true" ng-click="vm.saveRoHS(vm.BUTTON_TYPE.SAVEANDEXIT);" aria-label="Submit" ng-class="{'md-formdirty': vm.checkFormDirty(vm.AddRoHSForm) || vm.checkDirty}" ng-disabled="vm.saveBtnDisableFlag">{{vm.CORE_MESSAGE_CONSTANT.SAVE_AND_EXIT}}</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>
+<style>
+  .md-select-menu-container.md-active {
+    padding-top: 141px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+</style>

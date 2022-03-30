@@ -1,0 +1,132 @@
+<md-dialog aria-label="KitFeasibility" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.formKitFeasibility">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>
+          <span>{{vm.LabelConstant.KitAllocation.CheckBuildFeasibility}}</span>
+        </h2>
+        <span flex></span>
+        <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content class="no-padding custom-scroll">
+      <md-content class="padding-10" layout="column">
+        <div flex layout="column" class="cm-section-main border-0">
+
+          <div layout="column" flex class="mb-10 ml-5" layout-wrap>
+            <div layout="row">
+              <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th>
+                      <p class="label-container">Enter Qty To {{vm.CheckBuildFeasibility}} For Shortage Line(s)<span>&nbsp;*</span></p>
+                    </th>
+                    <td>
+                      <md-input-container class="margin-bottom-0" flex="100" custom-auto-focus="true">
+                        <input type="number" id="inputQty" name="inputQty" ng-model="vm.feasibilityDetail.inputQty" ng-maxlength="10" min="0" required>
+                        <div ng-messages="vm.formKitFeasibility.inputQty.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="min">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <td>
+                      <md-button class="md-primary md-raised md-ink-ripple mv-0"
+                                 ng-class="{'md-formdirty': vm.formKitFeasibility.$dirty && vm.feasibilityDetail.inputQty}"
+                                 ng-disabled="!vm.feasibilityDetail.inputQty || vm.calculateBtnFlag" ng-click="vm.getKitFeasibilityDetail()">
+                        Calculate
+                      </md-button>
+                      <md-button class="md-primary md-raised md-ink-ripple" ng-click="vm.AssyAtGlance()">
+                        {{vm.LabelConstant.BOM.AssyAtGlance}}
+                      </md-button>
+                      <md-button class="md-primary md-raised md-ink-ripple" ng-click="vm.kitAllocationFeasibility(null)" ng-disabled="!vm.anyCalculatedShortegeLine">
+                        Show Build Feasibility Shortage Line
+                      </md-button>
+                      <md-button class="md-primary md-raised md-ink-ripple" ng-click="vm.updatekitmrpqty()">
+                        Modify KIT/MRP Qty
+                      </md-button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div layout="row" flex>
+              <div class="cm-section-inner cm-overflow-auto">
+                <div class="content fullpage-datatable cm-kit-feasibility-table" layout="column" flex>
+                  <md-table-container class="cm-kit-feasibility-grid-scroll cm-common-table-ui" layout="row" flex="100">
+                    <table md-table>
+                      <thead fix-head md-head md-order="vm.query.order">
+                        <tr md-row>
+                          <th class="w-150" md-column md-order-by="mountingType">Mounting Type(s)</th>
+                          <th class="w-150" md-column md-order-by="mountingType">Connector Type(s)</th>
+                          <th class="w-100" md-column md-order-by="totalLine">Total Line(s)</th>
+                          <th class="w-150" md-column md-order-by="feasibilityWithAllocation">{{vm.buildFeasibility}} Qty With Allocated Units<br />({{vm.feasibilityDetail.salesOrderDetail.kitQty | numberWithoutDecimal}})</th>
+                          <th class="w-150" md-column md-order-by="shortageLine">Shortage Line(s) For Allocated Units Based On Kit Qty<br />({{vm.feasibilityDetail.salesOrderDetail.kitQty | numberWithoutDecimal}})</th>
+                          <th class="w-150" md-column md-order-by="feasibilityWithAvailableAndAllocatedStock">{{vm.buildFeasibility}} Qty With Available Stock<br />({{vm.feasibilityDetail.salesOrderDetail.kitQty | numberWithoutDecimal}})</th>
+                          <th class="w-150" md-column md-order-by="shortageWithAvailableQty">Shortage Line(s) With Available Stock<br />({{vm.feasibilityDetail.salesOrderDetail.kitQty | numberWithoutDecimal}})</th>
+                          <th class="w-150" md-column md-order-by="shortageForInputQty">Calculated Qty Shortage Line(s) With Available Stock<br />({{vm.calculatedKitQty | numberWithoutDecimal}})</th>
+                        </tr>
+                      </thead>
+                      <tbody md-body>
+                        <tr md-row md-auto-select ng-repeat="item in vm.feasibilityList | orderBy: vm.query.order">
+                          <td md-cell class="w-150">{{item.mountingType}}</td>
+                          <td md-cell class="w-150">{{item.connecterType}}</td>
+                          <td md-cell class="text-right w-100">{{item.totalLine | numberWithoutDecimal}}</td>
+                          <td md-cell class="text-right w-150"> <span ng-class="{'text-bold':item.feasibilityWithAllocation < vm.feasibilityDetail.salesOrderDetail.kitQty}">{{item.feasibilityWithAllocation | mathFloor | numberWithoutDecimal}}</span></td>
+                          <td md-cell class="text-right w-150">
+                            <span ng-if="item.shortageLine > 0">
+                              <a tabindex="-1" ng-click="vm.goToKitAllocation(item)" class="cursor-pointer">
+                                {{item.shortageLine | numberWithoutDecimal}}
+                              </a>
+                            </span>
+                            <span ng-if="item.shortageLine == 0">
+                              {{item.shortageLine | numberWithoutDecimal}}
+                            </span>
+                          </td>
+                          <td md-cell class="text-right w-150"><span ng-class="{'text-bold':item.feasibilityWithAvailableAndAllocatedStock < vm.feasibilityDetail.salesOrderDetail.kitQty}">{{item.feasibilityWithAvailableAndAllocatedStock | mathFloor | numberWithoutDecimal}}</span></td>
+                          <td md-cell class="text-right w-150">{{item.shortageWithAvailableQty | numberWithoutDecimal}}</td>
+                          <td md-cell class="text-right w-150 calculated-qty">
+                            <span ng-if="item.shortageForInputQty > 0">
+                              <a tabindex="-1" ng-click="vm.kitAllocationFeasibility(item)" class="cursor-pointer">
+                                {{item.shortageForInputQty | numberWithoutDecimal}}
+                              </a>
+                            </span>
+                            <span ng-if="item.shortageForInputQty == 0">
+                              {{item.shortageForInputQty | numberWithoutDecimal}}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </md-table-container>
+                </div>
+              </div>
+              <div ng-if="vm.totalShortageLine > 0">
+                <div id="feasibility-chart" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Close</md-button>
+    </md-dialog-actions>
+
+  </form>
+</md-dialog>

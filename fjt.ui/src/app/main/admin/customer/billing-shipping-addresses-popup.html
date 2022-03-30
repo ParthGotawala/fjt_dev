@@ -1,0 +1,461 @@
+<md-dialog aria-label="Customer" class="operation-pop-main cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" flex-gt-lg="70" flex-gt-md="75" flex="80" draggable>
+  <!--flex="60"-->
+  <form name="vm.customerBillingAddressForm" novalidate>
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{vm.operation}} {{vm.addressTypeTitle}} - {{vm.companyNameWithCode}}</h2>
+        <span flex></span>
+        <div layout-align="center center" class="cm-btn-group cm-square-icon-btn">
+          <md-button class="md-icon-button mv-0 md-primary md-raised md-mini "
+                     ng-click="vm.viewAddress($event)">
+            <md-icon md-font-icon="" class="material-icons mat-icon t-icons-view-address"></md-icon>
+            <md-tooltip>View {{vm.addressTypeTitle}}</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button mv-0 md-primary md-raised md-mini "
+                     ng-click="vm.duplicateAddress($event)" ng-if="vm.customerAddresses.id">
+            <md-icon md-font-icon="" class="material-icons mat-icon t-icons-duplicate-address add-icon"></md-icon>
+            <md-tooltip>Duplicate Address</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button mv-0 md-primary md-raised md-mini" id="headerAddBtn" ng-click="vm.addnewMethod()">
+            <md-icon md-font-icon="{{vm.addressIconClass}} add-icon" class="material-icons"></md-icon>
+            <md-tooltip>Add {{vm.addressTypeTitle}}</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button" ng-click="vm.cancel()">
+            <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+          </md-button>
+        </div>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding" layout="column">
+      <div layout flex class="padding-10">
+        <div layout="row" flex="70" class="cm-section-main border-0">
+          <div class="cm-section-inner" flex="100">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <td colspan="4">
+                    <div layout>
+                      <span flex="100" ng-if="!vm.allowToUpdateAddress"><b>{{vm.LabelConstant.MFG.AllowToUpdateNote}}</b></span>
+                      <md-input-container>
+                        <md-radio-group layout="row"
+                                        layout-align="end end" layout-wrap id="addressActive"
+                                        name="addressActive" ng-disabled="!vm.allowToUpdateAddress || (!vm.isMasterPage)"
+                                        ng-model="vm.customerAddresses.isActive">
+                          <md-radio-button ng-repeat="item in vm.radioHeaderGroup.isActive.array"
+                                           name="{{item.Key}}"
+                                           ng-value="{{item.Value}}">
+                            {{item.Key}}
+                          </md-radio-button>
+                        </md-radio-group>
+                      </md-input-container>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">{{vm.isDist ? 'Company' : 'Business Name'}}<span>&nbsp;*</span></p></th>
+                  <td colspan="3">
+                    <md-input-container flex="100" class="margin-bottom-0">
+                      <input type="text" name="companyName" ng-model="vm.customerAddresses.companyName" ng-disabled="vm.disableUpdateEntry"
+                             placeholder="Company" required ng-maxlength="255" md-maxlength="255" md-autofocus>
+                      <div ng-messages="vm.customerBillingAddressForm.companyName.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255, vm.customerBillingAddressForm.companyName.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr ng-if="vm.addressTypeTitle === vm.addressType.P.value">
+                  <th><p class="label-container">Remit To Name<span>&nbsp;*</span></p></th>
+                  <td colspan="1">
+                    <md-input-container flex="100" class="margin-bottom-0">
+                      <input name="bankRemitToName" ng-model="vm.customerAddresses.bankRemitToName"
+                             required placeholder="bankRemitToName" ng-maxlength="255" md-maxlength="255" ng-disabled="vm.disableUpdateEntry" />
+                      <div ng-messages="vm.customerBillingAddressForm.bankRemitToName.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255, vm.customerBillingAddressForm.bankRemitToName.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">Address Line 1<span>&nbsp;*</span></p></th>
+                  <td colspan="3">
+                    <md-input-container flex="100" class="margin-bottom-0">
+                      <textarea ng-model="vm.customerAddresses.street1" type="text" name="Street1" ng-disabled="vm.disableUpdateEntry"
+                                placeholder="Address Line 1" required ng-maxlength="255" md-maxlength="255"></textarea>
+                      <span flex="100" layout="column" layout-gt-xs="row" class="font-size-10">
+                        <b>Street address, P.O. box, company name, c/o</b>
+                      </span>
+                      <div ng-messages="vm.customerBillingAddressForm.Street1.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                      <div ng-messages="vm.customerBillingAddressForm.Street1.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255, vm.customerBillingAddressForm.Street1.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">Address Line 2</p></th>
+                  <td colspan="3">
+                    <md-input-container flex="100" class="margin-bottom-0">
+                      <textarea ng-model="vm.customerAddresses.street2" type="text" name="Street2" ng-disabled="vm.disableUpdateEntry" placeholder="Address Line 2" ng-maxlength="255" md-maxlength="255"></textarea>
+                      <span flex="100" layout="column" layout-gt-xs="row" class="font-size-10">
+                        <b>Apartment, suite, unit, building, floor, etc.</b>
+                      </span>
+                      <div ng-messages="vm.customerBillingAddressForm.Street2.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255, vm.customerBillingAddressForm.Street2.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">Address Line 3</p></th>
+                  <td colspan="3">
+                    <md-input-container flex="100" class="margin-bottom-0">
+                      <textarea ng-model="vm.customerAddresses.street3" type="text" name="Street3" ng-disabled="vm.disableUpdateEntry" placeholder="Address Line 3" ng-maxlength="255" md-maxlength="255"></textarea>
+                      <div ng-messages="vm.customerBillingAddressForm.Street3.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255, vm.customerBillingAddressForm.Street3.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">City<span>&nbsp;*</span></p></th>
+                  <td>
+                    <md-input-container flex="100" class="margin-bottom-0">
+                      <input name="City" ng-model="vm.customerAddresses.city" placeholder="City" ng-disabled="vm.disableUpdateEntry" ng-maxlength="255" md-maxlength="255" required />
+                      <div ng-messages="vm.customerBillingAddressForm.City.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                      <div ng-messages="vm.customerBillingAddressForm.City.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255, vm.customerBillingAddressForm.City.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">State<span>&nbsp;*</span></p></th>
+                  <td>
+                    <md-input-container flex="100" class="margin-bottom-0">
+                      <input name="State" ng-model="vm.customerAddresses.state" capitalize placeholder="State" ng-disabled="vm.disableUpdateEntry" ng-maxlength="255" md-maxlength="255" required />
+                      <span class="font-size-10"><b>{{vm.stateNote}}</b></span>
+                      <div ng-messages="vm.customerBillingAddressForm.State.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                      <div ng-messages="vm.customerBillingAddressForm.State.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(255, vm.customerBillingAddressForm.State.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">Zip/Postal Code<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                  <td>
+                    <md-input-container flex="100" class="margin-bottom-0">
+                      <input name="Postcode" ng-model="vm.customerAddresses.postcode" ng-disabled="vm.disableUpdateEntry" placeholder="Zip/Postal Code" ng-maxlength="10" md-maxlength="10" custom-blur="vm.FindAddress();" required />
+                      <div ng-messages="vm.customerBillingAddressForm.Postcode.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                      </div>
+                      <div ng-messages="vm.customerBillingAddressForm.Postcode.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(10, vm.customerBillingAddressForm.Postcode.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container"><a class="cm-text-decoration underline" ng-click="vm.goToCountryList();" tabindex="-1">Country</a><span>&nbsp;*</span></p></th>
+                  <td>
+                    <md-input-container flex="100" class="autocompletecustom margin-bottom-0" ng-if="vm.autoCompleteCountry">
+                      <custom-auto-complete-search class="cm-bill-address-popup min-width-initial" on-search-fn="vm.autoCompleteCountry.onSearchFn"
+                                                   column-name="vm.autoCompleteCountry.columnName"
+                                                   controller-name="vm.autoCompleteCountry.controllerName"
+                                                   parent-column-name="vm.autoCompleteCountry.parentColumnName"
+                                                   view-template-url="vm.autoCompleteCountry.viewTemplateURL"
+                                                   key-column-name="vm.autoCompleteCountry.keyColumnName"
+                                                   input-name="vm.autoCompleteCountry.inputName"
+                                                   placeholder-name="vm.autoCompleteCountry.placeholderName"
+                                                   key-column-id="vm.autoCompleteCountry.keyColumnId"
+                                                   is-required="vm.autoCompleteCountry.isRequired"
+                                                   is-addnew="vm.autoCompleteCountry.isAddnew"
+                                                   callback-fn="vm.autoCompleteCountry.callbackFn"
+                                                   parent-id=""
+                                                   add-data="vm.autoCompleteCountry.addData"
+                                                   on-select-callback-fn="vm.autoCompleteCountry.onSelectCallbackFn"
+                                                   custom-auto-focus="{{false}}"
+                                                   is-disabled="vm.disableUpdateEntry">
+                      </custom-auto-complete-search>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr ng-if="vm.addressTypeTitle === vm.addressType.S.value">
+                  <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goShippingMethodList();" tabindex="-1">{{vm.autoCompleteShipping.placeholderName}}</a></p></th>
+                  <td colspan="3">
+                    <md-input-container ng-if="vm.autoCompleteShipping" class="autocompletecustom margin-bottom-0" flex="100">
+                      <custom-auto-complete datalist="vm.ShippingTypeList"
+                                            column-name="vm.autoCompleteShipping.columnName"
+                                            controller-name="vm.autoCompleteShipping.controllerName"
+                                            view-template-url="vm.autoCompleteShipping.viewTemplateURL"
+                                            key-column-name="vm.autoCompleteShipping.keyColumnName"
+                                            input-name="vm.autoCompleteShipping.inputName"
+                                            placeholder-name="vm.autoCompleteShipping.placeholderName"
+                                            key-column-id="vm.autoCompleteShipping.keyColumnId"
+                                            is-disabled="vm.disableUpdateEntry"
+                                            is-addnew="vm.autoCompleteShipping.isAddnew"
+                                            add-data="vm.autoCompleteShipping.addData"
+                                            callback-fn="vm.autoCompleteShipping.callbackFn"
+                                            on-select-callback-fn="vm.autoCompleteShipping.onSelectCallbackFn">
+                      </custom-auto-complete>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr ng-if="vm.addressTypeTitle === vm.addressType.S.value">
+                  <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goTocarrierList();" tabindex="-1">{{vm.autoCompleteCarriers.placeholderName}}</a></p></th>
+                  <td>
+                    <md-input-container ng-if="vm.autoCompleteCarriers" class="autocompletecustom margin-bottom-0" flex="100">
+                      <custom-auto-complete datalist="vm.carrierList"
+                                            column-name="vm.autoCompleteCarriers.columnName"
+                                            controller-name="vm.autoCompleteCarriers.controllerName"
+                                            view-template-url="vm.autoCompleteCarriers.viewTemplateURL"
+                                            key-column-name="vm.autoCompleteCarriers.keyColumnName"
+                                            input-name="vm.autoCompleteCarriers.inputName"
+                                            placeholder-name="vm.autoCompleteCarriers.placeholderName"
+                                            key-column-id="vm.autoCompleteCarriers.keyColumnId"
+                                            is-disabled="vm.disableUpdateEntry"
+                                            is-addnew="vm.autoCompleteCarriers.isAddnew"
+                                            add-data="vm.autoCompleteCarriers.addData"
+                                            callback-fn="vm.autoCompleteCarriers.callbackFn"
+                                            on-select-callback-fn="vm.autoCompleteCarriers.onSelectCallbackFn">
+                      </custom-auto-complete>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">Carrier Account#</p></th>
+                  <td colspan="1">
+                    <md-input-container flex="100" class="margin-bottom-0">
+                      <input name="carrierAccount" ng-model="vm.customerAddresses.carrierAccount" ng-disabled="vm.disableUpdateEntry" placeholder="Carrier Account#" ng-maxlength="50" md-maxlength="50" />
+                      <div ng-messages="vm.customerBillingAddressForm.carrierAccount.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50, vm.customerBillingAddressForm.carrierAccount.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <p class="label-container">Comment</p>
+                  </th>
+                  <td colspan="3">
+                    <md-input-container flex="100" class="margin-bottom-0">
+                      <textarea type="text" name="additionalComment" id="" rows="4"
+                                ng-model="vm.customerAddresses.additionalComment" ng-disabled="vm.disableUpdateEntry"
+                                placeholder=""
+                                ng-maxlength="1000"
+                                md-maxlength="1000"></textarea>
+                      <div ng-messages="vm.customerBillingAddressForm.additionalComment.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(1000, vm.customerBillingAddressForm.additionalComment.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th>&nbsp</th>
+                  <td colspan="3" class="p-0">
+                    <div flex="100" layout="row" layout-wrap class="custom-part-wrapper full-height" layout-align="start center"
+                         ng-if="!vm.customerAddresses.id">
+                      <div layout="row" class="layout-row">
+                        <div layout class="mr-5" ng-if="vm.addressTypeTitle !== vm.addressType.B.value">
+                          <md-checkbox name="isCopySameAddress" class="margin-0" ng-disabled="vm.disableUpdateEntry" ng-model="vm.customerAddresses.isCopyBillingAddress">
+                            <p class="label-container ng-binding mb-0">
+                              Add {{vm.addressType.B.title}} same as {{vm.addressTypeTitleText}}
+                            </p>
+                          </md-checkbox>
+                        </div>
+                        <div layout class="mr-5" ng-if="vm.addressTypeTitle !== vm.addressType.S.value">
+                          <md-checkbox name="isCopySameAddress" class="margin-0" ng-disabled="vm.disableUpdateEntry" ng-model="vm.customerAddresses.isCopyShippingAddress">
+                            <p class="label-container ng-binding mb-0">
+                              Add {{vm.addressType.S.title}} same as {{vm.addressTypeTitleText}}
+                            </p>
+                          </md-checkbox>
+                        </div>
+                        <div layout class="mr-5" ng-if="vm.addressTypeTitle !== vm.addressType.R.value">
+                          <md-checkbox name="isCopyRMAShippingAddress" class="margin-0" ng-disabled="vm.disableUpdateEntry" ng-model="vm.customerAddresses.isCopyRMAShippingAddress">
+                            <p class="label-container ng-binding mb-0">
+                              Add {{vm.addressType.R.title}} same as {{vm.addressTypeTitleText}}
+                            </p>
+                          </md-checkbox>
+                        </div>
+                        <div layout class="mr-5" ng-if="vm.addressTypeTitle !== vm.addressType.P.value && vm.isDist">
+                          <md-checkbox name="isCopySameAddress" class="margin-0" ng-disabled="vm.disableUpdateEntry" ng-model="vm.customerAddresses.isCopyPayToInformation">
+                            <p class="label-container ng-binding mb-0">
+                              Add {{vm.addressType.P.title}} same as {{vm.addressTypeTitleText}}
+                            </p>
+                          </md-checkbox>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr ng-if="(vm.addressTypeTitle === vm.addressType.S.value || vm.addressTypeTitle === vm.addressType.R.value)">
+                  <th>
+                    <p class="label-container">Default</p>
+                  </th>
+                  <td colspan="3" class="p-0">
+                    <div class="cm-section-main" flex layout="column">
+                      <div class="cm-section-header">
+                        <label>{{vm.mfgType === vm.mfgTypeConst.DIST ? vm.LabelConstant.Address.RMAIntermediateAddress : vm.LabelConstant.Address.MarkForAddress}}</label>
+                      </div>
+                      <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex>
+                        <view-cust-address-contact-det layout flex param-address-det="vm.customerAddresses.intermediateAddressObj"
+                                                       param-contact-person-det="vm.customerAddresses.intermediateContactPersonObj"
+                                                       param-addr-action-btn-det="vm.intermediateAddrActionBtn"
+                                                       param-cont-person-action-btn-det="vm.intermediateAddrContactActionBtn"
+                                                       param-add-update-addr-callback-fn="vm.selectInterAddressCallBack"
+                                                       param-select-addr-callback-fn="vm.selectInterAddressCallBack"
+                                                       param-delete-addr-callback-fn="vm.deleteInterAddressCallBack"
+                                                       param-add-update-contact-callback-fn="vm.selectInterAddressContactPersonCallBack"
+                                                       param-select-contact-callback-fn="vm.selectInterAddressContactPersonCallBack"
+                                                       param-delete-cont-person-callback-fn="vm.deleteInterAddrContanctPersonCallBack"
+                                                       param-other-det="vm.intermediateAddrOtherDet"
+                                                       param-refresh-address-callback-fn="vm.refreshAddressCallBack">
+                        </view-cust-address-contact-det>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="cm-section-main" layout="column" flex>
+          <div layout="column" flex>
+            <div layout class="cm-section-header">
+              <div>
+                <a class="cm-text-decoration underline" ng-click="vm.goToCustTypeContPersonList()">
+                  Contact Person
+                </a>
+              </div>
+              <div class="cm-ml-auto">
+                <md-button class="md-primary md-raised" ng-disabled="!vm.customerAddresses.id" ng-click="vm.addContactPerson($event)">
+                  Add
+                </md-button>
+              </div>
+            </div>
+            <div layout="row" class="p-5 layout-row" ng-if="!vm.customerAddresses.id && vm.customerContactList && vm.customerContactList.length > 0">
+              <label class="label-danger no-bg">
+                Note: Address details must be saved in order to apply default contact person.
+              </label>
+            </div>
+            <div layout="column" flex ng-if="(vm.customerContactList && vm.customerContactList.length > 0) || vm.defaultCustContForAddr">
+              <div layout layout-align="start start" class="mh-5 mv-10 border-radius-4 pt-2 pb-2">
+                <!--Default contact person-->
+                <div layout layout-align="start start" flex ng-if="vm.defaultCustContForAddr">
+                  <view-contact-person-det layout
+                                           param-contact-person-det="vm.defaultCustContForAddr"
+                                           param-other-det="vm.viewContactPersonOtherDet"></view-contact-person-det>
+                </div>
+                <!--Empty contact person-->
+                <div flex class="height-100p" layout="column" layout-align="center center" ng-if="!vm.defaultCustContForAddr">
+                  <div class="h-60">
+                    <md-icon md-font-icon="icon-account" class="s60 md-accent-fg"></md-icon>
+                  </div>
+                  <div class="font-size-18 text-center">
+                    {{vm.isMasterPage?'Search below and pin it to set as default.':'Default Contact Person does not exists!'}}
+                  </div>
+                </div>
+              </div>
+              <div layout class="border-top pt-5 pb-5" ng-if="vm.customerContactList && vm.customerContactList.length > 0">
+                <md-input-container class="md-block" md-no-float flex="100">
+                  <input type="text" placeholder="Type here to search" ng-model="vm.searchTxtForContPerson" ignore-dirty>
+                  <md-button ng-if="vm.searchTxtForContPerson" class="md-icon-button bg-white height-auto width-auto border-radius-2 cm-part-filter-clear-btn margin-top-1 padding-0"
+                             ng-click="vm.searchTxtForContPerson=null;">
+                    <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon s20 icon-close"></md-icon>
+                  </md-button>
+                </md-input-container>
+              </div>
+              <div flex class="cm-overflow-auto border-top md-grey-200-bg">
+                <div layout="row" flex="100" class="padding-5 flex-sm-100" layout-wrap ng-repeat="contactPersonItem in vm.allContactPersonList | filter: vm.searchTxtForContPerson" ng-if="vm.customerContactList && vm.customerContactList.length > 0">
+                  <view-contact-person-det layout
+                                           param-contact-person-det="contactPersonItem.contactPerson"
+                                           param-other-det="contactPersonItem.viewContactPersonOtherDet"
+                                           param-cont-person-action-btn-det="contactPersonItem.custPersonViewActionBtnDet"
+                                           param-add-update-contact-callback-fn="vm.addEditContactPersonCallBack"
+                                           param-delete-cont-person-callback-fn="vm.removePerson"
+                                           param-duplicate-contact-person-callback-fn="vm.duplicatePerson"
+                                           param-set-default-person-callback-fn="vm.setDefaultPerson"></view-contact-person-det>
+                </div>
+                <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+                     ng-if="(vm.customerContactList | filter: vm.searchTxtForContPerson).length == 0 && vm.searchTxtForContPerson.length > 0">
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.emptySearch.IMAGEURL}}" />
+                  </div>
+                  <p class="empty-state-title" flex="100">{{vm.emptySearch.MESSAGE}}</p>
+                </div>
+              </div>
+            </div>
+            <div layout="column" flex ng-if="(!vm.customerContactList || vm.customerContactList.length == 0) && !vm.defaultCustContForAddr">
+              <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+                   ng-if="!vm.searchTxtForContPerson && (vm.customerContactList.length == 0)">
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.EmptyMsgContactPerson.IMAGEURL}}" />
+                </div>
+                <p class="empty-state-title" flex="100">{{vm.EmptyMsgContactPerson.MESSAGE}}</p>
+                <md-button class="md-fab md-mini" aria-label="Refresh Contacts" ng-click="vm.getCustomerContactDetails()">
+                  <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon"><md-tooltip>Refresh</md-tooltip></md-icon>
+                </md-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </md-dialog-content>
+    <md-dialog-actions layout="row" layout-align="end start">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <div layout="column">
+        <md-button class="md-primary md-raised" ng-click="vm.saveCustomerAddress(false)" id="saveAddressBtn" aria-label="Submit"
+                   ng-class="{'md-formdirty': vm.customerBillingAddressForm.$dirty,'cm-feture-btn-color': vm.customerAddresses.id && !vm.customerBillingAddressForm.$dirty}" ng-disabled="vm.saveBtnDisableFlag || (vm.customerAddresses.id && !vm.allowToUpdateAddress)">Save</md-button>
+        <span class="font-weight-600 font-size-10" ng-if="vm.customerAddresses.id && !vm.allowToUpdateAddress">
+          {{vm.LabelConstant.FeatureEnableText}}
+        </span>
+      </div>
+      <div layout="column">
+        <md-button class="md-primary md-raised" data-focusButton="headerAddBtn" last-element elementcondition="true" ng-click="vm.saveCustomerAddress(true);" aria-label="Submit"
+                   ng-class="{'md-formdirty': vm.customerBillingAddressForm.$dirty,'cm-feture-btn-color': vm.customerAddresses.id && !vm.customerBillingAddressForm.$dirty}" ng-disabled="vm.saveBtnDisableFlag  || (vm.customerAddresses.id && !vm.allowToUpdateAddress)">{{vm.CORE_MESSAGE_CONSTANT.SAVE_AND_EXIT}}</md-button>
+        <span class="font-weight-600 font-size-10" ng-if="vm.customerAddresses.id && !vm.allowToUpdateAddress">
+          {{vm.LabelConstant.FeatureEnableText}}
+        </span>
+      </div>
+      <!--<md-button class="md-primary md-raised"
+         ng-class="{'md-formdirty': vm.customerBillingAddressForm.$dirty }"
+         ng-click="vm.saveCustomerAddress()" aria-label="Submit">Save</md-button>-->
+      <!--ng-disabled="vm.customerBillingAddressForm.$invalid || !vm.checkFormDirty(vm.customerBillingAddressForm, vm.checkDirtyObject)"-->
+    </md-dialog-actions>
+  </form>
+</md-dialog>

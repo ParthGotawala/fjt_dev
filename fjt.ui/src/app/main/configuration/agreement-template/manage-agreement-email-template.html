@@ -1,0 +1,146 @@
+<div id="entity-list" class="page-layout carded fullwidth breadcrumb-fixed" layout="row" cg-busy="{promise:vm.cgBusyLoading}">
+  <!-- TOP BACKGROUND -->
+  <div class="top-bg md-accent-bg"></div>
+  <!-- / TOP BACKGROUND -->
+  <!-- CENTER -->
+  <div class="center margin-left-0 margin-right-0" layout="column" flex>
+    <!-- CONTENT HEADER -->
+    <div class="header md-accent-bg" layout="row" layout-align="space-between">
+      <div layout="row" flex-gt-lg="25">
+        <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" ng-if="vm.isEdit == true" type="button" ng-click="vm.BackToTemplateList()">
+          <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+          </md-icon>
+        </md-button>
+        <div class="white-fg" layout="column" layout-align="start start" flex="100">
+          <div class="h2" layout="row" layout-align="start center">
+            <md-icon md-font-icon="icon-account"></md-icon>&nbsp;
+            <span class="header-title">Update Template : {{vm.AgreementDetails.AgreementName}}</span>
+          </div>
+          <div layout="row" layout-align="start center">
+            <breadcrumbs></breadcrumbs>
+          </div>
+        </div>
+      </div>
+
+      <div layout="row" layout-align="center center" flex-lg="40" ng-if="vm.AgreementDetails">
+        <table cellspacing="0" cellpadding="0" class="cm-bom-header-table">
+          <tbody>
+            <tr>
+              <th class="cm-bom-t-title text-right">Draft Version:</th>
+              <td>
+                <span class="cm-bom-t-desc cm-manage-packing">
+                  <b>{{vm.AgreementDetails.draftversion}}</b>
+                </span>
+              </td>
+              <th class="cm-bom-t-title text-right">Published Version:</th>
+              <td>
+                <span class="cm-bom-t-desc cm-manage-packing">
+                  <b>{{vm.AgreementDetails.LastPublishversion}}</b>
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th class="cm-bom-t-title text-right">Current Status:</th>
+              <td>
+                <span class="cm-bom-t-desc cm-manage-packing">
+                  <b>{{vm.currentStatus}}</b>
+                </span>
+              </td>
+              <th class="cm-bom-t-title text-right">Published Date:</th>
+              <td>
+                <span class="cm-bom-t-desc cm-manage-packing">
+                  <b>{{vm.AgreementDetails.LastPublishedDate | date: vm.DefaultDateFormat}}</b>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div layout="row" layout-align="end end" ng-if="vm.isEdit == true">
+        <md-button class="md-raised margin-left-15" ng-click="vm.BackToTemplateList();">
+          Cancel
+        </md-button>
+        <md-button class="md-raised md-primary margin-left-15" ng-if="vm.isUnpublish" ng-click="vm.getConfirmationForPublish();">
+          Publish
+        </md-button>
+        <md-button class="md-raised md-primary" ng-class="{'md-formdirty': vm.ManageAgreementForm.$dirty }" ng-if="!vm.isUnpublish  && !vm.PublishbtnDisplay" ng-click="vm.SaveNewTemplate();">
+          Save As New Template
+        </md-button>
+        <md-button class="md-raised md-primary" ng-class="{'md-formdirty': vm.ManageAgreementForm.$dirty }" ng-if="vm.isUnpublish" ng-click="vm.UpdateTemplate();">
+          Save Template
+        </md-button>
+      </div>
+    </div>
+    <!-- / CONTENT HEADER -->
+    <!-- CONTENT CARD -->
+    <div flex="100" class="padding-top-side cm-custom-label-common" layout="row" layout-align="space-between start" layout-wrap ng-if="vm.isEdit == true">
+      <form name="vm.ManageAgreementForm" flex="100" class="md-inline-form padding-10-imp" novalidate>
+        <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+        <div layout="row" layout-align="start center" class="cm-section-main">
+          <div flex="20" flex-sm="35" class="input-wrapper padding-right-10 margin-5">
+            <div layout="row">
+              <p class="label-container">Version</p>
+              <md-input-container>
+                <md-select ng-model="vm.VersionModel">
+                  <md-option ng-repeat="item in vm.VersonHistory" ng-value="{{item.version}}" ng-click="vm.confirmationOnVersionChanged(vm.VersionModel, item)">
+                    {{"Version " + item.version }}
+                  </md-option>
+                </md-select>
+              </md-input-container>
+            </div>
+            <div layout="row" class="template-publish-detail margin-left-56">
+              <span ng-if="vm.isShowPublishDate">{{vm.manageAgreement.publishedDate == null ? "" : "(Published On: " + (vm.manageAgreement.publishedDate | date: vm.dateFormat)+ ")"}}</span>
+            </div>
+          </div>
+          <div class="input-wrapper" layout="row" flex="100" flex-sm="65" ng-if="vm.templateType == vm.templateTypeAllConst.EMAIL">
+            <p class="label-container">Subject<span>&nbsp;*</span></p>
+            <md-input-container class="margin-bottom-0" flex="100" md-no-float>
+              <input ng-model="vm.manageAgreement.agreementSubject" ng-maxlength="150" type="text"
+                     name="Subject" aria-label="Subject" required autofocus>
+              <div ng-messages="vm.ManageAgreementForm.Subject.$error" role="alert">
+                <div ng-message="required">
+                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                </div>
+                <div ng-message="maxlength">
+                  <span>{{vm.getMaxLengthValidation(150, vm.ManageAgreementForm.Subject.$viewValue.length)}}</span>
+                </div>
+              </div>
+            </md-input-container>
+          </div>
+        </div>
+        <div flex="100" layout="row" class="padding-top-15 cm-templates">
+          <div flex="20" flex-sm="35">
+            <div class="price-tables manage-standard" flex="100" layout="row" layout-wrap>
+              <div class="price-table style-1 md-whiteframe-1dp" layout="column" flex="100" flex-xs="100">
+                <div class="package-type md-primary-bg">
+                  <span>System Variables</span>
+                </div>
+                <div class="padding-10 font-size-14">
+                  Note: Click on the variable will copy/paste selected variable at current cursor position
+                </div>
+                <md-list>
+                  <md-list-item ng-repeat="item in vm.manageAgreement.SystemVariable track by $index" layout="row" ng-click="vm.addVariable(item);" class="cm-system-variable-list">
+                    {{::item}}
+                  </md-list-item>
+                </md-list>
+              </div>
+            </div>
+          </div>
+          <div flex="80" flex-sm="65">
+            <md-input-container class="md-block margin-bottom-0 margin-top-0">
+              <text-angular ta-toolbar="vm.taToolbar.INLINE" cg-busy-loading="vm.cgBusyLoading"
+                            ng-model="vm.manageAgreement.agreementContent"
+                            name="agreementContentEditor"
+                            ta-min-text="{{vm.taToolbar.MIN_LENGTH}}"
+                            ng-required="{{vm.taToolbar.REQUIRED ? vm.taToolbar.REQUIRED : false}}"
+                            ta-disabled="(!vm.isEditable && vm.isUnpublish)||(vm.isEditable && !vm.isUnpublish && vm.isversiondisble)"></text-angular>
+            </md-input-container>
+          </div>
+        </div>
+      </form>
+      <!-- / CONTENT CARD -->
+      <!-- / CENTER -->
+    </div>
+  </div>
+</div>

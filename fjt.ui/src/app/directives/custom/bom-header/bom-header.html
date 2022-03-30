@@ -1,0 +1,302 @@
+<div layout="row" flex="100" cg-busy="{promise:vm.cgBusyLoading}">
+  <div layout="row" flex="100" class="cm-workorder-table" layout-wrap>
+    <div flex layout="row" layout-wrap>
+      <div flex="100" layout-wrap>
+        <table cellspacing="0" cellpadding="0" class="cm-bom-header-table cm-bom-header-table-auto">
+          <tbody>
+            <tr>
+              <th class="text-right white-text cm-bom-t-title">
+                <a tabindex="-1" class="cursor-pointer cm-bom-t-title text-underline" ng-click="vm.goToCustomer()">{{vm.LabelConstant.Customer.Customer}}</a>:
+              </th>
+              <td>
+                <span class="cm-bo-font-large text-underline cursor-pointer cm-bom-t-desc" ng-click="vm.goToCustomerDetails()">
+                  <b>{{vm.bom.customerName}}</b>
+                  <md-tooltip ng-if="vm.bom.customerName">{{vm.bom.customerName}}</md-tooltip>
+                </span>
+              </td>
+              <th class="text-right white-text cm-bom-t-title">
+                <a tabindex="-1" class="cursor-pointer cm-bom-t-title text-underline inline-block" ng-click="vm.goToAssyList()">{{vm.LabelConstant.Assembly.MFGPN}}</a>:
+              </th>
+              <td>
+                <span class="cm-bo-font-large cm-bom-t-desc">
+                  <span class="text-underline inline-block cursor-pointer margin-0" ng-click="vm.goToAssyMaster()">
+                    <b>{{vm.bom.assyNumber}}</b>
+                    <md-tooltip>{{vm.bom.assyNumber}}</md-tooltip>
+                  </span>
+                  <span>
+                    <img class="rohs-bom-image" ng-src="{{vm.bom.RoHSStatusIcon}}">
+                    <md-tooltip ng-if="vm.bom.rohs">{{vm.bom.rohs}}</md-tooltip>
+                  </span>
+                  <copy-text ng-if="vm.bom.assyNumber" label="vm.LabelConstant.Assembly.MFGPN" text="vm.bom.assyNumber">
+                  </copy-text>
+                  <copy-part-text label="PID" text="vm.bom.custAssyPN" ng-hide="!vm.bom.isCustom"></copy-part-text>
+                </span>
+                <a tabindex="-1" class="cm-text-decoration  margin-5 " ng-if="vm.bom.sampleImageCnt > 0"
+                   ng-mousedown="vm.openDocumentTab(vm.bom.mfgType, vm.bom.partID)">
+                  ({{vm.bom.sampleImageCnt}})
+                  <md-tooltip>View Sample Images</md-tooltip>
+                </a>
+              </td>
+              <th class="cm-bom-t-title text-right">
+                Assy Rev:
+              </th>
+              <td>
+                <span class="cm-bo-font-large cm-bom-t-desc">
+                  <b>{{vm.bom.revision}}</b>
+                </span>
+              </td>
+              <th class="text-right">
+                <a tabindex="-1" class="cursor-pointer cm-bom-t-title text-underline " ng-click="vm.getAssemblyAtGlance($event)">{{vm.LabelConstant.BOM.AssyAtGlance}}</a>
+              </th>
+              <td class="text-center">
+                <b></b>
+              </td>
+              <th class="cm-bom-t-title text-right">
+                <span ng-if="vm.bom.quoteValidTillDate">Quote Valid Till:</span>
+              </th>
+              <td>
+                <span class="cm-bo-font-large  cm-bom-t-desc" ng-if="vm.bom.quoteValidTillDate">
+                  <b>{{vm.bom.quoteValidTillDate?(vm.bom.quoteValidTillDate |  date : vm.DateTimeFormat):'-'}}</b>
+                </span>
+              </td>
+
+              <th class="cm-bom-t-title">
+                <md-menu-bar id="user-menu" class="padding-right-0-imp" ng-if="vm.isCustomerAccess" layout-align="end-center">
+                  <md-menu md-position-mode="left bottom">
+                    <md-button class="user-button padding-right-0-imp margin-0" ng-click="$mdOpenMenu()"
+                               aria-label="User settings">
+                      <div layout="row" layout-align="space-between center">
+                        <span class="color-white">Menu Items</span>
+                        <md-icon md-font-icon="icon-chevron-down"
+                                 class="icon s16 color-white" hide-sm></md-icon>
+                      </div>
+                    </md-button>
+                    <md-menu-content width="3">
+                      <md-menu-item>
+                        <md-button>
+                          {{vm.LabelConstant.BOM.QuoteGroup}}: <b class="underline" ng-click="vm.gotoRFQ()">{{vm.bom.quoteGroupNumber}}</b>
+                        </md-button>
+                      </md-menu-item>
+                      <md-menu-item>
+                        <md-button>
+                          {{vm.LabelConstant.BOM.QuoteGroupDate}}: <b>{{vm.bom.quoteinDate |  date : vm.DateTimeFormat}}</b>
+                        </md-button>
+                      </md-menu-item>
+                      <md-menu-item>
+                        <md-button>
+                          {{vm.LabelConstant.BOM.QuoteGroupAssy}}: <b>{{vm.bom.assyCount}}</b>
+                        </md-button>
+                      </md-menu-item>
+                      <md-menu-item>
+                        <md-button>
+                          <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToJobList();">Job Type</a>: {{vm.bom.jobType}}
+                        </md-button>
+                      </md-menu-item>
+                      <md-menu-item>
+                        <md-button>
+                          {{vm.LabelConstant.BOM.LastQuote}}: <b>{{vm.bom.assyCount}}</b>
+                        </md-button>
+                      </md-menu-item>
+                      <md-menu-item>
+                        <md-button>
+                          {{vm.LabelConstant.BOM.LastQuoteDate}}: <b ng-if="vm.bom.totalQuoteCount==0">-</b>
+                          <b ng-if="vm.bom.totalQuoteCount>0">{{vm.bom.quoteSubmitDate |  date : vm.DateTimeFormat}}</b>
+                        </md-button>
+                      </md-menu-item>
+                      <md-menu-item>
+                        <md-button>
+                          {{vm.LabelConstant.BOM.LastQuotedInternalVersion}}:
+                          <b>{{vm.bom.totalQuoteCount==0?'-':vm.bom.bomLastVersion}}</b>
+                        </md-button>
+                      </md-menu-item>
+                      <md-menu-item>
+                        <md-button>
+                          {{vm.LabelConstant.BOM.TotalQuote}}:
+                          <b>{{vm.bom.totalQuoteCount}}</b>
+                        </md-button>
+                      </md-menu-item>
+                      <md-menu-item>
+                        <md-button ng-click="vm.cositngActivityLog($event)">
+                          Costing Activity History
+                        </md-button>
+                      </md-menu-item>
+                    </md-menu-content>
+                  </md-menu>
+                </md-menu-bar>
+              </th>
+              <td class="text-center">
+                <b></b>
+              </td>
+            </tr>
+            <tr>
+              <th class="cm-bom-t-title text-right">
+               Description:
+              </th>
+              <td>
+                <span class="cm-bo-font-large cm-bom-t-desc bom-header-wrap">
+                  {{vm.bom.mfgPNDescription?vm.bom.mfgPNDescription:'-'}}
+                </span>
+                <md-tooltip ng-if="vm.bom.mfgPNDescription">{{vm.bom.mfgPNDescription}}</md-tooltip>
+              </td>
+              <th class="text-right white-text cm-bom-t-title">
+                <a tabindex="-1" class="cursor-pointer cm-bom-t-title text-underline inline-block" ng-click="vm.goToAssyList()">{{vm.LabelConstant.Assembly.PIDCode}}</a>:
+              </th>
+              <td>
+                <span class="cm-bo-font-large cm-bom-t-desc">
+                  <span class="text-underline inline-block cursor-pointer margin-0" ng-click="vm.goToAssyMaster()">
+                    <b>{{vm.bom.assyID}}</b>
+                    <md-tooltip ng-if="vm.bom.assyID">{{vm.bom.assyID}}</md-tooltip>
+                  </span>
+                  <span>
+                    <img class="rohs-bom-image" ng-src="{{vm.bom.RoHSStatusIcon}}">
+                    <md-tooltip ng-if="vm.bom.rohs">{{vm.bom.rohs}}</md-tooltip>
+                  </span>
+                  <copy-text ng-if="vm.bom.assyID" label="vm.LabelConstant.Assembly.PIDCode" text="vm.bom.assyID">
+                  </copy-text>
+                  <copy-part-text label="PID" text="vm.bom.custAssyPN" ng-hide="!vm.bom.isCustom"></copy-part-text>
+                </span>
+              </td>
+
+              <th class="cm-bom-t-title text-right">
+                {{vm.LabelConstant.BOM.InternalVersion}}:
+              </th>
+              <td class="cm-square-icon-btn cm-pricing-icon-buttons">
+                <span class="cm-bo-font-large cm-bom-t-desc">
+                  <b>
+                    {{vm.bom.liveInternalVersion?vm.bom.liveInternalVersion:vm.DefaultVersion}}
+                    <md-button class="md-button md-icon-button md-raised md-primary" ng-click="vm.rfqShowHistory($event)">
+                      <md-tooltip class="md-primary" md-direction="top" ng-if="vm.bom.liveInternalVersion">Show Assembly BOM Change Version History</md-tooltip>
+                      <md-icon md-font-icon class="t-icons-history-text cursor-not" ng-class="{'cursor-not-allow':!vm.bom.liveInternalVersion}" ng-disabled="!vm.bom.liveInternalVersion"></md-icon>
+                    </md-button>
+                  </b>
+                </span>
+                <md-button class="md-raised md-icon-button md-primary mv-0-imp ml-0 cm-r-and-d" tabindex="-1" ng-class="{'cursor-pointer':vm.bom.liveInternalVersion,'cursor-not-allow':!vm.bom.liveInternalVersion}" ng-click="vm.showNarrativeHistory($event)">
+                  <md-tooltip md-direction="top">{{vm.LabelConstant.BOM.RNDStatus}}</md-tooltip>
+                  <md-icon md-font-icon="t-icons-r-d" role="img"></md-icon>
+                </md-button>
+                <!--<a tabindex="-1" class="cm-bom-t-title color-white" ng-class="{'cursor-pointer text-underline':vm.bom.liveInternalVersion,'cursor-not-allow':!vm.bom.liveInternalVersion}" ng-click="vm.showNarrativeHistory($event)">{{vm.LabelConstant.BOM.RNDStatus}}</a>-->
+              </td>
+              <th class="cm-bom-t-title text-right">
+                {{vm.LabelConstant.BOM.BusinessRisk}}:
+              </th>
+              <td>
+                <span class="cm-bo-font-large cm-bom-t-desc">
+                  <b>
+                    {{vm.bom.businessRisk?vm.bom.businessRisk:'-'}}
+                  </b>
+                </span>
+              </td>
+              <th class="cm-bom-t-title text-right">
+                RFQ Status:
+              </th>
+              <td>
+                <span>
+                  <label class="label-box margin-bottom-0"
+                         ng-class="{'label-success':vm.bom.status == vm.statusGridHeaderDropdown[3].value,
+                                                        'label-info':vm.bom.status == vm.statusGridHeaderDropdown[2].value,
+                                                        'label-danger':vm.bom.status == vm.statusGridHeaderDropdown[4].value,
+                                                        'red A200-bg':vm.bom.status == vm.statusGridHeaderDropdown[5].value,
+                                                        'label-warning':vm.bom.status == vm.statusGridHeaderDropdown[1].value}">
+                    {{vm.bom.status}}
+                  </label>
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th class="cm-bom-t-title text-right">
+               Special Note:
+              </th>
+              <td>
+                <span class="cm-bo-font-large cm-bom-t-desc bom-header-wrap">
+                  {{vm.bom.specialNote?vm.bom.specialNote:'-'}}
+                </span>
+                <md-tooltip ng-if="vm.bom.specialNote">{{vm.bom.specialNote}}</md-tooltip>
+              </td>
+              <th class="cm-bom-t-title text-right">
+                <a tabindex="-1" class="cursor-pointer cm-bom-t-title text-underline inline-block" ng-click="vm.goToAssyTypeList()">{{vm.LabelConstant.BOM.AssyType}}</a>:
+              </th>
+              <td>
+                <span class="cm-bo-font-large cm-bom-t-desc">
+                  <b>{{vm.bom.assyType}}</b>
+                </span>
+              </td>
+              <th class="cm-bom-t-title text-right">
+                {{vm.LabelConstant.BOM.BOMStatus}}:
+              </th>
+              <td class="text-left">
+                <md-button class="line-height-normal md-raised md-mini  md-mini grid-button md-icon-button bdrbtn border-radius-2 text-left" style="cursor:auto">
+                  <div class="cm-quote-progress" style="width:{{vm.bomProgress+'%'}}"></div>
+                  <span class="relative cm-bom-st" style="margin-left:5px!important;"><span>{{vm.bomProgress}}%</span></span>
+                </md-button><span ng-if="vm.bom.bomlockStatus"><b class="text-underline cursor-pointer" ng-click="vm.goToAssyMaster()">(<md-tooltip>{{vm.LabelConstant.BOM.BOM_STATUS}}</md-tooltip>{{vm.LabelConstant.BOM.BOM_LOCK_STATUS}})</b></span>
+              </td>
+              <th class="cm-bom-t-title text-right">
+                {{vm.LabelConstant.BOM.AssyLevel}}:
+              </th>
+              <td>
+                <span class="cm-bo-font-large cm-bom-t-desc">
+                  <b>
+                    {{vm.bom.assyLevel}}
+                  </b>
+                </span>
+              </td>
+              <th class="cm-bom-t-title text-right">
+                Quote Progress:
+              </th>
+              <td>
+                <span>
+                  <label class="label-box margin-bottom-0"
+                         ng-class="{'label-info':vm.bom.quoteProgress == vm.quoteProgressGridHeaderDropdown[3].value,
+                                    'label-primary':vm.bom.quoteProgress == vm.quoteProgressGridHeaderDropdown[2].value,
+                                    'label-success':vm.bom.quoteProgress == vm.quoteProgressGridHeaderDropdown[4].value,
+                                    'label-warning':vm.bom.quoteProgress == vm.quoteProgressGridHeaderDropdown[1].value}">
+                    {{vm.bom.quoteProgress}}
+                  </label>
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th class="cm-bom-t-title text-right">
+                <a tabindex="-1" class="cursor-pointer cm-bom-t-title text-underline" ng-click="vm.goToStandardList()">{{vm.LabelConstant.BOM.Standards}}</a>:
+              </th>
+              <td colspan="3" class="height-30">
+                <span>
+                  <label class="margin-2 label-box"
+                         ng-style="{'background-color': standardItem.colorCode}"
+                         ng-repeat="standardItem in vm.standards">
+                    {{standardItem.className}}
+                  </label>
+                </span>
+              </td>
+              <th class="cm-bom-t-title text-right">
+                {{vm.LabelConstant.Assembly.PartsToWatch}}:
+              </th>
+              <td>
+                <div class="pl-5 pt-5 cm-bom-img shortcuts-container" ng-if="vm.bom.partID" flex="100" layout="row">
+                  <bom-part-to-watch part-id="vm.bom.partID" show-lable="false"></bom-part-to-watch>
+                </div>
+              </td>
+              <th class="cm-bom-t-title text-right">
+                Quote#:
+              </th>
+              <td>
+                <span ng-class="{'text-underline cursor-pointer':vm.bom.quoteNumber && vm.bom.isSummaryComplete}" class="cm-bo-font-large  cm-bom-t-desc" ng-click="vm.bom.quoteNumber && vm.bom.isSummaryComplete?vm.goToQuote():''">
+                  <b>{{vm.bom.quoteNumber && vm.bom.isSummaryComplete?vm.bom.quoteNumber:'-'}}</b>
+                </span>
+              </td>
+              <th class="text-right">
+                <a tabindex="-1" class="cursor-pointer cm-bom-t-title text-underline" ng-click="vm.goToSalesPriceMatrix()">Go to Sales Price</a>
+              </th>
+              <td class="text-center">
+                <b></b>
+              </td>
+              <td class="text-center">
+                <a tabindex="-1" class="cursor-pointer cm-bom-t-title text-underline" ng-if="vm.bom.isSummaryComplete ? (vm.bom.quoteFinalStatus != vm.QuoteStatus.COMPLETED.VALUE)?(vm.bom.isActivityStart && vm.bom.activityStartBy ==  vm.loginUserId)?true:false:false:false" ng-click="vm.revisedQuote($event)">Revise Quote</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+</div>

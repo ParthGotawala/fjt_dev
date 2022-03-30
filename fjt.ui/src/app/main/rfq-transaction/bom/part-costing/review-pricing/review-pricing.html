@@ -1,0 +1,119 @@
+
+<div id="analytic-detail" class="page-layout fullwidth simple left-sidenav breadcrumb-fixed" layout="column">
+    <div class="content workorderdetail-main pos-rel full-height padding-5-imp" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+        <div layout="row">
+            <div layout="row" flex="100" class="workorderdetail-main work-order-bg-main" layout-wrap>
+                <div layout="row" layout-wrap flex="100">
+                    <table width="100%" class="opration-table">
+                        <tr>
+                            <td rowspan="2" width="5%">
+                                <md-button class="goto-products-button md-icon-button md-primary cm-back-btn-p-m" type="button" ng-click="vm.goBack()">
+                                    <!--<md-icon md-font-icon="icon-arrow-left" class="material-icons icon-arrow-left">
+                                    </md-icon>-->
+                                    <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+                                    </md-icon>
+                                </md-button>
+                            </td>
+                            <td>
+                                Quote#:
+                                <span class="value">
+                                    {{vm.bom.rfqNo}}
+                                </span>
+                            </td>
+                            <td>
+                                RFQ Date:
+                                <span class="value">
+                                    {{vm.bom.quoteindate | date : vm.DateTimeFormat}}
+                                </span>
+                            </td>
+                            <td>
+                                Customer:
+                                <span class="value">
+                                    {{vm.bom.companyName}}
+                                </span>
+                            </td>
+                            <td rowspan="2" class="text-right">
+                                <md-progress-circular ng-if="vm.assyLoading && vm.status != null"
+                                                      ng-class="md-accent"
+                                                      md-diameter="16"
+                                                      md-mode="indeterminate"></md-progress-circular>   
+                                <md-button ng-disabled="vm.bom.isSummaryComplete" ng-class="{'item-disabled':vm.bom.isSummaryComplete}" ng-if="vm.isshowImportExport && (vm.NotQuotedState == vm.currentState || vm.ReviewPricingState == vm.currentState)" class="md-raised md-icon-button custom-tab-button" ng-click="vm.importPricing($event)">
+                                    <md-tooltip md-direction="top">Import</md-tooltip>
+                                    <md-icon class="icon-import"></md-icon>
+                                </md-button>
+                                <md-button ng-if="vm.isshowImportExport && (vm.NotQuotedState == vm.currentState || vm.ReviewPricingState == vm.currentState)" class="md-raised md-icon-button custom-tab-button" ng-click="vm.exportPricing($event)">
+                                    <md-tooltip md-direction="top">Export</md-tooltip>
+                                    <md-icon class="icon-export"></md-icon>
+                                </md-button>
+                                <md-button ng-if="vm.currentState == vm.CustomRulesState && !vm.assyLoading"
+                                           ng-disabled="vm.assyLoading || vm.bom.isSummaryComplete"
+                                           class="md-raised md-icon-button custom-tab-button"
+                                           ng-class="{'item-disabled':(vm.assyLoading||vm.bom.isSummaryComplete)}"
+                                           ng-click="vm.UpdateAllPricing($event)">
+                                    <md-tooltip md-direction="top">Update Pricing</md-tooltip>
+                                    <md-icon class="mdi mdi-satellite-uplink"></md-icon>
+                                </md-button>
+                                <md-button ng-if="vm.currentState == vm.CustomRulesState && vm.assyLoading"
+                                           class="md-raised md-icon-button custom-tab-button"
+                                           ng-click="vm.StopAllPricing($event)">
+                                    <md-tooltip md-direction="top">Stop Pricing</md-tooltip>
+                                    <md-icon class="icon icon-stop"></md-icon>
+                                </md-button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Assy#:
+                                <span class="value">
+                                    {{vm.bom.assemblyNumber}}
+                                </span>
+                            </td>
+                            <td>
+                                Assy Rev:
+                                <span class="value">
+                                    {{vm.bom.assemblyRev}}
+                                </span>
+                            </td>
+                            <td>
+                                Assy Description:
+                                <span class="value">
+                                    {{vm.bom.assemblyDescription}}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div flex="100" layout="row" class="margin-top-5">
+            <div flex="100" layout="row">
+                <div class="ms-theme-options-button md-primary-bg sidebar-icon-fixed " role="button" ng-show="!vm.isShowSideNav">
+                    <div class="sidebar-icon-class">
+                        <md-icon class="md-default-theme md-font material-icons cursor-pointer icon-backburger sidebar-icon-left" md-font-icon="icon-backburger"
+                                 ng-click="vm.HideShowSideNav('review-pricing')"
+                                 role="button" aria-label="icon-backburger"></md-icon>
+                    </div>
+                </div>
+                <md-sidenav class="md-sidenav-right md-whiteframe-2dp price-select" md-component-id="price-selector" style="position:fixed;">
+                    <price-selector ng-if="vm.ispriceSelectorSideNavOpen" lineitem="vm.row"></price-selector>
+                </md-sidenav>
+                <md-sidenav flex="20" id="review-pricing-sidenav" md-disable-backdrop
+                            class="md-sidenav-left md-whiteframe-2dp bom-preview-price"
+                            md-component-id="review-pricing" md-is-open="true" md-is-locked-open="vm.isShowSideNav">
+                    <md-content class="content custom-scroll" flex="100">
+                        <md-nav-bar id="pricing-navigation" md-no-ink-bar="true" flex="100"
+                                    md-selected-nav-item="vm.selectedNavItem">
+                            <md-nav-item flex="100" md-nav-click="vm.getActiveNavigation(item)"name="{{item.name}}" ng-repeat="item in vm.menus">
+                                <md-icon md-font-icon="{{item.icon}}" class="s16"></md-icon>
+                                {{item.title}}
+                            </md-nav-item>
+                        </md-nav-bar>
+                    </md-content>
+                    <md-icon class="md-default-theme md-font material-icons icon-backburger cursor-pointer sidebar-arrow"
+                             md-font-icon="icon-backburger" ng-click="vm.HideShowSideNav('review-pricing')" role="button" aria-label="icon-backburger"></md-icon>
+                </md-sidenav>
+                <md-content ui-view="tabContent" flex="{{vm.isShowSideNav ? '80' : '100'}}" class="card md-whiteframe-4dp full-height"></md-content>
+            </div>
+        </div>
+    </div>
+</div>

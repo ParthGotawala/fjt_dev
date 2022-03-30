@@ -1,0 +1,137 @@
+<md-dialog aria-label="Other Charges Details" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="60">
+  
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>
+        Confirmation
+      </h2>
+      <span flex></span>
+      <popup-header-label label-data="vm.headerdata"></popup-header-label>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content class="customer-modal no-padding custom-scroll mh-5" layout="column">
+    <md-content class="padding-10">
+      <div class="content fullpage-datatable" layout="column">
+        <div ng-if="vm.data.assyList.length > 0" class="margin-top-10 cm-section-main order-detail-form-container payments md-background-bg md-whiteframe-1dp" layout="column" flex="100">
+          <div layout="row" flex="100" class="margin-top-10">
+            <div>
+              <div class="feeder-scan-message color-black padding-left-5">
+                <p ng-if="!vm.data.isDelete">
+                  Following other charges will be applied to this shipment of MPN|PID: {{vm.assyNumber}}|{{vm.assyID}}.<br /> Press Yes to Continue.
+                </p>
+                <p ng-if="vm.data.isDelete">
+                  Following other charges will be removed along with selected Assy ID/PID. Press Yes to Continue.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div layout="row" layout-align="space-between center" class="cm-section-header">
+            <h2 class="margin-0" flex="100">
+              Associated Other Charges
+            </h2>
+          </div>
+          <div class="cm-section-inner">
+            <md-table-container layout="row" flex="100">
+              <table md-table class="md-data-table table-row-select cm-overflow-auto cm-table-padding-5">
+                <thead md-head md-order="vm.queryAssemblyList.order">
+                  <tr md-row>
+                    <th md-column width="50">
+                      #
+                    </th>
+                    <th md-column md-order-by="vm.data.isDelete?custPOLineID:custPOLineNumber" width="50">
+                      PO Line#
+                    </th>
+                    <th md-column md-order-by="vm.data.isDelete?PIDCode:pidcode">
+                      {{vm.allLabelConstant.MFG.PID}}
+                    </th>
+                    <th md-column md-order-by="vm.data.isDelete?mfgpn:mfgPN">
+                      {{vm.allLabelConstant.MFG.MFGPN}}
+                    </th>
+                    <th md-column md-order-by="vm.data.isDelete?mfgpndescription:mfgPNDescription">
+                      Part {{vm.allLabelConstant.MFG.MFGPNDescription}}
+                    </th>
+                    <th md-column md-order-by="qty" class="text-right" ng-if="!vm.data.isDelete">
+                      Qty
+                    </th>
+                    <th md-column md-order-by="price" class="text-right" ng-if="!vm.data.isDelete">
+                      Price
+                    </th>
+                    <th md-column class="text-right" ng-if="!vm.data.isDelete">
+                      Ext. Price
+                    </th>
+                    <th md-column  ng-if="vm.data.isDelete">
+                      Selected Assy ID/PID
+                    </th>
+                  </tr>
+                </thead>
+                <tbody md-body>
+                  <tr md-row ng-repeat="item in vm.soOtherChargeslist">
+                    <td md-cell>{{$index+1}}</td>
+                    <td md-cell>{{vm.data.isDelete?item.custPOLineID:item.custPOLineNumber}}</td>
+                    <td md-cell>
+                      <span class="common-pid-code-label">
+                        <a tabindex="-1" class="cm-text-decoration"
+                           ng-click="vm.goToPartMaster(vm.data.isDelete?item.partId:item.partID)">
+                          {{vm.data.isDelete?item.PIDCode:item.pidcode}}
+                        </a>
+                        <span ng-if="item.rohsName" class="custom-rhos-img-text cm-menu-item-tooltip">
+                          <img class="rohs-workorder-image" ng-src="{{vm.rohsImagePath+item.rohsIcon}}">
+                          <md-tooltip>{{item.rohsName}}</md-tooltip>
+                        </span>
+                        <copy-text label="vm.allLabelConstant.MFG.PID" text="vm.data.isDelete?item.PIDCode:item.pidcode">
+                        </copy-text>
+                      </span>
+                    </td>
+                    <td md-cell>
+                      <common-pid-code-label-link ng-if="(vm.data.isDelete?item.PIDCode:item.pidcode)"
+                                                  component-id="vm.data.isDelete?item.partId:item.partID"
+                                                  label="vm.allLabelConstant.MFG.MFGPN"
+                                                  value="vm.data.isDelete?item.mfgpn:item.mfgPN"
+                                                  rohs-icon="vm.rohsImagePath+item.rohsIcon"
+                                                  is-copy="(vm.data.isDelete?item.partId:item.partID) ? true : false"
+                                                  rohs-status="item.rohsName"
+                                                  is-assembly="true"
+                                                  is-custom-part="true"></common-pid-code-label-link>
+                    </td>
+                    <td md-cell>
+                      <span>{{vm.data.isDelete?item.mfgpndescription:item.mfgPNDescription}}</span>
+                    </td>
+                    <td md-cell class="text-right cm-cell-orderby" ng-if="!vm.data.isDelete">
+                      <span>{{item.qty}}</span>
+                    </td>
+                    <td md-cell class="text-right cm-cell-orderby" ng-if="!vm.data.isDelete">
+                      <span>{{item.price | unitPrice}}</span>
+                    </td>
+                    <td md-cell class="text-right" ng-if="!vm.data.isDelete">
+                      <span>{{(item.qty * item.price) | amount}}</span>
+                    </td>
+                    <td md-cell ng-if="vm.data.isDelete">
+                      <common-pid-code-label-link 
+                                                  component-id="item.SelectedpartID"
+                                                  label="'Selected Assy ID/PID'"
+                                                  value="item.SelectedPIDCode"
+                                                  rohs-icon="vm.rohsImagePath+item.SelectedrohsIcon"
+                                                  is-copy="(item.SelectedpartID) ? true : false"
+                                                  rohs-status="item.SelectedrohsText"
+                                                  is-assembly="true"
+                                                  is-custom-part="true"></common-pid-code-label-link>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </md-table-container>
+          </div>
+        </div>
+      </div>
+    </md-content>
+  </md-dialog-content>
+
+  <md-dialog-actions layout="row">
+    <md-button class="md-default md-raised" ng-click="vm.cancel(false)">No</md-button>
+    <md-button class="md-default md-raised" ng-click="vm.cancel(true)">Yes</md-button>
+  </md-dialog-actions>
+
+</md-dialog>

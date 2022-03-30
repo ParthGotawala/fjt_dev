@@ -1,0 +1,417 @@
+<div class="page-layout simple fullwidth doc-page cm-custom-label-common breadcrumb-fixed" layout="column" flex="100" cg-busy="{promise:vm.cgBusyLoading}">
+    <div class="header md-accent-bg" layout="row" layout-align="start center">
+        <div class="white-fg" layout="column" layout-align="start start">
+
+            <div class="h2" layout="row" layout-align="start center">
+                <pagetitle is-list="true" is-display-menu-name="true"></pagetitle>
+            </div>
+            <div layout="row" layout-align="start center" class="product-count">
+                <breadcrumbs></breadcrumbs>
+            </div>
+        </div>
+        <div layout="row" class="cm-ml-auto" layout-align="end center">
+            <md-button class="md-raised md-primary  margin-bottom-0 margin-top-8" ng-click="vm.updateDigikeySettings($event)">Digikey API Key Setting</md-button>
+            <md-button class="md-raised md-primary  margin-bottom-0 margin-top-8" ng-click="vm.manageExtension()">Configure Restrict File Types</md-button>
+        </div>
+    </div>
+
+    <div class="content-card settings-key padding-top-side" layout="column" flex ng-if="vm.isNoDataFound == false">
+        <!-- Datakey HEADER -->
+        <div class="layout-wrap layout-row border-bottom-gray p-8 md-whiteframe-3dp relative z-index-1" layout-align="start center">
+            <!-- Datakey expand collapse for all clusters -->
+            <md-button class="md-raised md-primary md-ink-ripple ml-0" ng-click="vm.expandOrCollapseAll()">
+                {{vm.allExpanded ? 'Collapse All':'Expand All'}}
+            </md-button>
+            <!-- Datakey Ordering -->
+            <div class="cm-section-main">
+                <div class="cm-section-inner">
+                    <md-radio-group layout layout-wrap ng-model="vm.isascordering" id="ascdscorderingonkey" ng-change="vm.ascendingOrDescendingList()">
+                        <span class="ml-8">
+                            <md-radio-button value="0">Ascending</md-radio-button>
+                        </span>
+                        <span class="ml-8">
+                            <md-radio-button value="1">Descending</md-radio-button>
+                        </span>
+                    </md-radio-group>
+                </div>
+            </div>
+            <!-- Datakey Ordering on Display name and Cluster Name -->
+            <div class="cm-section-main ml-8">
+                <div class="cm-section-inner">
+                    <md-radio-group layout layout-wrap ng-model="vm.ordering" id="orderingspecificonkey" ng-change="vm.orderingOnField()">
+                        <span class="ml-8"  ng-repeat="items in orderingoptions">
+                            <md-radio-button value="{{items.name}}" >{{items.value}}</md-radio-button>
+                        </span>
+                    </md-radio-group>
+                </div>
+            </div>
+            <!-- DATA KEY Search and download csv file -->
+            <div layout flex="40" layout-align="end center" class="cm-ml-auto padding-0">
+                <!-- DATA KEY Search -->
+                <div layout flex class="layout-align-start-center">
+                    <span layout> Search </span>
+                    <md-input-container layout="row" class="md-block error-none" md-no-float flex flex-xs="75">
+                        <input layout type="text" class="quicksearch" placeholder="Type here to search content" ng-model="vm.searchQuery">
+                    </md-input-container>
+                    <md-button ng-if="vm.searchQuery" class="md-icon-button height-20 width-20 line-height-20 margin-top-3"
+                            ng-click="vm.clearSearch()">
+                    <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                    <md-tooltip>Reset</md-tooltip>    
+                    </md-button>
+                </div>
+             
+                <md-button class="md-raised md-primary md-ink-ripple" ng-click="vm.refreshSearch()">
+                    Refresh
+                </md-button>
+              
+                <!-- DATA KEY Download CSV -->
+                <md-button class="md-raised md-primary md-ink-ripple mr-0" ng-click="vm.exportcsv()">
+                    Export to CSV
+                </md-button>
+            </div>
+        </div>
+
+        <!-- DATA KEY FORM -->
+        <div class="cm-overflow-auto">
+            <form name="vm.dataKeyForm" novalidate layout layout-wrap class="flex padding-8 display-grid grid-column-4"> 
+                <div class="grid-item"  style="grid-row:span {{value.length * 3 + 1 }}" ng-class="{ 'cm-collapsed-card' : vm.allExpanded == !vm.allExpanded, 'cm-collapsed-card' : vm.listOfClusters[key].expanded == false }"
+                ng-repeat="(key, value) in vm.sourceData | filter: vm.searchQuery | orderBy: vm.orderingvalue | groupBy: 'clusterName'">
+                    <md-card class="border-radius-4 md-whiteframe-4dp cm-overflow-hidden margin-0 border-accent border-2" flex>
+                        <md-card-header class="pl-10 pr-0 pv-0 border-bottom-gray md-accent-bg layout-align-space-between-center">
+                            <p class="margin-0 " ng-if="key !=='null'">{{key}}</p>
+                            <!-- Datakey expand collapse for individual clusters -->
+                            <span class="cm-ml-auto">
+                                <md-button class="mr-0 md-icon-button mv-0 md-raised md-primary" ng-click="vm.expandcollapse(key, value)">
+                                    <md-icon class="icon icon-chevron-down" md-font-icon ng-if="!vm.listOfClusters[key].expanded"></md-icon>
+                                    <md-icon class="icon icon-chevron-up" md-font-icon ng-if="vm.listOfClusters[key].expanded"></md-icon>
+                                </md-button>
+                            </span>                            
+                        </md-card-header>
+                        <md-card-content class="padding-5" ng-repeat="keys in value"  ng-if="vm.listOfClusters[key].expanded">
+                            <div layout="column">
+                                <div flex>
+                                    <div class="cm-section-inner p-0-imp" id="genKeyData" flex layout layout-wrap>
+                                        <md-card layout flex class="margin-0 md-whiteframe-3dp">
+                                            <div layout flex style="min-height: 130px;">
+                                                <div flex class="p-5">
+                                                    <div layout layout-align="start center" class="cm-square-icon-btn mb-10">
+                                                        <md-card-title-text flex ng-click="vm.openToShowMoreDetail(keys, $event)">
+                                                            <b ng-if="keys.displayName">{{keys.displayName}}</b>
+                                                            <copy-text label="keys.displayName " text="keys.displayName"></copy-text>
+                                                        </md-card-title-text>
+
+                                                        <md-button class="md-btn md-primary md-icon-button md-raised margin-right-0"
+                                                            ng-click="vm.openToShowMoreDetail(keys, $event)">
+                                                            <md-icon class="icon-pencil">
+                                                            <md-tooltip>{{vm.labelConstantOfSetting.UPDATE}}</md-tooltip>
+                                                            </md-icon>
+                                                        </md-button>
+                                                        <md-button ng-class="{ 'md-formdirty': keys.datachange} " class="md-primary md-raised mv-0 mr-0"  ng-disabled="keys.isEditable==0" ng-click="vm.saveDataKey(keys)">save</md-button>
+                                                    </div>
+
+                                                    <!-- If input type NumberBox -->
+                                                    <div layout ng-if="keys.inputControlName == vm.inputControlName.NumberBox" class="mb-10">
+                                                        <md-input-container class="margin-0 width-100p md-input-has-placeholder md-default-theme">
+                                                            <input
+                                                                ng-required="true"
+                                                                ng-change="keys.datachange=true;"
+                                                                ng-disabled="keys.isEditable==0"
+                                                                name="{{keys.id}}"
+                                                                string-to-number 
+                                                                ng-model="keys.datavalues"
+                                                                ng-value="{{keys.datavalues}}"
+                                                                type="Number"
+                                                                class="md-input"
+                                                                id="{{keys.datakey}}">
+                                                            <div ng-messages="vm.dataKeyForm[keys.id].$error " role="alert ">
+                                                                <div ng-message="required">
+                                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                </div>
+                                                                <div ng-message="number">
+                                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </md-input-container>
+                                                        <copy-text label="keys.displayName" text="keys.datavalues"></copy-text>
+                                                    </div>
+
+                                                    <!-- If input type Dropdown -->
+                                                    <div ng-if="keys.inputControlName == vm.inputControlName.DropDown" class="mb-10">                                                      
+                                                      <md-select ng-disabled="keys.isEditable==0 || keys.datakey === 'AccountingYear'"
+                                                                 ng-change="keys.datachange=true;"
+                                                                 placeholder="Select"
+                                                                 ng-required="true"
+                                                                 name="{{keys.id}}"
+                                                                 ng-model="keys.datavalues"
+                                                                 md-container-class="containerClass cm-md-select"
+                                                                 class="margin-0 width-100p"
+                                                                 id="{{keys.datakey}}">
+                                                        <md-option value="{{items.id}}" ng-repeat="items in keys.dropDownListData">{{items.value}}</md-option>
+                                                    </md-select>
+                                                    <div ng-if="keys.datakey === 'AccountingYear'">
+                                                        <span><b>{{vm.labelConstantOfSetting.HINT}}</b></span>
+                                                    </div>
+                                                    <div ng-messages="vm.dataKeyForm[keys.id].$error" role="alert">
+                                                        <div ng-message="required ">
+                                                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+
+                                                     <!-- If input type Radio button -->
+                                                    <div ng-if="keys.inputControlName == vm.inputControlName.RadioButton" class="mb-10">
+                                                        <md-radio-group layout layout-wrap 
+                                                            ng-required="true"
+                                                            ng-change="keys.datachange=true;"
+                                                            ng-disabled="keys.isEditable==0"
+                                                            name="{{keys.id}}"
+                                                            ng-model="keys.datavalues"
+                                                            id="{{keys.datakey}}">
+                                                            <span class="pr-5" ng-repeat="options in keys.optionslist">
+                                                                <md-radio-button value="{{options.value}}"  class="ml-5">{{options.title}}</md-radio-button>
+                                                            </span>
+                                                        </md-radio-group>
+                                                        <div ng-messages="vm.dataKeyForm[keys.id].$error" role="alert">
+                                                            <div ng-message="required">
+                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                     <!-- If input type text box -->
+                                                    <div layout ng-if="keys.inputControlName == vm.inputControlName.TextBox" class="mb-10">
+                                                        <md-input-container class="margin-0 width-100p md-input-has-placeholder md-default-theme" md-no-float=" ">
+                                                            <input 
+                                                                ng-required="true"
+                                                                ng-change="keys.datachange=true"
+                                                                ng-disabled="keys.isEditable==0"
+                                                                name="{{keys.id}}"
+                                                                ng-model="keys.datavalues"
+                                                                type="text"
+                                                                value="{{keys.datavalues}}"
+                                                                class="md-input"
+                                                                id="{{keys.datakey}}">
+                                                            <div ng-messages="vm.dataKeyForm[keys.id].$error" role="alert">
+                                                                <div ng-message="required ">
+                                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </md-input-container>
+                                                        <copy-text label="keys.displayName" text="keys.datavalues"></copy-text>
+                                                    </div>
+
+                                                     <!-- If input type textbox with masking -->
+                                                    <div layout ng-if="keys.inputControlName == vm.inputControlName.TextBoxMasking" class="mb-10">
+                                                        <md-input-container class="margin-0 width-100p md-input-has-placeholder md-default-theme" md-no-float=" ">
+                                                            <input 
+                                                                ng-required="true"
+                                                                ng-change="keys.datachange=true"
+                                                                ng-disabled="keys.isEditable==0"
+                                                                name="{{keys.id}}"
+                                                                ng-model="keys.datavalues"
+                                                                type="text"
+                                                                ng-pattern="keys.maskingpattern"
+                                                                value="{{keys.datavalues}}"
+                                                                class="md-input" id="{{keys.datakey}}">
+                                                            <div ng-messages="vm.dataKeyForm[keys.id].$error" role="alert">
+                                                                <div ng-message="required ">
+                                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                </div>
+                                                                <div ng-message="pattern">
+                                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </md-input-container>
+                                                        <copy-text label="keys.displayName" text="keys.datavalues"></copy-text>
+                                                    </div>
+
+                                                    <!-- If input type textbox editor -->
+                                                    <div layout ng-if="keys.inputControlName == vm.inputControlName.TextEditor" class="mb-10">
+                                                        <md-input-container class="margin-0 width-100p md-input-has-placeholder md-default-theme" md-no-float=" ">
+                                                            <input ng-required="true " ng-change="keys.datachange=true"
+                                                             ng-disabled="keys.isEditable==0"
+                                                             name="{{keys.id}}"
+                                                             ng-model="keys.datavalues"
+                                                             type="text"
+                                                             value="{{keys.datavalues}}"
+                                                             class="md-input"
+                                                             id="{{keys.datakey}}">
+                                                            <div ng-messages="vm.dataKeyForm[keys.id].$error" role="alert">
+                                                                <div ng-message="required ">
+                                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </md-input-container>
+                                                        <copy-text label="keys.displayName" text="keys.datavalues"></copy-text>
+                                                    </div>
+
+                                                    <!-- If input type textbox type email -->
+                                                    <div layout ng-if="keys.inputControlName == vm.inputControlName.TextBoxTypeEmail" class="mb-10">
+                                                        <md-input-container class="margin-0 width-100p md-input-has-placeholder md-default-theme" md-no-float=" ">
+                                                            <input 
+                                                                ng-required="true"
+                                                                ng-change="keys.datachange=true"
+                                                                ng-disabled="keys.isEditable==0"
+                                                                name="{{keys.id}}"
+                                                                ng-model="keys.datavalues"
+                                                                type="email"
+                                                                ng-pattern="keys.maskingpattern"
+                                                                value="{{keys.datavalues}}"
+                                                                class="md-input"
+                                                                id="{{keys.datakey}}">
+                                                            <div ng-messages="vm.dataKeyForm[keys.id].$error" role="alert">
+                                                                <div ng-message="required">
+                                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                </div>
+                                                                <div ng-message="pattern">
+                                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </md-input-container>
+                                                        <copy-text label="keys.displayName" text="keys.datavalues"></copy-text>
+                                                    </div>
+
+                                                    <!-- If input type textbox with json viewer -->
+                                                    <div layout ng-if="keys.inputControlName == vm.inputControlName.TextBoxJsonViewer" class="mb-10">
+                                                        <md-input-container class="margin-0 width-100p md-input-has-placeholder md-default-theme" md-no-float=" ">
+                                                            <input 
+                                                                ng-required="true"
+                                                                ng-change="keys.datachange=true"
+                                                                ng-disabled="keys.isEditable==0"
+                                                                name="{{keys.id}}"
+                                                                id="{{keys.datakey}}"
+                                                                cols=100 rows=20
+                                                                ng-model="keys.datavalues"
+                                                                type="text"
+                                                                value="{{keys.datavalues}}"
+                                                                class="md-input">
+                                                            <div ng-messages="vm.dataKeyForm[keys.id].$error " role="alert">
+                                                                <div ng-message="required ">
+                                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </md-input-container>
+                                                        <copy-text label="keys.displayName" text="keys.datavalues"></copy-text>
+                                                    </div>
+
+                                                    <!-- If input type textbox type with URL -->
+                                                    <div layout ng-if="keys.inputControlName == vm.inputControlName.TextBoxTypeUrl" class="mb-10">
+                                                        <md-input-container class="margin-0 width-100p md-input-has-placeholder md-default-theme" md-no-float=" ">
+                                                            <input 
+                                                                ng-required="true"
+                                                                ng-change="keys.datachange=true"
+                                                                ng-disabled="keys.isEditable==0"
+                                                                name="{{keys.id}}"
+                                                                type="url"
+                                                                ng-model="keys.datavalues"
+                                                                value="{{keys.datavalues}}"
+                                                                class="md-input"
+                                                                id="{{keys.datakey}}">
+                                                            <div ng-messages="vm.dataKeyForm[keys.id].$error" role="alert">
+                                                                <div ng-message="required ">
+                                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </md-input-container>
+                                                        <copy-text label="keys.displayName" text="keys.datavalues"></copy-text>
+                                                    </div>
+
+                                                    <!-- If input type textbox with time picker -->
+                                                    <div layout ng-if="keys.inputControlName == vm.inputControlName.TimePicker && keys.datakeyTimeMask" class="mb-10">
+                                                        <md-input-container class="margin-0 width-100p md-input-has-placeholder md-default-theme" md-no-float=" ">
+                                                            <input type="text"
+                                                                ng-required="true"
+                                                                ng-change="keys.datachange=true"
+                                                                name="{{keys.id}}"
+                                                                ng-disabled="keys.isEditable==0"
+                                                                placeholder="HH:mm"
+                                                                value="{{keys.datavalues}}"
+                                                                ng-model="keys.datavalues"
+                                                                ng-pattern="keys.datakeyTimePattern"
+                                                                class="md-input"
+                                                                mask="{{keys.datakeyTimeMask}}"
+                                                                id="{{keys.datakey}}">
+                                                            <div ng-messages="vm.dataKeyForm[keys.id].$error" role="alert">
+                                                                <div ng-message="required">
+                                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                </div>
+                                                                <div ng-message="pattern">
+                                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </md-input-container>
+                                                        <copy-text label="keys.displayName" text="keys.datavalues"></copy-text>
+                                                    </div>
+
+                                                    <div layout ng-if="keys.inputControlName == vm.inputControlName.NumberFormatForm" class="mb-10">
+                                                        <md-input-container class="margin-0 width-100p md-input-has-placeholder md-default-theme" md-no-float=" ">
+                                                            <input 
+                                                                ng-required="true"
+                                                                ng-change="keys.datachange=true"
+                                                                ng-disabled="keys.isEditable==0 || keys.inputControlName == vm.inputControlName.NumberFormatForm"
+                                                                name="{{keys.id}}"
+                                                                id="{{keys.datakey}}"
+                                                                cols=100 rows=20
+                                                                ng-model="vm.commonNumberValue"
+                                                                type="text"
+                                                                class="md-input">
+                                                            <div>
+                                                                <span><b>{{vm.labelConstantOfSetting.HINT}}</b></span>
+                                                            </div>
+                                                            <div ng-messages="vm.dataKeyForm[keys.id].$error" role="alert">
+                                                                <div ng-message="required">
+                                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                                </div>
+                                                            </div>                                                           
+                                                        </md-input-container>
+                                                        <copy-text label="keys.displayName" text="vm.commonNumberValueForCopy"></copy-text>
+                                                      
+                                                        <div ng-messages="vm.dataKeyForm['keys.datakey'].$error" role="alert">
+                                                            <div ng-message="required">
+                                                                <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Open dialog for showing description when click on eye icon on data key -->
+                                                    <div layout layout-align="start end">
+                                                        <p flex class="cm-multi-line-ellipsis cm-2-line-ellipsis margin-0">{{keys.description}}</p>
+                                                        <md-icon md-font-icon="icon-eye" class="icon s16 margin-0" ng-click="vm.showDescriptionColumn(keys)"></md-icon>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </md-card>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </md-card-content>
+                    </md-card>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Datakey expand collapse for all clusters -->
+    <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound==true">
+        <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+        </div>
+        <p flex="100" class="empty-state-title ">{{vm.EmptyMesssage.MESSAGE}}</p>
+    </div>
+
+</div>
+<style>
+    .cm-multi-line-ellipsis {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 18px;
+    }
+    
+    .cm-2-line-ellipsis {
+        -webkit-line-clamp: 2;
+    }
+    .cm-collapsed-card{
+        grid-row:span 1 !important;
+    }
+</style>

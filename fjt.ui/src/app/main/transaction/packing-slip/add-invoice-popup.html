@@ -1,0 +1,145 @@
+﻿<md-dialog aria-label="AddInvoice" class="cm-custom-label-common" cg-busy="{promise:vm.cgBusyLoading}" draggable flex="50">
+    <form name="vm.formAddInvoice" class="md-inline-form" novalidate>
+        <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>
+                    <span ng-if="vm.invoiceData.invoiceNumber">Update</span>
+                    <span ng-if="!vm.invoiceData.invoiceNumber">Add</span> 
+                    Invoice
+                </h2>
+                <span flex></span>
+                <popup-header-label label-data="vm.headerdata"></popup-header-label>
+                <md-button class="md-icon-button" ng-click="vm.cancel()">
+                    <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+
+        <md-dialog-content class="padding-10">
+            <md-content>
+
+                <div class="cm-section-main margin-bottom-5 border-0">
+                    <div class="cm-section-inner">
+
+                        <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                            <tbody>
+
+                                <tr>
+                                    <th><p class="label-container pt-2">Invoice Number<span>&nbsp;*</span></p></th>
+                                    <td>
+                                        <md-input-container flex="100" class="margin-bottom-0">
+                                            <input type="text" name="invoiceNumber" id="invoiceNumber" ng-model="vm.invoiceData.invoiceNumber" placeholder="Invoice Number" 
+                                                            ng-maxlength="50" required custom-auto-focus="true" ng-disabled="vm.invoiceData.status == 'A' || vm.invoiceData.status == 'P'">
+                                            <div ng-messages="vm.formAddInvoice.invoiceNumber.$error"
+                                                 role="alert">
+                                                <div ng-message="required">
+                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                </div>
+                                                <div ng-message="maxlength">
+                                                    <span>{{vm.getMaxLengthValidation(50, vm.formAddInvoice.invoiceNumber.$viewValue.length)}}</span>
+                                                </div>
+                                            </div>
+                                        </md-input-container>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th><p class="label-container pt-2">Invoice Date<span>&nbsp;*</span></p></th>
+                                    <td>
+                                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                                            <input name="invoiceDate" type="text" class="float-left"
+                                                   id="invoiceDate"
+                                                   max-value="vm.currentDate"
+                                                   max-value-is-today-date="true"
+                                                   allow-past-date="true"
+                                                   allow-future-date="false"
+                                                   datetime-picker="{{$root.dateDisplayFormat}}"
+                                                   ng-model="vm.invoiceData.invoiceDate"
+                                                   enable-time="false"
+                                                   ui-options="{clearOnBlur  : true}"
+                                                   ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                                   ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                                   model-view-value="true"
+                                                   datepicker-options="vm.invoiceDateOptions"
+                                                   ng-change="vm.checkDateValidation()"
+                                                   is-open="vm.IsPickerOpen[vm.DATE_PICKER.invoiceDate]"
+                                                   ng-required="true"
+                                                   ng-disabled="vm.invoiceData.status == 'A' || vm.invoiceData.status == 'P'" />
+                                            <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.invoiceDate] = true">
+                                            </md-icon>
+
+                                            <div ng-messages="vm.formAddInvoice.invoiceDate.$error" role="alert">
+                                                <div ng-message="maxvalue">
+                                                    <span>{{vm.getMaxDateValidation('Invoice date', 'today date')}}</span>
+                                                </div>
+                                                <div ng-message="mindate">
+                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVOICE_DATE_GREATER_THAN_PACKING_SLIP_DATE}}</span>
+                                                </div>
+                                                <div ng-message="required">
+                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                </div>
+                                                <div ng-message="datetime || mask || parse">
+                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                </div>
+                                            </div>
+                                        </md-input-container>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th><p class="label-container pt-2">Apply Date<span ng-if="vm.invoiceData.invoiceDate">&nbsp;*</span></p></th>
+                                    <td>
+                                        <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0">
+                                            <input name="applyDate" type="text" class="float-left"
+                                                   id="applyDate"
+                                                   datetime-picker="{{$root.dateDisplayFormat}}"
+                                                   ng-model="vm.invoiceData.applyDate"
+                                                   enable-time="false"
+                                                   ui-options="{clearOnBlur  : true}"
+                                                   ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                                   ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                                   model-view-value="true"
+                                                   datepicker-options="vm.invoiceDateOptions"
+                                                   is-open="vm.IsPickerOpen[vm.DATE_PICKER.applyDate]"
+                                                   ng-disabled="!vm.invoiceData.invoiceDate"
+                                                   ng-change="vm.checkApplyDateValidation()" 
+                                                   ng-required="vm.invoiceData.invoiceDate"/>
+                                            <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.invoiceData.invoiceDate ? vm.IsPickerOpen[vm.DATE_PICKER.applyDate] = true : false">
+                                            </md-icon>
+
+                                            <div ng-messages="vm.formAddInvoice.applyDate.$error" role="alert">
+                                                <div ng-message="mindate">
+                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.APPLY_DATE_GREATER_THAN_INVOICE_DATE}}</span>
+                                                </div>
+                                                <div ng-message="required">
+                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                                </div>
+                                                <div ng-message="datetime || mask || parse">
+                                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                                </div>
+                                            </div>
+                                        </md-input-container>
+                                    </td>
+                                </tr>
+
+                                <tr>
+
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+
+            </md-content>
+        </md-dialog-content>
+
+        <md-dialog-actions layout="row">
+            <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+            <md-button class="md-primary md-raised" ng-click="vm.saveInvoice();" aria-label="Submit">Save</md-button>
+        </md-dialog-actions>
+
+    </form>
+</md-dialog>

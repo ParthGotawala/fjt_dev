@@ -1,0 +1,493 @@
+@using FJT.IdentityServer.Helper;
+@model LoginViewModel
+
+<div class="login-page">
+    @*<div class="page-header">
+            <h1>Login</h1>
+        </div>*@
+
+    <partial name="_ValidationSummary" />
+
+    <div class="row">
+
+        @if (Model.EnableLocalLogin)
+        {
+            <div class="cm-login-container m-auto border-radius-3 whiteframe-10dp">
+                <div class="cm-login-logo">Q</div>
+                <div class="mb-3 text-center">Log in to your account</div>
+                @*<h1>Login</h1>*@
+                <div class="panel panel-default">
+                    @*<div class="panel-heading">
+                            <h3 class="panel-title">Local Login</h3>
+                        </div>*@
+                    <div class="panel-body">
+
+                        <form asp-route="Login">
+                            <input type="hidden" asp-for="ReturnUrl" />
+                            <input type="hidden" asp-for="ManageSignatureUI" />
+                            <input type="hidden" asp-for="Signature" />
+                            <input type="hidden" asp-for="FinalSignature" />
+
+                            <fieldset>
+                                <div class="form-group mv-18">
+                                    @*<label asp-for="Username"></label>*@
+                                    <input class="w-100 border-bottom-color" placeholder="Email OR User ID" asp-for="Username" autofocus oninput="checkDirtyForm()">
+                                    <span asp-validation-for="Username" id="UsernameValidation" class="text-danger text-left d-block font-size-12"></span>
+
+                                </div>
+                                <div class="form-group mv-18">
+                                    @*<label asp-for="Password"></label>*@
+                                    <input type="password" class="w-100 border-bottom-color" placeholder="Password" asp-for="Password" value="@Model.Password" autocomplete="off" oninput="checkDirtyForm()">
+                                    <span asp-validation-for="Password" id="PasswordValidation" class="text-danger text-left d-block font-size-12"></span>
+
+                                </div>
+
+                                @*Comment By BT -s - for now do not show rememberLogin*@
+                                @*@if (Model.AllowRememberLogin)
+                                    {
+                                        <div class="form-group login-remember">
+                                            <label asp-for="RememberLogin">
+                                                <input asp-for="RememberLogin">
+                                                <strong>Remember My Login</strong>
+                                            </label>
+                                        </div>
+                                    }*@
+                                @*-E*@
+
+
+                                @if (Model.ShowAcceptAgreementPopUp)
+                                {
+                                    <div class="form-group d-flex justify-content-start align-items-end">
+                                        <div><input asp-for="AcceptAgreement" type="checkbox" class="custom-Checkbox mr-1" /></div>
+                                        <div><a class="customlink" onclick="ShowLatestAgreement()"><u>Terms and Conditions</u></a></div>
+                                    </div>
+                                }
+                                <div class="form-group">
+                                    <button class="btn btn-primary cm-login-btn" id="login-btn" name="button" value="login">LOG IN</button>
+                                    @*<button class="btn btn-default" name="button" value="cancel">Cancel</button>*@
+                                </div>
+
+                                <div class="form-group mb-3 mt-5 font-size-14 text-center">
+                                    @Html.ActionLink("Forgot Password?", "ForgotPassword", "Account", "", new { @Class = "customlink" })
+                                </div>
+
+                                <!-- Agreement Modal -->
+                                <div class="modal fade rounded" id="AgreementModel" role="dialog" tabindex="-1" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                    <div class="modal-dialog max-width-initial agreement-modal-dialog  modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header custom-toolbar-header d-flex justify-content-between align-items-center pl-3 py-0 pr-0">
+                                                <div>
+                                                    <span class="modal-title font-size-14" id="exampleModalLongTitle">Terms and Conditions</span>
+                                                </div>
+                                                <div class="d-flex justify-content-end ml-auto">
+                                                    <div class="d-flex justify-content-end model-header-buttons">
+                                                        <div class="custom-header-button mr-2">Current&nbsp;Version: <strong>@Model.Version</strong> </div>
+                                                        <div class="custom-header-button mr-2">
+                                                            Effective:
+                                                            @try
+                                                            {
+                                                                <strong>@Model.Effective.Value.ToShortDateString()</strong>
+                                                            }
+                                                            catch { }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mr-1">
+                                                    <button type="button" class="close cm-close-btn m-0 px-2 py-0" onclick="onCloseAgreementModel()" aria-label="Close">
+                                                        <span class="cross"></span>
+                                                    </button>
+                                                </div>
+
+                                            </div>
+                                            <div class="modal-body agreement-modal-body text-left" id="modal-body" data-spy="scroll">
+                                                <div class="row">
+                                                    <div class="col" id="AgreementContent">
+                                                        @Html.Raw(Model.AgreementContent)
+                                                        @*@Html.DisplayFor(model => model.AgreementContent)*@
+                                                        @*<p>@Model.AgreementContent</p>*@
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <strong><span>Signature<sup class="text-danger"> *</sup> </span></strong>
+
+                                                        <div id="signature-section">
+                                                            <div class="wrapper mb-1">
+                                                                <canvas id="signature-pad" class="signature-pad border" width=400 height=200></canvas>
+                                                            </div>
+                                                            @*<div><strong><span class="text-danger mt-1" id="signature-error"></span></strong></div>*@
+
+                                                            @*<button class="custom-footer-button rounded px-3 py-1" type="button" id="undo">UNDO</button>*@
+                                                            <button class="custom-footer-button button-regular-color rounded px-3 py-1" type="button" id="clear">CLEAR</button>
+                                                            <button class="custom-footer-button button-regular-color rounded px-3 py-1" type="button" id="save-png">GENERATE SIGNATURE</button>
+                                                            <button class="custom-footer-button button-regular-color rounded px-3 py-1" type="button" id="cancel">CANCEL</button>
+                                                        </div>
+
+                                                        <div id="signature-img-section" class="mt-2">
+                                                            <div class="wrapper mb-2"><img src="" id="signature-img" class="border"></div>
+                                                            <div class="mb-2">
+                                                                <button class="custom-footer-button button-regular-color rounded px-3 py-1" type="button" id="edit">EDIT</button>
+                                                                <button class="custom-footer-button button-regular-color rounded px-3 py-1" type="button" id="delete">DELETE</button>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer p-1" id="model-footer">
+                                                <button type="button" class="custom-footer-button button-regular-color px-3 py-1 my-0 mr-3" id="agree-btn" onclick="AcceptTermAndContition()">AGREE</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Information / Error Model -->
+                                @*<div class="modal fade" id="dynamicInfoModel" role="dialog" tabindex="-1" aria-labelledby="exampleModalCenterTitle3" aria-hidden="true">
+                                        <div class="modal-dialog errorModel-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header d-flex justify-content-between border-0 pb-2">
+                                                    <div class="d-flex justify-content-start">
+                                                        <h4 class="modal-title mr-2" id="dynamicInfoTitleType"></h4>
+                                                        <h4 class="modal-title" id="dynamicInfoTitleValue"></h4>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-body py-0" id="dynamicInfoBodyValue">
+                                                </div>
+                                                <div class="modal-footer p-0 mt-1">
+                                                    <button type="button" class="btn errorModel-footer-btn" id="dynamicInfoModelOkBtn" data-dismiss="modal"> OK </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>*@
+
+                                <!-- Confirmation model for Delete Signature -->
+                                @if (ViewBag.deleteConfirmMSG != null)
+                                {
+                                    <div class="modal fade" id="delSignatureConfirmModel" role="dialog" tabindex="-1" aria-labelledby="exampleModalCenterTitle4" aria-hidden="true">
+                                        <div class="modal-dialog errorModel-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header d-flex justify-content-between border-0 pb-2 px-4">
+                                                    <div class="d-flex justify-content-start">
+                                                        <h4 class="modal-title mr-2 message-title" id="delSignatureConfirmTitleType">@ViewBag.deleteConfirmMSG.messageType:</h4>
+                                                        <h4 class="modal-title message-title" id="delSignatureConfirmTitleValue">@ViewBag.deleteConfirmMSG.messageCode</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-body pt-0 px-4 message-body" id="delSignatureConfirmBodyValue">
+                                                    @Html.Raw(string.Format(ViewBag.deleteConfirmMSG.message, "Signature", ""))
+                                                </div>
+                                                <div class="modal-footer px-2 py-1 mt-1">
+                                                    <button type="button" class="btn error-modal-btn" id="delSignatureConfirmModelNoBtn" data-dismiss="modal" onclick="hideDelSignatureConfirmModel()">NO</button>
+                                                    <button type="button" class="btn error-modal-btn" data-dismiss="modal" onclick="deleteSignatureConfirm()">YES</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+                                <!-- confirmation model for Leave Page -->
+                                <!--<div class="modal fade" id="errorModel" role="dialog" tabindex="-1" aria-labelledby="exampleModalCenterTitle2" aria-hidden="true">
+                                    <div class="modal-dialog errorModel-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header d-flex justify-content-between border-0 pb-2 px-4">
+                                                <div>
+                                                    <h4 class="modal-title message-title" id="exampleModalLongTitle2">Confirmation:</h4>
+                                                </div>
+                                            </div>
+                                            <div class="modal-body pt-0 px-4 message-body" id="modal-body">
+                                                <p class="m-0">You will lose all unsaved work.</p>
+                                                <p class="m-0"> Are you sure you want to leave this page? </p>
+                                            </div>
+                                            <div class="modal-footer px-2 py-1 mt-1">
+                                                <button type="button" class="btn error-modal-btn" id="stayOnBtn" data-dismiss="modal" onclick="stayOnAgreementModel()">STAY ON</button>
+                                                <button type="button" class="btn error-modal-btn" data-dismiss="modal" onclick="leaveAgreementModel()">LEAVE PAGE</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>-->
+
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toast -->
+            <div class="toast max-width-initial" id="infoToast" style="position: absolute; top: 10px; right: 30px; z-index:10001;">
+                <div class="toast-header" style="background-color:orange">
+                    <strong><p id="infoToast-message" class="p-2 text-white m-0"></p></strong>
+                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        }
+
+        @if (Model.VisibleExternalProviders.Any())
+        {
+            <div class="col-md-6 col-sm-6 external-providers">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">External Login</h3>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="list-inline">
+                            @foreach (var provider in Model.VisibleExternalProviders)
+                            {
+                                <li>
+                                    <a class="btn btn-default"
+                                       asp-controller="External"
+                                       asp-action="Challenge"
+                                       asp-route-provider="@provider.AuthenticationScheme"
+                                       asp-route-returnUrl="@Model.ReturnUrl">
+                                        @provider.DisplayName
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (!Model.EnableLocalLogin && !Model.VisibleExternalProviders.Any())
+        {
+            <div class="alert alert-warning">
+                <strong>Invalid login request</strong>
+                There are no login schemes configured for this client.
+            </div>
+        }
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+<script type="text/javascript">
+
+    var isChanged = false;
+    var signaturePadObj = null;
+    var isInEditMode = false;
+
+    function checkDirtyForm() {
+        const userName = $("#Username").val();
+        const password = $("#Password").val();
+        if (userName || password) {
+            $("#login-btn").removeClass("btn-primary");
+            $("#login-btn").addClass("btn-dirty");
+        }
+        else {
+            $("#login-btn").removeClass("btn-dirty");
+            $("#login-btn").addClass("btn-primary");
+        }
+    }
+
+    function ShowLatestAgreement() {
+        $("#cancel").hide();
+        isChanged = false;
+        isInEditMode = false;
+        $("#Signature").val(null);
+        $("#ManageSignatureUI").val("");
+        $("#signature-section").show();
+        $("#signature-img-section").hide();
+        $("#signature-pad").removeClass("border-danger");
+        $('#AgreementModel').modal({
+            keyboard: false,
+            backdrop: 'static'
+        });
+    }
+
+    function onCloseAgreementModel() {
+        if (isChanged) {
+            @if (ViewBag.leavePageConfirmationMSG != null) {
+            <Text>
+                $("#errorModelTitleType").html('@ViewBag.leavePageConfirmationMSG.messageType:');
+                $("#errorModelTitleValue").html('@ViewBag.leavePageConfirmationMSG.messageCode');
+                $("#errorModelBodyValue").html("@Html.Raw(ViewBag.leavePageConfirmationMSG.message)");
+                $('#errorModel').modal({
+                keyboard: false,
+                    backdrop: 'static'
+                });
+            </Text>
+            }
+        }
+        else {
+            $('#AgreementModel').modal('hide');
+        }
+    }
+
+    function stayOnAgreementModel() {
+        $('#errorModel').modal('hide');
+    }
+
+    function leaveAgreementModel() {
+        $('#errorModel').modal('hide');
+        $('#AgreementModel').modal('hide');
+    }
+
+    function AcceptTermAndContition() {
+        window.location.href = '#signature-section';
+        if (isInEditMode) {
+            $("#infoToast-message").html("You have not made any changes to save data.");
+            $('#infoToast').toast('show');
+        }
+        else {
+            var manageSignatureUI = $("#ManageSignatureUI").val();
+            if (manageSignatureUI == null || manageSignatureUI == "") {
+                $("#signature-pad").addClass("border-danger");
+            }
+            else {
+                $("#Signature").val(manageSignatureUI);
+                $("#FinalSignature").val(manageSignatureUI);
+                $('#AgreementModel').modal('hide');
+            }
+        }
+    }
+
+    function hideDelSignatureConfirmModel() {
+        $('#delSignatureConfirmModel').modal('hide');
+    }
+
+    function deleteSignatureConfirm() {
+        $('#delSignatureConfirmModel').modal('hide');
+
+        signaturePadObj.clear();
+        removeFormDirty();
+        $("#ManageSignatureUI").val("");
+        $("#signature-img-section").hide();
+        $("#signature-section").show();
+        $("#cancel").hide();
+    }
+
+    function makeFormDirty() {
+        $("#agree-btn").removeClass("button-regular-color");
+        $("#agree-btn").addClass("btn-dirty");
+    }
+
+    function removeFormDirty() {
+        $("#agree-btn").removeClass("btn-dirty");
+        $("#agree-btn").addClass("button-regular-color");
+    }
+
+    $(function () {
+        $("#signature-img-section").hide();
+        // Desable CheckBox
+        $("#FinalSignature").val(null);
+        $("#AcceptAgreement").attr("disabled", true);
+        checkDirtyForm();
+        $('input:visible:first').focus();
+
+        $("#infoToast").toast({
+             delay: 4000
+        });
+
+        // On blue any input, go for validation.
+        $('input', 'form').blur(function () {
+            $(this).valid();
+        });
+
+        @if (ViewBag.dynamicMessage != null) {
+            <Text>
+                $("#dynamicInfoTitleType").html('@ViewBag.dynamicMessage.messageType:');
+                $("#dynamicInfoTitleValue").html('@ViewBag.dynamicMessage.messageCode');
+                $("#dynamicInfoBodyValue").html("@Html.Raw(ViewBag.dynamicMessage.message)");
+                $('#dynamicInfoModel').modal({
+                keyboard: false,
+                    backdrop: 'static'
+                });
+            </Text>
+        }
+
+        var canvas = document.getElementById('signature-pad');
+        var signaturePad = signaturePadObj = new SignaturePad(canvas);
+
+        document.getElementById('save-png').addEventListener('click', function () {
+            if (signaturePad.isEmpty()) {
+                @if (ViewBag.provideSignatureMSG != null) {
+                    <Text>
+                        $("#dynamicInfoTitleType").html('@ViewBag.provideSignatureMSG.messageType:');
+                        $("#dynamicInfoTitleValue").html('@ViewBag.provideSignatureMSG.messageCode');
+                        $("#dynamicInfoBodyValue").html("@ViewBag.provideSignatureMSG.message");
+                    </Text>
+                }
+                $('#dynamicInfoModel').modal({
+                    keyboard: false,
+                    backdrop: 'static'
+                });
+            }
+            else {
+                $("#cancel").show();
+                //$("#signature-error").html("");
+                var data = signaturePad.toDataURL('image/png');
+                $("#ManageSignatureUI").val(data);
+
+                $("#signature-img").attr("src", data);
+                $("#signature-section").hide();
+                $("#signature-img-section").show();
+                signaturePad.clear();
+                $("#cancel").hide();
+                $("#edit").show();
+                $("#delete").show();
+                isChanged = true;
+                isInEditMode = false;
+            }
+        });
+
+        document.getElementById('clear').addEventListener('click', function () {
+            signaturePad.clear();
+            removeFormDirty();
+        });
+
+        $("#delete").on("click", function () {
+            $('#delSignatureConfirmModel').modal({
+                keyboard: false,
+                backdrop: 'static'
+            });
+        });
+
+        $("#edit").on("click", function () {
+            $("#cancel").show();
+            $("#edit").hide();
+            $("#delete").hide();
+            $("#signature-section").show();
+            isChanged = true;
+            isInEditMode = true;
+            removeFormDirty();
+        });
+
+        $("#cancel").on("click", function () {
+            $("#signature-section").hide();
+            $("#edit").show();
+            $("#delete").show();
+            signaturePad.clear();
+            isChanged = true;
+            isInEditMode = false;
+            makeFormDirty();
+        });
+
+        $('#signature-pad').on('mouseup', function () {
+            makeFormDirty();
+        });
+
+        $('#AgreementModel').on('hide.bs.modal', function () {
+            signaturePad.clear();
+            removeFormDirty();
+            var signature = $("#FinalSignature").val();
+            if (signature == null || signature == "") {
+                $("#AcceptAgreement").prop('checked', false);
+                $("#AcceptAgreement").attr("disabled", true);
+                $("#AcceptAgreement").css("cursor", "not-allowed");
+            }
+            else {
+                $("#AcceptAgreement").attr("disabled", false);
+                $("#AcceptAgreement").css("cursor","Pointer");
+                $("#AcceptAgreement").prop('checked', true);
+            }
+        });
+
+        // Below codes for Focus Buttons on model open.
+        $('#delSignatureConfirmModel').on('shown.bs.modal', function () {
+            $('#delSignatureConfirmModelNoBtn').focus();
+        });
+
+    });
+
+</script>
+

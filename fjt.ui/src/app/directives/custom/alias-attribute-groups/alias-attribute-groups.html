@@ -1,0 +1,670 @@
+<div layout="row" flex="100" class="cm-alias-alternate-grp" cg-busy="{promise:vm.cgBusyLoading}">
+  <ms-form-wizard flex>
+    <md-tabs md-selected="vm.selectedTabIndex" md-dynamic-height id="manage-customer-tabing">
+      <!--Packaging Alias Parts-->
+      <md-tab ng-disabled="vm.isSupplier" md-on-select="vm.onTabChanges(vm.PackagingPartsTabName, msWizard)">
+        <md-tab-label>
+          <span class="ms-form-wizard-step-label">
+            <span class="ms-form-wizard-step-number md-accent-bg">4</span>
+            <span class="ms-form-wizard-step-number md-accent-bg">
+              <i class="icon-check s16"></i>
+            </span>
+            <span class="ms-form-wizard-step-text">ALIAS PARTS</span>
+          </span>
+        </md-tab-label>
+        <md-tab-body>
+          <div ng-if="vm.IsPackagingPartsTab">
+            <div class="cm-packing-alias-tab" layout="column">
+              <div class="cm-section-inner pt-5 pl-5">
+                <div layout="row">
+                  <div layout="row" layout-align="start center">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main middle-align-table">
+                      <tbody>
+                        <tr>
+                          <th>
+                            <p class="label-container padding-top-3">
+                              Packaging Alias Part
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container flex="100" ng-if="vm.autoCompletePackagingAlias" class="autocompletecustom margin-bottom-0 w-300">
+                              <custom-auto-complete-search on-search-fn="vm.autoCompletePackagingAlias.onSearchFn"
+                                                           column-name="vm.autoCompletePackagingAlias.columnName"
+                                                           key-column-name="vm.autoCompletePackagingAlias.keyColumnName"
+                                                           controller-name="vm.autoCompletePackagingAlias.controllerName"
+                                                           view-template-url="vm.autoCompletePackagingAlias.viewTemplateURL"
+                                                           input-name="vm.autoCompletePackagingAlias.inputName"
+                                                           placeholder-name="vm.autoCompletePackagingAlias.placeholderName"
+                                                           key-column-id="vm.autoCompletePackagingAlias.keyColumnId"
+                                                           is-required="vm.autoCompletePackagingAlias.isRequired"
+                                                           is-addnew="vm.autoCompletePackagingAlias.isAddnew"
+                                                           add-data="vm.autoCompletePackagingAlias.addData"
+                                                           callback-fn="vm.autoCompletePackagingAlias.callbackFn"
+                                                           on-select-callback-fn="vm.autoCompletePackagingAlias.onSelectCallbackFn"
+                                                           is-disabled="vm.isReadOnly || vm.IsSupplier==true || (vm.partDetail.category == vm.PartCategory.SubAssembly)|| vm.partDetail.isCPN">
+                              </custom-auto-complete-search>
+                            </md-input-container>
+                          </td>
+                          <th>
+                          </th>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div layout="column" layout-align="end center" class="margin-left-auto-imp">
+                    <md-button ng-disabled="vm.isReadOnly || (!vm.addAliasPart) || vm.IsSupplier==true || (vm.partDetail.category == vm.PartCategory.SubAssembly) ||  vm.partDetail.isCPN"
+                               class="md-primary cm-feture-btn-color md-raised mb-0" aria-label="Add Alias Part"
+                               ng-click="vm.addPackagingAliasPart($event)">
+                      {{vm.addPackagingAliasPartLabel}}
+                    </md-button>
+                    <span class="font-weight-600 font-size-10" ng-if="(!vm.addAliasPart)">
+                      {{vm.LabelConstant.FeatureEnableText}}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <md-card layout="column" flex layout-align="space-between stretch" ng-show="!vm.PackagingPartNotFound" class="grid-with-header">
+                <ui-grid-extention class="cm-alternate-groups-grids" layout="column" flex
+                                   load-data="vm.loadDataPackagingPart"
+                                   grid-option="vm.gridOptionsPackagingPart"
+                                   header="vm.sourceHeaderPackagingPart"
+                                   grid-data="vm.sourceDataPackagingPart"
+                                   total-data-count="vm.totalPackagingPartSourceDataCount"
+                                   reset-grid="vm.resetSourceGridPackagingPart"
+                                   selectted-rows="vm.selectedPackagingPartList"
+                                   paging-info="vm.pagingInfoPackagingPart"
+                                   current-item="vm.currentdataPackagingPart"
+                                   get-data-down="vm.getPackagingPartDataDown"
+                                   empty-state="vm.packagingPartEmptyState">
+                </ui-grid-extention>
+              </md-card>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.PackagingPartNotFound == true">
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.PackagingPartEmptyMesssage.IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title">{{vm.PackagingPartEmptyMesssage.MESSAGE}}</p>
+                <p flex="100">
+                  <md-button class="md-fab md-mini" aria-label="Refresh" ng-click="vm.loadDataPackagingPart()">
+                    <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+                    <md-tooltip md-direction="top">Refresh</md-tooltip>
+                  </md-button>
+                </p>
+              </div>
+            </div>
+          </div>
+        </md-tab-body>
+      </md-tab>
+      <!--Alternate Parts-->
+      <md-tab ng-disabled="vm.isSupplier" md-on-select="vm.onTabChanges(vm.AlternatePartsTabName, msWizard)">
+        <md-tab-label>
+          <span class="ms-form-wizard-step-label">
+            <span class="ms-form-wizard-step-number md-accent-bg">0</span>
+            <span class="ms-form-wizard-step-number md-accent-bg">
+              <i class="icon-check s16"></i>
+            </span>
+            <span class="ms-form-wizard-step-text">ALT PARTS</span>
+          </span>
+        </md-tab-label>
+        <md-tab-body>
+          <div ng-if="vm.IsAlternatePartsTab">
+            <md-card layout="column" flex layout-align="space-between stretch" class="grid-with-header">
+              <div class="cm-section-main">
+                <div class="cm-section-header">
+                  <h2>Recommended Alternate</h2>
+                </div>
+                <div layout="column" flex="100" class="cm-alias-alternate-grp">
+                  <alternate-parts-list component-id="vm.cid" mfg-type="vm.mfgType" is-read-only="vm.isReadOnly" part-detail="vm.partDetail" rohs-list="vm.RohsList" alternate-part-type="vm.ComponentAlternatePartType"></alternate-parts-list>
+                </div>
+              </div>
+            </md-card>
+            <md-card layout="column" flex layout-align="space-between stretch" class="grid-with-header">
+              <div class="cm-section-main">
+                <div class="cm-section-header">
+                  <h2>Possible Alternate</h2>
+                </div>
+                <div class="cm-section-inner" ng-if="!vm.PALNotFound">
+                  <ui-grid-extention class="recommended-alt-list" load-data="vm.loadDataPAL"
+                                     grid-option="vm.gridOptionsPAL"
+                                     header="vm.sourceHeaderPAL"
+                                     grid-data="vm.sourceDataPAL"
+                                     total-data-count="vm.totalSourceDataCountPAL"
+                                     reset-grid="vm.resetSourceGridPAL"
+                                     selectted-rows="vm.selectedRowsListPAL"
+                                     paging-info="vm.pagingInfoPAL"
+                                     current-item="vm.currentdataPAL"
+                                     get-data-down="vm.getDataDownPAL"
+                                     empty-state="vm.emptyStatePAL"
+                                     delete-multiple-data="vm.deleteMultipleDataPAL">
+                  </ui-grid-extention>
+                </div>
+                <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.PALNotFound">
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.PossibleAlternatePartEmptyMesssage.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title">{{vm.PossibleAlternatePartEmptyMesssage.MESSAGE}}</p>
+                  <p flex="100">
+                    <md-button class="md-fab md-mini" aria-label="Refresh" ng-click="vm.loadDataPAL()">
+                      <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+                      <md-tooltip md-direction="top">Refresh</md-tooltip>
+                    </md-button>
+                  </p>
+                </div>
+              </div>
+            </md-card>
+          </div>
+        </md-tab-body>
+      </md-tab>
+      <!--RoHS Replacement Parts-->
+      <md-tab ng-disabled="vm.isSupplier" md-on-select="vm.onTabChanges(vm.RoHSReplacmentPartsTabName, msWizard)">
+        <md-tab-label>
+          <span class="ms-form-wizard-step-label">
+            <span class="ms-form-wizard-step-number md-accent-bg">0</span>
+            <span class="ms-form-wizard-step-number md-accent-bg">
+              <i class="icon-check s16"></i>
+            </span>
+            <span class="ms-form-wizard-step-text">ROHS REPLC PARTS</span>
+          </span>
+        </md-tab-label>
+        <md-tab-body>
+          <div ng-if="vm.IsRoHSReplacmentPartsTab" layout="column" class="cm-packing-alias-tab">
+            <alternate-parts-list component-id="vm.cid" mfg-type="vm.mfgType" layout="column" is-read-only="vm.isReadOnly"
+                                  flex part-detail="vm.partDetail" rohs-list="vm.RohsList" alternate-part-type="vm.ComponentAlternatePartType"></alternate-parts-list>
+          </div>
+        </md-tab-body>
+      </md-tab>
+      <!--Where Used in Assembly-->
+      <md-tab md-on-select="vm.onTabChanges(vm.WhereUsedTabName, msWizard)">
+        <md-tab-label>
+          <span class="ms-form-wizard-step-label">
+            <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+            <span class="ms-form-wizard-step-number md-accent-bg">
+              <i class="icon-check s16"></i>
+            </span>
+            <span class="ms-form-wizard-step-text">WHERE USED ASSY</span>
+          </span>
+        </md-tab-label>
+        <md-tab-body>
+          <div ng-if="vm.IsWhereUsedTab">
+            <div class="cm-packing-alias-tab padding-10">
+              <md-card layout="column" flex layout-align="space-between stretch" ng-show="!vm.SiteDetNotFound" class="grid-with-header margin-0">
+                <ui-grid-extention class="cm-alternate-groups-grids" layout="column" flex load-data="vm.loadSiteData"
+                                   grid-option="vm.siteGridOptions"
+                                   header="vm.siteSourceHeader"
+                                   grid-data="vm.siteSourceData"
+                                   total-data-count="vm.siteTotalSourceDataCount"
+                                   reset-grid="vm.resetSiteSourceGrid"
+                                   selectted-rows="vm.siteSelectedRowsList"
+                                   paging-info="vm.sitePagingInfo"
+                                   current-item="vm.siteCurrentdata"
+                                   get-data-down="vm.siteGetDataDown"
+                                   empty-state="vm.siteEmptyState"
+                                   delete-multiple-data="vm.siteDeleteMultipleData">
+                </ui-grid-extention>
+              </md-card>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.SiteDetNotFound == true">
+                <div class="emty-icon" flex="100">
+                  <img ng-if="(!vm.isSupplier)" ng-src="{{vm.SiteEmptyMesssage.MFR_PART_IMAGEURL}}" />
+                  <img ng-if="vm.isSupplier" ng-src="{{vm.SiteEmptyMesssage.SUPPLIER_PART_IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title">{{vm.SiteEmptyMesssage.MESSAGE}}</p>
+                <p flex="100">
+                  <md-button class="md-fab md-mini" aria-label="Refresh" ng-click="vm.loadSiteData()">
+                    <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+                    <md-tooltip md-direction="top">Refresh</md-tooltip>
+                  </md-button>
+                </p>
+              </div>
+            </div>
+          </div>
+        </md-tab-body>
+      </md-tab>
+      <!--Drive Tools-->
+      <md-tab ng-disabled="vm.isSupplier" md-on-select="vm.onTabChanges(vm.DriveToolsTabName, msWizard)">
+        <md-tab-label>
+          <span class="ms-form-wizard-step-label">
+            <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+            <span class="ms-form-wizard-step-number md-accent-bg">
+              <i class="icon-check s16"></i>
+            </span>
+            <span class="ms-form-wizard-step-text">DRIVE TOOLS</span>
+          </span>
+        </md-tab-label>
+        <md-tab-body>
+          <div ng-if="vm.IsDriveToolsTab">
+            <div class="cm-packing-alias-tab padding-10" layout="column">
+              <div class="cm-section-inner pt-5 pl-5">
+                <div layout="row">
+                  <div layout="row" layout-align="start center">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main middle-align-table">
+                      <tbody>
+                        <tr>
+                          <th>
+                            <p class="label-container padding-top-3">
+                              Drive Tool
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container flex="100" ng-if="vm.autoCompleteDriveToolAlias" class="autocompletecustom margin-bottom-0 w-300">
+                              <custom-auto-complete-search on-search-fn="vm.autoCompleteDriveToolAlias.onSearchFn"
+                                                           column-name="vm.autoCompleteDriveToolAlias.columnName"
+                                                           key-column-name="vm.autoCompleteDriveToolAlias.keyColumnName"
+                                                           controller-name="vm.autoCompleteDriveToolAlias.controllerName"
+                                                           view-template-url="vm.autoCompleteDriveToolAlias.viewTemplateURL"
+                                                           input-name="vm.autoCompleteDriveToolAlias.inputName"
+                                                           placeholder-name="vm.autoCompleteDriveToolAlias.placeholderName"
+                                                           key-column-id="vm.autoCompleteDriveToolAlias.keyColumnId"
+                                                           is-required="vm.autoCompleteDriveToolAlias.isRequired"
+                                                           is-addnew="vm.autoCompleteDriveToolAlias.isAddnew"
+                                                           callback-fn="vm.autoCompleteDriveToolAlias.callbackFn"
+                                                           add-data="vm.autoCompleteDriveToolAlias.addData"
+                                                           on-select-callback-fn="vm.autoCompleteDriveToolAlias.onSelectCallbackFn"
+                                                           is-disabled="vm.isReadOnly || !vm.cid || vm.cid == null || vm.IsSupplier==true || vm.wizardStep1ComponentInfo.$dirty || !vm.partDetail.driverToolRequired || vm.partDetail.isCPN">
+                              </custom-auto-complete-search>
+                            </md-input-container>
+                          </td>
+                          <th>
+                          </th>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <md-card layout="column" flex layout-align="space-between stretch" ng-show="!vm.DriveToolsNotFound" class="grid-with-header margin-0">
+                <ui-grid-extention class="cm-alternate-groups-grids" layout="column" flex load-data="vm.loadDriveToolsData"
+                                   grid-option="vm.driveToolsGridOptions"
+                                   header="vm.driveToolsSourceHeader"
+                                   grid-data="vm.driveToolsSourceData"
+                                   total-data-count="vm.driveToolsTotalSourceDataCount"
+                                   reset-grid="vm.resetDriveToolsSourceGrid"
+                                   selectted-rows="vm.driveToolsSelectedRowsList"
+                                   paging-info="vm.driveToolsPagingInfo"
+                                   current-item="vm.driveToolsCurrentdata"
+                                   get-data-down="vm.driveToolsGetDataDown"
+                                   empty-state="vm.driveToolsEmptyState"
+                                   delete-multiple-data="vm.driveToolsDeleteMultipleData">
+                </ui-grid-extention>
+              </md-card>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.DriveToolsNotFound">
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.DriveToolsEmptyMesssage.IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title">{{vm.DriveToolsEmptyMesssage.MESSAGE}}</p>
+                <p flex="100">
+                  <md-button class="md-fab md-mini" aria-label="Refresh" ng-click="vm.loadDriveToolsData()">
+                    <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+                    <md-tooltip md-direction="top">Refresh</md-tooltip>
+                  </md-button>
+                </p>
+              </div>
+            </div>
+          </div>
+        </md-tab-body>
+      </md-tab>
+      <!--Process Material-->
+      <md-tab ng-disabled="vm.isSupplier" md-on-select="vm.onTabChanges(vm.ProcessMaterialTabName, msWizard)">
+        <md-tab-label>
+          <span class="ms-form-wizard-step-label">
+            <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+            <span class="ms-form-wizard-step-number md-accent-bg">
+              <i class="icon-check s16"></i>
+            </span>
+            <span class="ms-form-wizard-step-text">PROCESS MATERIAL</span>
+          </span>
+        </md-tab-label>
+        <md-tab-body>
+          <div ng-if="vm.IsProcessMaterialTab">
+            <div layout="column" class="cm-packing-alias-tab padding-10">
+              <div class="cm-section-inner pt-5 pl-5">
+                <div layout="row">
+                  <div layout="row" layout-align="start center">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main middle-align-table">
+                      <tbody>
+                        <tr>
+                          <th>
+                            <p class="label-container padding-top-3">
+                              Process Material
+                            </p>
+                          </th>
+                          <td>
+                            <div layout="column" class="padding-right-10" flex="20">
+                              <md-input-container flex="100" ng-if="vm.autoCompleteProcessMaterial" class="autocompletecustom margin-bottom-0 w-300">
+                                <custom-auto-complete-search on-search-fn="vm.autoCompleteProcessMaterial.onSearchFn"
+                                                             column-name="vm.autoCompleteProcessMaterial.columnName"
+                                                             key-column-name="vm.autoCompleteProcessMaterial.keyColumnName"
+                                                             controller-name="vm.autoCompleteProcessMaterial.controllerName"
+                                                             view-template-url="vm.autoCompleteProcessMaterial.viewTemplateURL"
+                                                             input-name="vm.autoCompleteProcessMaterial.inputName"
+                                                             placeholder-name="vm.autoCompleteProcessMaterial.placeholderName"
+                                                             key-column-id="vm.autoCompleteProcessMaterial.keyColumnId"
+                                                             is-required="vm.autoCompleteProcessMaterial.isRequired"
+                                                             is-addnew="vm.autoCompleteProcessMaterial.isAddnew"
+                                                             callback-fn="vm.autoCompleteProcessMaterial.callbackFn"
+                                                             add-data="vm.autoCompleteProcessMaterial.addData"
+                                                             on-select-callback-fn="vm.autoCompleteProcessMaterial.onSelectCallbackFn"
+                                                             is-disabled="vm.isReadOnly || !vm.cid || vm.cid == null || vm.IsSupplier==true || vm.partDetail.isCPN ||vm.wizardStep1ComponentInfo.$dirty || !vm.partDetail.isEpoxyMount">
+                                </custom-auto-complete-search>
+                              </md-input-container>
+                            </div>
+                          </td>
+                          <th>
+                          </th>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <md-card layout="column" flex layout-align="space-between stretch" ng-show="!vm.PMNotFound" class="grid-with-header margin-0">
+                <ui-grid-extention load-data="vm.loadDataPM" layout="column" flex
+                                   grid-option="vm.gridOptionsPM"
+                                   header="vm.sourceHeaderPM"
+                                   grid-data="vm.sourceDataPM"
+                                   total-data-count="vm.totalSourceDataCountPM"
+                                   reset-grid="vm.resetSourceGridPM"
+                                   selectted-rows="vm.selectedRowsListPM"
+                                   paging-info="vm.pagingInfoPM"
+                                   current-item="vm.currentdataPM"
+                                   get-data-down="vm.getDataDownPM"
+                                   empty-state="vm.emptyStatePM"
+                                   delete-multiple-data="vm.deleteMultipleDataPM">
+                </ui-grid-extention>
+              </md-card>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.PMNotFound">
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.ProcessMaterialPartEmptyMesssage.IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title">{{vm.ProcessMaterialPartEmptyMesssage.MESSAGE}}</p>
+                <p flex="100">
+                  <md-button class="md-fab md-mini" aria-label="Refresh" ng-click="vm.loadDataPM()">
+                    <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+                    <md-tooltip md-direction="top">Refresh</md-tooltip>
+                  </md-button>
+                </p>
+              </div>
+            </div>
+          </div>
+        </md-tab-body>
+      </md-tab>
+      <!--CPN (Component)-->
+      <md-tab ng-disabled="vm.isSupplier" md-on-select="vm.onTabChanges(vm.CPNListTabName, msWizard)">
+        <md-tab-label>
+          <span class="ms-form-wizard-step-label">
+            <span class="ms-form-wizard-step-number md-accent-bg">3</span>
+            <span class="ms-form-wizard-step-number md-accent-bg">
+              <i class="icon-check s16"></i>
+            </span>
+            <span class="ms-form-wizard-step-text">{{vm.partDetail.isCPN ? 'AVL PART' : 'CPN PART'}}</span>
+          </span>
+        </md-tab-label>
+        <md-tab-body>
+          <div ng-if="vm.IsCPNListTab">
+            <customer-cpn-parts ng-if="(!vm.partDetail.isCPN)" component-id="vm.cid"></customer-cpn-parts>
+            <div class="cm-packing-alias-tab" layout="column" ng-if="(vm.partDetail.isCPN)">
+              <md-card layout="column" flex layout-align="space-between stretch" ng-show="!vm.cpnNotFound" class="grid-with-header">
+                <ui-grid-extention class="cm-alternate-groups-grids" load-data="vm.loadDataCPN"
+                                   grid-option="vm.gridOptionsCPN" layout="column" flex
+                                   header="vm.sourceHeaderCPN"
+                                   grid-data="vm.sourceDataCPN"
+                                   total-data-count="vm.totalCPNSourceDataCount"
+                                   reset-grid="vm.resetSourceGridCPN"
+                                   selectted-rows="vm.selectedCPNList"
+                                   paging-info="vm.pagingInfoCPN"
+                                   current-item="vm.currentdataCPN"
+                                   get-data-down="vm.getCPNDataDown"
+                                   empty-state="vm.cpnEmptyState">
+                </ui-grid-extention>
+              </md-card>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.cpnNotFound == true">
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.CPNEmptyMesssage.IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title">{{vm.CPNEmptyMesssage.MESSAGE}}</p>
+                <p flex="100">
+                  <md-button class="md-fab md-mini" aria-label="Refresh" ng-click="vm.loadDataCPN()">
+                    <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+                    <md-tooltip md-direction="top">Refresh</md-tooltip>
+                  </md-button>
+                </p>
+              </div>
+            </div>
+          </div>
+        </md-tab-body>
+      </md-tab>
+      <!--Where Used Other-->
+      <md-tab ng-disabled="vm.isSupplier" md-on-select="vm.onTabChanges(vm.WhereUsedOtherTabName, msWizard)">
+        <md-tab-label>
+          <span class="ms-form-wizard-step-label">
+            <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+            <span class="ms-form-wizard-step-number md-accent-bg">
+              <i class="icon-check s16"></i>
+            </span>
+            <span class="ms-form-wizard-step-text">WHERE USED OTHER</span>
+          </span>
+        </md-tab-label>
+        <md-tab-body>
+          <div ng-if="vm.IsWhereUsedOtherTab">
+            <div class="cm-packing-alias-tab padding-10" layout="column">
+              <md-card layout="column" flex layout-align="space-between stretch" ng-show="!vm.SiteOtherDetNotFound" class="grid-with-header margin-0">
+                <ui-grid-extention class="cm-alternate-groups-grids" load-data="vm.loadSiteOtherData"
+                                   grid-option="vm.siteOtherGridOptions" layout="column" flex
+                                   header="vm.siteOtherSourceHeader"
+                                   grid-data="vm.siteOtherSourceData"
+                                   total-data-count="vm.siteOtherTotalSourceDataCount"
+                                   reset-grid="vm.resetSiteOtherSourceGrid"
+                                   selectted-rows="vm.siteOtherSelectedRowsList"
+                                   paging-info="vm.siteOtherPagingInfo"
+                                   current-item="vm.siteOtherCurrentdata"
+                                   get-data-down="vm.siteOtherGetDataDown"
+                                   empty-state="vm.siteOtherEmptyState"
+                                   delete-multiple-data="vm.siteOtherDeleteMultipleData">
+                </ui-grid-extention>
+              </md-card>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.SiteOtherDetNotFound == true">
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.SiteOtherEmptyMesssage.IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title">{{vm.SiteOtherEmptyMesssage.MESSAGE}}</p>
+                <p flex="100">
+                  <md-button class="md-fab md-mini" aria-label="Refresh" ng-click="vm.loadSiteOtherData()">
+                    <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+                    <md-tooltip md-direction="top">Refresh</md-tooltip>
+                  </md-button>
+                </p>
+              </div>
+            </div>
+          </div>
+        </md-tab-body>
+      </md-tab>
+      <!--Require Mating Parts-->
+      <md-tab ng-disabled="vm.isSupplier" md-on-select="vm.onTabChanges(vm.RequireMatingPartsTabName, msWizard)">
+        <md-tab-label>
+          <span class="ms-form-wizard-step-label">
+            <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+            <span class="ms-form-wizard-step-number md-accent-bg">
+              <i class="icon-check s16"></i>
+            </span>
+            <span class="ms-form-wizard-step-text">REQ. MATING PARTS</span>
+          </span>
+        </md-tab-label>
+        <md-tab-body>
+          <div ng-if="vm.IsRequireMatingPartsTab" layout="column" class="cm-packing-alias-tab">
+            <alternate-parts-list component-id="vm.cid" mfg-type="vm.mfgType" layout="column" flex part-detail="vm.partDetail"
+                                  is-read-only="vm.isReadOnly" rohs-list="vm.RohsList" alternate-part-type="vm.ComponentAlternatePartType"></alternate-parts-list>
+          </div>
+        </md-tab-body>
+      </md-tab>
+      <!--Use Part with Pickup Pad instead-->
+      <md-tab ng-disabled="vm.isSupplier" md-on-select="vm.onTabChanges(vm.PickupPadPartsTabName, msWizard)">
+        <md-tab-label>
+          <span class="ms-form-wizard-step-label">
+            <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+            <span class="ms-form-wizard-step-number md-accent-bg">
+              <i class="icon-check s16"></i>
+            </span>
+            <span class="ms-form-wizard-step-text">PICKUP PAD</span>
+          </span>
+        </md-tab-label>
+        <md-tab-body>
+          <div ng-if="vm.IsPickupPadPartsTab" layout="column" class="cm-packing-alias-tab">
+            <alternate-parts-list component-id="vm.cid" mfg-type="vm.mfgType" layout="column" flex part-detail="vm.partDetail"
+                                  is-read-only="vm.isReadOnly"
+                                  rohs-list="vm.RohsList" alternate-part-type="vm.ComponentAlternatePartType"></alternate-parts-list>
+          </div>
+        </md-tab-body>
+      </md-tab>
+      <!--Program-->
+      <md-tab ng-disabled="vm.isSupplier" md-on-select="vm.onTabChanges(vm.ProgramTabName, msWizard)">
+        <md-tab-label>
+          <span class="ms-form-wizard-step-label">
+            <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+            <span class="ms-form-wizard-step-number md-accent-bg">
+              <i class="icon-check s16"></i>
+            </span>
+            <span class="ms-form-wizard-step-text">PROGRAM</span>
+          </span>
+        </md-tab-label>
+        <md-tab-body>
+          <div ng-if="vm.IsProgramPartTab" layout="column" class="cm-packing-alias-tab">
+            <alternate-parts-list component-id="vm.cid" mfg-type="vm.mfgType" layout="column" flex part-detail="vm.partDetail"
+                                  is-read-only="vm.isReadOnly"
+                                  rohs-list="vm.RohsList" alternate-part-type="vm.ComponentAlternatePartType"></alternate-parts-list>
+          </div>
+        </md-tab-body>
+      </md-tab>
+      <!--Require Functional Testing-->
+      <md-tab ng-disabled="vm.isSupplier" md-on-select="vm.onTabChanges(vm.RequireFunctionalTestigPartsTabName, msWizard)">
+        <md-tab-label>
+          <span class="ms-form-wizard-step-label">
+            <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+            <span class="ms-form-wizard-step-number md-accent-bg">
+              <i class="icon-check s16"></i>
+            </span>
+            <span class="ms-form-wizard-step-text">REQ. FUNC. TESTING</span>
+          </span>
+        </md-tab-label>
+        <md-tab-body>
+          <div ng-if="vm.IsRequireFunctionalTestingPartsTab" layout="column" class="cm-packing-alias-tab">
+            <alternate-parts-list component-id="vm.cid" mfg-type="vm.mfgType" layout="column" flex part-detail="vm.partDetail"
+                                  is-read-only="vm.isReadOnly"
+                                  rohs-list="vm.RohsList" alternate-part-type="vm.ComponentAlternatePartType"></alternate-parts-list>
+          </div>
+        </md-tab-body>
+      </md-tab>
+      <!--Functional Testing Equipments-->
+      <md-tab ng-disabled="vm.isSupplier" md-on-select="vm.onTabChanges(vm.FunctionalTestingEquipmentTabName, msWizard)">
+        <md-tab-label>
+          <span class="ms-form-wizard-step-label">
+            <span class="ms-form-wizard-step-number md-accent-bg">1</span>
+            <span class="ms-form-wizard-step-number md-accent-bg">
+              <i class="icon-check s16"></i>
+            </span>
+            <span class="ms-form-wizard-step-text">REQ. FUNC. EQPT.</span>
+          </span>
+        </md-tab-label>
+        <md-tab-body>
+          <div ng-if="vm.IsFunctionalTestingEquipmentTab">
+            <div layout="column" class="cm-packing-alias-tab padding-10">
+              <div class="cm-section-inner pt-5 pl-5">
+                <div layout="row">
+                  <div layout="row" layout-align="start center">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main middle-align-table">
+                      <tbody>
+                        <tr>
+                          <th>
+                            <p class="label-container padding-top-3">
+                              Functional Testing Equipment
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container flex="100" ng-if="vm.autoCompleteRequireFunctionalTestingEquipmentsAlias" class="autocompletecustom margin-bottom-0 w-300">
+                              <custom-auto-complete-search on-search-fn="vm.autoCompleteRequireFunctionalTestingEquipmentsAlias.onSearchFn"
+                                                           column-name="vm.autoCompleteRequireFunctionalTestingEquipmentsAlias.columnName"
+                                                           key-column-name="vm.autoCompleteRequireFunctionalTestingEquipmentsAlias.keyColumnName"
+                                                           controller-name="vm.autoCompleteRequireFunctionalTestingEquipmentsAlias.controllerName"
+                                                           view-template-url="vm.autoCompleteRequireFunctionalTestingEquipmentsAlias.viewTemplateURL"
+                                                           input-name="vm.autoCompleteRequireFunctionalTestingEquipmentsAlias.inputName"
+                                                           placeholder-name="vm.autoCompleteRequireFunctionalTestingEquipmentsAlias.placeholderName"
+                                                           key-column-id="vm.autoCompleteRequireFunctionalTestingEquipmentsAlias.keyColumnId"
+                                                           is-required="vm.autoCompleteRequireFunctionalTestingEquipmentsAlias.isRequired"
+                                                           is-addnew="vm.autoCompleteRequireFunctionalTestingEquipmentsAlias.isAddnew"
+                                                           callback-fn="vm.autoCompleteRequireFunctionalTestingEquipmentsAlias.callbackFn"
+                                                           add-data="vm.autoCompleteRequireFunctionalTestingEquipmentsAlias.addData"
+                                                           on-select-callback-fn="vm.autoCompleteRequireFunctionalTestingEquipmentsAlias.onSelectCallbackFn"
+                                                           is-disabled="vm.isReadOnly || !vm.cid || vm.cid == null || vm.IsSupplier==true || vm.partDetail.isCPN">
+                              </custom-auto-complete-search>
+                            </md-input-container>
+                          </td>
+                          <th>
+                          </th>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <md-card layout="column" flex layout-align="space-between stretch" ng-show="!vm.FTENotFound" class="grid-with-header margin-0">
+                <ui-grid-extention load-data="vm.loadDataFTE"
+                                   grid-option="vm.gridOptionsFTE" layout="column" flex
+                                   header="vm.sourceHeaderFTE"
+                                   grid-data="vm.sourceDataFTE"
+                                   total-data-count="vm.totalSourceDataCountFTE"
+                                   reset-grid="vm.resetSourceGridFTE"
+                                   selectted-rows="vm.selectedRowsListFTE"
+                                   paging-info="vm.pagingInfoFTE"
+                                   current-item="vm.currentdataFTE"
+                                   get-data-down="vm.getDataDownFTE"
+                                   empty-state="vm.emptyStateFTE"
+                                   delete-multiple-data="vm.deleteMultipleDataFTE">
+                </ui-grid-extention>
+              </md-card>
+              <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="vm.FTENotFound">
+                <div class="emty-icon" flex="100">
+                  <img ng-src="{{vm.FunctionalTestingEquipmentEmptyMesssage.IMAGEURL}}" />
+                </div>
+                <p flex="100" class="empty-state-title">{{vm.FunctionalTestingEquipmentEmptyMesssage.MESSAGE}}</p>
+                <p flex="100">
+                  <md-button class="md-fab md-mini" aria-label="Refresh" ng-click="vm.loadDataFTE()">
+                    <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+                    <md-tooltip md-direction="top">Refresh</md-tooltip>
+                  </md-button>
+                </p>
+              </div>
+            </div>
+          </div>
+        </md-tab-body>
+      </md-tab>
+      <!--Purchase History-->
+      <md-tab md-on-select="vm.onTabChanges(vm.IsPurchaseHistoryTab, msWizard)">
+        <md-tab-label>
+          <span class="ms-form-wizard-step-label">
+            <span class="ms-form-wizard-step-number md-accent-bg">2</span>
+            <span class="ms-form-wizard-step-number md-accent-bg">
+              <i class="icon-check s16"></i>
+            </span>
+            <span class="ms-form-wizard-step-text">PURCHASE HIST</span>
+          </span>
+        </md-tab-label>
+        <md-tab-body>
+          <div class="cm-packing-alias-tab">
+            <span>coming soon...</span>
+            <!--<md-card layout="column" flex layout-align="space-between stretch" ng-show="vm.PurchaseHistoryNotFound" class="grid-with-header">
+              <ui-grid-extention class="cm-alternate-groups-grids" load-data="vm.loadPurchaseHistoryData"
+                                 grid-option="vm.purchaseHistoryGridOptions"
+                                 header="vm.purchaseHistorySourceHeader"
+                                 grid-data="vm.purchaseHistorySourceData"
+                                 total-data-count="vm.purchaseHistoryTotalSourceDataCount"
+                                 reset-grid="vm.resetPurchaseHistorySourceGrid"
+                                 selectted-rows="vm.purchaseHistorySelectedRowsList"
+                                 paging-info="vm.purchaseHistoryPagingInfo"
+                                 current-item="vm.purchaseHistoryCurrentdata"
+                                 get-data-down="vm.purchaseHistoryGetDataDown"
+                                 empty-state="vm.purchaseHistoryEmptyState"
+                                 delete-multiple-data="vm.purchaseHistoryDeleteMultipleData">
+              </ui-grid-extention>
+            </md-card>-->
+          </div>
+        </md-tab-body>
+      </md-tab>
+    </md-tabs>
+</div>

@@ -1,0 +1,153 @@
+<div class="content-card padding-top-side cm-custom-label-common" layout="column" flex>
+  <div layout="column" class="padding-5" flex>
+    <form name="vm.filterInfo" novalidate>
+      <div layout="row" class="advanced-filters">
+        <div layout="row" flex="25" layout-md="column" layout-sm="column" ng-if="vm.isListPage">
+          <div layout flex layout-md="column" layout-sm="column">
+            <div layout="row" flex flex-md="100" flex-sm="100" class="ml-5">
+              <fieldset flex="100" class="container-box width-100p">
+                <legend class="margin-0">Search Date Code Format</legend>
+                <div layout="row" flex="100" layout-md="column" layout-sm="column">
+                  <div class="input-wrapper" layout="row" layout-align="start center">
+                    <md-radio-group class=" mb-5" flex="100" layout="row" ng-model="vm.checkSerachDCType" name="checkSerachDCType" ng-change="vm.refreshData()">
+                      <md-radio-button ng-value="vm.CheckSearchTypeList[1].id" class="md-primary margin-top-0">Contains</md-radio-button>
+                      <md-radio-button ng-value="vm.CheckSearchTypeList[0].id" class="md-primary margin-top-0">Exact</md-radio-button>
+                    </md-radio-group>
+                  </div>
+                  <div class="input-wrapper ml-10" layout="row" layout-align="start center" flex="90">
+                    <md-input-container flex="100" class="margin-bottom-0">
+                      <input type="text" id="searchDCFormat" name="searchDCFormat" ng-model="vm.searchDCFormat" ng-maxlength="50" ng-keypress="vm.scanSearchKey($event)" />
+                      <div ng-messages="vm.filterInfo.searchDCFormat.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50,vm.filterInfo.searchDCFormat.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </div>
+                  <div flex="7" layout="row" ng-if="vm.searchDCFormat">
+                    <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeSearchDCFormat()">
+                      <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                      <md-tooltip>Reset</md-tooltip>
+                    </md-button>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+        <div class="content-card" layout="column" flex="100" ng-if="!vm.isListPage">
+          <div layout="row" flex="100">
+            <div ng-show="!vm.isNoDataFound" flex="100">
+              <h3 class="margin-bottom-15"><b>All Date Code Formats</b></h3>
+              <div layout="row" layout-sm="column">
+                <div class="input-wrapper" layout>
+                  <p class="label-container">Search</p>
+                  <div layout="row" layout-align="start start">
+                    <md-radio-group layout="row" ng-model="vm.searchType" ng-change="vm.refreshData()">
+                      <md-radio-button ng-value="vm.CheckSearchTypeList[1].id" class="md-primary margin-top-0">Contains</md-radio-button>
+                      <md-radio-button ng-value="vm.CheckSearchTypeList[0].id" class="md-primary margin-right-10 margin-top-0">Exact</md-radio-button>
+                    </md-radio-group>
+                  </div>
+                </div>
+                <div layout="row" flex>
+                  <div layout="row" class="input-wrapper" flex>
+                    <md-input-container md-no-float class="margin-bottom-0 md-block margin-right-10 margin-top-0" flex="100">
+                      <input type="text" name="search" ng-model="vm.searchDCFormat"
+                             placeholder="Type here to search" maxlength="100" ignore-dirty ng-change="vm.searchCommonData(false)" ng-model-options="{debounce: vm.debounceTime }">
+                      <b>Hint: {{vm.searchAndSelectToUpdate}}</b>
+                    </md-input-container>
+                  </div>
+                </div>
+                <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.searchCommonData(true)">{{vm.LabelConstant.COMMON.RESET}}</md-button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="input-wrapper cm-ml-auto" layout="row" layout-align="end end" ng-if="vm.isListPage">
+          <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.advanceFilterSearch()">{{vm.LabelConstant.COMMON.APPLY_FILTERS}}</md-button>
+          <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.clearSelection();" ng-disabled="vm.isClearSelectionDisabled()">{{vm.LabelConstant.COMMON.CLEAR_ALL}}</md-button>
+          <md-button class="md-primary md-raised md-ink-ripple mv-0" ng-click="vm.resetFilter()">{{vm.LabelConstant.COMMON.RESET}}</md-button>
+        </div>
+      </div>
+
+      <div layout="row" layout-align="start center" layout-wrap flex="100" class="padding-left-10 padding-top-10" ng-if="vm.isListPage && vm.generateFilterChip">
+        <span class="font-weight-600">
+          {{vm.LabelConstant.COMMON.APPLIED_FILTERS}}
+        </span>
+        <div ng-repeat="item in vm.DCFormatAdvanceFilter" layout="row" layout-align="start center" class="cm-tracking-chip-mian padding-left-5"
+             ng-if="!item.isDeleted">
+          <div class="tracking-number-chip" layout="row" layout-align="start center">
+            <label>
+              {{item.value}}
+              <md-tooltip md-direction="top" ng-if="item.tooltip" class="tooltip-height-auto"
+                          ng-bind-html="item.tooltip">
+              </md-tooltip>
+            </label>
+            <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeAppliedFilter(item, $index)" ng-disabled="item.isDisable">
+              <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+              <md-tooltip ng-if="!item.isDisable">Click to remove this filter</md-tooltip>
+            </md-button>
+          </div>
+        </div>
+      </div>
+      <div layout="row" layout-align="start center" layout-wrap flex="100" class="pt-5"
+           ng-if="vm.isListPage && vm.isUiGridColumnFiltersApplied && vm.gridOptions.gridApi && vm.gridOptions.gridApi.grid.columns.length > 0">
+        <span class="font-weight-600">
+          {{vm.LabelConstant.COMMON.APPLIED_GRID_FILTERS}}
+        </span>
+        <div ng-repeat="item in vm.gridOptions.gridApi.grid.columns" layout="row" layout-align="start center" class="cm-tracking-chip-mian"
+             ng-if="item.filters[0].term">
+          <div class="tracking-number-chip" layout="row" layout-align="start center" ng-if="item.filters[0].term">
+            <label>
+              {{item.displayName}}
+              <md-tooltip md-direction="top" ng-if="item.filters[0].term" class="tooltip-height-auto"
+                          ng-bind-html="item.filters[0].term">
+              </md-tooltip>
+            </label>
+            <md-button class="md-icon-button md-primary md-mini" ng-click="vm.clearGridColumnFilter(item, $index)">
+              <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+              <md-tooltip>Click to remove this filter</md-tooltip>
+            </md-button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div ng-show="!vm.isNoDataFound" layout="column" flex>
+      <md-card layout="column" flex layout-align="space-between stretch">
+        <ui-grid-extention layout="column" flex load-data="vm.loadData"
+                           grid-id="vm.gridConfig.gridDCFormatList"
+                           grid-option="vm.gridOptions"
+                           header="vm.sourceHeader"
+                           grid-data="vm.sourceData"
+                           total-data-count="vm.totalSourceDataCount"
+                           reset-grid="vm.resetSourceGrid"
+                           selectted-rows="vm.selectedRowsList"
+                           paging-info="vm.pagingInfo"
+                           current-item="vm.currentdata"
+                           get-data-down="vm.getDataDown"
+                           empty-state="vm.emptyState"
+                           delete-multiple-data="vm.deleteMultipleData">
+      </md-card>
+    </div>
+  </div>
+  <!-- / CONTENT CARD -->
+  <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap ng-if="vm.isNoDataFound">
+    <div class="emty-icon" flex="100">
+      <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+    </div>
+    <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+    <p flex="100" ng-if="vm.isListPage">
+      {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+    </p>
+    <p flex="100" ng-if="vm.isListPage">
+      <md-button class="md-fab md-mini" aria-label="Add Scannner" ng-click="vm.addEditRecord(null,$event)">
+        <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+        <md-tooltip>Add {{vm.pageName}}</md-tooltip>
+      </md-button>
+      <md-button class="md-fab md-mini" aria-label="Refresh Scannner" ng-click="vm.refreshData()">
+        <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+        <md-tooltip>Refresh {{vm.pageName}}</md-tooltip>
+      </md-button>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,463 @@
+<md-dialog aria-label="manage-rfq-lineitem-headers" flex="90" class="cm-fullwidth" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <form name="vm.ManagechartrawdatacategoryForm">
+    <md-toolbar>
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2>Supplier API & Misc Errors</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding" layout="column">
+      <md-content class="md-padding custom-scroll">
+        <div layout="row" flex="40">
+          <div class="cm-section-main border-0" layout="row" layout-wrap flex="100">
+            <div class="cm-section-inner" flex="100">
+              <div flex="100" layout="row" class="padding-10 layout-row flex-100">
+                <div flex="" layout="row" class="input-wrapper padding-right-10 layout-row flex">
+                  <div class="cm-section-inner padding-0" flex="100">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                      <tbody>
+                        <tr>
+                          <th><p class="label-container">Search <span>&nbsp;</span></p></th>
+                          <td>
+                            <md-input-container class="md-block search-header margin-0 error-none" md-float>
+                              <input type="text" ng-model="vm.errorSearch" ng-model-options="{debounce: 200 }">
+                            </md-input-container>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div layout-align="end center" class="layout-align-end-center">
+                  <md-button class="md-primary md-raised mv-0 ml-0 md-button md-default-theme md-ink-ripple" aria-label="Clear" ng-click="vm.removeFilter()">
+                    Reset
+                  </md-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <md-table-container flex="100" class="mh-10 mb-10" ng-if="!vm.NoDataFound">
+          <table md-table class="md-data-table table-row-select cm-error-table table-bordered">
+            <thead md-head md-order="vm.queryOperation.order">
+              <tr md-row>
+                <th class="cm-er-action" md-column>Action</th>
+                <th class="cm-er-no text-right" md-column>#</th>
+                <th class="cm-er-totalerror text-right" md-column md-order-by="totalError">Total Errors</th>
+                <th ng-class="{'cm-er-errormsgpart':vm.ispartMaster,'cm-er-errormsg':!vm.ispartMaster}" md-column md-order-by="errorMsg">Internal Error Descr</th>
+                <th class="cm-er-action-delete text-right" md-column md-order-by="totalError">Delete</th>
+              </tr>
+            </thead>
+            <tbody md-body>
+              <tr ng-repeat="item in vm.apiVerificationSummaryList | filter:vm.errorSearch | orderBy: vm.queryOperation.order">
+                <td class="cm-inner-td">
+                  <table class="cm-api-verification">
+                    <tr>
+                      <td class="text-left cm-er-action">
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.MFGNOTADDED && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts"  ng-disabled="item.isDisabled" ng-click="vm.addMFG(item, vm.addNewFlag, $event)">
+                            <md-tooltip md-direction="top">Add As {{item.Type == 'DIST' ? vm.LabelConstant.Supplier : vm.LabelConstant.Manufacturers}}</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-manufacturer add-icon" ng-class="{'background-color-light-blue':item.isMfgUsed}" ng-if="item.Type == 'MFG'"></md-icon>
+                            <md-icon md-font-icon class="icon s18 t-icons-supplier add-icon" ng-class="{'background-color-light-blue':item.isDistUsed}" ng-if="item.Type == 'DIST'"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.DISTNOTADDED && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts"  ng-disabled="item.isDisabled" ng-click="vm.addMFG(item, vm.addNewFlag, $event)">
+                            <md-tooltip md-direction="top">Add As {{item.Type == 'DIST' ? vm.LabelConstant.Supplier : vm.LabelConstant.Manufacturers}}</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-manufacturer add-icon" ng-class="{'background-color-light-blue':item.isMfgUsed}" ng-if="item.Type == 'MFG'"></md-icon>
+                            <md-icon md-font-icon class="icon s18 t-icons-supplier add-icon" ng-class="{'background-color-light-blue':item.isDistUsed}" ng-if="item.Type == 'DIST'"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.PARTINVALID && !item.isVerified">
+
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.AUTHFAILED && !item.isVerified"class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.openAuthVerificationPopup($event,item)">
+                            <md-tooltip md-direction="top">Refresh Token</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 icon-refresh"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="(item.errorType == vm.pricingErrorTypes.PIDCODEINVALID || item.errorType == vm.pricingErrorTypes.PIDCODELENGTH) && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.changePIDCode(item, $event)">
+                            <md-tooltip md-direction="top">Change PID Code</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-pid add-icon" ng-class="{'background-color-light-blue':item.isChangePID}"></md-icon>
+                          </md-button>
+                        </div>
+                        <!--<div ng-if="item.errorType == vm.pricingErrorTypes.PIDCODEINVALID && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.changePIDCode(item, $event)">
+                            <md-tooltip md-direction="top">Change PID Code</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-pid add-icon"></md-icon>
+                          </md-button>
+                        </div>-->
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.MOUNTNOTADDED && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addMountingType(item, $event)">
+                            <md-tooltip md-direction="top">Add As Mounting Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-mounting-type add-icon" ng-class="{'background-color-light-blue':item.isMountingType}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.MOUNTINACTIVE && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addMountingType(item, $event)">
+                            <md-tooltip md-direction="top">Enable Mounting Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-mounting-type add-icon" ng-class="{'background-color-light-blue':item.isMountingType}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.UOMNOTADDED && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts"   ng-disabled="item.isDisabled" ng-click="vm.addUnit(item, $event)">
+                            <md-tooltip md-direction="top">Add As Unit</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-uom add-icon" ng-class="{'background-color-light-blue':item.isunitMaster}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.UOMINACTIVE && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addUnit(item, $event)">
+                            <md-tooltip md-direction="top">Enable Unit</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-uom add-icon" ng-class="{'background-color-light-blue':item.isunitMaster}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.UOMCLASSNOTADDED && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addEditMeasurementType(item, $event)">
+                            <md-tooltip md-direction="top">Add As Measurement Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-uom add-icon" ng-class="{'background-color-light-blue':item.isMeasurementType}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.UOMCLASSINACTIVE && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addEditMeasurementType(item, $event)">
+                            <md-tooltip md-direction="top">Enable Measurement Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-uom add-icon" ng-class="{'background-color-light-blue':item.isMeasurementType}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.PARTTYPENOTADDED && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addPartType(item, $event)">
+                            <md-tooltip md-direction="top">Add As Functional Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-functional-type add-icon" ng-class="{'background-color-light-blue':item.isfunctionaltype}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.PARTTYPEINACTIVE && !item.isVerified">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addPartType(item, $event)">
+                            <md-tooltip md-direction="top">Enable Functional Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-functional-type add-icon" ng-class="{'background-color-light-blue':item.isfunctionaltype}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.ROHSNOTADDED && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addRohs(item, $event)">
+                            <md-tooltip md-direction="top">Add As RoHS</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-rohs add-icon" ng-class="{'background-color-light-blue':item.isRohsType}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.ROHSINACTIVE && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addRohs(item, $event)">
+                            <md-tooltip md-direction="top">Enable RoHS</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-rohs add-icon" ng-class="{'background-color-light-blue':item.isRohsType}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.CONNECTNOTADDED && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addConnecterType(item, $event)">
+                            <md-tooltip md-direction="top">Add As Connector Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 icon t-icons-connector-type add-icon" ng-class="{'background-color-light-blue':item.isConncetorType}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.CONNECTINACTIVE && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addConnecterType(item, $event)">
+                            <md-tooltip md-direction="top">Enable Connector Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 icon t-icons-connector-type add-icon" ng-class="{'background-color-light-blue':item.isConncetorType}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.PARTSTATUSNOTADDED && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addPartStatus(item, $event)">
+                            <md-tooltip md-direction="top">Add As Part Status</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-part-status add-icon" ng-class="{'background-color-light-blue':item.isPartStatus}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.PARTSTATUSINACTIVE && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addPartStatus(item, $event)">
+                            <md-tooltip md-direction="top">Enable Part Status</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-part-status add-icon" ng-class="{'background-color-light-blue':item.isPartStatus}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.PACKAGINGNOTADDED && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addPackagingType(item, $event)">
+                            <md-tooltip md-direction="top">Add As Packaging Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 icon t-icons-packaging-type add-icon" ng-class="{'background-color-light-blue':item.ispackagingType}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.PACKAGINGINACTIVE && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.addPackagingType(item, $event)">
+                            <md-tooltip md-direction="top">Enable Packaging Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 icon t-icons-packaging-type add-icon" ng-class="{'background-color-light-blue':item.ispackagingType}"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.UNKNOWN && !item.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="item.isDisabled" ng-click="vm.changeDKCredential(item, $event)">
+                            <md-tooltip md-direction="top">Change Credential</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 mdi mdi-settings"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.CONTACTADMIN && !item.isVerified">
+                        </div>
+                        <div ng-if="item.errorType == vm.pricingErrorTypes.CONTACTADMIN && item.isVerified">
+                        </div>
+                      </td>
+                      <td class="cm-er-no text-right"> {{$index + 1}} <span ng-show="false">{{sectionIndex = $index + 1}}</span></td>
+                      <td class="cm-er-totalerror text-right"><a class="underline cursor-pointer" ng-click="item.isopen=!item.isopen">{{(item.apiVerificationErrorList | filter:vm.errorSearch).length }}<md-tooltip>{{item.isopen?'Collapse':'Expand'}}</md-tooltip></a></td>
+                      <td ng-class="{'cm-er-errormsgpart':vm.ispartMaster,'cm-er-errormsg':!vm.ispartMaster}">
+                        <span ng-bind-html="item.errorMsg" ng-if="!item.displayName"></span>
+                        <span ng-if="item.displayName"><b><a class="cm-text-decoration" ng-click="vm.gotoMasterList(item)">{{item.displayName}}</a></b></span>&nbsp;
+                        <span ng-if="item.displayName">"{{item.DataField}}"</span>&nbsp;
+                        <copy-text label="Copy" text="item.DataField" ng-if="item.DataField"></copy-text>&nbsp;
+                        <span ng-if="item.displayName">{{item.message}}</span>
+                      </td>
+                      <td class="cm-er-action-delete text-right">
+                        <md-button class="md-raised md-icon-button custom-tab-button supplier-error-parts" ng-click="vm.deleteError(item,$event)">
+                          <md-tooltip md-direction="top">Delete</md-tooltip>
+                          <md-icon md-font-icon class="icon s18 icon-trash"></md-icon>
+                        </md-button>
+                      </td>
+                    </tr>
+                    <tr ng-if="item.isopen" class="table-bordered">
+                      <th class="cm-er-action">Action</th>
+                      <th class="cm-er-no text-right">#</th>
+                      <th class="cm-er-item">BOM Item</th>
+                      <th class="cm-er-part-no">{{vm.ispartMaster?vm.LabelConstant.MFGPN:'Part'}}</th>
+                      <th class="cm-er-mfgcode">Source {{vm.LabelConstant.MFG}}</th>
+                      <th ng-class="{'cm-er-apipartfrmMaster':vm.ispartMaster,'cm-er-apipart':!vm.ispartMaster}">Part Descr</th>
+                      <th class="cm-er-bommfg" ng-if="!vm.ispartMaster">BOM {{vm.LabelConstant.MFG}} / {{vm.LabelConstant.Supplier}}</th>
+                      <th class="cm-er-des" ng-if="!vm.ispartMaster">BOM Customer Comment</th>
+                      <th class="cm-er-source">Source</th>
+                      <th ng-class="{'cm-er-apipartfrmMaster':vm.ispartMaster,'cm-er-msg':!vm.ispartMaster}">Internal Error Descr</th>
+                      <th class="cm-er-action-delete">Delete</th>
+                    </tr>
+                    <tr ng-repeat="data in item.apiVerificationErrorList | filter:vm.errorSearch" ng-if="item.isopen">
+                      <td class="text-left cm-er-action">
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.MFGNOTADDED && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addMFG(data, vm.addNewFlag, $event)">
+                            <md-tooltip md-direction="top">Add As {{data.Type == 'DIST' ? vm.LabelConstant.Supplier : vm.LabelConstant.Manufacturers}}</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-manufacturer add-icon" ng-if="data.Type == 'MFG'"></md-icon>
+                            <md-icon md-font-icon class="icon s18 t-icons-supplier add-icon" ng-if="data.Type == 'DIST'"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.DISTNOTADDED && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addMFG(data, vm.addNewFlag, $event)">
+                            <md-tooltip md-direction="top">Add As {{data.Type == 'DIST' ? vm.LabelConstant.Supplier : vm.LabelConstant.Manufacturers}}</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-manufacturer add-icon" ng-if="data.Type == 'MFG'"></md-icon>
+                            <md-icon md-font-icon class="icon s18 t-icons-supplier add-icon" ng-if="data.Type == 'DIST'"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.PARTINVALID && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addComponent(data,vm.mfgType, $event)">
+                            <md-tooltip md-direction="top">Add As {{vm.LabelConstant.MFGPN}}</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-add-mfr-pn add-icon"></md-icon>
+                          </md-button>
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addComponent(data,vm.distType, $event)">
+                            <md-tooltip md-direction="top">Add As SPN</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-supplier-pn add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.AUTHFAILED && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.openAuthVerificationPopup($event,data)">
+                            <md-tooltip md-direction="top">Refresh Token</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 icon-refresh"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.PIDCODELENGTH && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.changePIDCode(item, $event)">
+                            <md-tooltip md-direction="top">Change PID Code</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-pid add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.PIDCODEINVALID && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.changePIDCode(item, $event)">
+                            <md-tooltip md-direction="top">Change PID Code</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-pid add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.MOUNTNOTADDED && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addMountingType(data, $event)">
+                            <md-tooltip md-direction="top">Add As Mounting Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-mounting-type add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.MOUNTINACTIVE && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addMountingType(data, $event)">
+                            <md-tooltip md-direction="top">Enable Mounting Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-mounting-type add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.UOMNOTADDED && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addUnit(data, $event)">
+                            <md-tooltip md-direction="top">Add As Unit</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-uom add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.UOMINACTIVE && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addUnit(data, $event)">
+                            <md-tooltip md-direction="top">Enable Unit</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-uom add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.UOMCLASSNOTADDED && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addEditMeasurementType(data, $event)">
+                            <md-tooltip md-direction="top">Add As Measurement Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-uom add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.UOMCLASSINACTIVE && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addEditMeasurementType(data, $event)">
+                            <md-tooltip md-direction="top">Enable Measurement Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-uom add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.PARTTYPENOTADDED && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addPartType(data, $event)">
+                            <md-tooltip md-direction="top">Add As Functional Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-functional-type add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.PARTTYPEINACTIVE && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addPartType(data, $event)">
+                            <md-tooltip md-direction="top">Enable Functional Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-functional-type add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.ROHSNOTADDED && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addRohs(data, $event)">
+                            <md-tooltip md-direction="top">Add As RoHS</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-rohs add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.ROHSINACTIVE && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addRohs(data, $event)">
+                            <md-tooltip md-direction="top">Enable RoHS</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-rohs add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.CONNECTNOTADDED && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addConnecterType(data, $event)">
+                            <md-tooltip md-direction="top">Add As Connector Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 icon t-icons-connector-type add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.CONNECTINACTIVE && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addConnecterType(data, $event)">
+                            <md-tooltip md-direction="top">Enable Connector Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 icon t-icons-connector-type add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.PARTSTATUSNOTADDED && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addPartStatus(data, $event)">
+                            <md-tooltip md-direction="top">Add As Part Status</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-part-status add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.PARTSTATUSINACTIVE && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addPartStatus(data, $event)">
+                            <md-tooltip md-direction="top">Enable Part Status</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-part-status add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.PACKAGINGNOTADDED && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addPackagingType(data, $event)">
+                            <md-tooltip md-direction="top">Add As Packaging Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 icon t-icons-packaging-type add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.PACKAGINGINACTIVE && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addPackagingType(data, $event)">
+                            <md-tooltip md-direction="top">Enable Packaging Type</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 icon t-icons-packaging-type add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.UNKNOWN && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.changeDKCredential(data, $event)">
+                            <md-tooltip md-direction="top">Change Credential</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 mdi mdi-settings"></md-icon>
+                          </md-button>
+                        </div>
+                        <div ng-if="data.errorType == vm.pricingErrorTypes.CONTACTADMIN && !data.isVerified" class="cm-square-icon-btn">
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addComponent(data,vm.mfgType, $event)">
+                            <md-tooltip md-direction="top">Add As {{vm.LabelConstant.MFGPN}}</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-add-mfr-pn add-icon"></md-icon>
+                          </md-button>
+                          <md-button class="md-raised md-icon-button md-accent supplier-error-parts" ng-disabled="data.isDisabled" ng-click="vm.addComponent(data,vm.distType, $event)">
+                            <md-tooltip md-direction="top">Add As SPN</md-tooltip>
+                            <md-icon md-font-icon class="icon s18 t-icons-supplier-pn add-icon"></md-icon>
+                          </md-button>
+                        </div>
+                      </td>
+                      <td class="cm-er-no text-right"> {{sectionIndex}}.{{$index + 1}} </td>
+                      <td class="cm-er-item text-right"> {{data.lineID}} </td>
+                      <td class="cm-er-part-no">
+                        <md-icon ng-if="data.partNumber" class="icon-content-copy cursor-pointer color-black padding-top-5 bom-integration-copy margin-right-7" ng-click="vm.copyText(data.partNumber)" ng-mouseover="vm.checkStatus()">
+                          <md-tooltip md-direction="top" ng-show="!vm.showstatus">
+                            Copy Part
+                          </md-tooltip>
+                          <md-tooltip md-direction="bottom" ng-show="vm.showstatus">
+                            Copied
+                          </md-tooltip>
+                        </md-icon>
+                        {{data.partNumber}}
+                        <span ng-if="data.partNumber" class="margin-left-5"
+                              ng-click="vm.gotoSupplier(data.partNumber,vm.apiConstant.DIGIKEY,false)">
+                          <img role="img" class="height-22" ng-src="{{vm.apiConstant.DKimage}}" />
+                          <md-tooltip md-direction="top">Search Digikey</md-tooltip>
+                        </span>
+                        <span ng-if="data.partNumber" class="margin-left-5"
+                              ng-click="vm.gotoSupplier(data.partNumber,vm.apiConstant.FINDCHIPS,true)">
+                          <img role="img" class="margin-top-3" ng-src="{{vm.apiConstant.FindChipImage}}" />
+                          <md-tooltip md-direction="top">Search FindChip</md-tooltip>
+                        </span>
+                        <span class="margin-left-5" ng-if="data.partNumber"
+                              ng-click="vm.gotoGoogle(data.partNumber)">
+                          <img role="img" class="height-20" ng-if="data.partNumber" ng-src="{{vm.googleImage}}" />
+                          <md-tooltip md-direction="top">Search Google</md-tooltip>
+                        </span>
+                      </td>
+                      <td class="cm-er-mfgcode">
+                        <span class="margin-right-7" ng-if="data.MFGCode"
+                              ng-click="vm.gotoGoogle(data.MFGCode)">
+                          <img role="img" class="height-20" ng-if="data.MFGCode" ng-src="{{vm.googleImage}}" />
+                          <md-tooltip md-direction="top">Search Google</md-tooltip>
+                        </span>{{data.MFGCode}}
+                        <copy-text label="Copy" text="data.MFGCode" ng-if="data.MFGCode"></copy-text>
+                      </td>
+                      <td ng-class="{'cm-er-apipartfrmMaster':vm.ispartMaster,'cm-er-apipart':!vm.ispartMaster}">{{data.apiPartdesc}}</td>
+                      <td class="cm-er-bommfg" ng-if="!vm.ispartMaster">{{data.bomMFG}}</td>
+                      <td class="cm-er-des" ng-if="!vm.ispartMaster"><copy-text ng-if="data.description" label="'Description'" text="data.description"></copy-text>{{data.description}}</td>
+                      <td class="cm-er-source" ng-class="{'cursor-pointer':((data.Source !== 'All' && data.Source !== 'BOM') && data.productUrl)}">
+                        <a ng-if="(data.Source !== 'All' && data.Source !== 'BOM') && data.productUrl" ng-click="vm.gotoPartURL(data.productUrl)">{{data.Source}} <md-tooltip ng-if="data.SourceSupplierName && (data.Source !== 'All' && data.Source !== 'BOM')" md-direction="left">{{data.SourceSupplierName}}</md-tooltip></a>
+                        <span ng-if="(data.Source === 'All' || data.Source === 'BOM') && !data.productUrl">{{data.Source}} <md-tooltip ng-if="data.SourceSupplierName && (data.Source !== 'All' && data.Source !== 'BOM')" md-direction="left">{{data.SourceSupplierName}}</md-tooltip></span>
+                        <span ng-if="(data.Source !== 'All' && data.Source !== 'BOM') && !data.productUrl">{{data.Source}} <md-tooltip ng-if="data.SourceSupplierName && (data.Source !== 'All' && data.Source !== 'BOM')" md-direction="left">{{data.SourceSupplierName}}</md-tooltip></span>
+                      </td>
+                      <td ng-class="{'cm-er-apipartfrmMaster':vm.ispartMaster,'cm-er-msg':!vm.ispartMaster}"> <span ng-bind-html="data.errorMsg"></span> </td>
+                      <td class="cm-er-action-delete text-right">
+                        <md-button class="md-raised md-icon-button custom-tab-button supplier-error-parts" ng-click="vm.deleteError(data,$event)">
+                          <md-tooltip md-direction="top">Delete</md-tooltip>
+                          <md-icon md-font-icon class="icon s18 icon-trash"></md-icon>
+                        </md-button>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </md-table-container>
+        <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center"
+             ng-if="(vm.apiVerificationSummaryList| filter: vm.errorSearch).length == 0 || vm.NoDataFound">
+          <div class="emty-icon" flex="100">
+            <img ng-src="{{vm.empty.IMAGEURL}}" ng-if="!vm.NoDataFound" />
+            <img ng-src="{{vm.emptyState.IMAGEURL}}" ng-if="vm.NoDataFound" />
+          </div>
+          <p class="empty-state-title" flex="100" ng-if="!vm.NoDataFound">{{vm.empty.MESSAGE}}</p>
+          <p class="empty-state-title" flex="100" ng-if="vm.NoDataFound">{{vm.emptyState.MESSAGE}}</p>
+        </div>
+      </md-content>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <md-button class="md-primary md-raised" ng-class="{'md-formdirty': vm.isFormDirty}" ng-click="vm.refershSupplierError()">Refresh</md-button><!--ng-if="vm.checkContinueButton()"-->
+      <md-button class="md-default md-raised" ng-click="vm.cancel(false)">{{vm.checkContinue()?'Cancel':'Close'}}</md-button>
+      <md-button class="md-primary md-raised" ng-disabled="!vm.isActivityStart" ng-click="vm.cancel(true)">Continue</md-button><!--ng-if="vm.checkContinueButton()"-->
+    </md-dialog-actions>
+  </form>
+</md-dialog>

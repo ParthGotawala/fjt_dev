@@ -1,0 +1,243 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+    <!-- TOP BACKGROUND -->
+    <!--<div class="top-bg md-accent-bg"></div>
+    <!-- / TOP BACKGROUND -->
+    <!-- CENTER -->
+    <!--<div class="center margin-left-0 margin-right-0" layout="column" flex>-->
+    <!-- CONTENT HEADER -->
+    <div class="header md-accent-bg" layout="row" layout-align="space-between center">
+        <div flex="20" flex-md="100" flex-sm="100" class="white-fg" layout="column" layout-align="start start">
+            <div class="h2" layout="row" layout-align="start center" flex-md="100" flex-sm="100">
+                <!--<md-icon md-font-icon="icon-chart-line"></md-icon>&nbsp;
+                <span class="header-title">Widget</span>-->
+                <pagetitle is-list="true" is-display-menu-name="true"></pagetitle>
+            </div>
+            <div layout="row" layout-align="start center" flex-md="100" flex-sm="100">
+                <breadcrumbs layout-md="row" layout-sm="row"></breadcrumbs>
+            </div>
+        </div>
+        <div layout="row" flex="80" layout-align="end end"
+             ng-if="vm.analyticsList.length > 0 || (vm.analyticsList.length == 0 && vm.autoCompleteEmployeeDetail.keyColumnId)">
+            <md-input-container md-no-float ng-if="vm.autoCompleteEmployeeDetail && vm.isUserSuperAdmin"
+                                class="autocompletecustom margin-0 widget-dashboard-search-area" flex="30" flex-gt-xs="30" flex-sm="50">
+                <custom-auto-complete datalist="vm.employeeList" column-name="vm.autoCompleteEmployeeDetail.columnName"
+                                      controller-name="vm.autoCompleteEmployeeDetail.controllerName"
+                                      view-template-url="vm.autoCompleteEmployeeDetail.viewTemplateURL"
+                                      key-column-name="vm.autoCompleteEmployeeDetail.keyColumnName"
+                                      key-column-id="vm.autoCompleteEmployeeDetail.keyColumnId"
+                                      input-name="vm.autoCompleteEmployeeDetail.inputName"
+                                      placeholder-name="vm.autoCompleteEmployeeDetail.placeholderName"
+                                      is-required="vm.autoCompleteEmployeeDetail.isRequired"
+                                      is-addnew="vm.autoCompleteEmployeeDetail.isAddnew"
+                                      callback-fn="vm.autoCompleteEmployeeDetail.callbackFn"
+                                      on-select-callback-fn="vm.autoCompleteEmployeeDetail.onSelectCallbackFn">
+                </custom-auto-complete>
+            </md-input-container>
+            <md-button class="md-icon-button toolbar-button margin-0" ng-click="vm.Show.listView = false;">
+                <md-icon md-font-icon="icon-grid" ng-class="{'active-view-widget': !vm.Show.listView}"></md-icon>
+            </md-button>
+            <md-button class="md-icon-button toolbar-button margin-0" ng-click="vm.Show.listView = true;">
+                <md-icon md-font-icon="icon-format-list-numbers" ng-class="{'active-view-widget': vm.Show.listView}"></md-icon>
+            </md-button>
+            <div layout="row" layout-align="center end"
+                 ng-hide="vm.analyticsList.length == 0"
+                 ng-if="vm.analyticsList.length > 0 || (vm.analyticsList.length == 0 && vm.autoCompleteEmployeeDetail.keyColumnId)">
+                <md-button class="md-raised md-primary md-ink-ripple" type="button" aria-label="Add Customer" ng-click="vm.addAnalytics(null,$event)">
+                    Add Widget
+                </md-button>
+            </div>
+        </div>
+    </div>
+    <!-- / CONTENT HEADER -->
+    <div flex="100" class="content-card padding-top-side" layout="row" layout-wrap layout-align="start start">
+        <div flex="33" flex-sm="50" flex-xs="100" ng-repeat="chartModel in vm.analyticsList" ng-if="!vm.Show.listView">
+            <div flex="100" class="cm-section-main margin-5">
+                <!--<md-card flex="100" class="analytics-card">-->
+                <div class="cm-section-header" layout="row" layout-align="space-between center">
+                    <h2>{{chartModel.nameOfChart}}</h2>
+                    <!--<div layout="row" layout-align="start center" flex="" class="layout-align-start-center layout-row">
+                        <div class="chat-contact-name sendername ng-binding">
+                            <span>{{chartModel.nameOfChart}}</span>
+                        </div>
+                    </div>-->
+                    <div layout="row" layout-align="end center" flex="" class="layout-align-end-center layout-row">
+                        <div class="pin-box" ng-if="chartModel.isPinToDashboard"> D <md-tooltip md-direction="bottom">Pinned to Dashboard</md-tooltip></div>
+                        <div class="pin-box color-lgt-blue" ng-if="chartModel.isPinToTraveler"> T <md-tooltip md-direction="bottom">Pinned to Traveler</md-tooltip></div>
+                        <md-menu>
+                            <md-button class="md-icon-button margin-0 padding-0" ng-click="$mdOpenMenu()" md-menu-origin
+                                       md-menu-align-target
+                                       aria-label="Options">
+                                <md-icon md-font-icon="icon-dots-vertical" class="icon cm-widget-header-icon"></md-icon>
+                            </md-button>
+                            <md-menu-content width="3">
+                                <md-menu-item>
+                                    <md-button ng-click="vm.goToWidgetDetailPage(chartModel.chartTemplateID)" ng-disabled="chartModel.isSystemGenerated">
+                                        <md-icon md-font-icon="icon-pencil" class="icon"></md-icon>
+                                        Update Detail
+                                    </md-button>
+                                </md-menu-item>
+                                <md-menu-item ng-if="chartModel.drilldown">
+                                    <md-button ng-click="vm.fullDrillDown(chartModel,$event)">
+                                        <md-icon md-font-icon="icon-receipt" class="icon"></md-icon>
+                                        Full Drilldown
+                                    </md-button>
+                                </md-menu-item>
+                                <md-menu-item>
+                                    <md-button ng-click="vm.removeAnalytics(chartModel, $event)" ng-disabled="chartModel.isSystemGenerated">
+                                        <md-icon md-font-icon="icon-trash" class="icon"></md-icon>
+                                        Delete
+                                    </md-button>
+                                </md-menu-item>
+                                <md-menu-item>
+                                    <md-button ng-click="vm.pinToDashboard(chartModel)" ng-disabled="chartModel.isSystemGenerated">
+                                        <!--<md-icon md-font-icon="{{chartModel.isPinToDashboard ? 'icon-pin-off' : 'icon-pin'}}" class="icon"></md-icon>-->
+                                        <md-icon md-font-icon="{{chartModel.isPinToDashboard ? 'icons-pin' : 'icons-unpin'}}" class="icon"></md-icon>
+                                        {{chartModel.isPinToDashboard ? 'Unpin from Dashboard' : 'Pin to Dashboard'}}
+                                    </md-button>
+                                </md-menu-item>
+                                <md-menu-item>
+                                    <md-button ng-click="vm.pinToTraveler(chartModel,$event)">
+                                        <!--<md-icon md-font-icon="{{chartModel.isPinToTraveler ? 'icon-pin-off' : 'icon-pin'}}" class="icon"></md-icon>-->
+                                        <md-icon md-font-icon="{{chartModel.isPinToTraveler ? 'icons-pin' : 'icons-unpin'}}" class="icon"></md-icon>
+                                        {{chartModel.isPinToTraveler ? 'Unpin from Traveler' : 'Pin to Traveler'}}
+                                    </md-button>
+                                </md-menu-item>
+                                <md-menu-item ng-if="chartModel.isPinToTraveler">
+                                    <md-button ng-click="vm.selectOperations(chartModel,$event)">
+                                        <md-icon md-font-icon="icon-cog" class="icon"></md-icon>
+                                        Traveler Operations
+                                    </md-button>
+                                </md-menu-item>
+                                <md-menu-item>
+                                    <md-button ng-click="vm.selectEmployee(chartModel,$event)">
+                                        <md-icon md-font-icon="icon-account-multiple" class="icon"></md-icon>
+                                        Invite Personnel
+                                    </md-button>
+                                </md-menu-item>
+                            </md-menu-content>
+                        </md-menu>
+                    </div>
+                </div>
+                <div class="cm-section-inner" ng-class="{'cm-dashboard-chart': vm.isAnyChartContainData }" >
+                    <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.BAR">
+                        <bar-chart chart-template-id="chartModel.chartTemplateID"></bar-chart>
+                    </div>
+                    <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.LINE">
+                        <line-chart chart-template-id="chartModel.chartTemplateID"></line-chart>
+                    </div>
+                    <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.PIE">
+                        <pie-chart chart-template-id="chartModel.chartTemplateID"></pie-chart>
+                    </div>
+                    <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.DOTPLOT">
+                        <dot-plot-chart chart-template-id="chartModel.chartTemplateID"></dot-plot-chart>
+                    </div>
+                    <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.DONUT">
+                        <donut-chart chart-template-id="chartModel.chartTemplateID"></donut-chart>
+                    </div>
+                    <div flex="100" ng-if="chartModel.chartTypeID == vm.chartType.PARETO">
+                        <pareto-chart chart-template-id="chartModel.chartTemplateID"></pareto-chart>
+                    </div>
+                </div>
+                <!--</md-card>-->
+            </div>
+        </div>
+        <div layout="row" flex="100" flex-sm="50" flex-xs="100" ng-if="vm.Show.listView">
+            <div class="content fullpage-datatable scanbagdetable cm-widget-table" layout="row" layout-wrap flex
+                 ng-if="vm.analyticsList.length > 0">
+                <md-table-container flex="100">
+                    <table md-table class="md-data-table table-row-select" md-row-select ng-model="vm.selectedItems">
+                        <thead md-head md-order="vm.query.order">
+                            <tr md-row>
+                                <th md-column class="padding-10">Actions</th>
+                                <th md-column>#</th>
+                                <th md-column class="padding-10 padding-right-50" md-order-by="">Widget Type</th>
+                                <th md-column class="padding-10" md-order-by="">Widget Name</th>
+                                <th md-column class="padding-10 padding-right-50" md-order-by="">Widget Category</th>
+                                <th md-column class="padding-10" md-order-by="">Chart Type</th>
+                                <th md-column class="padding-10" md-order-by="">Created By</th>
+                            </tr>
+                        </thead>
+                        <tbody md-body>
+                            <tr md-row class="cursor-pointer"
+                                ng-repeat="item in vm.analyticsList
+                                                | orderBy: vm.query.order
+                                                | limitTo: vm.query.limit : (vm.query.page -1) * vm.query.limit track by $index">
+                                <td md-cell>
+                                    <md-button class="md-primary grid-button md-icon-button bdrbtn" ng-click="vm.goToWidgetDetailPage(item.chartTemplateID)">
+                                        <md-icon md-font-icon="icon-pencil" class="material-icons mat-icon s16"></md-icon>
+                                        <md-tooltip>Update Detail</md-tooltip>
+                                    </md-button>
+                                    <md-button class="md-primary grid-button md-icon-button bdrbtn" ng-click="vm.selectEmployee(item,$event)">
+                                        <md-icon md-font-icon="icon-account-multiple" class="material-icons mat-icon s16"></md-icon>
+                                        <md-tooltip>Invite Personnel</md-tooltip>
+                                    </md-button>
+                                    <md-button class="md-primary grid-button md-icon-button bdrbtn" ng-click="vm.pinToDashboard(item)">
+                                        <!--<md-icon md-font-icon="{{item.isPinToDashboard ? 'icon-pin-off' : 'icon-pin'}}" class="icon"></md-icon>-->
+                                        <md-icon md-font-icon="{{item.isPinToDashboard ? 'icons-pin' : 'icons-unpin'}}" class="icon"></md-icon>
+                                        <md-tooltip>{{item.isPinToDashboard ? 'Unpin from Dashboard' : 'Pin to Dashboard'}}</md-tooltip>
+                                    </md-button>
+                                </td>
+                                <td md-cell>{{item.index}}</td>
+                                <td md-cell ng-repeat="widgetTypeItem in vm.analyticsType | filter : item.chartCatID">{{widgetTypeItem.Name}}</td>
+                                <td md-cell>{{item.nameOfChart}}</td>
+                                <td md-cell>{{item.chartCategory.name}}</td>
+                                <td md-cell ng-repeat="chartTypeIconItem in vm.chartTypeIcon | filter : item.chartTypeID">
+                                    <md-icon md-font-icon="{{chartTypeIconItem.IconClass}}">
+                                        <md-tooltip>{{item.chartTypeMst.name}}</md-tooltip>
+                                    </md-icon>
+                                </td>
+                                <td md-cell>{{item.user.employee.firstName}} {{item.user.employee.lastName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </md-table-container>
+                <md-table-pagination flex="100" md-limit="vm.query.limit" md-limit-options="vm.limitOptions" md-page="vm.query.page"
+                                     md-total="{{vm.query.search ? (vm.analyticsList | filter: vm.query.search).length : vm.analyticsList.length}}"
+                                     md-page-select md-boundary-links="true"
+                                     ng-if="(vm.analyticsList | filter: vm.query.search).length != 0 && vm.query.isPagination">
+                </md-table-pagination>
+            </div>
+        </div>
+        
+        <div class="content-card empty-state text-center padding-top-side" flex="100" layout="row" layout-align="center center" layout-wrap
+             ng-if="vm.analyticsList.length == 0 && vm.autoCompleteEmployeeDetail.keyColumnId">
+            <div class="emty-icon" flex="100">
+                <img ng-src="{{vm.searchEmptyMesssage.IMAGEURL}}" />
+            </div>
+            <p flex="100" class="empty-state-title">{{vm.searchEmptyMesssage.MESSAGE}}</p>
+        </div>
+        <!--<div class="fab-footer" layout="row" layout-align="end end"
+             ng-if="vm.analyticsList.length > 0 || (vm.analyticsList.length == 0 && vm.autoCompleteEmployeeDetail.keyColumnId)">
+            <md-button class="md-fab" aria-label="Add Customer" ng-click="vm.addAnalytics(null,$event)">
+                <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+                <md-tooltip md-direction="top">Add Widget</md-tooltip>
+            </md-button>
+        </div>-->
+    </div>
+    <div class="center margin-left-0 margin-right-0" layout="column" flex>
+        <div class="empty-state text-center full-height" flex="100" layout-align="center center" layout-wrap
+             ng-if="vm.analyticsList.length == 0 && !vm.autoCompleteEmployeeDetail.keyColumnId">
+            <div class="emty-icon" flex="100">
+                <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+            </div>
+            <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+            <p flex="100">
+                {{vm.EmptyMesssage.ADDNEWMESSAGE}}
+            </p>
+            <p flex="100">
+                <md-button class="md-fab md-mini" aria-label="Add Widget" ng-click="vm.addAnalytics(null,$event)">
+                    <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus">
+                        <md-tooltip>Add new</md-tooltip>
+                    </md-icon>                    
+                </md-button>
+                <md-button class="md-fab md-mini" aria-label="Refresh Data Fields" ng-click="vm.init()">
+                    <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon">
+                        <md-tooltip>Refresh</md-tooltip>
+                    </md-icon>                    
+                 </md-button>
+            </p>
+        </div>
+    </div>
+</div>
+<!-- / CENTER -->
+<!--</div>-->

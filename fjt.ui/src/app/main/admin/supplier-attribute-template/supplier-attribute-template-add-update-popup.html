@@ -1,0 +1,139 @@
+<md-dialog aria-label="Supplier Attribute Template" class="addexpression" flex="50" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <md-toolbar ng-class="vm.themeClass">
+    <div class="md-toolbar-tools">
+      <h2>{{vm.supplierAttributeTemplate.id ? 'Update' : 'Add'}} Supplier Attributes Template</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <form name="vm.supplierAttributeTemplateForm" class="md-inline-form" novalidate>
+    <md-dialog-content class="no-padding" layout="column">
+      <md-content class="padding-10">
+        <div layout="row" flex="100" layout-wrap class="cm-custom-label-common">
+          <div class="cm-section-main border-0" flex="100">
+            <div class="cm-section-inner">
+              <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        <a class="cm-text-decoration" ng-click="vm.goToSupplierList();" tabindex="-1">{{vm.autoCompleteSupplier.placeholderName}}</a>
+                        <span ng-if="!vm.isDisable">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container ng-if="vm.autoCompleteSupplier" class="autocompletecustom width-100p" flex="100">
+                        <custom-auto-complete custom-auto-focus="{{vm.autoFocusSupplier}}"
+                                              datalist="vm.supplierList"
+                                              column-name="vm.autoCompleteSupplier.columnName"
+                                              controller-name="vm.autoCompleteSupplier.controllerName"
+                                              view-template-url="vm.autoCompleteSupplier.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteSupplier.keyColumnName"
+                                              input-name="vm.autoCompleteSupplier.inputName"
+                                              placeholder-name="vm.autoCompleteSupplier.placeholderName"
+                                              key-column-id="vm.autoCompleteSupplier.keyColumnId"
+                                              is-required="vm.autoCompleteSupplier.isRequired"
+                                              is-addnew="vm.autoCompleteSupplier.isAddnew"
+                                              callback-fn="vm.autoCompleteSupplier.callbackFn"
+                                              add-data="vm.autoCompleteSupplier.addData"
+                                              on-select-callback-fn="vm.autoCompleteSupplier.onSelectCallbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container margin-top-0 margin-bottom-0 layout-align-end-start">
+                        Template Name<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container class="md-block" ng-class="vm.themeClass" flex="100">
+                        <input type="text" id="name" name="name" ng-model="vm.supplierAttributeTemplate.name"
+                               placeholder="Template" required ng-maxlength="255" custom-blur="vm.checkSupplierAttributeTemplateNameUnique()">
+                        <div ng-messages="vm.supplierAttributeTemplateForm.name.$error"
+                             role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(255,vm.supplierAttributeTemplateForm.name.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div layout="row" flex="100" layout-wrap class="cm-custom-label-common">
+          <div class="cm-section-main" flex="100">
+            <div class="cm-section-header layout-align-space-between-center layout-row template-header-backgroundcolor mobilesearch userpermissionhead">
+              <md-input-container md-no-float class="md-block error-none no-label clickedsearch" flex flex-xs="75">
+                <input type="text"
+                       placeholder="Type here to search supplier quote attributes"
+                       ng-model="vm.searchAttribute"
+                       ng-disabled="vm.attributeList.length === 0"
+                       ignore-dirty>
+              </md-input-container>
+              <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                         ng-disabled="!vm.searchAttribute"
+                         ng-click="vm.searchAttribute = '';">
+                Clear
+              </md-button>
+              <md-button class="md-primary md-raised mv-0 margin-right-0" ng-click="vm.reInitSupplierAttributeTemplate();">
+                Refresh
+              </md-button>
+              <md-button class="md-primary md-raised mv-0 margin-right-0" ng-click="vm.addSupplierQuoteAttribute();">
+                Add New
+              </md-button>
+            </div>
+            <div class="template-header-color" ng-if="(vm.attributeList | filter:{fieldName: vm.searchAttribute}).length !== 0">
+              <div class="padding-10 border-0 cm-blue-header-check-box cm-supplier-attribute-template-checkbox">
+                <md-checkbox class="margin-0 pt-2 w-100" ng-change="vm.checkAllAttributes()" ng-model="vm.isCheckAll">{{vm.isCheckAll ? 'DESELECT ALL' : 'SELECT ALL'}}</md-checkbox>
+              </div>
+            </div>
+            <div class="cm-overflow-auto cm-section-inner padding-0 cm-supplier-attribute-template-section">
+              <md-table-container layout="row" flex="100" ng-if="vm.attributeList.length > 0">
+                <table class="margin-0 table">
+                  <tbody>
+                    <tr ng-repeat="attribute in vm.attributeList | filter:{fieldName: vm.searchAttribute} track by $index">
+                      <td>
+                        <md-checkbox class="margin-0" ng-model="attribute.selected" ng-change="vm.checkAttribute()">
+                          {{attribute.fieldName}}
+                        </md-checkbox>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </md-table-container>
+              <div class="empty-state text-center" layout="row" flex="100" layout-wrap ng-if="vm.attributeList.length === 0">
+                <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+              </div>
+              <div class="empty-state text-center" layout="row" flex="100" layout-wrap ng-if="vm.attributeList.length > 0 && (vm.attributeList | filter:{fieldName: vm.searchAttribute}).length === 0">
+                <div class="emty-icon ng-binding  cm-empty-state-icon center-block">
+                  <img ng-src="{{vm.EmptySearchMesssage.SEARCH_IMAGE_URL}}" />
+                </div>
+                <p class="empty-state-title font-size-2 useadded-emptytxt" flex="100">
+                  {{vm.EmptySearchMesssage.EMPTY_SEARCH_MESSAGE}}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised"
+                 ng-click="vm.saveSupplierAttributeTemplate()"
+                 ng-class="{'md-formdirty': vm.supplierAttributeTemplateForm.$dirty }"
+                 aria-label="Submit">Save</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

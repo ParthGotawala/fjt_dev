@@ -1,0 +1,163 @@
+<md-dialog aria-label="AddCamera" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <md-toolbar>
+    <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+      <h2>{{vm.camera.id == null ? 'Add':'Update'}} Camera</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <form name="vm.cameraForm" class="md-inline-form">
+    <md-dialog-content class="no-padding" layout="column">
+      <md-content class="padding-10">
+        <div flex="100" layout-align="start center" class="notification-condition">
+          <label class="color-red">Note:</label>
+          <label class="color-red">{{vm.MESSAGE.CAMERANAME_MESSAGE}}</label>
+          <br>
+          <label class="color-red" style="margin-left: 37px">
+            {{vm.WebcamURLConfigNote}}
+          </label>
+        </div>
+        <div layout="row" flex="100" layout-wrap class="cm-custom-label-common">
+          <div class="cm-section-main border-0" flex="100">
+            <div class="cm-section-inner">
+              <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        Name<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container class="md-block" flex="100">
+                        <input type="text" name="name" id="name" ng-model="vm.camera.name"
+                          custom-blur="vm.checkAlreadyExists('name','Name');" custom-auto-focus=true required
+                          ng-pattern="vm.CameraNamePattern" placeholder="Name" ng-maxlength="50">
+                        <div ng-messages="vm.cameraForm.name.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(50,vm.cameraForm.name.$viewValue.length)}}</span>
+                          </div>
+                          <div ng-message="pattern">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <th>
+                    </th>
+                    <td>
+                      <md-input-container class="md-block" flex="100">
+                        <md-radio-group layout="row" layout-align="start start" name="Active"
+                          ng-model="vm.camera.isActive" class="margin-0">
+                          <md-radio-button ng-repeat="item in vm.cameraActiveRadioGroup.isActive.array" name="{{item.Value}}"
+                            ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                        </md-radio-group>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container">Group<span>&nbsp;*</span></p>
+                    </th>
+                    <td>
+                      <md-input-container flex="100" ng-if="vm.autoCompleteCameraGroupType"
+                        class="autocompletecustom margin-top-0" md-no-float>
+                        <custom-auto-complete-search on-search-fn="vm.autoCompleteCameraGroupType.onSearchFn"
+                          column-name="vm.autoCompleteCameraGroupType.columnName"
+                          key-column-name="vm.autoCompleteCameraGroupType.keyColumnName"
+                          input-name="vm.autoCompleteCameraGroupType.inputName"
+                          placeholder-name="vm.autoCompleteCameraGroupType.placeholderName"
+                          key-column-id="vm.autoCompleteCameraGroupType.keyColumnId"
+                          is-required="vm.autoCompleteCameraGroupType.isRequired"
+                          is-addnew="vm.autoCompleteCameraGroupType.isAddnew"
+                          callback-fn="vm.autoCompleteCameraGroupType.callbackFn"
+                          search-text="vm.autoCompleteCameraGroupType.searchText" md-require-match="false"
+                          max-length="50">
+                        </custom-auto-complete-search>
+                      </md-input-container>
+                    </td>
+                    <th>
+                      <p class="label-container">
+                        Camera URL<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                        <md-icon class="icon-question-mark-circle help-icon cm-question-mark"
+                          ng-click="vm.openConfigurationPopup($event)">
+                          <md-tooltip md-direction="top">
+                            {{vm.ipWebcamObj.ToolTipLabel}}
+                          </md-tooltip>
+                        </md-icon>
+                      </p>
+                    </th>
+                    <td class="width-290">
+                      <md-input-container class="md-block" flex="100">
+                        <input type="text" name="cameraURL" id="cameraURL" ng-model="vm.camera.cameraURL"
+                          custom-blur="vm.checkAlreadyExists('cameraURL','Camera URL');" required
+                          placeholder="Camera URL" ng-maxlength="50">
+                        <div ng-messages="vm.cameraForm.cameraURL.$error" role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(50,vm.cameraForm.cameraURL.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <td>
+                      <md-button class="md-primary md-raised mv-0 margin-right-0" ng-if="!vm.isShowStreaming"
+                        ng-disabled="!vm.camera.cameraURL" ng-click="vm.showStreaming()">
+                        Show Video Streaming
+                      </md-button>
+                      <md-button class="md-primary md-raised mv-0 margin-right-0" ng-if="vm.isShowStreaming"
+                        ng-click="vm.cancelStreaming()">Cancel Video Streaming</md-button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div layout="row" flex="100" layout-align="center center" layout-wrapp
+          class="cm-custom-label-common cm-section-main" ng-if="vm.isShowStreaming">
+          <div class="cm-overflow-auto cm-section-inner cm-manage-purchase-table padding-0 cm-camera-video">
+            <div class="empty-state text-center" layout="row" flex="100" layout-wrap>
+              <div layout="row" layout-align="center center" flex="100" layout-wrap
+                ng-if="!vm.webcamDet.error && !vm.webcamDet.connecting" class="webcam-connecting full-height">
+                <img src="{{vm.webcamDet.videoURL}}?{{vm.webcamDet.videoURLParams}}" />
+              </div>
+              <div layout="row" layout-align="center center" flex="100" layout-wrap
+                ng-if="vm.webcamDet.error && !vm.webcamDet.connecting" class="webcam-connecting full-height">
+                <label class="text-center font-size-15">
+                  Webcam could not be started.<br /> Click on Refresh
+                  View/Configure IP to reconnect.
+                </label>
+              </div>
+              <div layout="row" layout-align="center center" flex="100" layout-wrap ng-if="vm.webcamDet.connecting"
+                class="webcam-not-found">
+                <label class="text-center font-size-15">Connecting with webcam...</label>
+              </div>
+              <div flex="100">
+                <md-button class="md-fab md-mini" ng-click="vm.refreshVideoURL()"
+                  ng-if="vm.webcamDet.error && !vm.webcamDet.connecting || vm.webcamDet.connecting"
+                  ng-disabled="vm.webcamDet.connecting">
+                  <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+                  <md-tooltip>Refresh Video Streaming</md-tooltip>
+                </md-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-click="vm.saveCamera()"
+        ng-class="{'md-formdirty': vm.cameraForm.$dirty }" aria-label="Submit">Save</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

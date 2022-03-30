@@ -1,0 +1,673 @@
+<div cg-busy="{promise:vm.cgBusyLoading}" layout="column">
+  <form name="vm.employeeDetail" class="md-inline-form padding-10-imp" layout="column" flex ms-form-wizard-form novalidate>
+    <md-button ng-if="msWizard.selectedIndex == 0" id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <div layout="row" layout-sm="column" flex layout-wrap>
+      <div flex="20" flex-md="30" flex-sm="35" class="pr-5 margin-auto-rs pr-0-rs">
+        <div class="mb-5">
+          <div layout="column" layout-gt-xs="row" flex class="pastewrapper" layout-align="center-start">
+            <div class="drop-box image cm-emp-img">
+              <img class="img img-no-drag" ng-src="{{vm.imagefile}}" />
+            </div>
+          </div>
+          <div class="image-list" layout="row" flex="100">
+            <div class="images" layout="row" flex="100">
+              <div class="margin-right-8"
+                   ngf-drop="vm.cropImage($file,$event)"
+                   ngf-select="vm.cropImage($file,$event)"
+                   ng-model="vm.employee.profileImg"
+                   ngf-drag-over-class="'dragover'"
+                   accept="image/*"
+                   flex="50"
+                   ngf-pattern="'image/*'" id="profileImage" name="profileImage">
+                <md-button class="md-primary float-left md-raised mv-0 margin-0 width-100p">
+                  Add
+                </md-button>
+              </div>
+              <div flex="50" class="editdelete deletelocation" ng-class="{topoption:true }"
+                   ng-if="vm.originalFileName || vm.croppedImage">
+                <md-button class="md-primary float-right md-raised mv-0 margin-0 width-100p" ng-click="vm.deleteImage()">
+                  Remove
+                </md-button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div flex layout="column">
+          <div layout="column" class="cm-section-main mb-5" flex>
+            <div class="cm-section-header">
+              <h2 ng-click="vm.goToResponsibilityList()" class="underline cursor-pointer">{{vm.WorkArea.Name}}</h2>
+            </div>
+            <div class="cm-section-inner" layout="column" flex>
+              <div layout="row" layout-align="start center">
+                <b>{{vm.WorkArea.Name}}:&nbsp;</b>
+                <md-button name="btnAddResponsibility" class="md-primary md-icon-button md-raised md-mini"
+                           last-element data-focusButton="savePersonalDetailBtn" elementcondition="{{(!(!vm.employeeId) ? true : false)}}"
+                           ng-disabled="!vm.employeeId || vm.ResponsibilityDisable" ng-click="vm.addEmpResponsibility($event)">
+                  <md-icon md-font-icon="icons-add-edit-black" class="material-icons mat-icon"></md-icon>
+                  <md-tooltip>Add Responsibilities</md-tooltip>
+                </md-button>
+              </div>
+              <div flex class="cm-overflow-auto">
+                <span ng-repeat="empresponsibility in vm.employeeResponsibilityList track by $index" ng-if="vm.employeeResponsibilityList.length > 0">
+                  <label class="margin-5 label-box label-primary">{{empresponsibility.responsibility.gencCategoryName}}</label>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div layout="column" class="cm-section-main" flex>
+            <div class="cm-section-header">
+              <h2 ng-click="vm.StandardList()" class="underline cursor-pointer">Standards</h2>
+            </div>
+            <div class="cm-section-inner" layout="column" flex>
+              <div layout="row" layout-align="start center">
+                <b>Certified Standard:&nbsp;</b>
+                <md-button name="btnAddStandardClass" class="md-primary md-icon-button md-raised md-mini"
+                           last-element data-focusButton="savePersonalDetailBtn" elementcondition="{{(!(!vm.employeeId || !vm.isAllowUserToChangeCertification) ? true : false)}}"
+                           ng-disabled="!vm.employeeId || !vm.isAllowUserToChangeCertification || vm.standardDisable" ng-click="vm.addEmpStandard($event)">
+                  <md-icon md-font-icon="icons-add-edit-black" class="material-icons mat-icon"></md-icon>
+                  <md-tooltip>Add Certification</md-tooltip>
+                </md-button>
+              </div>
+              <div flex class="cm-overflow-auto">
+                <span ng-repeat="standard in vm.employeeCertificationList" ng-if="vm.employeeCertificationList.length > 0">
+                  <label class="margin-5 label-box" ng-if="standard.allClassList.length > 0"
+                         ng-repeat="classItem in standard.allClassList"
+                         ng-style="{'background-color': classItem.colorCode}">{{standard.standard + (classItem.class?(' '+ classItem.class):'')}}</label>
+                  <label class="margin-5 label-box" ng-if="standard.allClassList.length == 0"
+                         ng-style="{'background-color': standard.colorCode}">{{standard.standard}}</label>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div flex="80" flex-md="70" flex-sm="100" layout-wrap>
+        <div class="cm-section-main margin-bottom-5">
+          <div class="cm-section-inner">
+            <div class="cm-rd-switch" layout-align="end center" flex="100" layout="row">
+              <md-input-container>
+                <md-radio-group layout="row" layout-align="start start" layout-wrap
+                                name="isActive" ng-model="vm.employee.isActive"
+                                ng-change="vm.checkLogInuser(vm.employee)">
+                  <md-radio-button class="margin-top-0" ng-repeat="item in vm.radioButtonGroup.isActive.array"
+                                   name="{{item.Key}}" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                </md-radio-group>
+              </md-input-container>
+            </div>
+          </div>
+        </div>
+        <div layout="row" layout-wrap class="cm-section-main" flex="100">
+          <div class="cm-section-inner overflow-auto-rs" flex="100">
+            <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+              <tbody>
+                <tr>
+                  <th><p class="label-container">First Name<span>&nbsp;*</span></p></th>
+                  <td colspan="3">
+                    <md-input-container flex="100">
+                      <input type="text" name="employeefirstname" ng-model="vm.employee.firstName" placeholder="First Name" required ng-maxlength="50" md-maxlength="50" custom-auto-focus>
+                      <div ng-messages="vm.employeeDetail.employeefirstname.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50, vm.employeeDetail.employeefirstname.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">Middle Name</p></th>
+                  <td colspan="3">
+                    <md-input-container flex="100">
+                      <input type="text" name="employeemiddlename" ng-model="vm.employee.middleName" placeholder="Middle Name" ng-maxlength="50" md-maxlength="50">
+                      <div ng-messages="vm.employeeDetail.employeemiddlename.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50, vm.employeeDetail.employeemiddlename.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">Last Name<span>&nbsp;*</span></p></th>
+                  <td colspan="3">
+                    <md-input-container flex="100">
+                      <input type="text" name="employeelastname" ng-model="vm.employee.lastName" placeholder="Last Name" required ng-maxlength="50" md-maxlength="50">
+                      <div ng-messages="vm.employeeDetail.employeelastname.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50, vm.employeeDetail.employeelastname.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+                <tr>
+                  <th><p class="label-container">Initial<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                  <td colspan="3">
+                    <md-input-container flex="100">
+                      <input type="text" id="initialName" name="initialName" ng-model="vm.employee.initialName" capitalize class="input-text-uppercase" placeholder="Initial"
+                             required ng-maxlength="50" md-maxlength="50" no-special-character
+                             custom-blur="vm.checkEmailIDAlreadyExists(vm.employeeDetail,'initialName')">
+                      <div ng-messages="vm.employeeDetail.initialName.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50, vm.employeeDetail.initialName.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th><p class="label-container">User ID<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                  <td colspan="3">
+                    <md-input-container flex="100">
+                      <input type="text" name="employeecode" ng-model="vm.employee.code"
+                             id="code"
+                             capitalize class="input-text-uppercase" ng-disabled="vm.employeeId"
+                             placeholder="User ID" required ng-maxlength="50" md-maxlength="50" no-special-character
+                             custom-blur="vm.checkEmailIDAlreadyExists(vm.employeeDetail,'code')">
+                      <div ng-messages="vm.employeeDetail.employeecode.$error" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="minlength">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.CODE_LENGTH}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50, vm.employeeDetail.employeecode.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                  <th>
+                    <p class="label-container">Confirm User ID<span>&nbsp;*</span></p>
+                  </th>
+                  <td colspan="3">
+                    <md-input-container flex="100">
+                      <input type="text" name="confirmEmployeecode" ng-model="vm.confirmCode"
+                             ng-match="vm.employee.code"
+                             capitalize class="input-text-uppercase" placeholder="Confirm User ID"
+                             required ng-maxlength="50" md-maxlength="50" no-special-character
+                             ng-paste="$event.preventDefault()"
+                             ng-required="vm.employee.code" ng-disabled="vm.employeeId">
+                      <div ng-messages="vm.employeeDetail.confirmEmployeecode.$error || vm.employeeDetail.confirmEmployeecode.$touched" role="alert">
+                        <div ng-message="required">
+                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50, vm.employeeDetail.confirmEmployeecode.$viewValue.length)}}</span>
+                        </div>
+                        <div ng-message="match">{{vm.CORE_MESSAGE_CONSTANT.NOT_MATCH}}</div>
+                      </div>
+                    </md-input-container>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div layout>
+          <div flex layout class="pb-5 pr-5 pt-8">
+            <div layout="row" layout-wrap class="cm-section-main" flex="100">
+              <div class="cm-section-inner overflow-auto-rs" flex="100">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          Email&nbsp;<check-unique-on-blur></check-unique-on-blur>
+                        </p>
+                      </th>
+                      <td colspan="3">
+                        <md-input-container flex="100">
+                          <input type="email"
+                                 id="email"
+                                 lowercase
+                                 ng-model="vm.employee.email"
+                                 name="email"
+                                 placeholder="Email"
+                                 ng-maxlength="255" md-maxlength="255"
+                                 custom-blur="vm.checkEmailIDAlreadyExists(vm.employeeDetail,'email')"
+                                 ng-pattern="vm.EmailPattern" />
+                          <div ng-messages="vm.employeeDetail.email.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(255,vm.employeeDetail.email.$viewValue.length)}}</span>
+                            </div>
+                            <div ng-message="pattern">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="email">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-if="vm.EmailIDAlreadyExists">
+                              <span>{{vm.EmailIDAlreadyExists}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <!--ng-if="(!vm.employeeId && vm.employee.email) ||  (vm.employeeId && vm.employee.email && vm.employeeDetail.email.$dirty)"-->
+                      <th ng-init="vm.employee.confirmEmail = ''">
+                        <p class="label-container">Confirm Email<span ng-if="vm.employee.email">&nbsp;*</span></p>
+                      </th>
+                      <td colspan="3" ng-init="vm.employee.confirmEmail = ''">
+                        <md-input-container flex="100">
+                          <input type="email" name="confirmEmail"
+                                 ng-model="vm.confirmEmail"
+                                 lowercase
+                                 ng-match="vm.employee.email ? vm.employee.email : null"
+                                 placeholder="Confirm Email"
+                                 ng-maxlength="255" md-maxlength="255"
+                                 ng-paste="$event.preventDefault()"
+                                 ng-required="vm.employee.email"
+                                 ng-disabled="!vm.employeeDetail.email.$dirty">
+                          <div ng-messages="vm.employeeDetail.confirmEmail.$error || vm.employeeDetail.confirmEmail.$touched" role="alert">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="email">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(255,vm.employeeDetail.confirmEmail.$viewValue.length)}}</span>
+                            </div>
+                            <div ng-message="match">{{vm.CORE_MESSAGE_CONSTANT.NOT_MATCH}}</div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div layout flex>
+            <div flex layout class="margin-bottom-5">
+              <fieldset class="pb-5 ph-5 margin-0 container-box" flex layout="column">
+                <legend class="margin-0">User Account Type</legend>
+                <div>
+                  <md-radio-group class="margin-0" name="personnelType" ng-model="vm.employee.personnelType" ng-click="vm.changeIsContactPersonRequired()">
+                    <md-radio-button class="margin-top-0" ng-repeat="item in vm.radioButtonGroup.personnelTypeRadio" ng-value="item.value">{{item.key}}</md-radio-button>
+                  </md-radio-group>
+                </div>
+                <div class="cm-section-main" flex layout="column">
+                  <div class="cm-section-header">
+                    <h2>Assigned Contact Person</h2>
+                    <md-icon class="icon-question-mark-circle help-icon">
+                      <md-tooltip md-direction="top">{{vm.CORE_MESSAGE_CONSTANT.ASSIGNED_CONT_PERSON_TOOLTIP}}</md-tooltip>
+                    </md-icon>
+                  </div>
+                  <div class="border-bottom-gray ph-5 pv-1-imp" layout>
+                    <span class="padding-top-4">Select <a class="cm-text-decoration underline" ng-click="vm.goToContactPersonList();" tabindex="-1">Contact Person</a></span>
+                    <span class="cm-ml-auto flex pl-10" ng-if="vm.autoCompleteContactPerson">
+                      <md-input-container class="autocompletecustom width-100p">
+                        <custom-auto-complete-search class="min-width-initial"
+                                                     column-name="vm.autoCompleteContactPerson.columnName"
+                                                     controller-name="vm.autoCompleteContactPerson.controllerName"
+                                                     view-template-url="vm.autoCompleteContactPerson.viewTemplateURL"
+                                                     key-column-name="vm.autoCompleteContactPerson.keyColumnName"
+                                                     input-name="vm.autoCompleteContactPerson.inputName"
+                                                     placeholder-name="vm.autoCompleteContactPerson.placeholderName"
+                                                     key-column-id="vm.autoCompleteContactPerson.keyColumnId"
+                                                     is-required="vm.autoCompleteContactPerson.isRequired"
+                                                     is-addnew="vm.autoCompleteContactPerson.isAddnew"
+                                                     add-data="vm.autoCompleteContactPerson.addData"
+                                                     callback-fn="vm.autoCompleteContactPerson.callbackFn"
+                                                     on-search-fn="vm.autoCompleteContactPerson.onSearchFn"
+                                                     on-select-callback-fn="vm.autoCompleteContactPerson.onSelectCallbackFn"
+                                                     is-disabled="vm.employee.personnelType === vm.personnelTypeRadioObj.personal">
+                        </custom-auto-complete-search>
+                      </md-input-container>
+                    </span>
+                    <span>
+                      <md-button class="md-primary md-raised mv-0" ng-click="vm.addContactPerson()" ng-disabled="!vm.autoCompleteContactPerson.keyColumnId || (vm.employee.personnelType === vm.personnelTypeRadioObj.personal)">
+                        Assign
+                      </md-button>
+                      <md-button class="md-icon-button md-primary md-raised md-mini" ng-click="vm.openContactPersonHistory($event)" ng-if="vm.employeeId">
+                        <md-icon md-font-icon="t-icons-history-text" class="material-icons"></md-icon>
+                        <md-tooltip>{{vm.LabelConstant.EmployeeContPersonHistory.EmployeePopupTitle}}</md-tooltip>
+                      </md-button>
+                    </span>
+                  </div>
+                  <div flex class="cm-section-inner padding-0 cm-sticky-header-table cm-overflow-auto">
+                    <table class="no-padding nowrap simple cm-sticky-padding-right-10 cm-table-cell-height-auto border-separate middle-align-table">
+                      <thead>
+                        <tr ng-if="vm.employeeContactPerson.length > 0">
+                          <th class="cm-bg-light-green">Full Name</th>
+                          <th class="cm-bg-light-green">Title</th>
+                          <th class="cm-bg-light-green">Department</th>
+                          <th class="cm-bg-light-green text-center w-250">Assigned On</th>
+                          <th class="cm-bg-light-green text-center w-80">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-class="{'blue' : item.id}" ng-repeat="item in vm.employeeContactPerson | orderBy : 'displayOrder'">
+                          <td class="cm-white-space-normal">{{item.contactPerson.fullName}}</td>
+                          <td class="cm-white-space-normal">{{item.contactPerson.title}}</td>
+                          <td class="cm-white-space-normal">{{item.contactPerson.division}}</td>
+                          <td class="text-center cm-btn-group">
+                            {{item.assignedAt || '-'}}
+                          </td>
+                          <td class="text-center cm-btn-group">
+                            <md-button class="md-icon-button md-primary md-raised md-mini" ng-if="item.id" ng-click="vm.releaseContatPerson(item)">
+                              <md-icon md-font-icon="t-icons-release" class="material-icons"></md-icon>
+                              <md-tooltip>Release</md-tooltip>
+                            </md-button>
+                            <md-button class="md-icon-button md-primary md-raised md-mini" ng-if="!item.id" ng-click="vm.removeContactPerson()">
+                              <md-icon md-font-icon="icon-close" class="material-icons"></md-icon>
+                              <md-tooltip>Remove</md-tooltip>
+                            </md-button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+        <div layout>
+          <div class="pr-5" layout flex>
+            <div flex class="cm-section-main">
+              <div class="cm-section-inner">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th><p class="label-container">Address Line 1</p></th>
+                      <td colspan="7">
+                        <md-input-container flex="100">
+                          <input name="street1" type="text" ng-model="vm.employee.street1" placeholder="Address Line 1" ng-maxlength="255" md-maxlength="255" />
+                          <span flex="100" class="font-size-10">
+                            <b>Street address, P.O. box, company name, c/o</b>
+                          </span>
+                          <div ng-messages="vm.employeeDetail.street1.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(255, vm.employeeDetail.street1.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">Address Line 2</p></th>
+                      <td colspan="7">
+                        <md-input-container flex="100">
+                          <input name="street2" type="text" ng-model="vm.employee.street2" placeholder="Address Line 2" ng-maxlength="255" md-maxlength="255" />
+                          <span flex="100" class="font-size-10">
+                            <b>Apartment, suite, unit, building, floor, etc.</b>
+                          </span>
+                          <div ng-messages="vm.employeeDetail.street2.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(255, vm.employeeDetail.street2.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">Address Line 3</p></th>
+                      <td colspan="7">
+                        <md-input-container flex="100">
+                          <input name="street3" type="text" ng-model="vm.employee.street3" placeholder="Address Line 3" ng-maxlength="255" md-maxlength="255" />
+                          <div ng-messages="vm.employeeDetail.street3.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(255, vm.employeeDetail.street3.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">City</p></th>
+                      <td>
+                        <md-input-container flex="100">
+                          <input name="city" type="text" ng-model="vm.employee.city" placeholder="City" ng-maxlength="50" md-maxlength="50" />
+                          <div ng-messages="vm.employeeDetail.city.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(50, vm.employeeDetail.city.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th><p class="label-container">State</p></th>
+                      <td>
+                        <md-input-container flex="100">
+                          <input name="state" type="text" ng-model="vm.employee.state" placeholder="State" ng-maxlength="50" md-maxlength="50" capitalize />
+                          <span class="font-size-10"><b>{{vm.stateNote}}</b></span>
+                          <div ng-messages="vm.employeeDetail.state.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(50, vm.employeeDetail.state.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">{{ vm.LabelConstant.Employee.ZipCode }}&nbsp;<check-unique-on-blur></check-unique-on-blur></p></th>
+                      <td>
+                        <md-input-container flex="100">
+                          <input type="text" name="postcode" ng-model="vm.employee.postcode" placeholder="Zip/Postal Code" ng-maxlength="10" md-maxlength="10" custom-blur="vm.FindAddress();" />
+                          <div ng-messages="vm.employeeDetail.postcode.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(10, vm.employeeDetail.postcode.$viewValue.length)}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th><p class="label-container"><a class="cm-text-decoration underline" ng-click="vm.goToCountryList();" tabindex="-1">Country</a></p></th>
+                      <td>
+                        <md-input-container flex="100" class="autocompletecustom" ng-if="vm.autoCompleteCountry">
+                          <custom-auto-complete-search class="min-width-initial" on-search-fn="vm.autoCompleteCountry.onSearchFn"
+                                                       column-name="vm.autoCompleteCountry.columnName"
+                                                       controller-name="vm.autoCompleteCountry.controllerName"
+                                                       parent-column-name="vm.autoCompleteCountry.parentColumnName"
+                                                       view-template-url="vm.autoCompleteCountry.viewTemplateURL"
+                                                       key-column-name="vm.autoCompleteCountry.keyColumnName"
+                                                       input-name="vm.autoCompleteCountry.inputName"
+                                                       placeholder-name="vm.autoCompleteCountry.placeholderName"
+                                                       key-column-id="vm.autoCompleteCountry.keyColumnId"
+                                                       is-required="vm.autoCompleteCountry.isRequired"
+                                                       is-addnew="vm.autoCompleteCountry.isAddnew"
+                                                       callback-fn="vm.autoCompleteCountry.callbackFn"
+                                                       parent-id=""
+                                                       add-data="vm.autoCompleteCountry.addData"
+                                                       on-select-callback-fn="vm.autoCompleteCountry.onSelectCallbackFn"
+                                                       is-disabled="false">
+                          </custom-auto-complete-search>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">Phone</p></th>
+                      <td>
+                        <md-input-container flex="100" class="cm-tel-input-phone">
+                          <label>Phone</label>
+                          <input type="text" id="id_contact" name="contact" ng-model="vm.employee.contact" placeholder=""
+                                 ng-maxlength="25" md-maxlength="25" intl-tel-input intl-country="vm.employee.contactCountryCode" phone-number-note="vm.phoneNumberNote"
+                                 ng-required="vm.employee.phExtension ? true : false" onkeypress="return OnlyNumericWithPlus(event)" />
+                          <span class="font-size-10"><b>e.g. {{vm.phoneNumberNote}}</b></span>
+                          <div ng-messages="vm.employeeDetail.contact.$error" role="alert" md-auto-hide="false">
+                            <div ng-message="required">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                            </div>
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(25, vm.employeeDetail.contact.$viewValue.length)}}</span>
+                            </div>
+                            <div ng-message="intltel">
+                              {{vm.CORE_MESSAGE_CONSTANT.INVALID}}
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th><p class="label-container">Ext.</p></th>
+                      <td>
+                        <md-input-container flex="100">
+                          <input type="text" name="extension" ng-model="vm.employee.phExtension" placeholder="Ext." mask="?9?9?9?9?9?9?9?9"
+                                 ng-maxlength="8" md-maxlength="8" onkeypress="return AvoidSpace(event)" clean="true" mask-restrict="reject">
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">Fax</p></th>
+                      <td>
+                        <md-input-container flex="100" class="cm-tel-input-phone">
+                          <label>Fax</label>
+                          <input type="text" id="id_faxNumber" name="faxNumber" ng-model="vm.employee.faxNumber" placeholder=""
+                                 ng-maxlength="25" md-maxlength="25" intl-tel-input intl-country="vm.employee.faxCountryCode" phone-number-note="vm.faxNumberNote"
+                                 onkeypress="return OnlyNumericWithPlus(event)">
+                          <span class="font-size-10"><b>e.g. {{vm.faxNumberNote}}</b></span>
+                          <div ng-messages="vm.employeeDetail.faxNumber.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(25, vm.employeeDetail.faxNumber.$viewValue.length)}}</span>
+                            </div>
+                            <div ng-message="intltel">
+                              {{vm.CORE_MESSAGE_CONSTANT.INVALID}}
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div layout flex>
+            <div flex class="cm-section-main">
+              <div class="cm-section-inner">
+                <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                  <tbody>
+                    <tr>
+                      <th></th>
+                      <td>
+                        <div class="cm-rd-switch" layout="row">
+                          <md-checkbox ng-model="vm.employee.isExternalEmployee" name="isExternalEmployee" class="margin-0" ng-change="vm.externalEmployeeChanged()">
+                            External User
+                          </md-checkbox>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        <p class="label-container">
+                          <a class="cm-text-decoration underline" ng-click="vm.goToSupplierList();" tabindex="-1">{{vm.autoCompleteSupplier.placeholderName}}</a>
+                          <span ng-if="vm.employee.isExternalEmployee">&nbsp;*</span>
+                        </p>
+                      </th>
+                      <td colspan="3">
+                        <md-input-container ng-if="vm.autoCompleteSupplier" class="autocompletecustom" flex="100">
+                          <custom-auto-complete datalist="vm.SupplierList"
+                                                column-name="vm.autoCompleteSupplier.columnName"
+                                                controller-name="vm.autoCompleteSupplier.controllerName"
+                                                view-template-url="vm.autoCompleteSupplier.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteSupplier.keyColumnName"
+                                                key-column-id="vm.autoCompleteSupplier.keyColumnId"
+                                                input-name="vm.autoCompleteSupplier.inputName"
+                                                placeholder-name="vm.autoCompleteSupplier.placeholderName"
+                                                is-required="vm.employee.isExternalEmployee"
+                                                is-addnew="vm.autoCompleteSupplier.isAddnew"
+                                                callback-fn="vm.autoCompleteSupplier.callbackFn"
+                                                add-data="vm.autoCompleteSupplier.addData"
+                                                is-disabled="!vm.employee.isExternalEmployee">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container"><a class="cm-text-decoration underline" ng-click="vm.goToManagerList();" tabindex="-1">Manager</a></p></th>
+                      <td colspan="3">
+                        <md-input-container ng-if="vm.autoCompleteManagerDetail" class="autocompletecustom" flex="100">
+                          <custom-auto-complete datalist="vm.employeeList"
+                                                column-name="vm.autoCompleteManagerDetail.columnName"
+                                                controller-name="vm.autoCompleteManagerDetail.controllerName"
+                                                view-template-url="vm.autoCompleteManagerDetail.viewTemplateURL"
+                                                key-column-name="vm.autoCompleteManagerDetail.keyColumnName"
+                                                key-column-id="vm.autoCompleteManagerDetail.keyColumnId"
+                                                input-name="vm.autoCompleteManagerDetail.inputName"
+                                                placeholder-name="vm.autoCompleteManagerDetail.placeholderName"
+                                                is-required="vm.autoCompleteManagerDetail.isRequired"
+                                                add-data="vm.autoCompleteWorkAreaDetail.addData"
+                                                is-addnew="vm.autoCompleteManagerDetail.isAddnew"
+                                                callback-fn="vm.autoCompleteManagerDetail.callbackFn">
+                          </custom-auto-complete>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th><p class="label-container">Payment Mode</p></th>
+                      <td colspan="3">
+                        <md-input-container flex="100" class="md-input-has-value">
+                          <md-radio-group name="paymentMode" ng-model="vm.employee.paymentMode" layout="column" layout-gt-xs="row" flex layout-align="start start" class="margin-0">
+                            <md-radio-button name="paymentModeExempt" class="margin-right-0" value="{{vm.paymentMode.Exempt}}">{{vm.paymentMode.Exempt}}</md-radio-button>
+                            <md-radio-button name="paymentModeNonExempt" class="margin-left-10" value="{{vm.paymentMode.Non_exempt}}">{{vm.paymentMode.Non_exempt}}</md-radio-button>
+                          </md-radio-group>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th ng-if="vm.employee.paymentMode == vm.paymentMode.Exempt"><p class="label-container">Annual Salary</p></th>
+                      <td ng-if="vm.employee.paymentMode == vm.paymentMode.Exempt">
+                        <md-input-container class="input-with-usd-symbol padding-left-0-imp" flex="100">
+                          <md-icon md-font-icon="icon-currency-usd" class="usdicon"></md-icon>
+                          <input ng-model="vm.employee.burdenRate" type="number" name="burdenRate" placeholder="Annual Salary" ng-maxlength="8" md-maxlength="8" min="0"
+                                 input-number-decimal-place
+                                 onkeypress="return OnlyNumbersWithDot(event)"
+                                 step="{{$root.amountInputStep}}" />
+                          <div ng-messages="vm.employeeDetail.burdenRate.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(8, vm.employeeDetail.burdenRate.$viewValue.length)}}</span>
+                            </div>
+                            <div ng-message="number || step">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th ng-if="vm.employee.paymentMode == vm.paymentMode.Non_exempt"><p class="label-container">Hourly Rate</p></th>
+                      <td ng-if="vm.employee.paymentMode == vm.paymentMode.Non_exempt">
+                        <md-input-container class="input-with-usd-symbol padding-left-0-imp" flex="100">
+                          <md-icon md-font-icon="icon-currency-usd" class="usdicon"></md-icon>
+                          <input ng-model="vm.employee.burdenRate" type="number" name="burdenRate" placeholder="Hourly Rate" ng-maxlength="10" md-maxlength="10" min="0" />
+                          <div ng-messages="vm.employeeDetail.burdenRate.$error" role="alert">
+                            <div ng-message="maxlength">
+                              <span>{{vm.getMaxLengthValidation(10, vm.employeeDetail.burdenRate.$viewValue.length)}}</span>
+                            </div>
+                            <div ng-message="number">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                      <th><p class="label-container">Logout Idle Time</p></th>
+                      <td>
+                        <md-input-container md-no-float class="margin-0" flex="100">
+                          <input type="text" name="logoutIdleTime"
+                                 ng-model="vm.employee.logoutIdleTime" placeholder="HH:mm"
+                                 ng-pattern="vm.TimePattern"
+                                 class="text-right"
+                                 onkeypress="return OnlyNumeric(event)"
+                                 mask="{{vm.TimeMask }}" validate="false"
+                                 ng-keyup="vm.checklogoutIdleTime(vm.employeeDetail)">
+                          <div ng-messages="vm.employeeDetail.logoutIdleTime.$error" role="alert">
+                            <div ng-message="pattern">
+                              <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_TIME}}</span>
+                            </div>
+                            <div ng-if="vm.logoutIdleTime">
+                              <span>{{vm.logoutIdleTime}}</span>
+                            </div>
+                          </div>
+                        </md-input-container>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

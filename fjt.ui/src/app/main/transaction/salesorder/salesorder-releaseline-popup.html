@@ -1,0 +1,388 @@
+<md-dialog aria-label="manage-rfq-lineitem-headers" class="cm-multiline-popup-header"  cg-busy="{promise:vm.cgBusyLoading}" draggable flex="95">
+  <form name="vm.releaselineform" novalidate class="cm-custom-label-common">
+    <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+    <md-toolbar ng-class="vm.themeClass" class="md-toolbar ma pt-5">
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <h2 class="nowrap">Release Line Detail </h2>
+        <span flex></span>
+        <div layout="row" layout-align="end center" layout-wrap  class="mv-5">
+          <popup-header-label label-data="vm.headerdata"></popup-header-label>
+        </div>
+        <md-button class="md-icon-button" ng-click="vm.cancel()">
+          <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content class="customer-modal no-padding" layout="column">
+      <md-content class="md-padding">
+       <div layout="row" layout-align="start center">       
+          <md-radio-group layout-align="start start" layout-wrap layout="row" class="margin-top-5imp margin-bottom-5imp"
+                          name="releaseLineStatus" id="releaseLineStatus" ng-model="vm.releaseLineStatus" ng-change="vm.changeFilter(vm.releaseLineStatus)">
+            <md-radio-button id="item.id" flex class="margin-top-0" ng-repeat="item in vm.soReleaseLineStatusFilter"
+                             ng-value="item.id">{{item.name}}</md-radio-button>
+          </md-radio-group>
+          <md-button class="md-primary md-raised mr-0 margin-left-auto-imp" ng-disabled="vm.assyPartCategory!==vm.partcategory" ng-click="vm.ViewAssemblyStockStatus($event)">View Assembly Stock Details</md-button>
+        </div>
+        <div layout="row" flex="100" class="margin-vertical-10" layout-wrap>
+          <div flex="100" layout="row" class="cm-overflow-auto" ng-if="(vm.releaseLineStatus === vm.soReleaseLineStatusCode.ALL) || ( !vm.alllineCompleted && !vm.nolineCompleted)">
+            <div class="content fullpage-datatable cm-kit-release-table cm-releaseline-table cm-scroll-table" layout="column" flex>
+              <table class="cm-data-table-word-break">
+                <thead>
+                  <tr>
+                    <th class="text-center w-80">
+                      Delete
+                    </th>
+                    <th class="w-150">Linked PO</th>
+                    <th class="w-100" ng-click="vm.changeSorting()">FCA Release#<md-icon md-font-icon class="icon s18 icon-arrow-up" ng-if="vm.up"></md-icon><md-icon md-font-icon class="icon s18 icon-arrow-down" ng-if="!vm.up"></md-icon></th>
+                    <th class="w-100">Cust Release#</th>
+                    <th class="w-100">Qty&nbsp;<span class="color-red">*</span></th>
+                    <th class="w-150">PO Release#&nbsp;<span class="color-red" ng-if="vm.BlanketPODetails.USEBPOANDRELEASE==vm.soDetail.blanketPOOption">*</span></th>
+                    <th class="w-140">Requested Dock Date (Orig.)&nbsp;<span class="color-red">*</span></th>
+                    <th class="w-140">Requested Ship Date (Orig.)&nbsp;<span class="color-red">*</span></th>
+                    <th class="w-140">Promised Ship Date (Orig.)&nbsp;<span class="color-red">*</span><check-unique-on-blur class="color-red"></check-unique-on-blur></th>
+                    <th class="w-80">Agreed To Ship</th>
+                    <th class="w-80">Rel. Qty Ready</th>
+                    <th class="w-140">Requested Dock Date (Revised)</th>
+                    <th class="w-140">Requested Ship Date (Revised)</th>
+                    <th class="w-140">Promised Ship Date (Revised)</th>
+                    <th class="w-100">Shipped Qty</th>
+                    <th class="w-100">Open Qty</th>
+                    <th class="min-width-500">Release Notes</th>
+                    <th class="min-width-500">Additional Notes</th>
+                    <th class="w-300">Shipping Address</th>
+                    <th class="w-200">Contact Person</th>
+                    <th class="w-300">Shipping Method</th>
+                    <th class="w-300">Carrier</th>
+                    <th class="w-150">Carrier Account#</th>
+                  </tr>
+                </thead>
+                <tbody class="max-height-260">
+                  <tr ng-repeat="item in vm.releaseLineDetail |  filter:vm.myFilter" ng-class="{'cm-so-releaseline-grid-background-color':item.isTBD}">
+                    <td class="text-center w-80">
+                      <md-button class="md-primary md-icon-button bdrbtn" ng-class="{'cursor-not-allow opecity-5':(item.isTBD || !item.shippingID || (item.shippingID && !item.copyOpenQty))}" ng-disabled="item.isTBD || !item.shippingID " ng-click="vm.openReleaseLineHistory(item,$event)"><md-icon role="img" md-font-icon="icons-so-change-history"></md-icon><md-tooltip md-direction="top" ng-disabled="!item.shippingID || item.isTBD">Release Line Detail Change History</md-tooltip></md-button>
+                      <md-button class="md-primary md-icon-button bdrbtn" ng-keydown="vm.checkNextNevigation($event,item)" ng-class="{'cursor-not-allow opecity-5':(vm.isdisabled || item.isTBD)}" ng-disabled="vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty)" ng-click="vm.removeRow(item)"><md-icon role="img" md-font-icon="icon-trash"></md-icon><md-tooltip md-direction="top" ng-if="!item.isDisable">Delete</md-tooltip></md-button>
+                    </td>
+                    <td class="padding-right-5 w-150" ng-class="{'cursor-not-allow opecity-5':!item.futurePONumber}">
+                      <label class="text-left" style="width:100%;"><span ng-class="{'underline cursor-pointer':item.futurePONumber && ((vm.soDetail.blanketPOOption && vm.soDetail.blanketPOOption===vm.BlanketPODetails.LINKBLANKETPO))}" ng-click="item.futurePONumber?vm.goToSalesOrderDeatil(item.futurePOID):''">{{item.futurePONumber}}</span><copy-text ng-if="item.futurePONumber" label="'PO#'" text="item.futurePONumber" hide-copy-tooltip="false"></copy-text></label>
+                    </td>
+                    <td class="text-right padding-right-5 cursor-not-allow opecity-5 w-100">
+                      <input type="text" id="releaseNumber{{$index}}" class="text-right" style="width:100%;" ng-model="item.releaseNumber" ng-disabled="true">
+                    </td>
+                    <td class="padding-right-5 w-100">
+                      <input type="text" capitalize id="customerRelease{{$index}}" maxlength="50" class="text-left input-text-uppercase" style="width:100%;" ng-model="item.customerReleaseLine" ng-change="vm.changValue()" ng-blur="vm.checkCustomerReleaseLine(item)" ng-disabled="vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty)">
+                    </td>
+                    <td class="padding-right-5 w-100" ng-class="{'border-red':item.invalidqty,'cursor-not-allow opecity-5':(vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty))}">
+                      <input type="text" id="qty{{$index}}" min="1" maxlength="8" class="text-right" onkeypress="return OnlyNumeric(event, this)" style="width:100%;" ng-model="item.qty" custom-blur="vm.checkSOPOQty(item)" ng-change="vm.changValue()" ng-disabled="vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty)">
+                    </td>
+                    <td class="text-left padding-left-5 w-150" ng-class="{'border-red':item.invalidPOReleaseNumber,'cursor-not-allow opecity-5':vm.BlanketPODetails.USEBPOANDRELEASE!=vm.soDetail.blanketPOOption || item.shippedQty}">
+                      <input type="text" id="poReleaseNumber{{$index}}" style="width:100%;" ng-model="item.poReleaseNumber" ng-disabled="vm.BlanketPODetails.USEBPOANDRELEASE!=vm.soDetail.blanketPOOption || item.shippedQty" custom-blur="vm.checkPOReleaseNumber(item)">
+                    </td>
+                    <td ng-class="{'border-red':item.invaliddockdate,'cursor-not-allow opecity-5':(vm.isdisabled || (item.shippingID && !item.openQty))}" class="w-140">
+                      <div layout="row">
+                        <input type="text" class="float-left text-left"
+                               id="dock{{$index}}"
+                               name="dock{{$index}}"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               enable-time="false"
+                               ui-options="{clearOnBlur: true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="item.dockDateOptions"
+                               is-open="item.dockDateOptions.dockDateOpenFlag"
+                               ng-change="vm.changValue()"
+                               custom-blur="vm.checkDateValidations(item,2);vm.getPromisedDate(item, $index)"
+                               ng-keydown="vm.setNavigatePointer($event)"
+                               close-text="Close"
+                               ng-disabled="vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty)"
+                               style="width:100%;" ng-model="item.requestedDockDate" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="item.dockDateOptions.dockDateOpenFlag=(vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty))?false:true">
+                        </md-icon>
+                      </div>
+                    </td>
+                    <td ng-class="{'border-red':item.invalidshipdate,'cursor-not-allow opecity-5':(vm.isdisabled || (item.shippingID && !item.copyOpenQty))}" class="w-140">
+                      <div layout="row">
+                        <input type="text" class="float-left text-left"
+                               id="ship{{$index}}"
+                               name="ship{{$index}}"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               enable-time="false"
+                               ui-options="{clearOnBlur: true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="item.shippingDateOptions"
+                               is-open="item.shippingDateOptions.shippingDateOpenFlag"
+                               ng-change="vm.changValue()"
+                               custom-blur="vm.checkDateValidations(item,1)"
+                               close-text="Close"
+                               ng-disabled="vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty)"
+                               style="width:100%;" ng-model="item.shippingDate" />
+                        <md-icon md-font-icon="icon-calendar calender-icon"
+                                 ng-click="item.shippingDateOptions.shippingDateOpenFlag=(vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty))?false:true">
+                        </md-icon>
+                      </div>
+                    </td>
+                    <td ng-class="{'border-red':item.invalidpromiseddate,'cursor-not-allow opecity-5':(vm.isdisabled || (item.shippingID && !item.copyOpenQty))}" class="w-140">
+                      <div layout="row">
+                        <input type="text" class="float-left text-left"
+                               id="promised{{$index}}"
+                               name="promised{{$index}}"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               enable-time="false"
+                               ui-options="{clearOnBlur: true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               ng-change="vm.changValue()"
+                               ng-disabled="vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty)"
+                               custom-blur="vm.checkDateValidations(item,3);vm.assignShipDate(item)"
+                               datepicker-options="item.promisedDateOptions"
+                               is-open="item.promisedDateOptions.promisedDateOpenFlag"
+                               close-text="Close"
+                               style="width:100%;" ng-model="item.promisedShipDate" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="item.promisedDateOptions.promisedDateOpenFlag=(vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty))?false:true">
+                        </md-icon>
+                      </div>
+                    </td>
+                    <td class="padding-right-5 w-80 text-center">
+                      <md-checkbox id='isAgreeToShip'
+                                   class="margin-top-5imp"
+                                   ng-class="{'cursor-not-allow opecity-5':!item.shippingID}"
+                                   ng-disabled="!item.shippingID || (item.shippingID && !item.copyOpenQty) || vm.isdisabled"
+                                   ng-change="vm.changeAgreeToShip(item)"
+                                   ng-model="item.isAgreeToShip" name="isAgreeToShip">
+                      </md-checkbox>
+                    </td>
+                    <td class="padding-right-5 w-80 text-center">
+                      <md-checkbox id='isReadyToShip'
+                                   class="margin-top-5imp"
+                                   ng-change="vm.changValue()"
+                                   ng-class="{'cursor-not-allow opecity-5':!item.shippingID}"
+                                   ng-disabled="!item.shippingID  || (item.shippingID && !item.copyOpenQty) || vm.isdisabled"
+                                   ng-model="item.isReadyToShip" name="isReadyToShip">
+                      </md-checkbox>
+                    </td>
+                    <td ng-class="{'border-red':item.invalidreviseddockdate,'cursor-not-allow opecity-5':(vm.isdisabled || item.isTBD || !item.isAgreeToShip || (item.shippingID && !item.copyOpenQty))}" class="w-140">
+                      <div layout="row">
+                        <input type="text" class="float-left text-left"
+                               id="dockrevised{{$index}}"
+                               name="dockrevised{{$index}}"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               enable-time="false"
+                               ui-options="{clearOnBlur: true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="item.revisedDockDateOptions"
+                               is-open="item.revisedDockDateOptions.dockDateOpenFlag"
+                               ng-change="vm.changValue()"
+                               custom-blur="vm.checkRevisedDateValidations(item,2)"
+                               ng-keydown="vm.setNavigatePointer($event)"
+                               close-text="Close"
+                               ng-disabled="vm.isdisabled || item.isTBD || !item.isAgreeToShip || (item.shippingID && !item.copyOpenQty)"
+                               style="width:100%;" ng-model="item.revisedRequestedDockDate" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="item.revisedDockDateOptions.dockDateOpenFlag=(vm.isdisabled || item.isTBD || !item.isAgreeToShip)?false:true">
+                        </md-icon>
+                      </div>
+                    </td>
+                    <td ng-class="{'border-red':item.invalidrevisedshipdate,'cursor-not-allow opecity-5':(vm.isdisabled || item.isTBD || !item.isAgreeToShip || (item.shippingID && !item.copyOpenQty))}" class="w-140">
+                      <div layout="row">
+                        <input type="text" class="float-left text-left"
+                               id="revisedship{{$index}}"
+                               name="revisedship{{$index}}"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               enable-time="false"
+                               ui-options="{clearOnBlur: true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               datepicker-options="item.revisedshippingDateOptions"
+                               is-open="item.revisedshippingDateOptions.shippingDateOpenFlag"
+                               ng-change="vm.changValue()"
+                               custom-blur="vm.checkRevisedDateValidations(item,1)"
+                               close-text="Close"
+                               ng-disabled="vm.isdisabled || item.isTBD || !item.isAgreeToShip || (item.shippingID && !item.copyOpenQty)"
+                               style="width:100%;" ng-model="item.revisedRequestedShipDate" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="item.revisedshippingDateOptions.shippingDateOpenFlag=(vm.isdisabled || item.isTBD || !item.isAgreeToShip)?false:true">
+                        </md-icon>
+                      </div>
+                    </td>
+                    <td ng-class="{'border-red':item.invalidrevisedpromiseddate,'cursor-not-allow opecity-5':(vm.isdisabled || item.isTBD || !item.isAgreeToShip || (item.shippingID && !item.copyOpenQty))}" class="w-140">
+                      <div layout="row">
+                        <input type="text" class="float-left text-left"
+                               id="revisedpromised{{$index}}"
+                               name="revisedpromised{{$index}}"
+                               allow-past-date="true"
+                               allow-future-date="true"
+                               datetime-picker="{{$root.dateDisplayFormat}}"
+                               enable-time="false"
+                               ui-options="{clearOnBlur: true}"
+                               ui-mask="{{$root.uimaskFormat.date.mask}}"
+                               ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                               model-view-value="true"
+                               ng-change="vm.changValue()"
+                               ng-disabled="vm.isdisabled || item.isTBD || !item.isAgreeToShip || (item.shippingID && !item.copyOpenQty)"
+                               custom-blur="vm.checkRevisedDateValidations(item,3)"
+                               datepicker-options="item.revisedpromisedDateOptions"
+                               is-open="item.revisedpromisedDateOptions.promisedDateOpenFlag"
+                               close-text="Close"
+                               style="width:100%;" ng-model="item.revisedRequestedPromisedDate" />
+                        <md-icon md-font-icon="icon-calendar calender-icon" ng-click="item.revisedpromisedDateOptions.promisedDateOpenFlag=(vm.isdisabled || item.isTBD || !item.isAgreeToShip)?false:true">
+                        </md-icon>
+                      </div>
+                    </td>
+                    <td class="padding-right-5 w-100" ng-class="{'cursor-not-allow opecity-5':!item.shippedQty}">
+                      <label class="text-right" style="width:100%;"><span ng-class="{'underline cursor-pointer':item.shippedQty && ((vm.soDetail.blanketPOOption && vm.soDetail.blanketPOOption!==vm.BlanketPODetails.LINKBLANKETPO) || !vm.soDetail.blanketPOOption)}" ng-click="item.shippedQty && ((vm.soDetail.blanketPOOption && vm.soDetail.blanketPOOption!==vm.BlanketPODetails.LINKBLANKETPO) || !vm.soDetail.blanketPOOption)?vm.shippedQtyDetails(item,$event):''">{{item.shippedQty}}</span></label>
+                    </td>
+                    <td class="padding-right-5 w-100 cursor-not-allow opecity-5">
+                      <input type="text" id="opqty{{$index}}" class="text-right" style="width:100%;" ng-model="item.openQty" disabled>
+                    </td>
+                    <td class="padding-right-5 min-width-500" ng-class="{'border-red':item.invalidreleaseNote,'cursor-not-allow opecity-5':(vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty))}">
+                      <textarea name="releasenote{{$index}}" maxlength="1000" ng-model="item.releaseNotes" rows="2" max-rows="4" style="width:100%;" custom-blur="vm.checkForNewLine(item)" ng-change="vm.changValue()" ng-disabled="vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty)"></textarea>
+                    </td>
+                    <td class="padding-right-5 min-width-500" ng-class="{'border-red':item.invalidadditionalNotes,'cursor-not-allow opecity-5':(vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty))}">
+                      <textarea name="additionalNotes{{$index}}" maxlength="1000" ng-model="item.description" rows="2" max-rows="4" style="width:100%;" custom-blur="vm.checkForNewLine(item)" ng-change="vm.changValue()" ng-disabled="vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty)"></textarea>
+                    </td>
+                    <td class="padding-right-5 w-300 autocomplete-wo-container">
+                      <md-input-container class="autocompletecustom margin-bottom-0 width-100p">
+                        <custom-auto-complete datalist="vm.ShippingAddressList"
+                                              tabindex="-1"
+                                              column-name="item.autoCompleteAddress.columnName"
+                                              controller-name="item.autoCompleteAddress.controllerName"
+                                              view-template-url="item.autoCompleteAddress.viewTemplateURL"
+                                              key-column-name="item.autoCompleteAddress.keyColumnName"
+                                              input-name="item.autoCompleteAddress.inputName"
+                                              callback-fn-param="item"
+                                              placeholder-name="item.autoCompleteAddress.placeholderName"
+                                              key-column-id="item.autoCompleteAddress.keyColumnId"
+                                              is-required="item.autoCompleteAddress.isRequired"
+                                              is-disabled="vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty)"
+                                              is-addnew="item.autoCompleteAddress.isAddnew"
+                                              add-data="item.autoCompleteAddress.addData"
+                                              on-select-callback-fn="item.autoCompleteAddress.onSelectCallbackFn"
+                                              callback-fn="item.autoCompleteAddress.callbackFn">
+                      </md-input-container>
+                    </td>
+                    <td class="padding-right-5 w-200 autocomplete-wo-container">
+                      <md-input-container class="autocompletecustom margin-bottom-0 cm-auto-complete-w-auto width-100p">
+                        <custom-auto-complete datalist="vm.ContactPersonList"
+                                              column-name="item.autoCompleteContactPerson.columnName"
+                                              controller-name="item.autoCompleteContactPerson.controllerName"
+                                              view-template-url="item.autoCompleteContactPerson.viewTemplateURL"
+                                              key-column-name="item.autoCompleteContactPerson.keyColumnName"
+                                              input-name="item.autoCompleteContactPerson.inputName"
+                                              placeholder-name="item.autoCompleteContactPerson.placeholderName"
+                                              key-column-id="item.autoCompleteContactPerson.keyColumnId"
+                                              is-required="item.autoCompleteContactPerson.isRequired"
+                                              is-disabled="vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty) || !item.autoCompleteAddress.keyColumnId"
+                                              is-addnew="item.autoCompleteContactPerson.isAddnew"
+                                              add-data="item.autoCompleteContactPerson.addData"
+                                              on-select-callback-fn="item.autoCompleteContactPerson.onSelectCallbackFn"
+                                              callback-fn="item.autoCompleteContactPerson.callbackFn"
+                                              callback-fn-param="item">
+                      </md-input-container>
+                    </td>
+                    <td class="padding-right-5 w-300 autocomplete-wo-container">
+                      <md-input-container class="autocompletecustom margin-bottom-0 width-100p">
+                        <custom-auto-complete datalist="vm.ShippingTypeList"
+                                              column-name="item.autoCompleteShipping.columnName"
+                                              controller-name="item.autoCompleteShipping.controllerName"
+                                              view-template-url="item.autoCompleteShipping.viewTemplateURL"
+                                              key-column-name="item.autoCompleteShipping.keyColumnName"
+                                              input-name="item.autoCompleteShipping.inputName"
+                                              placeholder-name="item.autoCompleteShipping.placeholderName"
+                                              key-column-id="item.autoCompleteShipping.keyColumnId"
+                                              is-required="item.autoCompleteShipping.isRequired"
+                                              is-disabled="vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty)"
+                                              is-addnew="item.autoCompleteShipping.isAddnew"
+                                              add-data="item.autoCompleteShipping.addData"
+                                              on-select-callback-fn="item.autoCompleteShipping.onSelectCallbackFn"
+                                              callback-fn="item.autoCompleteShipping.callbackFn"
+                                              callback-fn-param="item">
+                      </md-input-container>
+                    </td>
+                    <td class="padding-right-5 w-300 autocomplete-wo-container">
+                      <md-input-container class="autocompletecustom margin-bottom-0 width-100p">
+                        <custom-auto-complete datalist="vm.carrierList"
+                                              column-name="item.autoCompleteCarrier.columnName"
+                                              controller-name="item.autoCompleteCarrier.controllerName"
+                                              view-template-url="item.autoCompleteCarrier.viewTemplateURL"
+                                              key-column-name="item.autoCompleteCarrier.keyColumnName"
+                                              input-name="item.autoCompleteCarrier.inputName"
+                                              placeholder-name="item.autoCompleteCarrier.placeholderName"
+                                              key-column-id="item.autoCompleteCarrier.keyColumnId"
+                                              is-disabled="vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty)"
+                                              is-required="item.autoCompleteCarrier.isRequired"
+                                              is-addnew="item.autoCompleteCarrier.isAddnew"
+                                              add-data="item.autoCompleteCarrier.addData"
+                                              on-select-callback-fn="item.autoCompleteCarrier.onSelectCallbackFn"
+                                              callback-fn="item.autoCompleteCarrier.callbackFn">
+                      </md-input-container>
+                    </td>
+                    <td class="padding-right-5 w-150">
+                      <input type="text" id="carrierAccount{{$index}}" maxlength="50" class="text-left" style="width:100%;" ng-model="item.carrierAccountNumber" custom-blur="vm.checkForNewLine(item)" ng-change="vm.changValue()" ng-disabled="vm.isdisabled || item.isTBD || (item.shippingID && !item.copyOpenQty)">
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th class="padding-right-5 text-right w-430" colspan="4"><b>TBD</b></th>
+                    <th class="text-right padding-right-5 w-100"><b>{{vm.pendingTBDQty() | numberWithoutDecimal}}</b></th>
+                    <th class="text-right padding-right-5 w-1150" colspan="9"></th>
+                    <th class="text-right padding-right-5 w-100"><b></b></th>
+                    <th class="text-right padding-right-5 w-100"><b>{{vm.pendingTBDQty() | numberWithoutDecimal}}</b></th>
+                    <th class="padding-right-5" flex colspan="7" ng-class="{'cursor-not-allow opecity-5':(vm.isdisabled)}">
+                      <textarea name="releaseLevelComment" maxlength="1000" ng-model="vm.releaseLevelComment" rows="1" max-rows="4" style="width:100%;" ng-change="vm.changValue()" ng-disabled="vm.isdisabled"></textarea>
+                    </th>
+                    <!--<th class="text-right padding-right-5" flex colspan="7"></th>-->
+                  </tr>
+                  <tr>
+                    <th class="padding-right-5 text-right w-430" colspan="4"><b>Scheduled Release Qty</b></th>
+                    <th class="text-right padding-right-5 w-100"><b>{{vm.totalQty() | numberWithoutDecimal}}</b></th>
+                    <th class="text-right padding-right-5 w-1150" colspan="9"></th>
+                    <th class="text-right padding-right-5 w-100"><b ng-class="{'underline cursor-pointer':vm.totalShipedQty() && ((vm.soDetail.blanketPOOption && vm.soDetail.blanketPOOption!==vm.BlanketPODetails.LINKBLANKETPO) || !vm.soDetail.blanketPOOption)}" ng-click="vm.totalShipedQty() && ((vm.soDetail.blanketPOOption && vm.soDetail.blanketPOOption!==vm.BlanketPODetails.LINKBLANKETPO) || !vm.soDetail.blanketPOOption)?vm.shippedQtyDetails(null,$event):''">{{vm.totalShipedQty() | numberWithoutDecimal}}</b></th>
+                    <th class="text-right padding-right-5 w-100"><b>{{vm.totalOpenedQty() |numberWithoutDecimal}}</b></th>
+                    <th class="text-right padding-right-5" flex colspan="7"></th>
+                  </tr>
+                  <tr>
+                    <th class="padding-right-5 text-right w-430" colspan="4"><b>{{vm.soDetail.isLegacyPO?'Total Open PO Qty':'Total PO Qty'}}</b></th>
+                    <th class="text-right padding-right-5 w-100"><b>{{vm.lineLevelDetail.qty | numberWithoutDecimal}}</b></th>
+                    <th class="text-right padding-right-5 w-1150" colspan="9"></th>
+                    <th class="text-right padding-right-5 w-100"><b>{{(vm.totalShipedQty()>vm.lineLevelDetail.qty?vm.lineLevelDetail.qty:vm.totalShipedQty()) | numberWithoutDecimal}}</b></th>
+                    <th class="text-right padding-right-5 w-100"><b>{{vm.lineLevelDetail.qty-(vm.totalShipedQty()>vm.lineLevelDetail.qty?vm.lineLevelDetail.qty:vm.totalShipedQty()) | numberWithoutDecimal}}</b></th>
+                    <th class="text-right padding-right-5" flex colspan="8"></th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+          <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap ng-if="((vm.alllineCompleted || vm.nolineCompleted) && vm.releaseLineStatus !== vm.soReleaseLineStatusCode.ALL)">
+            <div class="emty-icon" flex="100">
+              <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+            </div>
+            <p flex="100" class="empty-state-title">{{vm.alllineCompleted?vm.EmptyMesssage.MESSAGE:vm.EmptyMesssage.MESSAGE_CHECK}}</p>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <div class="mr-auto"><b>Hint: Either Requested Dock Date or Requested Ship Date is required.</b></div>
+      <md-button class="md-default md-raised" ng-click="vm.ResetAll()">Reset</md-button>
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised" ng-class="{'md-formdirty':vm.ischange}" id="saveBtn" ng-click="vm.saveSalesLineDetails(true)" ng-disabled="vm.isdisabled || vm.isbuttondisabled">Save</md-button>
+      <md-button class="md-primary md-raised" ng-class="{'md-formdirty':vm.ischange}" ng-click="vm.saveSalesLineDetails(false,'2')" ng-disabled="vm.isdisabled || vm.isbuttondisabled">Save and Exit</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

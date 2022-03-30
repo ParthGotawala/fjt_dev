@@ -1,0 +1,1956 @@
+<div id="forms" flex="100" class="page-layout simple fullwidth cm-custom-label-common doc-page breadcrumb-fixed" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <ms-form-wizard flex class="miscellaneous-feb-btns cm-overflow-auto">
+    <div class="header md-accent-bg" layout="row" layout-align="start center">
+      <div layout="row" layput-align="start center">
+        <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" aria-label="Go to Customerlist" ng-click="vm.goBack(msWizard)">
+          <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+          </md-icon>
+        </md-button>
+        <div class="white-fg" layout="row" flex layout-align="start center">
+          <div>
+            <div layout="row" layout-align="start center" class="master-page-title">
+              <pagetitle is-list="false" is-display-menu-name="true" prefix-content="vm.cid ? 'Update' : 'Add'" suffix-content="vm.customer.mfgName?': '+vm.customer.mfgName:''"></pagetitle>
+              <md-tooltip ng-if="vm.cid && vm.customer.mfgName" md-direction="bottom">{{vm.customer.mfgName? vm.customer.mfgName:''}}</md-tooltip>
+            </div>
+            <div layout="row" layout-align="start center">
+              <breadcrumbs></breadcrumbs>
+            </div>
+          </div>
+          <div class="cm-header-search-add-container">
+            <div>
+              <md-input-container ng-if="vm.autoCompleteCustomer" class="width-100p autocompletecustom margin-0 widget-dashboard-search-area part-header-search-area" flex="100" flex-gt-xs="100">
+                <custom-auto-complete-search on-search-fn="vm.autoCompleteCustomer.onSearchFn"
+                                             column-name="vm.autoCompleteCustomer.columnName"
+                                             key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                             key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                             input-name="vm.autoCompleteCustomer.inputName"
+                                             placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                             is-required="vm.autoCompleteCustomer.isRequired"
+                                             is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                             callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                             on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn">
+                </custom-auto-complete-search>
+              </md-input-container>
+            </div>
+            <!--<div>
+              <md-button class="md-raised md-primary" aria-label="Add Customer" ng-if="vm.cid" ng-click="vm.addCustomer()">
+                {{vm.customerType === vm.customerTypeConst.CUSTOMER  ? "Add Customer" :vm.customerType === vm.customerTypeConst.SUPPLIER? "Add Supplier":"Add Manufacturer"}}
+              </md-button>
+            </div>-->
+            <div>
+              <div class="cm-square-icon-btn pt-2">
+                <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-if="vm.cid" ng-click="vm.addCustomer(null,false)">
+                  <md-icon md-font-icon="{{vm.addBtnIcon}} add-icon" class="material-icons"></md-icon>
+                  <md-tooltip>Add {{vm.currentPageName}} In New Tab</md-tooltip>
+                </md-button>
+                <md-button class="md-icon-button mv-0-imp margin-right-5-imp md-primary md-raised" ng-if="vm.cid" ng-click="vm.addCustomer(null,true)">
+                  <md-icon md-font-icon="{{vm.addBtnIcon}} add-icon same-tab-icon" class="material-icons"></md-icon>
+                  <md-tooltip>Add {{vm.currentPageName}}</md-tooltip>
+                </md-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div layout="row" flex>
+        <div layout="row" layout-wrap>
+          <table cellspacing="0" cellpadding="0" class="cm-header-data-table cm-so-header-data-table">
+            <tbody>
+              <tr>
+                <th>
+                  <a class="cursor-pointer text-underline" ng-click="vm.gotoCustomerList();">
+                    {{vm.currentPageName}}:
+                  </a>
+                </th>
+                <td>
+                  <span class="cm-data" ng-click="vm.addCustomer(vm.cid)"
+                        ng-class="{'text-underline':vm.formatedMfgName, 'cursor-pointer': vm.formatedMfgName}">
+                    <md-tooltip ng-if="vm.formatedMfgName">
+                      {{vm.formatedMfgName}}
+                    </md-tooltip>
+                    <b ng-if="vm.formatedMfgName">{{vm.formatedMfgName}}</b>
+                    <b ng-if="!vm.formatedMfgName">-</b>
+                  </span>
+                  <copy-text ng-if="vm.formatedMfgName" label="vm.currentPageName"
+                             text="vm.formatedMfgName"></copy-text>
+                </td>
+              </tr>
+              <tr>
+                <th ng-if="vm.customerType !== vm.customerTypeConst.SUPPLIER">
+                  <a class="cursor-pointer text-underline" ng-click="vm.customerType === vm.customerTypeConst.CUSTOMER ? vm.goToMFGList() : vm.goToCustomerPageList()">
+                    {{vm.customerType === vm.customerTypeConst.CUSTOMER ? 'Manufacturer:' : 'Customer:'}}
+                  </a>
+                </th>
+                <td ng-if="vm.customerType !== vm.customerTypeConst.SUPPLIER">
+                  <span class="cm-data" ng-click="vm.formatedMfgName ? vm.customerType === vm.customerTypeConst.CUSTOMER ? vm.goToManufacturer(vm.cid) : vm.goToCustomerDetail() : ''"
+                        ng-class="{'text-underline':vm.formatedMfgName, 'cursor-pointer': vm.formatedMfgName}">
+                    <md-tooltip ng-if="vm.formatedMfgName">
+                      {{vm.formatedMfgName}}
+                    </md-tooltip>
+                    <b ng-if="vm.formatedMfgName">{{vm.formatedMfgName}}</b>
+                    <b ng-if="!vm.formatedMfgName">-</b>
+                  </span>
+                  <copy-text ng-if="vm.formatedMfgName" label="vm.customerType === vm.customerTypeConst.CUSTOMER ? 'Manufacturer' : 'Customer'"
+                             text="vm.formatedMfgName"></copy-text>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div layout-align="end end" class="cm-square-icon-btn">
+        <md-button class="md-raised md-primary" aria-label="Change Ownership" ng-click="vm.changeOwnership($event)"
+                   ng-if="vm.pageTabRights.Detail && vm.isSuperAdmin && (vm.currentTabName === vm.CustomerTabs.Detail.Name) && (vm.customerType === vm.customerTypeConst.MANUFACTURER)">
+          {{ vm.LabelConstant.MFG.ChangeCompanyOwnership }}
+        </md-button>
+        <md-button class="md-icon-button margin-0 md-primary md-raised md-mini margin-left-10" ng-click="vm.openCustomerChangesHistory($event)" ng-if="vm.cid">
+          <md-icon md-font-icon="t-icons-history-text" class="material-icons"></md-icon>
+          <md-tooltip>{{vm.currentPageName}} Change History</md-tooltip>
+        </md-button>
+        <md-button class="md-raised md-primary" ng-click="vm.CheckStepAndAction(msWizard, true,true,$event);" id="saveBtn"
+                   ng-disabled="vm.saveDisable"
+                   ng-class="{'md-formdirty': vm.checkFormDirty(msWizard.currentStepForm(),vm.checkDirtyObject) || vm.wizardStep1CustomerInfo.$dirty || (vm.supplierStandardsForm.$dirty || vm.supplierlistForm.$dirty )}"
+                   ng-if="!vm.IsCommentTab && !vm.isotherContactInfo && !(vm.customerType === vm.customerTypeConst.MANUFACTURER && vm.isshippingAddress)&& !(vm.customerType === vm.customerTypeConst.MANUFACTURER && vm.isrmashippingAddress) && !vm.iscomponentAlias && !vm.isPersonnelMappingTab && !vm.IsEmailSettingTab && !vm.IsInventoryTab && !(vm.customerType === vm.customerTypeConst.MANUFACTURER && vm.isBillingAddress) && !vm.IsCustomComponentApprovedDisapprovedDetailTab && !vm.IsDocumentTab"
+                   ng-hide="msWizard.selectedIndex === vm.CustomerTabs.LOA.ID">
+          <!--ng-disabled="msWizard.currentStepInvalid() || !vm.checkFormDirty(msWizard.currentStepForm(),vm.checkDirtyObject)"-->
+          Save
+        </md-button>
+        <md-button class="md-raised md-primary" aria-label="Add Shipping Address" ng-if="vm.addressList.length > 0 && vm.isshippingAddress && vm.customerType === vm.customerTypeConst.MANUFACTURER"
+                   ng-click="vm.addEditAddress(vm.addressTypeModelPopup.ShippingAddress,vm.cid,null,$event)">
+          Add Shipping Address
+        </md-button>
+        <md-button class="md-raised md-primary" aria-label="Add Billing Address" ng-if="vm.addressList.length > 0 && vm.customerType === vm.customerTypeConst.MANUFACTURER && (vm.isBillingAddress && vm.isBillingAddressSubTabAddress)"
+                   ng-click="vm.addEditAddress(vm.addressTypeModelPopup.BillingAddress,vm.cid,null,$event)">
+          Add Billing Address
+        </md-button>
+      </div>
+    </div>
+    <div class="content-card padding-top-side cm-custom-label-common" layout="column" flex="100">
+      <div layout="row" flex="100" ng-if="vm.isTabDisplay">
+        <!-- FORM WIZARD -->                                                       <!--fielddetail padding-0 cm-part-tab-->
+        <md-tabs validate-step="true" flex="100" is-valid="vm.isStepValid"
+                 ng-class="{'padding-bottom-0':vm.IsInventoryTab}"
+                 class="padding-bottom-0 fielddetail manage-customer-tabing cm-part-tab" md-dynamic-height md-selected="vm.selectedTabIndex" id="manage-customer-tabing">
+          <!--Detail tab-->
+          <md-tab md-on-select="vm.onTabChanges(vm.CustomerTabs.Detail.Name, msWizard)" ng-disabled="(!vm.pageTabRights.Detail)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="vm.wizardStep1CustomerInfo.$invalid">1</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.wizardStep1CustomerInfo.$valid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.pageTabRights.Detail)}"
+                      class="ms-form-wizard-step-text">
+                  Details
+                </span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.wizardStep1CustomerInfo" class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+                <md-button ng-if="msWizard.selectedIndex === vm.CustomerTabs.Detail.ID" id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+                <div layout="row" flex="100" layout-wrap>
+                  <div flex="100" layout-wrap>
+                    <div layout="row" flex="100" layout-wrap>
+                      <div layout="row" flex="50" flex-lg="50">
+                        <div class="cm-section-main" flex="100">
+                          <div class="cm-section-inner">
+                            <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-rs-table">
+                              <tbody>
+                                <tr>
+                                  <th><p class="label-container">{{vm.customerType ===vm.customerTypeConst.SUPPLIER ? 'Company' : 'Business Name'}}<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span></p></th>
+                                  <td>
+                                    <md-input-container flex="100">
+                                      <input type="text" name="companyName" ng-model="vm.customer.mfgName" ng-change="vm.changedMfgName()" placeholder="Business Name" required ng-maxlength="255" id="companyName" md-maxlength="255"
+                                             custom-auto-focus="{{msWizard.selectedIndex === vm.CustomerTabs.Detail.ID ? true : false}}"
+                                             capitalize class="input-text-uppercase"
+                                             custom-blur="vm.checkDuplicateCompanyName();"><!--ng-disabled="vm.customer.isPricingApi || vm.customer.systemGenerated"-->
+                                      <div ng-messages="vm.wizardStep1CustomerInfo.companyName.$error" role="alert">
+                                        <div ng-message="required">
+                                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                        </div>
+                                        <div ng-message="maxlength">
+                                          <span>{{vm.getMaxLengthValidation(255, vm.wizardStep1CustomerInfo.companyName.$viewValue.length)}}</span>
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </td>
+                                  <th><p class="label-container">Code<span ng-hide="vm.customer.isMfgCodeUsedInFlow || vm.customer.isPricingApi || vm.customer.systemGenerated">&nbsp;*</span><check-unique-on-blur></check-unique-on-blur></p></th>
+                                  <td>
+                                    <md-input-container flex="100">
+                                      <input type="text" class="input-text-uppercase" capitalize name="customerCode" ng-model="vm.customer.mfgCode" id="companyCode"
+                                             required ng-disabled="vm.customer.isMfgCodeUsedInFlow || vm.customer.isPricingApi || vm.customer.systemGenerated || vm.cid" placeholder="Code" ng-maxlength="{{vm.mfgLength}}" md-maxlength="{{vm.mfgLength}}" allow-special-char-with-strict
+                                             custom-blur="vm.checkDuplicateCustomerCode()">
+                                      <div ng-messages="vm.wizardStep1CustomerInfo.customerCode.$error" role="alert">
+                                        <div ng-message="required">
+                                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                        </div>
+                                        <div ng-message="maxlength">
+                                          <span>{{vm.getMaxLengthValidation(vm.mfgLength, vm.wizardStep1CustomerInfo.customerCode.$viewValue.length)}}</span>
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th ng-if="vm.customerType !==vm.customerTypeConst.SUPPLIER"><p class="label-container">Legal Name</p></th>
+                                  <td ng-if="vm.customerType !==vm.customerTypeConst.SUPPLIER">
+                                    <md-input-container flex="100">
+                                      <input type="text" name="legalName" ng-model="vm.customer.legalName" placeholder="Legal Name" ng-maxlength="255" md-maxlength="255">
+                                      <div>
+                                        <b>if different from above</b>
+                                      </div>
+                                      <div ng-messages="vm.wizardStep1CustomerInfo.legalName.$error" role="alert">
+                                        <div ng-message="maxlength">
+                                          <span>{{vm.getMaxLengthValidation(255, vm.wizardStep1CustomerInfo.legalName.$viewValue.length)}}</span>
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </td>
+                                  <th ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER || vm.customerType === vm.customerTypeConst.CUSTOMER"><p class="label-container">Account Reference<span ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">&nbsp;*</span></p></th>
+                                  <td colspan="1" ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER || vm.customerType === vm.customerTypeConst.CUSTOMER">
+                                    <md-input-container flex="100" class="margin-bottom-0">
+                                      <input name="accountRef" ng-model="vm.accountRef" placeholder="accountRef" ng-required="vm.customerType === vm.customerTypeConst.SUPPLIER" ng-maxlength="50" md-maxlength="50" />
+                                      <div ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER">
+                                        <span>Hint: Supplier ID is given by the Customer.</span>
+                                      </div>
+                                      <div ng-messages="vm.wizardStep1CustomerInfo.accountRef.$error" role="alert">
+                                        <div ng-message="required">
+                                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                        </div>
+                                        <div ng-message="maxlength">
+                                          <span>{{vm.getMaxLengthValidation(50, vm.wizardStep1CustomerInfo.accountRef.$viewValue.length)}}</span>
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <!--<th><p class="label-container">Primary Contact</p></th>
+                          <td>
+                            <md-input-container flex="100">
+                              <input type="text" name="fullname" ng-model="vm.customer.primaryContactName" placeholder="Primary Contact" ng-maxlength="255" md-maxlength="255">
+                              <div ng-messages="vm.wizardStep1CustomerInfo.fullname.$error" role="alert">
+                                <div ng-message="maxlength">
+                                  <span>
+                                    {{vm.getMaxLengthValidation(255, vm.wizardStep1CustomerInfo.fullname.$viewValue.length)}}
+                                  </span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>-->
+                                  <th><p class="label-container" ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER || vm.customerType === vm.customerTypeConst.SUPPLIER">Tax ID</p></th>
+                                  <td colspan="1" ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER || vm.customerType === vm.customerTypeConst.SUPPLIER">
+                                    <md-input-container flex="100" class="margin-bottom-0">
+                                      <input name="taxID" ng-model="vm.taxID" placeholder="taxID" ng-maxlength="20" md-maxlength="20" />
+                                      <div ng-messages="vm.wizardStep1CustomerInfo.taxID.$error" role="alert">
+                                        <div ng-message="required">
+                                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                        </div>
+                                        <div ng-message="maxlength">
+                                          <span>{{vm.getMaxLengthValidation(20, vm.wizardStep1CustomerInfo.taxID.$viewValue.length)}}</span>
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER || vm.customerType === vm.customerTypeConst.SUPPLIER">
+                                  <th>
+                                    <p class="label-container"><a class="cm-text-decoration" ng-click="vm.goPaymentTermList(); " tabindex="-1">Terms</a><span></span></p>
+                                  </th>
+                                  <td class="height-30">
+                                    <md-input-container ng-if="vm.autoCompletePaymentTerm" class="autocompletecustom" flex>
+                                      <custom-auto-complete datalist="vm.TermsList"
+                                                            column-name="vm.autoCompletePaymentTerm.columnName"
+                                                            controller-name="vm.autoCompletePaymentTerm.controllerName"
+                                                            view-template-url="vm.autoCompletePaymentTerm.viewTemplateURL"
+                                                            key-column-name="vm.autoCompletePaymentTerm.keyColumnName"
+                                                            input-name="vm.autoCompletePaymentTerm.inputName"
+                                                            placeholder-name="vm.autoCompletePaymentTerm.placeholderName"
+                                                            key-column-id="vm.autoCompletePaymentTerm.keyColumnId"
+                                                            is-required="vm.autoCompletePaymentTerm.isRequired"
+                                                            is-addnew="vm.autoCompletePaymentTerm.isAddnew"
+                                                            add-data="vm.autoCompletePaymentTerm.addData"
+                                                            callback-fn="vm.autoCompletePaymentTerm.callbackFn">
+                                      </custom-auto-complete>
+                                    </md-input-container>
+                                  </td>
+                                  <th ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER">
+                                    <p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToReceivablePaymentMethodList();" tabindex="-1">{{vm.autoCompletePaymentMethodForCust.placeholderName}}</a></p>
+                                  </th>
+                                  <td class="height-30" ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER">
+                                    <md-input-container ng-if="vm.autoCompletePaymentMethodForCust" class="autocompletecustom">
+                                      <custom-auto-complete datalist="vm.receivablePaymentMethodList"
+                                                            column-name="vm.autoCompletePaymentMethodForCust.columnName"
+                                                            controller-name="vm.autoCompletePaymentMethodForCust.controllerName"
+                                                            view-template-url="vm.autoCompletePaymentMethodForCust.viewTemplateURL"
+                                                            key-column-name="vm.autoCompletePaymentMethodForCust.keyColumnName"
+                                                            input-name="vm.autoCompletePaymentMethodForCust.inputName"
+                                                            placeholder-name="vm.autoCompletePaymentMethodForCust.placeholderName"
+                                                            key-column-id="vm.autoCompletePaymentMethodForCust.keyColumnId"
+                                                            is-required="vm.autoCompletePaymentMethodForCust.isRequired"
+                                                            is-addnew="vm.autoCompletePaymentMethodForCust.isAddnew"
+                                                            add-data="vm.autoCompletePaymentMethodForCust.addData"
+                                                            callback-fn="vm.autoCompletePaymentMethodForCust.callbackFn">
+                                      </custom-auto-complete>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER || vm.customerType === vm.customerTypeConst.SUPPLIER">
+                                  <th>
+                                    <p class="label-container">
+                                      <a class="cm-text-decoration" ng-click="vm.goToFOBList();">FOB</a>
+                                      <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                                        <md-tooltip md-direction="top">Free On Board</md-tooltip>
+                                      </md-icon>
+                                    </p>
+                                  </th>
+                                  <td>
+                                    <md-input-container ng-if="vm.autoCompleteFOB" class="autocompletecustom margin-bottom-0" flex>
+                                      <custom-auto-complete datalist="vm.FOBList"
+                                                            column-name="vm.autoCompleteFOB.columnName"
+                                                            controller-name="vm.autoCompleteFOB.controllerName"
+                                                            view-template-url="vm.autoCompleteFOB.viewTemplateURL"
+                                                            key-column-name="vm.autoCompleteFOB.keyColumnName"
+                                                            add-data="vm.autoCompleteFOB.addData"
+                                                            input-name="vm.autoCompleteFOB.inputName"
+                                                            placeholder-name="vm.autoCompleteFOB.placeholderName"
+                                                            key-column-id="vm.autoCompleteFOB.keyColumnId"
+                                                            is-disabled="vm.isDisable"
+                                                            is-addnew="vm.autoCompleteFOB.isAddnew"
+                                                            callback-fn="vm.autoCompleteFOB.callbackFn">
+                                      </custom-auto-complete>
+                                    </md-input-container>
+                                  </td>
+                                  <th>
+                                    <p class="label-container"><a class="cm-text-decoration" ng-click="vm.goChartOfAccountsList(); " tabindex="-1">COA</a></p>
+                                  </th>
+                                  <td class="height-30">
+                                    <md-input-container ng-if="vm.autoCompleteChartOfAccounts" class="autocompletecustom" flex>
+                                      <custom-auto-complete-search datalist="vm.ChartOfAccountsList"
+                                                                   column-name="vm.autoCompleteChartOfAccounts.columnName"
+                                                                   controller-name="vm.autoCompleteChartOfAccounts.controllerName"
+                                                                   view-template-url="vm.autoCompleteChartOfAccounts.viewTemplateURL"
+                                                                   key-column-name="vm.autoCompleteChartOfAccounts.keyColumnName"
+                                                                   input-name="vm.autoCompleteChartOfAccounts.inputName"
+                                                                   placeholder-name="vm.autoCompleteChartOfAccounts.placeholderName"
+                                                                   key-column-id="vm.autoCompleteChartOfAccounts.keyColumnId"
+                                                                   is-required="vm.autoCompleteChartOfAccounts.isRequired"
+                                                                   is-addnew="vm.autoCompleteChartOfAccounts.isAddnew"
+                                                                   callback-fn="vm.autoCompleteChartOfAccounts.callbackFn"
+                                                                   on-select-callback-fn="vm.autoCompleteChartOfAccounts.onSelectCallbackFn"
+                                                                   on-search-fn="vm.autoCompleteChartOfAccounts.onSearchFn">
+                                      </custom-auto-complete-search>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th></th>
+                                  <td colspan="3">
+                                    <primary-contact-persons-chip layout
+                                                                  param-contact-persons-det="vm.primaryContPersonsDet"
+                                                                  param-other-det="vm.contactPersonDetail"></primary-contact-persons-chip>
+                                  </td>
+                                </tr>
+                                <tr ng-if="vm.customerType === vm.customerTypeConst.MANUFACTURER">
+                                  <th></th>
+                                  <td colspan="3">
+                                    <div flex="95" class="margin-bottom-10" layout="row">
+                                      <div class="margin-top-10 margin-right-10" ng-class="{'active' : vm.customer.isCustOrDisty}">
+                                        <md-checkbox name="isCustOrDisty" class="margin-0" ng-model="vm.customer.isCustOrDisty" aria-label="is Customer"
+                                                     ng-disabled="vm.customer.isMfgCodeUsedInFlow && vm.customer.isCustOrDisty">
+                                          Customer
+                                        </md-checkbox>
+                                      </div>
+                                      <div class="margin-top-10 margin-right-10" ng-class="{'active' : vm.customer.isAcquired}">
+                                        <md-checkbox name="isAcquired" class="margin-0" ng-model="vm.customer.isAcquired" ng-change="vm.isAcquiredchange()" ng-disabled="vm.disableAcquired" aria-label="is Acquired">
+                                          Acquired By
+                                        </md-checkbox>
+                                      </div>
+                                      <div class="margin-top-10" ng-class="{'active' : vm.customer.isCompany}" ng-hide="true">
+                                        <md-checkbox name="isCompany" class="margin-0" ng-model="vm.customer.isCompany" ng-disabled="!vm.isEditCompany" aria-label="is Company">
+                                          Is Company
+                                        </md-checkbox>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr ng-if="vm.customerType === vm.customerTypeConst.MANUFACTURER && vm.customer.isAcquired">
+                                  <th><p class="label-container">Acquired By<span>&nbsp;*</span></p></th>
+                                  <td>
+                                    <md-input-container ng-if="vm.autoCompleteBuyBy" class="md-block autocompletecustom" flex="100">
+                                      <custom-auto-complete-search on-search-fn="vm.autoCompleteBuyBy.onSearchFn"
+                                                                   column-name="vm.autoCompleteBuyBy.columnName"
+                                                                   controller-name="vm.autoCompleteBuyBy.controllerName"
+                                                                   view-template-url="vm.autoCompleteBuyBy.viewTemplateURL"
+                                                                   key-column-name="vm.autoCompleteBuyBy.keyColumnName"
+                                                                   input-name="vm.autoCompleteBuyBy.inputName"
+                                                                   placeholder-name="vm.autoCompleteBuyBy.placeholderName"
+                                                                   key-column-id="vm.autoCompleteBuyBy.keyColumnId"
+                                                                   is-required="vm.autoCompleteBuyBy.isRequired"
+                                                                   is-addnew="vm.autoCompleteBuyBy.isAddnew"
+                                                                   add-data="vm.autoCompleteBuyBy.addData"
+                                                                   callback-fn="vm.autoCompleteBuyBy.callbackFn"
+                                                                   on-select-callback-fn="vm.autoCompleteBuyBy.onSelectCallbackFn"
+                                                                   is-disabled="vm.disableAcquired"
+                                                                   custom-auto-focus="true">
+                                      </custom-auto-complete-search>
+                                    </md-input-container>
+                                  </td>
+                                  <th><p class="label-container">Acquisition Date<span>&nbsp;*</span></p></th>
+                                  <td>
+                                    <md-input-container class="md-block datepicker padding-right-0-imp" flex="100">
+                                      <input type="text" class="float-left"
+                                             name="acquisitionDate"
+                                             max-value="vm.todayDate"
+                                             max-value-is-today-date="true"
+                                             allow-past-date="true"
+                                             allow-future-date="false"
+                                             datetime-picker="{{$root.dateDisplayFormat}}"
+                                             ng-model="vm.customer.whoAcquiredWho.buyDate"
+                                             enable-time="false"
+                                             ui-options="{clearOnBlur  : true}"
+                                             ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                             ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                             model-view-value="true"
+                                             datepicker-options="vm.buyDateOptions"
+                                             is-open="vm.IsPickerOpen[vm.DATE_PICKER.buyDate]"
+                                             required />
+                                      <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.DATE_PICKER.buyDate] = true">
+                                      </md-icon>
+                                      <div ng-messages="vm.wizardStep1CustomerInfo.acquisitionDate.$error" role="alert">
+                                        <div ng-message="maxvalue">
+                                          <span>{{vm.getMaxDateValidation('Acquisition Date', 'Today Date')}}</span>
+                                        </div>
+                                        <div ng-message="valid">
+                                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                        </div>
+                                        <div ng-message="datetime">
+                                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                        </div>
+                                        <div ng-message="required">
+                                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr ng-if="vm.customerType === vm.customerTypeConst.MANUFACTURER && vm.customer.isAcquired">
+                                  <th><p class="label-container">Description</p></th>
+                                  <td colspan="3">
+                                    <md-input-container flex="100">
+                                      <input type="text" name="description" ng-disabled="vm.disableAcquired" ng-model="vm.customer.whoAcquiredWho.description"
+                                             placeholder="Description" ng-maxlength="1000" md-maxlength="1000">
+                                      <div ng-messages="vm.wizardStep1CustomerInfo.description.$error" role="alert">
+                                        <div ng-message="maxlength">
+                                          <span>{{vm.getMaxLengthValidation(1000, vm.wizardStep1CustomerInfo.description.$viewValue.length)}}</span>
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+
+                                <tr ng-if="vm.customerType === vm.customerTypeConst.MANUFACTURER || vm.customerType === vm.customerTypeConst.CUSTOMER">
+                                  <th ng-if="vm.customer.isCustOrDisty || vm.customerType === vm.customerTypeConst.CUSTOMER"><p class="label-container">Customer Type<span>&nbsp;*</span></p></th>
+                                  <td ng-if="vm.customer.isCustOrDisty || vm.customerType === vm.customerTypeConst.CUSTOMER">
+                                    <div flex>
+                                      <md-input-container ng-if="vm.autoCompleteCustomerType" class="autocompletecustom margin-bottom-0">
+                                        <custom-auto-complete datalist="vm.customerTypeList"
+                                                              column-name="vm.autoCompleteCustomerType.columnName"
+                                                              key-column-name="vm.autoCompleteCustomerType.keyColumnName"
+                                                              input-name="vm.autoCompleteCustomerType.inputName"
+                                                              placeholder-name="vm.autoCompleteCustomerType.placeholderName"
+                                                              key-column-id="vm.autoCompleteCustomerType.keyColumnId"
+                                                              is-required="vm.autoCompleteCustomerType.isRequired">
+                                        </custom-auto-complete>
+                                      </md-input-container>
+                                    </div>
+                                  </td>
+                                  <th><p class="label-container">{{vm.LabelConstant.MFG.MFRDateCodeFormat}}</p></th>
+                                  <td>
+                                    <div flex>
+                                      <md-input-container ng-if="vm.autoCompleteDateCodeFormat" class="autocompletecustom margin-bottom-0 cm-warehouse-nickname-auto cm-nickname-popup" custom-auto-focus="{{vm.focusDateCode ? true : false}}">
+                                        <custom-auto-complete class="min-width-initial"
+                                                              datalist="vm.dateCodeFormatList"
+                                                              column-name="vm.autoCompleteDateCodeFormat.columnName"
+                                                              key-column-name="vm.autoCompleteDateCodeFormat.keyColumnName"
+                                                              controller-name="vm.autoCompleteDateCodeFormat.controllerName"
+                                                              view-template-url="vm.autoCompleteDateCodeFormat.viewTemplateURL"
+                                                              input-name="vm.autoCompleteDateCodeFormat.inputName"
+                                                              placeholder-name="vm.autoCompleteDateCodeFormat.placeholderName"
+                                                              key-column-id="vm.autoCompleteDateCodeFormat.keyColumnId"
+                                                              is-addnew="vm.autoCompleteDateCodeFormat.isAddnew"
+                                                              is-required="vm.autoCompleteDateCodeFormat.isRequired"
+                                                              callback-fn="vm.autoCompleteDateCodeFormat.callbackFn"
+                                                              on-select-callback-fn="vm.autoCompleteDateCodeFormat.onSelectCallbackFn">
+                                        </custom-auto-complete>
+                                      </md-input-container>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER">
+                                    <p class="label-container">Territory<span></span></p>
+                                  </th>
+                                  <td ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER">
+                                    <md-input-container flex="100">
+                                      <input type="text" name="territory" ng-model="vm.customer.territory"
+                                             placeholder="Territory" ng-maxlength="150" md-maxlength="150">
+                                      <div ng-messages="vm.wizardStep1CustomerInfo.territory.$error" role="alert">
+                                        <div ng-message="maxlength">
+                                          <span>{{vm.getMaxLengthValidation(150, vm.wizardStep1CustomerInfo.territory.$viewValue.length)}}</span>
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </td>
+                                  <th ng-if="vm.customer.isCustOrDisty && (vm.customerType === vm.customerTypeConst.CUSTOMER || vm.customerType === vm.customerTypeConst.MANUFACTURER)">
+                                    <p class="label-container"><a class="cm-text-decoration" tabindex="-1" ng-click="vm.employeelist();">Sales Commission To</a><span>&nbsp;*</span></p>
+                                  </th>
+                                  <td ng-if="vm.customer.isCustOrDisty && (vm.customerType === vm.customerTypeConst.CUSTOMER || vm.customerType === vm.customerTypeConst.MANUFACTURER)">
+                                    <md-input-container ng-if="vm.autoCompleteSalesCommosssionTo" class="md-block autocompletecustom" flex="100">
+                                      <custom-auto-complete class="min-width-initial"
+                                                            datalist="vm.SalesCommissionEmployeeList"
+                                                            column-name="vm.autoCompleteSalesCommosssionTo.columnName"
+                                                            controller-name="vm.autoCompleteSalesCommosssionTo.controllerName"
+                                                            view-template-url="vm.autoCompleteSalesCommosssionTo.viewTemplateURL"
+                                                            key-column-name="vm.autoCompleteSalesCommosssionTo.keyColumnName"
+                                                            input-name="vm.autoCompleteSalesCommosssionTo.inputName"
+                                                            placeholder-name="vm.autoCompleteSalesCommosssionTo.placeholderName"
+                                                            key-column-id="vm.autoCompleteSalesCommosssionTo.keyColumnId"
+                                                            is-required="vm.autoCompleteSalesCommosssionTo.isRequired"
+                                                            is-addnew="vm.autoCompleteSalesCommosssionTo.isAddnew"
+                                                            callback-fn="vm.autoCompleteSalesCommosssionTo.callbackFn">
+                                      </custom-auto-complete>
+                                    </md-input-container>
+                                  </td>
+                                  <th ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">
+                                    <p class="label-container">Authorize type<span>&nbsp;*</span></p>
+                                  </th>
+                                  <td ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">
+                                    <md-input-container ng-if="vm.autoCompleteSupplierAuthorize" class="md-block autocompletecustom" flex="100">
+                                      <custom-auto-complete class="min-width-initial"
+                                                            datalist="vm.supplierAuthorize"
+                                                            column-name="vm.autoCompleteSupplierAuthorize.columnName"
+                                                            key-column-name="vm.autoCompleteSupplierAuthorize.keyColumnName"
+                                                            input-name="vm.autoCompleteSupplierAuthorize.inputName"
+                                                            placeholder-name="vm.autoCompleteSupplierAuthorize.placeholderName"
+                                                            key-column-id="vm.autoCompleteSupplierAuthorize.keyColumnId"
+                                                            is-required="vm.autoCompleteSupplierAuthorize.isRequired"
+                                                            is-addnew="vm.autoCompleteSupplierAuthorize.isAddnew"
+                                                            on-select-callback-fn="vm.autoCompleteSupplierAuthorize.onSelectCallbackFn">
+                                      </custom-auto-complete>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th><p class="label-container">Internal Comments</p></th>
+                                  <td colspan="3">
+                                    <md-input-container flex="100">
+                                      <textarea name="Comments" ng-maxlength="1000" md-maxlength="1000" ng-model="vm.customer.comments" rows="2" placeholder="Comments"></textarea>
+                                      <div ng-messages="vm.wizardStep1CustomerInfo.Comments.$error" role="alert">
+                                        <div ng-message="maxlength">
+                                          <span>
+                                            {{vm.getMaxLengthValidation(1000, vm.wizardStep1CustomerInfo.Comments.$viewValue.length)}}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">
+                                  <th><p class="label-container">Misc. Comments</p></th>
+                                  <td colspan="5">
+                                    <md-input-container flex="100">
+                                      <textarea name="POComments" ng-maxlength="1000" md-maxlength="1000" ng-model="vm.customer.poComment" rows="2" placeholder="POComments"></textarea>
+                                      <div ng-messages="vm.wizardStep1CustomerInfo.POComments.$error" role="alert">
+                                        <div ng-message="maxlength">
+                                          <span>
+                                            {{vm.getMaxLengthValidation(1000, vm.wizardStep1CustomerInfo.POComments.$viewValue.length)}}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">
+                                  <th><p class="label-container">Scanning Side</p></th>
+                                  <td class="scan-side" colspan="2">
+                                    <md-radio-group layout="row" class="mv-0 margin-right-0 cm-margin-left-12" name="scanSide" ng-model="vm.customer.scanDocumentSide" required>
+                                      <md-radio-button value="{{vm.ScanDocumentSide.S.type}}">{{vm.ScanDocumentSide.S.displayName}}</md-radio-button>
+                                      <md-radio-button value="{{vm.ScanDocumentSide.D.type}}">{{vm.ScanDocumentSide.D.displayName}}</md-radio-button>
+                                    </md-radio-group>
+                                  </td>
+                                  <td class="scan-side">
+                                    <div layout="row" class="layout-row">
+                                      <md-checkbox ng-model="vm.customer.requiredOrderQty" name="requiredOrderQty" class="margin-0 md-default-theme ml-9 margin-top-3">
+                                        Require Order Qty in Packing Slip
+                                      </md-checkbox>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">
+                                  <th>
+                                    <p class="label-container">
+                                      Type Of Supplier
+                                      <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                                        <md-tooltip md-direction="top" class="tooltip-height-auto">
+                                          <span ng-bind-html="vm.SUPPLIER_TYPE_TOOLTIP"></span>
+                                        </md-tooltip>
+                                      </md-icon>
+                                    </p>
+                                  </th>
+                                  <td colspan="3">
+                                    <md-input-container layout-wrap layout="row" flex="100" class="md-input-has-value mr-2">
+                                      <md-radio-group name="supplierMFRMappingTypeGroup" class="mv-0 margin-right-0" ng-model="vm.customer.supplierMFRMappingType">
+                                        <md-radio-button name="supplierMFRMappingType" value="{{vm.supplierMFRMappingType.StrictlyCustomComponent.key}}">{{vm.supplierMFRMappingType.StrictlyCustomComponent.value}}</md-radio-button>
+                                        <md-radio-button name="supplierMFRMappingType" value="{{vm.supplierMFRMappingType.OffTheShelf.key}}">{{vm.supplierMFRMappingType.OffTheShelf.value}}</md-radio-button>
+                                        <md-radio-button name="supplierMFRMappingType" value="{{vm.supplierMFRMappingType.Both.key}}">{{vm.supplierMFRMappingType.Both.value}}</md-radio-button>
+                                      </md-radio-group>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">
+                                  <th></th>
+                                  <td colspan="3">
+                                    <md-checkbox ng-model="vm.customer.invoicesRequireManagementApproval" name="invoicesRequireManagementApproval"
+                                                 class="margin-0 md-default-theme ml-9 margin-top-3">
+                                      Invoices Require Management Approval
+                                    </md-checkbox>
+                                  </td>
+                                </tr>
+                                <tr ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER && vm.customer.isPricingApi">
+                                  <th></th>
+                                  <td colspan="3">
+                                    <md-checkbox ng-model="vm.customer.isSupplierEnable" ng-disabled="!vm.enableDisableExternalAPI || vm.customer.id===vm.DigikeyID" name="isSupplierEnable"
+                                                 class="margin-0 md-default-theme ml-9 margin-top-3">
+                                      Enable Supplier API Request for All Users
+                                    </md-checkbox>
+                                    <p class="font-weight-600 font-size-10 ml-9" ng-if="!vm.enableDisableExternalAPI && vm.customer.id!==vm.DigikeyID">
+                                      {{vm.LabelConstant.SHOW_USER_STATUS.FeatureEnableText}}
+                                    </p>
+                                  </td>
+                                </tr>
+                                <tr ng-if="vm.customerType ===vm.customerTypeConst.SUPPLIER || vm.customerType === vm.customerTypeConst.CUSTOMER">
+                                  <th>
+                                    <p class="label-container">
+                                      <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToMFGList();">Manufacturer Mapping</a>
+                                    </p>
+                                  </th>
+                                  <td>
+                                    <md-input-container ng-if="vm.autoCompletemfgCode" class="autocompletecustom margin-bottom-0" flex="100" id="autoMFGCode">
+                                      <custom-auto-complete-search class="min-width-initial"
+                                                                   on-search-fn="vm.autoCompletemfgCode.onSearchFn"
+                                                                   column-name="vm.autoCompletemfgCode.columnName"
+                                                                   controller-name="vm.autoCompletemfgCode.controllerName"
+                                                                   view-template-url="vm.autoCompletemfgCode.viewTemplateURL"
+                                                                   key-column-name="vm.autoCompletemfgCode.keyColumnName"
+                                                                   input-name="vm.autoCompletemfgCode.inputName"
+                                                                   placeholder-name="vm.autoCompletemfgCode.placeholderName"
+                                                                   key-column-id="vm.autoCompletemfgCode.keyColumnId"
+                                                                   is-required="vm.autoCompletemfgCode.isRequired"
+                                                                   parent-column-name="vm.autoCompletemfgCode.parentColumnName"
+                                                                   is-addnew="vm.autoCompletemfgCode.isAddnew"
+                                                                   add-data="vm.autoCompletemfgCode.addData"
+                                                                   callback-fn="vm.autoCompletemfgCode.callbackFn"
+                                                                   on-select-callback-fn="vm.autoCompletemfgCode.onSelectCallbackFn">
+                                      </custom-auto-complete-search>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <!--<div class="cm-overflow-auto">-->
+                                  <th></th>
+                                  <td colspan="3">
+                                    <div flex="100" layout="row" class="part-attribute-body" layout-align="start center" layout-wrap>
+                                      <div ng-repeat="item in vm.customer.manufacturerMapping" layout="row" layout-align="start center" class="cm-tracking-chip-mian">
+                                        <div class="tracking-number-chip" layout="row" layout-align="start center">
+                                          <label>
+                                            <a class="cm-text-decoration" ng-click="vm.goToManufacturer(item.refMfgCodeMstID)">
+                                              <span>{{item.mfgCode}}</span>
+                                            </a>
+                                          </label>
+                                          <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeManufacturer(item, $index)">
+                                            <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                                            <md-tooltip>Remove Manufacturer</md-tooltip>
+                                          </md-button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr ng-if="vm.customerType ===vm.customerTypeConst.SUPPLIER">
+                                  <th>
+                                    <p class="label-container">
+                                      <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToCustomerListPage();">{{vm.LabelConstant.COMMON.CustomerMapping}}</a>
+                                      <md-icon class="icon-question-mark-circle help-icon margin-right-0">
+                                        <md-tooltip md-direction="top">{{vm.customerMappingToooltip}}</md-tooltip>
+                                      </md-icon>
+                                    </p>
+                                  </th>
+                                  <td>
+                                    <md-input-container ng-if="vm.autoCompleteCustomerMapping" class="autocompletecustom margin-bottom-0" flex="100" id="autoMFGCode">
+                                      <custom-auto-complete-search class="min-width-initial"
+                                                                   on-search-fn="vm.autoCompleteCustomerMapping.onSearchFn"
+                                                                   column-name="vm.autoCompleteCustomerMapping.columnName"
+                                                                   controller-name="vm.autoCompleteCustomerMapping.controllerName"
+                                                                   view-template-url="vm.autoCompleteCustomerMapping.viewTemplateURL"
+                                                                   key-column-name="vm.autoCompleteCustomerMapping.keyColumnName"
+                                                                   input-name="vm.autoCompleteCustomerMapping.inputName"
+                                                                   placeholder-name="vm.autoCompleteCustomerMapping.placeholderName"
+                                                                   key-column-id="vm.autoCompleteCustomerMapping.keyColumnId"
+                                                                   is-required="vm.autoCompleteCustomerMapping.isRequired"
+                                                                   parent-column-name="vm.autoCompleteCustomerMapping.parentColumnName"
+                                                                   is-addnew="vm.autoCompleteCustomerMapping.isAddnew"
+                                                                   add-data="vm.autoCompleteCustomerMapping.addData"
+                                                                   callback-fn="vm.autoCompleteCustomerMapping.callbackFn"
+                                                                   on-select-callback-fn="vm.autoCompleteCustomerMapping.onSelectCallbackFn">
+                                      </custom-auto-complete-search>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr ng-if="vm.customerType ===vm.customerTypeConst.SUPPLIER">
+                                  <!--<div class="cm-overflow-auto">-->
+                                  <th></th>
+                                  <td colspan="3">
+                                    <div flex="100" layout="row" class="part-attribute-body" layout-align="start center" layout-wrap>
+                                      <div ng-repeat="item in vm.customer.customerMapping" layout="row" layout-align="start center" class="cm-tracking-chip-mian">
+                                        <div class="tracking-number-chip" layout="row" layout-align="start center">
+                                          <label>
+                                            <a class="cm-text-decoration" ng-click="vm.goToCustomer(item.refMfgCodeMstID)">
+                                              <span>{{item.mfgCode}}</span>
+                                            </a>
+                                          </label>
+                                          <md-button class="md-icon-button md-primary md-mini" ng-click="vm.removeCustomer(item, $index)">
+                                            <md-icon md-font-icon="icon-close" class="material-icons mat-icon"></md-icon>
+                                            <md-tooltip>Remove Customer</md-tooltip>
+                                          </md-button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                      <div flex="50" flex-lg="50" class="pl-5" layout="column">
+                        <div class="cm-section-main">
+                          <div class="cm-section-inner" layout="row" layout-wrap flex="100">
+                            <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-rs-table">
+                              <tbody>
+                                <tr>
+                                  <th>
+                                    <p class="label-container">SystemID</p>
+                                  </th>
+                                  <td>
+                                    <md-input-container flex="100">
+                                      <input type="text" name="systemID" id="systemID" ng-model="vm.customer.systemID" placeholder="" ng-disabled="true">
+                                    </md-input-container>
+                                  </td>
+                                  <th ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER">
+                                    <p class="label-container">Customer#</p>
+                                  </th>
+                                  <td ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER">
+                                    <md-input-container flex="100">
+                                      <input type="text" name="customerSystemID" id="customerSystemID" ng-model="vm.customer.customerSystemID" placeholder="" ng-disabled="true">
+                                    </md-input-container>
+                                  </td>
+                                  <td colspan="{{vm.customerType === vm.customerTypeConst.CUSTOMER?1:2}}">
+                                    <div class="" flex="100" layout="row">
+                                      <md-input-container flex="100">
+                                        <md-radio-group layout="row" layout-align="end start" layout-wrap
+                                                        name="isActive" ng-model="vm.customer.isActive">
+                                          <md-radio-button ng-repeat="item in vm.radioButtonGroup.isActive.array"
+                                                           name="{{item.Key}}" ng-value="{{item.Value}}">{{item.Key}}</md-radio-button>
+                                        </md-radio-group>
+                                      </md-input-container>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th><p class="label-container">Phone</p></th>
+                                  <td>
+                                    <md-input-container flex="100" class="cm-tel-input-phone">
+                                      <!--<label>Phone</label>-->
+                                      <input type="text" name="contact" id="id_contact_forcustomer" ng-model="vm.customer.contact" placeholder=""
+                                             ng-maxlength="20" md-maxlength="20" intl-tel-input intl-country="vm.customer.contactCountryCode" phone-number-note="vm.phoneNumberNote"
+                                             ng-required="vm.customer.phExtension ? true : false" onkeypress="return OnlyNumericWithPlus(event)">
+                                      <span class="font-size-10"><b>e.g. {{vm.phoneNumberNote}}</b></span>
+                                      <div ng-messages="vm.wizardStep1CustomerInfo.contact.$error" role="alert">
+                                        <div ng-message="required">
+                                          <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                        </div>
+                                        <div ng-message="maxlength">
+                                          <span>{{vm.getMaxLengthValidation(20, vm.wizardStep1CustomerInfo.contact.$viewValue.length)}}</span>
+                                        </div>
+                                        <div ng-message="intltel">
+                                          {{vm.CORE_MESSAGE_CONSTANT.INVALID}}
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </td>
+                                  <th><p class="label-container">Ext.</p></th>
+                                  <td>
+                                    <md-input-container flex="100">
+                                      <input type="text" name="extension" ng-model="vm.customer.phExtension" placeholder="Ext." mask="?9?9?9?9?9?9?9?9"
+                                             maxlength="8" onkeypress="return AvoidSpace(event)" clean="true" mask-restrict="reject">
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th><p class="label-container">Fax</p></th>
+                                  <td colspan="4">
+                                    <md-input-container flex="100" class="cm-tel-input-phone">
+                                      <input type="text" id="id_faxNumber_forcustomer" name="faxNumber" ng-model="vm.customer.faxNumber" placeholder=""
+                                             ng-maxlength="20" md-maxlength="20" intl-tel-input intl-country="vm.customer.faxCountryCode" phone-number-note="vm.faxNumberNote"
+                                             onkeypress="return OnlyNumericWithPlus(event)">
+                                      <span class="font-size-10"><b>e.g. {{vm.faxNumberNote}}</b></span>
+                                      <div ng-messages="vm.wizardStep1CustomerInfo.faxNumber.$error" role="alert">
+                                        <div ng-message="maxlength">
+                                          <span>{{vm.getMaxLengthValidation(20, vm.wizardStep1CustomerInfo.faxNumber.$viewValue.length)}}</span>
+                                        </div>
+                                        <div ng-message="intltel">
+                                          {{vm.CORE_MESSAGE_CONSTANT.INVALID}}
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th><p class="label-container">Email</p></th>
+                                  <td colspan="4">
+                                    <md-input-container>
+                                      <md-chips name="email" ng-model="vm.emailList"
+                                                readonly="false"
+                                                placeholder="Type Email and Press Enter"
+                                                delete-button-label="Remove email"
+                                                delete-hint="Press delete to remove email"
+                                                class="flex-100 chip-input-250"
+                                                md-add-on-blur="true"
+                                                ng-change="vm.validateEmail($chip)">
+                                        <md-chip-complete>
+                                          <span>
+                                            <strong>{{$chip}}</strong>
+                                          </span>
+                                        </md-chip-complete>
+                                        <button md-chip-remove class="md-primary width-22">
+                                          <md-icon md-font-icon="icon-close" class="cm-custom-icon-font"></md-icon>
+                                        </button>
+                                      </md-chips>
+                                    </md-input-container>
+                                    <div ng-messages="vm.wizardStep1CustomerInfo.email.$error"
+                                         role="alert" class="cm-email-md-chip-validation color-red">
+                                      <div ng-message="emailpattern">
+                                        <span>{{vm.invalidEmailErrorMessage}}</span>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th><p class="label-container">Website</p></th>
+                                  <td colspan="4">
+                                    <md-input-container flex="100">
+                                      <input type="text" name="website" ng-model="vm.customer.website" ng-pattern="vm.WebSitePattern" placeholder="Website" ng-maxlength="255" md-maxlength="255">
+                                      <div ng-messages="vm.wizardStep1CustomerInfo.website.$error" role="alert">
+                                        <div ng-message="pattern">
+                                          <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                        </div>
+                                        <div ng-message="maxlength">
+                                          <span>{{vm.getMaxLengthValidation(255, vm.wizardStep1CustomerInfo.website.$viewValue.length)}}</span>
+                                        </div>
+                                      </div>
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                        <div class="cm-section-main mt-5" ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">
+                          <div class="cm-section-header">Payment Details</div>
+                          <div class="cm-section-inner">
+                            <table class="cm-table-input-main cm-rs-table">
+                              <tbody>
+                                <tr>
+                                  <th>
+                                    <p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToPayablePaymentMethodList();" tabindex="-1">{{vm.autoCompletePaymentMethod.placeholderName}}</a></p>
+                                  </th>
+                                  <td class="height-30">
+                                    <md-input-container ng-if="vm.autoCompletePaymentMethod" class="autocompletecustom">
+                                      <custom-auto-complete datalist="vm.paymentMethodList"
+                                                            column-name="vm.autoCompletePaymentMethod.columnName"
+                                                            controller-name="vm.autoCompletePaymentMethod.controllerName"
+                                                            view-template-url="vm.autoCompletePaymentMethod.viewTemplateURL"
+                                                            key-column-name="vm.autoCompletePaymentMethod.keyColumnName"
+                                                            input-name="vm.autoCompletePaymentMethod.inputName"
+                                                            placeholder-name="vm.autoCompletePaymentMethod.placeholderName"
+                                                            key-column-id="vm.autoCompletePaymentMethod.keyColumnId"
+                                                            is-required="vm.autoCompletePaymentMethod.isRequired"
+                                                            is-addnew="vm.autoCompletePaymentMethod.isAddnew"
+                                                            add-data="vm.autoCompletePaymentMethod.addData"
+                                                            callback-fn="vm.autoCompletePaymentMethod.callbackFn"
+                                                            on-select-callback-fn="vm.autoCompletePaymentMethod.onSelectCallbackFn">
+                                      </custom-auto-complete>
+                                    </md-input-container>
+                                  </td>
+                                  <th>
+                                    <p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToPaymentTypeCategoryList();" tabindex="-1">{{vm.paymentTypeCategoryTitle}}</a></p>
+                                  </th>
+                                  <td class="height-30">
+                                    <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                                      <input name="paymentTypeCategoryName" ng-model="vm.customer.paymentTypeCategoryName" placeholder="{{vm.paymentTypeCategoryTitle}}" ng-disabled="true" />
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <th>
+                                    <p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToBankList();" tabindex="-1">{{vm.LabelConstant.Bank.BankAccountCode}}</a></p>
+                                  </th>
+                                  <td class="height-30">
+                                    <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                                      <input name="bankAccountCode" ng-model="vm.customer.bankAccountCode" placeholder="{{vm.LabelConstant.Bank.BankAccountCode}}" ng-disabled="true" />
+                                    </md-input-container>
+                                  </td>
+                                  <th><p class="label-container">Bank Name</p></th>
+                                  <td colspan="1">
+                                    <md-input-container flex="100" class="margin-bottom-0" md-no-float>
+                                      <input name="bankName" ng-model="vm.customer.bankName" placeholder="Bank Name" ng-disabled="true" />
+                                    </md-input-container>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                        <div layout flex ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER || vm.customerType === vm.customerTypeConst.SUPPLIER">
+                          <div class="cm-section-main mt-5" flex>
+                            <div class="cm-section-header">Logistics Details</div>
+                            <div class="cm-section-inner">
+                              <table class="cm-table-input-main cm-rs-table">
+                                <tbody>
+                                  <tr>
+                                    <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goShippingMethodList();" tabindex="-1">{{vm.autoCompleteShipping.placeholderName}}</a></p></th>
+                                    <td>
+                                      <md-input-container ng-if="vm.autoCompleteShipping" class="autocompletecustom margin-bottom-0" flex="100">
+                                        <custom-auto-complete datalist="vm.ShippingTypeList"
+                                                              column-name="vm.autoCompleteShipping.columnName"
+                                                              controller-name="vm.autoCompleteShipping.controllerName"
+                                                              view-template-url="vm.autoCompleteShipping.viewTemplateURL"
+                                                              key-column-name="vm.autoCompleteShipping.keyColumnName"
+                                                              input-name="vm.autoCompleteShipping.inputName"
+                                                              placeholder-name="vm.autoCompleteShipping.placeholderName"
+                                                              key-column-id="vm.autoCompleteShipping.keyColumnId"
+                                                              is-disabled="vm.isDisable"
+                                                              is-addnew="vm.autoCompleteShipping.isAddnew"
+                                                              add-data="vm.autoCompleteShipping.addData"
+                                                              callback-fn="vm.autoCompleteShipping.callbackFn"
+                                                              on-select-callback-fn="vm.autoCompleteShipping.onSelectCallbackFn">
+                                        </custom-auto-complete>
+                                      </md-input-container>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goTocarrierList();" tabindex="-1">{{vm.autoCompleteCarriers.placeholderName}}</a></p></th>
+                                    <td>
+                                      <md-input-container ng-if="vm.autoCompleteCarriers" class="autocompletecustom margin-bottom-0" flex="100">
+                                        <custom-auto-complete datalist="vm.carrierList"
+                                                              column-name="vm.autoCompleteCarriers.columnName"
+                                                              controller-name="vm.autoCompleteCarriers.controllerName"
+                                                              view-template-url="vm.autoCompleteCarriers.viewTemplateURL"
+                                                              key-column-name="vm.autoCompleteCarriers.keyColumnName"
+                                                              input-name="vm.autoCompleteCarriers.inputName"
+                                                              placeholder-name="vm.autoCompleteCarriers.placeholderName"
+                                                              key-column-id="vm.autoCompleteCarriers.keyColumnId"
+                                                              is-disabled="vm.isDisable"
+                                                              is-addnew="vm.autoCompleteCarriers.isAddnew"
+                                                              add-data="vm.autoCompleteCarriers.addData"
+                                                              callback-fn="vm.autoCompleteCarriers.callbackFn"
+                                                              on-select-callback-fn="vm.autoCompleteCarriers.onSelectCallbackFn">
+                                        </custom-auto-complete>
+                                      </md-input-container>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <th><p class="label-container">Carrier Account#</p></th>
+                                    <td colspan="1">
+                                      <md-input-container flex="100" class="margin-bottom-0">
+                                        <input name="carrierAccount" ng-model="vm.carrierAccount" placeholder="Carrier Account#" ng-maxlength="50" md-maxlength="50" />
+                                        <div ng-messages="vm.wizardStep1CustomerInfo.carrierAccount.$error" role="alert">
+                                          <div ng-message="maxlength">
+                                            <span>{{vm.getMaxLengthValidation(50, vm.wizardStep1CustomerInfo.carrierAccount.$viewValue.length)}}</span>
+                                          </div>
+                                        </div>
+                                      </md-input-container>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <th></th>
+                                    <td>
+                                      <div layout="row">
+                                        <md-checkbox ng-model="vm.shippingInsurence"
+                                                     name="shippingInsurence" class="margin-0">
+                                          <p class="label-container">
+                                            {{vm.LabelConstant.PURCHASE_ORDER.ShippingInsurance}}
+                                          </p>
+                                        </md-checkbox>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                          <div class="cm-section-main mt-5 ml-5" flex="50" ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">
+                            <div class="cm-section-header">RMA Logistics Details</div>
+                            <div class="cm-section-inner">
+                              <table class="cm-table-input-main cm-rs-table">
+                                <tbody>
+                                  <tr>
+                                    <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goShippingMethodList();" tabindex="-1">{{vm.autoCompleteRMAShipping.placeholderName}}</a></p></th>
+                                    <td>
+                                      <md-input-container ng-if="vm.autoCompleteRMAShipping" class="autocompletecustom margin-bottom-0" flex="100">
+                                        <custom-auto-complete datalist="vm.ShippingTypeList"
+                                                              column-name="vm.autoCompleteRMAShipping.columnName"
+                                                              controller-name="vm.autoCompleteRMAShipping.controllerName"
+                                                              view-template-url="vm.autoCompleteRMAShipping.viewTemplateURL"
+                                                              key-column-name="vm.autoCompleteRMAShipping.keyColumnName"
+                                                              input-name="vm.autoCompleteRMAShipping.inputName"
+                                                              placeholder-name="vm.autoCompleteRMAShipping.placeholderName"
+                                                              key-column-id="vm.autoCompleteRMAShipping.keyColumnId"
+                                                              is-disabled="vm.isDisable"
+                                                              is-addnew="vm.autoCompleteRMAShipping.isAddnew"
+                                                              add-data="vm.autoCompleteRMAShipping.addData"
+                                                              callback-fn="vm.autoCompleteRMAShipping.callbackFn"
+                                                              on-select-callback-fn="vm.autoCompleteRMAShipping.onSelectCallbackFn">
+                                        </custom-auto-complete>
+                                      </md-input-container>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goTocarrierList();" tabindex="-1">{{vm.autoCompleteRMACarriers.placeholderName}}</a></p></th>
+                                    <td>
+                                      <md-input-container ng-if="vm.autoCompleteRMACarriers" class="autocompletecustom margin-bottom-0" flex="100">
+                                        <custom-auto-complete datalist="vm.carrierList"
+                                                              column-name="vm.autoCompleteRMACarriers.columnName"
+                                                              controller-name="vm.autoCompleteRMACarriers.controllerName"
+                                                              view-template-url="vm.autoCompleteRMACarriers.viewTemplateURL"
+                                                              key-column-name="vm.autoCompleteRMACarriers.keyColumnName"
+                                                              input-name="vm.autoCompleteRMACarriers.inputName"
+                                                              placeholder-name="vm.autoCompleteRMACarriers.placeholderName"
+                                                              key-column-id="vm.autoCompleteRMACarriers.keyColumnId"
+                                                              is-disabled="vm.isDisable"
+                                                              is-addnew="vm.autoCompleteRMACarriers.isAddnew"
+                                                              add-data="vm.autoCompleteRMACarriers.addData"
+                                                              callback-fn="vm.autoCompleteRMACarriers.callbackFn">
+                                        </custom-auto-complete>
+                                      </md-input-container>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <th><p class="label-container">Carrier Account#</p></th>
+                                    <td colspan="1">
+                                      <md-input-container flex="100" class="margin-bottom-0">
+                                        <input name="carrierAccount" ng-model="vm.rmacarrierAccount" placeholder="Carrier Account#" ng-maxlength="50" md-maxlength="50" />
+                                        <div ng-messages="vm.wizardStep1CustomerInfo.carrierAccount.$error" role="alert">
+                                          <div ng-message="maxlength">
+                                            <span>{{vm.getMaxLengthValidation(50, vm.wizardStep1CustomerInfo.carrierAccount.$viewValue.length)}}</span>
+                                          </div>
+                                        </div>
+                                      </md-input-container>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <th></th>
+                                    <td>
+                                      <div layout="row">
+                                        <md-checkbox ng-model="vm.rmashippingInsurence"
+                                                     name="shippingInsurence" class="margin-0">
+                                          <p class="label-container">
+                                            {{vm.LabelConstant.PURCHASE_ORDER.ShippingInsurance}}
+                                          </p>
+                                        </md-checkbox>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div layout="row" flex="100" layout-wrap>
+                  <div layout="row" flex="50" flex-sm="100" class="margin-top-10">
+                    <div class="cm-section-main" layout="column" flex="100">
+                      <div class="cm-section-inner" flex="100" layout="row">
+                        <div flex="100" layout="column">
+                          <div class="cm-section-main border-0" flex="nogrow">
+                            <div class="cm-section-inner" flex="100">
+                              <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+                                <tr>
+                                  <th><p class="label-container">Alias</p></th>
+                                  <td colspan="3">
+                                    <div layout="row" flex>
+                                      <md-input-container class="margin-bottom-0 md-block" flex="100">
+                                        <input type="text" name="mfgcodealias" ng-model="vm.alias"
+                                               placeholder="Alias" capitalize class="input-text-uppercase blue" ng-maxlength="255" md-maxlength="255"
+                                               my-enter="vm.updateAliasList(vm.alias);"
+                                               last-element elementcondition="{{(!vm.alias && (vm.customer.alias.length <= 0) ? true : false)}}">
+                                        <div ng-messages="vm.wizardStep1CustomerInfo.mfgcodealias.$error"
+                                             role="alert">
+                                          <div ng-message="maxlength">
+                                            <span>{{vm.getMaxLengthValidation(255, vm.wizardStep1CustomerInfo.mfgcodealias.$viewValue.length)}}</span>
+                                          </div>
+                                        </div>
+                                      </md-input-container>
+                                      <div>
+                                        <md-button class="md-primary md-raised margin-0" ng-disabled="!vm.alias || vm.disableAliasbutton" ng-click="vm.updateAliasList(vm.alias);"
+                                                   aria-label="Add" last-element elementcondition="{{(vm.alias && (vm.customer.alias.length <= 0) ? true : false)}}">Add Alias</md-button>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </table>
+                            </div>
+                          </div>
+                          <div layout="row" flex="noshrink">
+                            <div layout="column" flex>
+                              <div layout="column" class="alias-list-main cm-customer-alias-list" flex>
+                                <div class="mobilesearch title alias-list-title userpermissionhead" layout="row" flex="100">
+                                  <div layout="row" flex="100" layout-align="space-between center" ng-if="vm.customer.alias.length > 0">
+                                    <md-input-container class="md-block error-none no-label" md-no-float flex flex-xs="75">
+                                      <input type="text" class="font-weight-400" placeholder="Type here to search alias" ng-model="vm.Search">
+                                    </md-input-container>
+                                    <md-button class="md-raised md-primary md-ink-ripple margin-0"
+                                               ng-disabled="vm.Search ==='' || !vm.Search"
+                                               ng-click="vm.Search=''">
+                                      Clear
+                                    </md-button>
+                                  </div>
+                                </div>
+                                <div layout="row" flex="100" layout-wrap class="detail dossection padding-10 custom-scroll" ng-if="vm.customer.alias.length > 0">
+                                  <table class="simple no-padding" ms-responsive-table="">
+                                    <thead>
+                                      <tr>
+                                        <th width="120">Alias</th>
+                                        <th class="text-center">Action</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr ng-repeat="alias in vm.customer.alias | filter:vm.Search  | orderBy:'index'" class="height-40">
+                                        <td width="300" class="font-size-14 cm-rs-width-230 word-break">
+                                          {{alias.alias}}&nbsp;<md-icon md-font-icon="icons-map-manufacturer" ng-if="alias.isMapped && vm.customerType === vm.customerTypeConst.MANUFACTURER"><md-tooltip>Mapped</md-tooltip></md-icon>
+                                        </td>
+                                        <td width="120" class="text-center font-size-14 cm-rs-width-175 icon-square">
+                                          <md-button class="md-mini md-icon-button margin-0" ng-disabled="!alias.id"
+                                                     last-element elementcondition="{{((alias.isDefaultAlias || vm.customer.isPricingApi) && ((!vm.isAllowDeleteCustSuppAlias && alias.id) || alias.isSystemGenerated) && ((vm.customer.alias.length - 1) == $index) ? true : false)}}">
+                                            <md-icon md-font-icon="icon-eye"></md-icon>
+                                            <md-tooltip md-direction="top" class="tt-multiline" ng-if="alias.id">
+                                              Created By: {{alias.employeeName}} <br />
+                                              Created At: {{alias.createdAtValue}}
+                                            </md-tooltip>
+                                          </md-button>
+                                          <md-button class="md-mini md-icon-button margin-0" ng-if="alias.id"
+                                                     ng-disabled="alias.isDefaultAlias"
+                                                     ng-click="vm.setAliasAsDefault(alias)" last-element
+                                                     elementcondition="{{(((!vm.isAllowDeleteCustSuppAlias && alias.id) || alias.isSystemGenerated) && ((vm.customer.alias.length - 1) === $index) ? true : false)}}">
+
+                                            <!--<md-icon md-font-icon="{{alias.isDefaultAlias ? 'icon-pin-off' : 'icon-pin'}}"></md-icon><md-tooltip>Set as Default</md-tooltip>-->
+                                            <md-icon md-font-icon="{{alias.isDefaultAlias ? 'icons-pin' : 'icons-unpin'}}"></md-icon><md-tooltip>Set as Default</md-tooltip>
+                                          </md-button>
+                                          <md-button class="md-mini md-icon-button margin-0" ng-disabled="(!vm.isAllowDeleteCustSuppAlias && alias.id) || alias.isSystemGenerated"
+                                                     ng-click="vm.removeAliasFromList($event,$index,alias)" last-element
+                                                     elementcondition="{{(!vm.enableMappingFeature && (!(!vm.isAllowDeleteCustSuppAlias && alias.id) || alias.isSystemGenerated) && ((vm.customer.alias.length - 1) === $index) ? true : false)}}">
+                                            <md-icon md-font-icon="icon-trash"></md-icon><md-tooltip>Delete</md-tooltip>
+                                          </md-button>
+                                          <md-button class="md-mini md-icon-button margin-0 cm-feture-btn-color" ng-disabled="!vm.enableMappingFeature" ng-if="vm.customerType === vm.customerTypeConst.MANUFACTURER"
+                                                     ng-click="vm.mappManufacturers($event,alias)"
+                                                     last-element elementcondition="{{(vm.enableMappingFeature && ((vm.customer.alias.length - 1) === $index) ? true : false)}}">
+                                            <md-icon layout-align="start-center" ng-class="{'mapp-disable':!vm.enableMappingFeature}" md-font-icon="icons-map-manufacturer" class="color-white"></md-icon><md-tooltip>Map {{vm.currentPageName}}</md-tooltip>
+                                          </md-button>
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                  <div flex="100" class="md-1-line margin-0 dragsortable" layout="row" layout-align="start center"
+                                       ng-if="(vm.customer.alias | filter:vm.Search).length === 0 && vm.customer.alias.length > 0">
+                                    <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap flex="100">
+                                      <div class="emty-icon" flex="100">
+                                        <img ng-src="{{vm.EmptyMesssageAliaslist.SEARCH_IMAGE_URL}}" />
+                                      </div>
+                                      <p flex="100" class="empty-state-title">{{vm.EmptyMesssageAliaslist.EMPTY_SEARCH_MESSAGE}}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div flex="100" class="md-1-line margin-0 dragsortable cm-no-result-mt" layout="row" layout-align="start center" ng-if="!vm.customer.alias || vm.customer.alias.length === 0">
+                                  <div class="empty-state text-center full-height" layout="row" layout-align="center center" layout-wrap flex="100">
+                                    <p flex="100" class="empty-state-title">{{vm.EmptyMesssageAliaslist.MESSAGE}}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!--<div class="cm-allmfg-divider-vertical"></div>-->
+                      </div>
+                    </div>
+                  </div>
+                  <div layout="row" flex="50" flex-sm="100" class="margin-top-10">
+                    <div class="cm-section-main margin-left-5" layout="row" flex="100">
+                      <div class="cm-section-inner cm-manage-customer-grid" flex="100" layout="row">
+                        <div flex="100" flex-gt-xs="100" layout="row" ng-if="vm.isShowAllMFGCustList">
+                          <manufacturers-list flex="100" type="vm.mfgType" from-page-request="vm.fromPageRequest">
+                          </manufacturers-list>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+          <!-- Addresses tab-->
+          <md-tab ng-disabled="(!vm.cid || !vm.pageTabRights.Addresses)" md-on-select="vm.onTabChanges(vm.CustomerTabs.Addresses.Name, msWizard)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.cid">2</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.Addresses)}"
+                      class="ms-form-wizard-step-text">
+                  {{vm.CustomerTabs.Addresses.Name}}
+                </span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div layout="row" flex="100" class="p-10" ng-if="msWizard.selectedIndex === vm.CustomerTabs.Addresses.ID">
+                <split-pane class="cm-bill-to-tab-split-pane-height" data-split-pane-properties="splitPaneFirstProperties">
+                  <split-pane-component width="50%" class="min-width-50">
+                    <div>
+                      <split-pane class="cm-bill-to-tab-split-pane-height" data-split-pane-properties="splitSubPaneFirstProperties">
+                        <split-pane-component height="50%" class="min-height-50 padding-right-10 pb-10" layout>
+                          <div class="cm-section-main" flex layout="column">
+                            <div class="cm-section-header">
+                              <label>{{vm.customerType === vm.customerTypeConst.SUPPLIER ? vm.LabelConstant.Address.BusinessAddress : vm.LabelConstant.Address.BillingAddress}}</label>
+                            </div>
+                            <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex
+                                 ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">
+                              <select-address-view address-data="vm.businessAddressData"></select-address-view>
+                            </div>
+                            <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex
+                                 ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER || vm.customerType === vm.customerTypeConst.MANUFACTURER">
+                              <select-address-view address-data="vm.billingAddressData"></select-address-view>
+                            </div>
+                          </div>
+                        </split-pane-component>
+                        <split-pane-divider height="5px"></split-pane-divider>
+                        <split-pane-component height="50%" class="min-height-50 padding-right-10 pb-10" layout>
+                          <div class="cm-section-main mt-10" flex layout="column">
+                            <div class="cm-section-header">
+                              <label>{{vm.customerType === vm.customerTypeConst.SUPPLIER ? vm.LabelConstant.COMMON.RMAShippingAddress : vm.LabelConstant.Address.MarkForAddress}}</label>
+                            </div>
+                            <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex
+                                 ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">
+                              <select-address-view address-data="vm.rmaAddressData"></select-address-view>
+                            </div>
+                            <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex
+                                 ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER || vm.customerType === vm.customerTypeConst.MANUFACTURER">
+                              <select-address-view address-data="vm.markForAddressData"></select-address-view>
+                            </div>
+                          </div>
+                        </split-pane-component>
+                      </split-pane>
+                    </div>
+                  </split-pane-component>
+                  <split-pane-divider width="5px"></split-pane-divider>
+                  <split-pane-component width="50%" class="min-width-50">
+                    <div>
+                      <split-pane class="cm-bill-to-tab-split-pane-height" data-split-pane-properties="splitSubPaneSecondProperties">
+                        <split-pane-component height="50%" class="min-height-50 pl-10 pb-10" layout>
+                          <div class="cm-section-main" flex layout="column">
+                            <div class="cm-section-header">
+                              <label>{{vm.customerType === vm.customerTypeConst.SUPPLIER ? vm.LabelConstant.Address.RemitTo : vm.LabelConstant.Address.ShippingAddress}}</label>
+                            </div>
+                            <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex
+                                 ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">
+                              <select-address-view address-data="vm.payToAddressData"></select-address-view>
+                            </div>
+                            <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex
+                                 ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER || vm.customerType === vm.customerTypeConst.MANUFACTURER">
+                              <select-address-view address-data="vm.shippingAddressData"></select-address-view>
+                            </div>
+                          </div>
+                        </split-pane-component>
+                        <split-pane-divider height="5px"></split-pane-divider>
+                        <split-pane-component height="50%" class="min-height-50 pl-10 pb-10" layout>
+                          <div class="cm-section-main mt-10" flex layout="column">
+                            <div class="cm-section-header">
+                              <label>{{vm.customerType === vm.customerTypeConst.SUPPLIER ? vm.LabelConstant.Address.RMAIntermediateAddress : vm.LabelConstant.Address.WireTransferAddress}}</label>
+                            </div>
+                            <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex
+                                 ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">
+                              <select-address-view address-data="vm.rmaIntermediateAddressData"></select-address-view>
+                            </div>
+                            <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex
+                                 ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER || vm.customerType === vm.customerTypeConst.MANUFACTURER">
+                              <select-address-view address-data="vm.wireTransferAddressData"></select-address-view>
+                            </div>
+                          </div>
+                        </split-pane-component>
+                      </split-pane>
+                    </div>
+                  </split-pane-component>
+                </split-pane>
+              </div>
+            </md-tab-body>
+          </md-tab>
+          <!-- Wire Transfer Addresses tab for Supplier Only-->
+          <md-tab ng-disabled="(!vm.cid || !vm.pageTabRights.WireTransferAddresses)" md-on-select="vm.onTabChanges(vm.CustomerTabs.WireTransferAddresses.Name, msWizard)" md-tab-class="{{vm.setTabClass(vm.CustomerTabs.WireTransferAddresses.Name)}}">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.cid">2</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.WireTransferAddresses)}"
+                      class="ms-form-wizard-step-text">
+                  {{vm.CustomerTabs.WireTransferAddresses.Name}}
+                </span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div layout="row" flex="100" class="p-10" ng-if="msWizard.selectedIndex === vm.CustomerTabs.WireTransferAddresses.ID">
+                <div class="cm-section-main mt-10" flex layout="column">
+                  <div class="cm-section-header">
+                    <label>{{vm.LabelConstant.Address.WireTransferAddress}}</label>
+                  </div>
+                  <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex>
+                    <select-address-view address-data="vm.wireTransferAddressData"></select-address-view>
+                  </div>
+                </div>
+              </div>
+            </md-tab-body>
+          </md-tab>
+          <!-- Addresses Automation tab-->
+          <md-tab ng-disabled="(!vm.cid || !vm.pageTabRights.AutomationAddresses)" md-on-select="vm.onTabChanges(vm.CustomerTabs.AutomationAddresses.Name, msWizard)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.cid">3</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.AutomationAddresses)}"
+                      class="ms-form-wizard-step-text">
+                  {{vm.CustomerTabs.AutomationAddresses.Name}}
+                </span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div layout="row" flex="100" class="p-10" ng-if="msWizard.selectedIndex === vm.CustomerTabs.AutomationAddresses.ID">
+                <split-pane class="cm-bill-to-tab-split-pane-height" data-split-pane-properties="splitPaneSecondProperties">
+                  <split-pane-component width="50%" class="min-width-50 padding-right-10" layout="column">
+                    <!--<split-pane class="cm-bill-to-tab-split-pane-height" data-split-pane-properties="splitSubPaneThirdProperties">
+              <split-pane-component height="50%" class="min-height-50 padding-right-10 pb-10" layout>-->
+                    <div class="cm-section-main" flex layout="column">
+                      <div class="cm-section-header">
+                        <label>{{vm.customerType === vm.customerTypeConst.SUPPLIER ? vm.LabelConstant.Address.BillingAddress : vm.LabelConstant.Address.BusinessAddress}}</label>
+                      </div>
+                      <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex
+                           ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">
+                        <select-address-view address-data="vm.billingAddressData"></select-address-view>
+                      </div>
+                      <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex
+                           ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER || vm.customerType === vm.customerTypeConst.MANUFACTURER">
+                        <select-address-view address-data="vm.businessAddressData"></select-address-view>
+                      </div>
+                    </div>
+                    <!--</split-pane-component>
+            </split-pane>-->
+                  </split-pane-component>
+                  <split-pane-divider width="5px"></split-pane-divider>
+                  <split-pane-component width="50%" class="min-width-50 pl-10" layout="column">
+                    <!--<split-pane class="cm-bill-to-tab-split-pane-height" data-split-pane-properties="splitSubPaneFourthProperties">
+              <split-pane-component height="50%" class="min-height-50 pl-10 pb-10" layout>-->
+                    <div class="cm-section-main" flex layout="column">
+                      <div class="cm-section-header">
+                        <label>{{vm.customerType === vm.customerTypeConst.SUPPLIER ? vm.LabelConstant.Address.ShippingFromAddress : vm.LabelConstant.Address.RMAShippingAddress}}</label>
+                      </div>
+                      <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex
+                           ng-if="vm.customerType === vm.customerTypeConst.SUPPLIER">
+                        <select-address-view address-data="vm.shippingAddressData"></select-address-view>
+                      </div>
+                      <div layout="column" class="cm-section-inner cm-overflow-auto p-0-imp" flex
+                           ng-if="vm.customerType === vm.customerTypeConst.CUSTOMER || vm.customerType === vm.customerTypeConst.MANUFACTURER">
+                        <select-address-view address-data="vm.rmaAddressData"></select-address-view>
+                      </div>
+                    </div>
+                    <!--</split-pane-component>
+            </split-pane>-->
+                  </split-pane-component>
+                </split-pane>
+              </div>
+            </md-tab-body>
+          </md-tab>
+          <!--Contacts tab-->
+          <md-tab ng-disabled="(!vm.cid || !vm.pageTabRights.Contacts)" md-on-select="vm.onTabChanges(vm.CustomerTabs.Contacts.Name,msWizard)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.cid">4</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.Contacts)}"
+                      class="ms-form-wizard-step-text">
+                  Contacts
+                </span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div layout="column" class="cm-full-height-tab-data" ng-if="(msWizard.selectedIndex === vm.CustomerTabs.Contacts.ID)">
+                <fieldset flex class="container-box">
+                  <legend class="ml-15 mb-5">Contacts</legend>
+                  <div class="content fullpage-datatable md-inline-form full-height" layout="row" ng-if="vm.contactPersonDetail">
+                    <select-contact-person-view contact-person-data="vm.contactPersonDetail"></select-contact-person-view>
+                  </div>
+                </fieldset>
+              </div>
+            </md-tab-body>
+          </md-tab>
+          <!--Other Details tab-->
+          <md-tab md-on-select="vm.onTabChanges(vm.CustomerTabs.OtherDetail.Name,msWizard)"
+                  ng-disabled="(!vm.cid || !vm.pageTabRights.OtherDetail)"
+                  md-tab-class="{{vm.setTabClass(vm.CustomerTabs.OtherDetail.Name)}}">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.cid">5</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.OtherDetail)}"
+                      class="ms-form-wizard-step-text">
+                  {{vm.OtherDetailTitle}}
+                </span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.wizardOtherDetail" class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+                <!--<div layout="column" layout-gt-xs="100" ng-if="vm.IsOtherDetailTab == true">
+            <view-data-element entity="{{vm.customerType === vm.customerTypeConst.SUPPLIER ? vm.Entity.Supplier : vm.Entity.Customer}}" dataelement-list="vm.dataElementList" ref-trans-id="{{vm.cid}}" entity-id="vm.entityID" file-list="vm.fileList"></view-data-element>
+        </div>-->
+                <div class="cm-section-main" layout="row" layout-wrap flex="100">
+                  <div class="cm-section-header" flex="100">
+                    <h2>{{vm.customerType === vm.customerTypeConst.SUPPLIER ? "Supplier" : vm.customerType === vm.customerTypeConst.MANUFACTURER ? "Manufacturer" : "Customer"}} MISC</h2>
+                  </div>
+                  <div class="cm-section-inner" flex="100">
+                    <div layout="column" layout-gt-xs="100" ng-if="vm.IsOtherDetailTab" class="cm-tab-misc">
+                      <view-data-element entity="{{vm.customerType === vm.customerTypeConst.SUPPLIER ? vm.Entity.Supplier : vm.customerType === vm.customerTypeConst.MANUFACTURER ? vm.Entity.Manufacturer : vm.Entity.Customer}}"
+                                         dataelement-list="vm.dataElementList" ref-trans-id="{{vm.cid}}" entity-id="vm.entityID"
+                                         file-list="vm.fileList" curr-active-form="vm.wizardOtherDetail"></view-data-element>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+          <!--Standards tab-->
+          <md-tab md-on-select="vm.onTabChanges(vm.CustomerTabs.Standards.Name,msWizard)"
+                  md-tab-class="{{vm.setTabClass(vm.CustomerTabs.Standards.Name)}}"
+                  ng-disabled="(!vm.cid || !vm.pageTabRights.Standards)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.cid">6</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.Standards)}"
+                      class="ms-form-wizard-step-text">{{vm.CustomerTabs.Standards.Name}}</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.supplierlistForm" class="cm-custom-label-common md-inline-form tabsdemoDynamicHeight padding-10-imp cm-part-full-height cm-standard-tab-height" flex layout="column" cg-busy="{promise:vm.cgBusyLoading}" novalidate>
+                <div layout="row" class="cm-section-main">
+                  <div class="cm-section-inner">
+                    <table class="cm-table-input-main cm-rs-table" ng-form="vm.supplierStandardsForm" novalidate>
+                      <tbody>
+                        <tr>
+                          <th><p class="label-container"><a class="cm-text-decoration" ng-click="vm.goToStandardList();" tabindex="-1">{{vm.LabelConstant.Supplier.Standard}}</a><span>&nbsp;*</span></p></th>
+                          <td>
+                            <md-input-container ng-if="vm.autoCompleteStandard" class="autocompletecustom margin-bottom-0 min-width-400" flex="100">
+                              <custom-auto-complete datalist="vm.StandardsList"
+                                                    input-id="vm.autoCompleteStandard.inputId"
+                                                    column-name="vm.autoCompleteStandard.columnName"
+                                                    controller-name="vm.autoCompleteStandard.controllerName"
+                                                    view-template-url="vm.autoCompleteStandard.viewTemplateURL"
+                                                    key-column-name="vm.autoCompleteStandard.keyColumnName"
+                                                    input-name="vm.autoCompleteStandard.inputName"
+                                                    placeholder-name="vm.autoCompleteStandard.placeholderName"
+                                                    key-column-id="vm.autoCompleteStandard.keyColumnId"
+                                                    is-required="vm.autoCompleteStandard.isRequired"
+                                                    add-data="vm.autoCompleteStandard.addData"
+                                                    is-addnew="vm.autoCompleteStandard.isAddnew"
+                                                    callback-fn="vm.autoCompleteStandard.callbackFn"
+                                                    on-select-callback-fn="vm.autoCompleteStandard.onSelectCallbackFn"
+                                                    custom-auto-focus="{{msWizard.selectedIndex === vm.CustomerTabs.Standards.ID ? true : false}}">
+                              </custom-auto-complete>
+                            </md-input-container>
+                          </td>
+                          <td class="ph-20">
+                            <md-radio-group class="cm-rd-switch" flex="100" layout="row" ng-model="vm.supplierStandard.standardStatus" name="standardStatus" ng-change="vm.valueChange();">
+                              <md-radio-button ng-value="vm.standardStatus.NA.id" class="md-primary">{{vm.standardStatus.NA.value}}</md-radio-button>
+                              <md-radio-button ng-value="vm.standardStatus.Compliant.id" class="md-primary">{{vm.standardStatus.Compliant.value}}</md-radio-button>
+                              <md-radio-button ng-value="vm.standardStatus.Certified.id" class="md-primary">{{vm.standardStatus.Certified.value}}</md-radio-button>
+                            </md-radio-group>
+                          </td>
+                          <th><p class="label-container">{{vm.LabelConstant.Supplier.CertificateNumber}}<span ng-if="vm.supplierStandard.standardStatus === vm.standardStatus.Certified.id">&nbsp;*</span></p></th>
+                          <td>
+                            <md-input-container flex="100">
+                              <input type="text"
+                                     class="input-text-uppercase"
+                                     name="certificatenumber"
+                                     ng-disabled="vm.supplierStandard.standardStatus !== vm.standardStatus.Certified.id"
+                                     ng-model="vm.supplierStandard.cerificateNumber"
+                                     placeholder="Certificate Number"
+                                     ng-maxlength="50" md-maxlength="50"
+                                     ng-required="vm.supplierStandard.standardStatus === vm.standardStatus.Certified.id">
+                              <div ng-messages="vm.supplierStandardsForm.certificatenumber.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(50, vm.supplierStandardsForm.certificatenumber.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th><p class="label-container">{{vm.LabelConstant.Supplier.LastApprovalDate}}<span ng-if="vm.supplierStandard.standardStatus === vm.standardStatus.Certified.id">&nbsp;*</span></p></th>
+                          <td>
+                            <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                              <input type="text" class="float-left"
+                                     max-value="vm.supplierStandard.expDate"
+                                     id="lastApprovalDate"
+                                     name="lastApprovalDate"
+                                     ng-required="vm.supplierStandard.standardStatus === vm.standardStatus.Certified.id"
+                                     allow-past-date="true"
+                                     allow-future-date="true"
+                                     datetime-picker="{{$root.dateDisplayFormat}}"
+                                     ng-model="vm.supplierStandard.lastApprovalDate"
+                                     ng-change="vm.onChangeLastApprovalDate()"
+                                     enable-time="false"
+                                     ui-options="{clearOnBlur  : true}"
+                                     ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                     ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                     model-view-value="true"
+                                     datepicker-options="vm.lastApprovalDateOptions"
+                                     is-open="vm.IsPickerOpen[vm.lastApprovalDatePicker]" />
+                              <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.lastApprovalDatePicker]=true">
+                              </md-icon>
+                              <div ng-messages="vm.supplierStandardsForm.lastApprovalDate.$error" role="alert">
+                                <div ng-message="valid">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="datetime">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="maxvalue">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_MAX_LAST_APPROVAL_DATE}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th class="pl-20"><p class="label-container">{{vm.LabelConstant.Supplier.ExpirationDate}}<span ng-if="vm.supplierStandard.standardStatus === vm.standardStatus.Certified.id">&nbsp;*</span></p></th>
+                          <td>
+                            <md-input-container flex="100" class="datepicker padding-right-0-imp margin-bottom-0 w-110">
+                              <input type="text" class="float-left"
+                                     name="expDate"
+                                     min-value="vm.supplierStandard.lastApprovalDate"
+                                     allow-past-date="true"
+                                     allow-future-date="true"
+                                     datetime-picker="{{$root.dateDisplayFormat}}"
+                                     ng-model="vm.supplierStandard.expDate"
+                                     ng-required="vm.supplierStandard.standardStatus === vm.standardStatus.Certified.id"
+                                     enable-time="false"
+                                     ui-options="{clearOnBlur  : true}"
+                                     ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                     ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                     model-view-value="true"
+                                     datepicker-options="vm.expirationDateDateOptions"
+                                     ng-change="vm.onChangeExpDate()"
+                                     is-open="vm.IsPickerOpen[vm.expirationDatePicker]" />
+                              <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.IsPickerOpen[vm.expirationDatePicker]=true">
+                              </md-icon>
+                              <div ng-messages="vm.supplierStandardsForm.expDate.$error" role="alert">
+                                <div ng-message="valid">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="datetime">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="minvalue">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID_MIN_EXPIRATION_DATE}}</span>
+                                </div>
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <td>
+                            <md-button class="md-raised md-primary" ng-click="vm.AddStandards();" id="addStandardBtn"
+                                       ng-class="{'md-formdirty': vm.supplierStandardsForm.$dirty }">
+                              Add
+                            </md-button>
+                            <md-button class="md-raised md-primary" ng-click="vm.deleteStandard();" ng-disabled="vm.selectedRecord.length === 0">
+                              Delete
+                            </md-button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="cm-section-main margin-top-10" layout="column" flex>
+                  <div class="cm-section-inner" layout="column" flex>
+                    <md-table-container class="border cm-sticky-header-table" ng-if="vm.supplierStandardsList.length > 0">
+                      <table md-table class="md-data-table">
+                        <thead md-head md-order="vm.query.order">
+                          <tr md-row>
+                            <th md-column class="text-center width-50">
+                              <md-tooltip>Select All</md-tooltip>
+                              <md-checkbox ng-model="vm.isAllSelect" ng-change="vm.selectAllStandards()" ng-disabled="(vm.supplierStandardsList && vm.supplierStandardsList.length == 0)"></md-checkbox>
+                            </th>
+                            <th md-column width="80">Action</th>
+                            <th md-column width="20">#</th>
+                            <th md-column md-order-by="standardName">{{vm.LabelConstant.Supplier.Standards}}</th>
+                            <th md-column md-order-by="standardStatus">Status</th>
+                            <th md-column md-order-by="cerificateNumber">{{vm.LabelConstant.Supplier.CertificateNumber}}</th>
+                            <th md-column md-order-by="lastApprovalDate" width="120">{{vm.LabelConstant.Supplier.LastApprovalDate}}</th>
+                            <th md-column md-order-by="expDate" width="120">{{vm.LabelConstant.Supplier.ExpirationDate}}</th>
+                            <th md-column width="80">Delete</th>
+                          </tr>
+                        </thead>
+                        <tbody md-body>
+                          <tr md-row ng-repeat="item in vm.supplierStandardsList | orderBy: vm.query.order">
+                            <td md-cell class="text-center width-50">
+                              <md-checkbox ng-model="item.isSelect" ng-change="vm.selectStandard(item)"></md-checkbox>
+                            </td>
+                            <td md-cell>
+                              <md-button class="md-primary grid-button md-icon-button bdrbtn" aria-label="Update" ng-click="vm.editStandardDetails(item)">
+                                <md-icon md-font-icon="icon-pencil" class="s16"></md-icon>
+                                <md-tooltip>Update</md-tooltip>
+                              </md-button>
+                            </td>
+                            <td md-cell width="20" class="nowrap">{{(vm.query.page - 1) *  vm.query.limit  + $index + 1}}</td>
+                            <td md-cell class="text-left">{{item.standardName}}</td>
+                            <td md-cell class="text-left">{{item.standardStatusName}}</td>
+                            <td md-cell class="text-left">{{item.cerificateNumber}}</td>
+                            <td md-cell class="text-left">{{item.lastApprovalDate}}</td>
+                            <td md-cell class="text-left">{{item.expDate}}</td>
+                            <td md-cell>
+                              <md-button class="md-primary grid-button md-icon-button bdrbtn" ng-click="vm.deleteStandard(item)">
+                                <md-icon md-font-icon="icon-delete" class="s16"></md-icon>
+                                <md-tooltip>Delete</md-tooltip>
+                              </md-button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </md-table-container>
+                    <div class="width-100p" layout="row" layout-align="center center" flex="100" ng-if="vm.supplierStandardsList.length === 0">
+                      <div class="empty-state full-height-90" layout="row" layout-wrap layout-align="center center">
+                        <div class="emty-icon" flex="100">
+                          <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+                        </div>
+                        <p class="empty-state-title" flex="100">{{vm.EmptyMesssage.MESSAGE}}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+          <!-- Customer Mapping Tab -->
+          <md-tab md-on-select="vm.onTabChanges(vm.CustomerTabs.PersonnelMapping.Name,msWizard)"
+                  md-tab-class="{{vm.setTabClass(vm.CustomerTabs.PersonnelMapping.Name)}}"
+                  ng-disabled="(!vm.cid || !vm.pageTabRights.PersonnelMapping)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="!vm.cid">6</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.PersonnelMapping)}"
+                      class="ms-form-wizard-step-text">
+                  Personnel Mapping
+                </span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.personnelMappingForm" layout="column" class="padding-10-imp cm-personal-tab-split-list cm-search-tab-operation-list" ms-form-wizard-form novalidate>
+                <customer-personnel-mapping customerid="vm.cid" ng-if="vm.isPersonnelMappingTab && vm.cid"></customer-personnel-mapping>
+              </form>
+            </md-tab-body>
+          </md-tab>
+          <div>
+            <md-tab ng-disabled="(!vm.cid || !vm.pageTabRights.CPN)" md-on-select="vm.onTabChanges(vm.CustomerTabs.CPN.Name,msWizard)"
+                    md-tab-class="{{vm.setTabClass(vm.CustomerTabs.CPN.Name)}}">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">6</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.CPN)}"
+                        class="ms-form-wizard-step-text">
+                    {{vm.LabelConstant.MFG.CPN}}
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <customer-cpn-parts customer-id="vm.cid" ng-if="vm.cid && msWizard.selectedIndex === vm.CustomerTabs.CPN.ID" keywords="vm.keywords"></customer-cpn-parts>
+              </md-tab-body>
+            </md-tab>
+          </div>
+          <div>
+            <md-tab md-on-select="vm.onTabChanges(vm.CustomerTabs.LOA.Name,msWizard)" ng-disabled="(!vm.cid || !vm.pageTabRights.LOA)"
+                    md-tab-class="{{vm.setTabClass(vm.CustomerTabs.LOA.Name)}}">
+              <md-tab-label>
+                <span class="ms-form-wizard-step-label">
+                  <span class="ms-form-wizard-step-number md-accent-bg"
+                        ng-if="!vm.cid">5</span>
+                  <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                    <i class="icon-check s16"></i>
+                  </span>
+                  <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.LOA)}"
+                        class="ms-form-wizard-step-text">
+                    Part LOA
+                  </span>
+                </span>
+              </md-tab-label>
+              <md-tab-body>
+                <form name="vm.customerLOA" class="padding-10-imp cm-component-customer-popup" ms-form-wizard-form novalidate>
+                  <component-customer-loa customerid="vm.cid" ng-if="vm.IsComponentLOATab"></component-customer-loa>
+                </form>
+              </md-tab-body>
+            </md-tab>
+          </div>
+          <md-tab md-on-select="vm.onTabChanges(vm.CustomerTabs.EmailReportSetting.Name,msWizard)"
+                  ng-disabled="(!vm.cid || !vm.pageTabRights.EmailReportSetting)"
+                  md-tab-class="{{vm.setTabClass(vm.CustomerTabs.EmailReportSetting.Name)}}">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.cid">5</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.EmailReportSetting)}"
+                      class="ms-form-wizard-step-text">
+                  {{vm.CustomerTabs.EmailReportSetting.Name}}
+                </span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <form name="vm.wizardEmailReportSetting" class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+                <div layout="column" layout-gt-xs="100" ng-if="vm.IsEmailSettingTab">
+                  <email-report-setting customer-id="vm.cid"
+                                        company-name="vm.customer.mfgName"
+                                        customer-type="vm.customerType"
+                                        is-company="((vm.customer && !vm.customer.isCompany) ? false : true)">
+                  </email-report-setting>
+                </div>
+              </form>
+            </md-tab-body>
+          </md-tab>
+          <md-tab md-on-select="vm.onTabChanges(vm.CustomerTabs.Inventory.Name,msWizard)"
+                  ng-disabled="(!vm.cid || !vm.pageTabRights.Inventory)"
+                  md-tab-class="{{vm.setTabClass(vm.CustomerTabs.Inventory.Name)}}">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.cid">5</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.Inventory)}"
+                      class="ms-form-wizard-step-text">
+                  {{vm.CustomerTabs.Inventory.Name}}
+                </span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div class="md-inline-form padding-10-imp">
+                <div layout="column" layout-gt-xs="100" ng-if="vm.IsInventoryTab">
+                  <ms-form-wizard flex>
+                    <md-tabs md-selected="vm.selectedTabInventory">
+                      <md-tab md-on-select="vm.onInventoryTabChanges(vm.CustomerInventoryTabs.UMIDStock.Name, msWizard)">
+                        <md-tab-label>
+                          <span class="ms-form-wizard-step-label">
+                            <span class="ms-form-wizard-step-number md-accent-bg">4</span>
+                            <span class="ms-form-wizard-step-number md-accent-bg">
+                              <i class="icon-check s16"></i>
+                            </span>
+                            <span class="ms-form-wizard-step-text">{{vm.CustomerInventoryTabs.UMIDStock.DisplayName}}</span>
+                          </span>
+                        </md-tab-label>
+                        <md-tab-body>
+                          <div ng-if="vm.InventoryTab.isUMIDStock">
+                            <receiving-material customer-id="vm.cid"></receiving-material>
+                          </div>
+                        </md-tab-body>
+                      </md-tab>
+                      <md-tab md-on-select="vm.onInventoryTabChanges(vm.CustomerInventoryTabs.AssemblyStock.Name, msWizard)">
+                        <md-tab-label>
+                          <span class="ms-form-wizard-step-label">
+                            <span class="ms-form-wizard-step-number md-accent-bg">4</span>
+                            <span class="ms-form-wizard-step-number md-accent-bg">
+                              <i class="icon-check s16"></i>
+                            </span>
+                            <span class="ms-form-wizard-step-text">{{vm.CustomerInventoryTabs.AssemblyStock.DisplayName}}</span>
+                          </span>
+                        </md-tab-label>
+                        <md-tab-body>
+                          <div ng-class="{'cm-customer-asssemby-stock-height':vm.isNoCustomerAssembyStock}"
+                               ng-if="vm.InventoryTab.isAssemblyStock">
+                            <customer-assembly-stock-grid customer-id="vm.cid"></customer-assembly-stock-grid>
+                          </div>
+                        </md-tab-body>
+                      </md-tab>
+                    </md-tabs>
+                  </ms-form-wizard>
+                </div>
+              </div>
+            </md-tab-body>
+          </md-tab>
+          <md-tab md-on-select="vm.onTabChanges(vm.CustomerTabs.CustomComponentApprovedDisapprovedDetail.Name,msWizard)"
+                  md-tab-class="{{vm.setTabClass(vm.CustomerTabs.CustomComponentApprovedDisapprovedDetail.Name)}}"
+                  ng-disabled="(!vm.cid || !vm.pageTabRights.CustomComponentApprovedDisapprovedDetail)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.cid">6</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.CustomComponentApprovedDisapprovedDetail)}"
+                      class="ms-form-wizard-step-text">{{vm.CustomerTabs.CustomComponentApprovedDisapprovedDetail.Name}}</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div layout="column" class="tabsdemoDynamicHeight padding-10-imp cm-part-full-height"
+                   layout-gt-xs="100" ng-if="vm.IsCustomComponentApprovedDisapprovedDetailTab">
+                <custom-component-approved-disapproved-details>
+                </custom-component-approved-disapproved-details>
+              </div>
+            </md-tab-body>
+          </md-tab>
+          <!-----------------------------Customer Document Tab------------------------------------------------->
+          <md-tab md-on-select="vm.onTabChanges(vm.CustomerTabs.Documents.Name,msWizard)"
+                  md-tab-class="{{vm.setTabClass(vm.CustomerTabs.Documents.Name)}}"
+                  ng-disabled="(!vm.cid || !vm.pageTabRights.Documents)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.cid">8</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.Documents)}"
+                      class="ms-form-wizard-step-text">{{vm.CustomerTabs.Documents.Name}}<b> ({{(vm.documentsCount)}})</b></span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div layout="column" class="tabsdemoDynamicHeight padding-10-imp cm-part-full-height"
+                   layout-gt-xs="100" ng-if="vm.IsDocumentTab">
+                <documents entity="vm.entityName" ref-trans-id="vm.cid" is-title="null"></documents>
+              </div>
+            </md-tab-body>
+          </md-tab>
+          <!-----------------------------END Customer Document Tab------------------------------------------------->
+          <!-----------------------------Manufacturer Document Tab------------------------------------------------->
+          <md-tab md-on-select="vm.onTabChanges(vm.CustomerTabs.ManufacturerDocuments.Name,msWizard)"
+                  md-tab-class="{{vm.setTabClass(vm.CustomerTabs.ManufacturerDocuments.Name)}}"
+                  ng-disabled="(!vm.cid || !vm.pageTabRights.ManufacturerDocuments)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.cid">9</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.ManufacturerDocuments)}"
+                      class="ms-form-wizard-step-text">{{vm.CustomerTabs.ManufacturerDocuments.Name}}<b> ({{(vm.documentmfgCount)}})</b></span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div layout="column" class="tabsdemoDynamicHeight padding-10-imp cm-part-full-height"
+                   layout-gt-xs="100" ng-if="vm.IsManufacturerDocumentTab">
+                <documents entity="vm.ManufacturerentityName" ref-trans-id="vm.cid" is-title="null" is-disable-all-functionality="true"></documents>
+              </div>
+            </md-tab-body>
+          </md-tab>
+          <!-----------------------------END Manufacturer Document Tab------------------------------------------------->
+          <!-----------------------------Customer Comment Tab------------------------------------------------->
+          <md-tab md-on-select="vm.onTabChanges(vm.CustomerTabs.Comments.Name,msWizard)"
+                  md-tab-class="{{vm.setTabClass(vm.CustomerTabs.Comments.Name)}}"
+                  ng-disabled="(!vm.cid || !vm.pageTabRights.Comments)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.cid">10</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.Comments)}"
+                      class="ms-form-wizard-step-text">{{vm.CustomerTabs.Comments.Name}}<b> ({{(vm.commentsCount)}}) </b></span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div layout="column" class="tabsdemoDynamicHeight padding-10-imp cm-part-full-height"
+                   layout-gt-xs="100" ng-if="vm.IsCommentTab">
+                <component-customer-comment customerid="vm.cid" customer-name="vm.customer.mfgName" customer-code="vm.customer.mfgCode" customer-type="vm.customerType"></component-customer-comment>
+              </div>
+            </md-tab-body>
+          </md-tab>
+          <!-----------------------------END Customer Comment Tab------------------------------------------------->
+          <!-----------------------------Customer History Tab------------------------------------------------->
+          <md-tab md-on-select="vm.onTabChanges(vm.CustomerTabs.History.Name,msWizard)"
+                  ng-disabled="(!vm.cid || !vm.pageTabRights.History)">
+            <md-tab-label>
+              <span class="ms-form-wizard-step-label">
+                <span class="ms-form-wizard-step-number md-accent-bg"
+                      ng-if="!vm.cid">11</span>
+                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.cid">
+                  <i class="icon-check s16"></i>
+                </span>
+                <span ng-class="{'disabled-mdtab': (!vm.cid || !vm.pageTabRights.History)}"
+                      class="ms-form-wizard-step-text">{{vm.CustomerTabs.History.Name}}</span>
+              </span>
+            </md-tab-label>
+            <md-tab-body>
+              <div layout="column" class="tabsdemoDynamicHeight padding-10-imp cm-part-full-height"
+                   layout-gt-xs="100" ng-if="vm.isHistoryTab && vm.cid && vm.HistoryTableName">
+                <common-history-grid id="vm.cid" table-name="vm.HistoryTableName" title-name="vm.currentPageName"></common-history-grid>
+              </div>
+            </md-tab-body>
+          </md-tab>
+          <!-----------------------------END Customer History Tab------------------------------------------------->
+        </md-tabs>
+      </div>
+    </div>
+  </ms-form-wizard>
+</div>
+

@@ -1,0 +1,266 @@
+﻿<style type="text/css" ng-if="vm.isEntity">
+    .md-dialog-container {
+        z-index: 80;
+    }
+
+    .md-select-menu-container {
+        z-index: 100;
+    }
+
+    md-backdrop.md-select-backdrop {
+        z-index: 99;
+    }
+
+    .md-scroll-mask {
+        z-index: 50;
+    }
+</style>
+<md-dialog aria-label="Add Expression" class="addexpression" draggable>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2 class="text-white">Add Condition</h2>
+            <span flex></span>
+            <div layout="row" layout-align="center center">
+                <popup-header-label label-data="vm.headerdata"></popup-header-label>
+            </div>
+            <md-button class="md-icon-button" ng-click="vm.cancel()">
+                <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <form name="expressionForm" id="expressionForm">
+        <md-dialog-content style="width:1020px;min-height: 100px" class="custom-scroll">
+
+            <div flex="100" layout="row" layout-wrap class="notification-condition">
+                <ul flex="100" flex-xs="100" class="ul-wdgt-fltr" layout-wrap>
+                    <li ng-repeat="item in vm.filterData" class="liststyle" ng-class="{'group-class':item.Condition != null}" ng-include="'filterComponent.html'"></li>
+                </ul>
+            </div>
+
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <md-button class="md-default md-raised md-button md-ink-ripple" ng-click="vm.cancel()">
+                Close
+            </md-button>
+            <md-button class="md-raised md-primary md-button md-ink-ripple text-white" ng-disabled="(expressionForm.$invalid)" ng-click="vm.SubmitForm()">
+                Ok
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>
+<script type="text/ng-template" id="filterComponent.html">
+    <div ng-if="item.GroupLevel && !item.ExpressionLevel">
+        <div flex="100" layout="row">
+            <md-select id='filterGroupCondition{{item.GroupLevel}}' class="margin-0"
+                       placeholder="Condition Type" ng-model="item.Condition" name="ConditionType">
+                <md-option ng-repeat="obj in vm.conditionArr" ng-value="obj">{{obj}}</md-option>
+            </md-select>
+            <md-button id='filterExpressionBtn{{item.GroupLevel}}' class="md-primary md-icon-button defaultbtn md-raised margin-0 margin-left-10 smlbtn" ng-click="vm.openExpression(item)">
+                <md-icon class="small-icon" md-font-icon="icon-code-tags"></md-icon>
+                <md-tooltip md-direction="bottom">Add Condition</md-tooltip>
+            </md-button>
+            <md-button id="filterGroupBtn{{item.GroupLevel}}" class="md-primary md-icon-button defaultbtn md-raised margin-0 margin-left-10 smlbtn" ng-click="vm.openGroup(item)">
+                <md-icon class="small-icon" md-font-icon="icon-group" style="font-size:18px;"></md-icon>
+                <md-tooltip md-direction="bottom">Add Group</md-tooltip>
+            </md-button>
+            <md-button id="filterGroupCloseBtn{{item.GroupLevel}}" class="md-primary defaultbtn md-raised margin-0 md-icon-button smlbtn margin-left-10" ng-click="vm.deleteGroup(item)">
+                <md-icon class="small-icon" md-font-icon="icon-close"></md-icon>
+                <md-tooltip md-direction="bottom">Remove Group</md-tooltip>
+            </md-button>
+            <div class='group' grouplevel="{{item.GroupLevel}}" expressionlevel={{item.currentExpLevel}}></div>
+        </div>
+    </div>
+    <div ng-if="item.ExpressionLevel">
+        <div flex="100" layout="row">
+            <div flex="20">
+                <md-select flex="90" id='filterOptionType{{item.GroupLevel}}' style="margin:0;"
+                           ng-change="vm.changeOperatorType(item)" ng-required="true"
+                           placeholder="Option Type" ng-model="item.Selected.OptionType" name="OptionType">
+                    <md-option ng-repeat="obj in vm.OptionTypeArr" ng-value="obj">{{obj}}</md-option>
+                </md-select>
+            </div>
+            <div flex="30" layout="row" ng-if="item.Selected.OptionType == vm.OptionTypeArr[0]" ng-hide="item.autoCompleteXAxis.isDisabled">
+                <md-input-container ng-if="item.autoCompleteXAxis" class="autocompletecustom margin-0 padding-0" flex="90" md-no-float>
+                    <custom-auto-complete datalist="vm.columnList"
+                                          column-name="item.autoCompleteXAxis.columnName"
+                                          controller-name="item.autoCompleteXAxis.controllerName"
+                                          view-template-url="item.autoCompleteXAxis.viewTemplateURL"
+                                          key-column-name="item.autoCompleteXAxis.keyColumnName"
+                                          input-name="item.autoCompleteXAxis.inputName"
+                                          placeholder-name="item.autoCompleteXAxis.placeholderName"
+                                          key-column-id="item.autoCompleteXAxis.keyColumnId"
+                                          is-required="item.autoCompleteXAxis.isRequired"
+                                          is-addnew="item.autoCompleteXAxis.isAddnew"
+                                          is-disabled="item.autoCompleteXAxis.isDisabled"
+                                          on-select-callback-fn="item.autoCompleteXAxis.onSelectCallbackFn"
+                                          callback-fn-param="item.autoCompleteXAxis.callbackFnParam">
+                    </custom-auto-complete>
+                </md-input-container>
+            </div>
+            <div flex="35" layout-align="start center" ng-if="item.Selected.OptionType == vm.OptionTypeArr[1]">
+                <span class="explabel cursor-pointer" ng-if="item.Selected.SelectedExpression.Expression" ng-click="vm.addExpression(item,$event)">{{item.Selected.SelectedExpression.Expression}}</span>
+                <md-tooltip ng-if="item.Selected.SelectedExpression.Expression" md-direction="bottom">Click to edit</md-tooltip>
+            </div>
+            <div flex="25">
+                <md-select flex="90" ng-if="item.OperatorFilterType == vm.OperatorFilterType.NUMBER_OPERATOR" id='filterExpressionCondition{{item.GroupLevel}}_{{item.ExpressionLevel}}' ng-click="vm.clickOperatorCmb(item)" ng-change="vm.changeOperatorVal(item)"
+                           style="margin:0;" placeholder="Select Operator" ng-model="item.Selected.Operator" name="operator" required>
+                    <md-option ng-repeat="obj in vm.NumberOperator" ng-value="obj">{{obj.Name}}</md-option>
+                </md-select>
+                <md-select flex="90" ng-if="item.OperatorFilterType == vm.OperatorFilterType.DATE_OPERATOR" id='filterExpressionCondition{{item.GroupLevel}}_{{item.ExpressionLevel}}' ng-click="vm.clickOperatorCmb(item)" ng-change="vm.changeOperatorVal(item)"
+                           style="margin:0;" placeholder="Select Operator" ng-model="item.Selected.Operator" name="operator" required>
+                    <md-option ng-repeat="obj in vm.DateOperator" ng-value="obj">{{obj.Name}}</md-option>
+                </md-select>
+                <md-select flex="90" ng-if="item.OperatorFilterType == vm.OperatorFilterType.TEXT_OPERATOR" id='filterExpressionCondition{{item.GroupLevel}}_{{item.ExpressionLevel}}' ng-click="vm.clickOperatorCmb(item)" ng-change="vm.changeOperatorVal(item)"
+                           style="margin:0;" placeholder="Select Operator" ng-model="item.Selected.Operator" name="operator" required>
+                    <md-option ng-repeat="obj in vm.TextOperator" ng-value="obj">{{obj.Name}}</md-option>
+                </md-select>
+                <md-select flex="90" ng-if="item.OperatorFilterType == vm.OperatorFilterType.BOOLEAN_OPERATOR" id='filterExpressionCondition{{item.GroupLevel}}_{{item.ExpressionLevel}}' ng-click="vm.clickOperatorCmb(item)" ng-change="vm.changeOperatorVal(item)"
+                           style="margin:0;" placeholder="Select Operator" ng-model="item.Selected.Operator" name="operator" required>
+                    <md-option ng-repeat="obj in vm.BooleanOperator" ng-value="obj">{{obj.Name}}</md-option>
+                </md-select>
+            </div>
+            <div flex="20">
+                <md-input-container flex="100" class="md-block margin-0 error-none" ng-if="vm.datatypes.STRING.indexOf(item.datatype) != -1">
+                    <label>Value</label>
+                    <input type="text" ng-model="item.OperatorValue" id="inputName"
+                           name="text{{$index}}" aria-label="inputName" required>
+                    <div ng-messages="expressionForm['text'+$index].$error" role="alert">
+                        <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                    </div>
+                </md-input-container>
+                <md-input-container flex="100" class="md-block margin-0 error-none" ng-if="vm.datatypes.NUMBER.indexOf(item.datatype) != -1">
+                    <label>Value</label>
+                    <input type="Number" ng-model="item.OperatorValue" id="inputName"
+                           name="number{{$index}}" aria-label="inputName" required>
+                    <div ng-messages="expressionForm['number'+$index].$error" role="alert">
+                        <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="number">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                    </div>
+                </md-input-container>
+                <md-input-container flex="100" class="md-block margin-0 error-none" ng-if="vm.datatypes.BOOLEAN.indexOf(item.datatype) != -1">
+                    <md-select id='filterBooleanType{{item.GroupLevel}}_{{item.ExpressionLevel}}' ng-change="vm.clickBooleanType(item)"
+                               name="select{{$index}}"
+                               style="margin:0;" placeholder="Select Value" ng-model="item.Selected.BooleanVal" required>
+                        <md-option ng-repeat="obj in vm.booleanList" ng-value="obj">{{obj.Name}}</md-option>
+                    </md-select>
+                    <div ng-messages="expressionForm['select'+$index].$error" role="alert">
+                        <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                    </div>
+                </md-input-container>
+                <md-input-container class="md-block datepicker padding-right-0-imp margin-0" flex="100"
+                                    ng-if="vm.ignoreValueField.indexOf(item.Selected.Operator.Value) == -1 && vm.datatypes.DATE.indexOf(item.datatype) != -1 && vm.dateTimeType == '1'">
+                    <!--<md-datepicker ng-model="item.OperatorValue" date-picker-no-translate-class
+                                   md-placeholder="Select Date"
+                                   required md-hide-icons="calendar"
+                                   md-date-locale="vm.locale"
+                                   name="Date{{$index}}"
+                                   md-is-open="item.isDatePickerOpen"
+                                   ng-keydown="vm.openPicker(item, $event)"></md-datepicker>-->
+                    <input type="text" class="float-left"
+                           name="Date{{$index}}"
+                           allow-past-date="true"
+                           allow-future-date="true"
+                           datetime-picker="{{$root.dateDisplayFormat}}"
+                           ng-model="item.OperatorValue"
+                           enable-time="false"
+                           ui-options="{clearOnBlur  : true}"
+                           ui-mask="{{$root.uimaskFormat.date.mask}}"
+                           ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                           model-view-value="true"
+                           datepicker-options="vm.DateOptions"
+                           is-open="item.isDatePickerOpen"
+                           required />
+                    <md-icon md-font-icon="icon-calendar calender-icon" ng-click="item.isDatePickerOpen = true">
+                    </md-icon>
+                    <div ng-messages="expressionForm['Date'+$index].$error" role="alert">
+                        <div ng-message="valid">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="datetime">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                        <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                    </div>
+                </md-input-container>
+                <md-input-container flex="100" class="datetimepicker-custom md-block margin-0 error-none datepicker padding-right-0-imp" ng-if="vm.ignoreValueField.indexOf(item.Selected.Operator.Value) == -1 &&vm.datatypes.DATE.indexOf(item.datatype) != -1 && vm.dateTimeType == '0'">
+                    <label for="datetime">Select Date & Time</label>
+                    <!--<input mdc-datetime-picker=""
+                           date="true"
+                           time="true"
+                           type="text"
+                           id="datetime"
+                           name="DateTime{{$index}}"
+                           short-time="true"
+                           placeholder="Select Date/Time"
+                           show-todays-date=""
+                           edit-input="true"
+                           show-icon="true"
+                           ng-model="item.OperatorValue"
+                           format="{{vm.dateformatMask}}"
+                           class="dtp-no-msclear dtp-input md-input">-->
+                    <input type="text" class="float-left"
+                           name="DateTime{{$index}}"
+                           allow-past-date="true"
+                           allow-future-date="true"
+                           datetime-picker="{{$root.dateTimeDisplayFormat}}"
+                           ng-model="item.OperatorValue"
+                           datepicker-options="vm.dateTimeOptions"
+                           is-open="item.dateTimeOpenFlag"
+                           model-view-value="true"
+                           ui-mask="{{$root.uimaskFormat.datetime.mask}}"
+                           ui-mask-placeholder="{{$root.uimaskFormat.datetime.placeholder}}"
+                           enable-date="true"
+                           enable-time="true" 
+                           required />
+                    <md-icon md-font-icon="icon-calendar calender-icon"
+                             ng-click="item.dateTimeOpenFlag = true">
+                    </md-icon>
+                    <div class="error-msg"
+                         ng-messages="expressionForm['DateTime'+$index].$error" role="alert">
+                        <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="datetime">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                    </div>
+                </md-input-container>
+
+                <md-input-container flex="100" class="md-block margin-0 error-none datepicker" ng-if="vm.ignoreValueField.indexOf(item.Selected.Operator.Value) == -1 &&vm.datatypes.TIME.indexOf(item.datatype) != -1" md-no-float>
+                    <label class="label-container" flex="100">Time</label>
+                    <input type="text" name="time{{$index}}" ng-model="item.OperatorValue"
+                           placeholder="HH:mm:ss"
+                           ng-pattern="vm.OperationTimePattern" mask="{{vm.OperationTimeMask}}" validate="false" required>
+                    <div ng-messages="expressionForm['time'+$index].$error" role="alert">
+                        <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                        </div>
+                        <div ng-message="pattern">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                        </div>
+                    </div>
+                </md-input-container>
+            </div>
+            <div flex="5">
+                <md-button class="md-primary defaultbtn md-raised md-icon-button smlbtn" ng-click="vm.deleteExpression(item)">
+                    <md-icon class="small-icon" md-font-icon="icon-close"></md-icon>
+                    <md-tooltip md-direction="bottom">Remove Condition</md-tooltip>
+                </md-button>
+            </div>
+            <div class='expression' grouplevel="{{item.GroupLevel}}" expressionlevel={{item.currentExpLevel}}></div>
+        </div>
+    </div>
+    <ul class="margin-20 margin-bottom-20 expmain margin-left-20 ul-wdgt-fltr">
+        <li class="margin-bottom-20 liststyle" ng-repeat="item in item.Nodes" ng-class="{'group-class':item.Condition != null}" ng-include="'filterComponent.html'"></li>
+    </ul>
+</script>

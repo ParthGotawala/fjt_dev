@@ -1,0 +1,220 @@
+<md-dialog aria-label="Bank" class="addexpression" flex="50" cg-busy="{promise:vm.cgBusyLoading}" draggable>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>{{vm.bank.id ? 'Update' : 'Add'}} Bank Account</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="vm.cancel()">
+        <md-icon role="img" md-font-icon="icon-close" class="material-icons mat-icon icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <form name="vm.bankForm" class="md-inline-form" novalidate>
+    <md-dialog-content class="no-padding" layout="column">
+      <md-content class="padding-10">
+        <div layout="row" flex="100" layout-wrap class="cm-custom-label-common">
+          <div class="cm-section-main border-0" flex="100">
+            <div class="cm-section-inner">
+              <table cellpadding="0" cellspacing="0" class="cm-table-input-main">
+                <tbody>
+                  <tr>
+                    <th>
+                      <p class="label-container">
+                        Bank Name<span>&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container class="md-block" flex="100">
+                        <input type="text" id="bankName" name="bankName" ng-model="vm.bank.bankName" custom-auto-focus="true"
+                               placeholder="Bank Name" required ng-maxlength="255" custom-blur="vm.checkBankUnique(false)">
+                        <div ng-messages="vm.bankForm.bankName.$error"
+                             role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(255,vm.bankForm.bankName.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <th>
+                    </th>
+                    <td>
+                      <md-input-container flex="100">
+                        <md-radio-group layout-align="start center" layout-wrap
+                                        name="isActive" id="isActiveRadio" ng-model="vm.bank.isActive" flex="100">
+                          <md-radio-button id="Active" flex class="margin-top-0 margin-right-0"
+                                           ng-value="true">Active</md-radio-button>
+                          <md-radio-button id="inActive" release flex class="margin-top-0 margin-left-10"
+                                           ng-value="false">Inactive</md-radio-button>
+                        </md-radio-group>
+                      </md-input-container>
+                    </td>                    
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container margin-top-0 margin-bottom-0 layout-align-end-start">
+                        Account Code<span ng-if="!vm.bank.id">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                      </p>
+                    </th>
+                    <td colspan="3">
+                      <md-input-container class="md-block" flex="100">
+                        <input type="text" id="accountCode" name="accountCode" ng-model="vm.bank.accountCode" ng-disabled="vm.bank.id"
+                               autocomplete="new-password" capitalize class="input-text-uppercase"
+                               placeholder="Account Code" required ng-maxlength="50" custom-blur="vm.checkAccountCodeUnique()">
+                        <div ng-messages="vm.bankForm.accountCode.$error"
+                             role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(50,vm.bankForm.accountCode.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>                                      
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container margin-top-0 margin-bottom-0 layout-align-end-start">
+                        Account Number<span ng-if="!vm.bank.id">&nbsp;*<check-unique-on-blur></check-unique-on-blur></span>
+                      </p>
+                    </th>
+                    <td>
+                      <md-input-container class="md-block cm-width-password cm-employee-manage-password cm-password-input" flex="100">
+                        <input type="{{vm.showAccountNumber || vm.bank.id ? 'text' : 'password'}}" onkeypress="return OnlyNumeric(event)"
+                               autocomplete="new-password" id="accountNumber" name="accountNumber" ng-model="vm.bank.accountNumber"
+                               placeholder="Account Number" required ng-maxlength="50" ng-disabled="vm.bank.id" custom-blur="vm.checkBankUnique(true)" ng-keypress="vm.showAccountNumber=false">
+                        <md-button ng-if="!vm.bank.id && vm.bankForm.accountNumber.$viewValue && vm.showAccountNumber"
+                                   class="md-warn md-hue-1 margin-0 md-button ng-scope md-default-theme md-ink-ripple"
+                                   ng-click="vm.showAccountNumber = !vm.showAccountNumber"
+                                   tabindex="-1"><a>Hide</a></md-button>
+                        <md-button ng-if="!vm.bank.id && vm.bankForm.accountNumber.$viewValue && !vm.showAccountNumber"
+                                   class="md-warn md-hue-1 margin-0 md-button ng-scope md-default-theme md-ink-ripple" ng-click="vm.showAccountNumber = !vm.showAccountNumber"
+                                   tabindex="-1"><a>Show</a></md-button>
+                        <div ng-messages="vm.bankForm.accountNumber.$error"
+                             role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(50,vm.bankForm.accountNumber.$viewValue.length)}}</span>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                    <th ng-if="!vm.bank.id">
+                      <p class="label-container margin-top-0 margin-bottom-0 layout-align-end-start">
+                        Confirm Account Number<span>&nbsp;*</span>
+                      </p>
+                    </th>
+                    <td ng-if="!vm.bank.id">
+                      <md-input-container class="md-block" flex="100">
+                        <input type="text" onkeypress="return OnlyNumeric(event)" id="confirmAccountNumber" name="confirmAccountNumber"
+                               ng-model="vm.bank.confirmAccountNumber" ng-match="vm.bank.accountNumber"
+                               placeholder="Confirm Account Number" required ng-maxlength="50" ng-paste="$event.preventDefault()">
+                        <div ng-messages="vm.bankForm.confirmAccountNumber.$error"
+                             role="alert">
+                          <div ng-message="required">
+                            <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                          </div>
+                          <div ng-message="maxlength">
+                            <span>{{vm.getMaxLengthValidation(50,vm.bankForm.confirmAccountNumber.$viewValue.length)}}</span>
+                          </div>
+                          <div ng-messages="vm.bankForm.confirmAccountNumber.$error">
+                            <div ng-message="match">{{vm.CORE_MESSAGE_CONSTANT.NOT_MATCH}}</div>
+                          </div>
+                        </div>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container margin-top-0 margin-bottom-0 layout-align-end-start">
+                        Type of Account<span>&nbsp;*</span>
+                      </p>
+                    </th>
+                    <td ng-if="vm.autoCompleteTypeOfAccount">
+                      <md-input-container class="autocompletecustom" flex="100">
+                        <custom-auto-complete datalist="vm.CORE_TypeOfAccount"
+                                              column-name="vm.autoCompleteTypeOfAccount.columnName"
+                                              controller-name="vm.autoCompleteTypeOfAccount.controllerName"
+                                              view-template-url="vm.autoCompleteTypeOfAccount.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteTypeOfAccount.keyColumnName"
+                                              input-name="vm.autoCompleteTypeOfAccount.inputName"
+                                              placeholder-name="vm.autoCompleteTypeOfAccount.placeholderName"
+                                              key-column-id="vm.autoCompleteTypeOfAccount.keyColumnId"
+                                              is-required="vm.autoCompleteTypeOfAccount.isRequired"
+                                              is-addnew="vm.autoCompleteTypeOfAccount.isAddnew"
+                                              add-data="vm.autoCompleteTypeOfAccount.addData"
+                                              callback-fn="vm.autoCompleteTypeOfAccount.callbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                    <th>
+                      <p class="label-container margin-top-0 margin-bottom-0 layout-align-end-start">
+                        Credit/Debit Type<span>&nbsp;*</span>
+                      </p>
+                    </th>
+                    <td ng-if="vm.autoCompleteCreditDebitType">
+                      <md-input-container class="autocompletecustom" flex="100">
+                        <custom-auto-complete datalist="vm.CORE_CreditDebitType"
+                                              column-name="vm.autoCompleteCreditDebitType.columnName"
+                                              controller-name="vm.autoCompleteCreditDebitType.controllerName"
+                                              view-template-url="vm.autoCompleteCreditDebitType.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteCreditDebitType.keyColumnName"
+                                              input-name="vm.autoCompleteCreditDebitType.inputName"
+                                              placeholder-name="vm.autoCompleteCreditDebitType.placeholderName"
+                                              key-column-id="vm.autoCompleteCreditDebitType.keyColumnId"
+                                              is-required="vm.autoCompleteCreditDebitType.isRequired"
+                                              is-addnew="vm.autoCompleteCreditDebitType.isAddnew"
+                                              add-data="vm.autoCompleteCreditDebitType.addData"
+                                              callback-fn="vm.autoCompleteCreditDebitType.callbackFn">
+                        </custom-auto-complete>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      <p class="label-container margin-top-0 margin-bottom-0 layout-align-end-start">
+                        <a class="cm-text-decoration" ng-click="vm.goToChartOfAccountList();"
+                           tabindex="-1">Chart of Account</a><span>&nbsp;*</span>
+                      </p>
+                    </th>
+                    <td ng-if="vm.autoCompleteAcctMaster">
+                      <md-input-container class="autocompletecustom" flex="100">
+                        <custom-auto-complete-search datalist="vm.chartOfAccountsList"
+                                              column-name="vm.autoCompleteAcctMaster.columnName"
+                                              controller-name="vm.autoCompleteAcctMaster.controllerName"
+                                              view-template-url="vm.autoCompleteAcctMaster.viewTemplateURL"
+                                              key-column-name="vm.autoCompleteAcctMaster.keyColumnName"
+                                              input-name="vm.autoCompleteAcctMaster.inputName"
+                                              placeholder-name="vm.autoCompleteAcctMaster.placeholderName"
+                                              key-column-id="vm.autoCompleteAcctMaster.keyColumnId"
+                                              is-required="vm.autoCompleteAcctMaster.isRequired"
+                                              is-addnew="vm.autoCompleteAcctMaster.isAddnew"
+                                              add-data="vm.autoCompleteAcctMaster.addData"
+                                              callback-fn="vm.autoCompleteAcctMaster.callbackFn"
+                                              on-select-callback-fn="vm.autoCompleteAcctMaster.onSelectCallbackFn"
+                                              on-search-fn="vm.autoCompleteAcctMaster.onSearchFn">
+                        </custom-auto-complete-search>
+                      </md-input-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </md-content>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+      <md-button class="md-default md-raised" ng-click="vm.cancel()">Cancel</md-button>
+      <md-button class="md-primary md-raised"
+                 ng-click="vm.saveBank()"
+                 ng-class="{'md-formdirty': vm.bankForm.$dirty }"
+                 aria-label="Submit">Save</md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

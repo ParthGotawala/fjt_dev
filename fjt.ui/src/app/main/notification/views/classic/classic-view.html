@@ -1,0 +1,344 @@
+<form name="vm.notiListForm" layout="column" flex="100">
+  <div class="toolbar height-48 border-top" layout="row" layout-align="end-center">
+    <div layout="row" layout-align="start center">
+      <div class="divider-vertical"></div>
+      <md-button class="md-raised md-primary mv-0"
+                 ng-click="vm.loadTreeFolderDetails(vm.currentSelectedTreeItemID)">
+        Refresh
+      </md-button>
+      <div class="divider-vertical"></div>
+      <span ng-if="vm.loginUserDetails.isUserSuperAdmin" class="mh-10">
+        <md-checkbox class="margin-0" layout="row" name="userType"
+                     ng-model="vm.isDisplayForAllUser"
+                     ng-change="vm.loadDataBySelectedUserType()">All User</md-checkbox>
+      </span>
+      <div ng-if="vm.loginUserDetails.isUserSuperAdmin" class="divider-vertical"></div>
+      <span class="page-info" hide-sm ng-if="vm.notificationList.length > 0">
+        {{vm.totalDisplayText}}
+      </span>
+      <md-button class="md-icon-button arrow" aria-label="Previous" ng-if="vm.notificationList.length > 0"
+                 ng-click="vm.getPrevNextOfNotifications(false)"
+                 ng-disabled="vm.isDisablePrevBtn">
+        <md-icon md-font-icon="icon-chevron-left"></md-icon>
+        <md-tooltip><span>Previous</span></md-tooltip>
+      </md-button>
+      <md-button class="md-icon-button arrow" aria-label="Next" ng-if="vm.notificationList.length > 0"
+                 ng-click="vm.getPrevNextOfNotifications(true)"
+                 ng-disabled="vm.isDisableNextBtn">
+        <md-icon md-font-icon="icon-chevron-right"></md-icon>
+        <md-tooltip><span>Next</span></md-tooltip>
+      </md-button>
+    </div>
+  </div>
+  <md-card layout="column" layout-align="space-between stretch" class="cm-custom-label-common">
+    <div class="cm-section-main">
+      <div class="cm-section-header" layout-align="space-between">
+        <div><h2>Filters</h2></div>
+        <div>
+          <md-button class="md-mini md-icon-button md-primary margin-0" ng-click="vm.ShowNotiFilterDiv = !vm.ShowNotiFilterDiv">
+            <md-icon md-font-icon="icon-chevron-down" ng-if="!vm.ShowNotiFilterDiv"></md-icon><md-tooltip ng-if="!vm.ShowNotiFilterDiv">Expand</md-tooltip>
+            <md-icon md-font-icon="icon-chevron-up" ng-if="vm.ShowNotiFilterDiv"></md-icon><md-tooltip ng-if="vm.ShowNotiFilterDiv">Collapse</md-tooltip>
+          </md-button>
+        </div>
+      </div>
+      <div class="cm-section-inner cm-overflow-auto" ng-if="vm.ShowNotiFilterDiv">
+        <div layout="row" flex="100" layout-wrap>
+          <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+            <tbody>
+              <tr>
+                <th>
+                  <p class="label-container">
+                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToNotificationCategoryList();">Notification Category</a>
+                  </p>
+                </th>
+                <td>
+                  <md-input-container ng-if="vm.autoCompleteNotificationCategory" class="autocompletecustom" flex="100">
+                    <custom-auto-complete datalist="vm.notificationCategoryList"
+                                          column-name="vm.autoCompleteNotificationCategory.columnName"
+                                          controller-name="vm.autoCompleteNotificationCategory.controllerName"
+                                          view-template-url="vm.autoCompleteNotificationCategory.viewTemplateURL"
+                                          key-column-name="vm.autoCompleteNotificationCategory.keyColumnName"
+                                          input-name="vm.autoCompleteNotificationCategory.inputName"
+                                          placeholder-name="vm.autoCompleteNotificationCategory.placeholderName"
+                                          key-column-id="vm.autoCompleteNotificationCategory.keyColumnId"
+                                          is-required="vm.autoCompleteNotificationCategory.isRequired"
+                                          is-addnew="vm.autoCompleteNotificationCategory.isAddnew"
+                                          add-data="vm.autoCompleteNotificationCategory.addData"
+                                          callback-fn="vm.autoCompleteNotificationCategory.callbackFn">
+                    </custom-auto-complete>
+                  </md-input-container>
+                </td>
+                <th>
+                  <p class="label-container">
+                    Date Range
+                    <span ng-if="(vm.filterNoti.fromDate && !vm.filterNoti.toDate) || (!vm.filterNoti.fromDate && vm.filterNoti.toDate)">&nbsp;*</span>
+                  </p>
+                </th>
+                <td colspan="3" class="display-flex">
+                  <md-input-container class="datepicker width-120 padding-right-0-imp margin-right-10">
+                    <input type="text" class="float-left"
+                           name="fromDate"
+                           datetime-picker="{{$root.dateDisplayFormat}}"
+                           enable-date="true"
+                           enable-time="false"
+                           ng-model="vm.filterNoti.fromDate"
+                           ng-change="vm.fromDateChanged()"
+                           datepicker-options="vm.fromDateOptions"
+                           ui-options="{clearOnBlur  : false}"
+                           ui-mask="{{$root.uimaskFormat.date.mask}}"
+                           ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                           model-view-value="true"
+                           is-open="vm.fromDateOptions.fromDateOpenFlag"
+                           ng-required="vm.filterNoti.toDate" />
+                    <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.fromDateOptions.fromDateOpenFlag = true">
+                    </md-icon>
+                    <div ng-messages="vm.notiListForm.fromDate.$error" role="alert">
+                      <div ng-message="mindate">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="valid">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="mask">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                      <div ng-message="datetime">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                  <md-input-container class="datepicker width-120 padding-right-0-imp">
+                    <input type="text" class="float-left"
+                           name="toDate"
+                           datetime-picker="{{$root.dateDisplayFormat}}"
+                           enable-date="true"
+                           enable-time="false"
+                           ng-model="vm.filterNoti.toDate"
+                           ng-change="vm.toDateChanged()"
+                           datepicker-options="vm.toDateOptions"
+                           ui-options="{clearOnBlur  : false}"
+                           ui-mask="{{$root.uimaskFormat.date.mask}}"
+                           ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                           model-view-value="true"
+                           is-open="vm.toDateOptions.toDateOpenFlag"
+                           ng-required="vm.filterNoti.fromDate" />
+                    <md-icon md-font-icon="icon-calendar calender-icon" ng-click="vm.toDateOptions.toDateOpenFlag = true">
+                    </md-icon>
+                    <div ng-messages="vm.notiListForm.toDate.$error" role="alert">
+                      <div ng-message="mindate">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="valid">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="mask">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                      <div ng-message="required">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                      </div>
+                      <div ng-message="datetime">
+                        <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                      </div>
+                    </div>
+                  </md-input-container>
+                </td>
+                <th>
+                  <p class="label-container">
+                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToEmployeeList();">
+                      {{vm.currentSelectedTreeItemID == vm.constNotificationTreeFolders.Inbox.id ? 'Sender' : 'Receiver'}}
+                    </a>
+                  </p>
+                </th>
+                <td>
+                  <md-input-container ng-if="vm.autoCompleteNotiSenderReceiver"
+                                      class="autocompletecustom" flex="100">
+                    <custom-auto-complete datalist="vm.notiSenderReceiverList"
+                                          column-name="vm.autoCompleteNotiSenderReceiver.columnName"
+                                          controller-name="vm.autoCompleteNotiSenderReceiver.controllerName"
+                                          view-template-url="vm.autoCompleteNotiSenderReceiver.viewTemplateURL"
+                                          key-column-name="vm.autoCompleteNotiSenderReceiver.keyColumnName"
+                                          input-name="vm.autoCompleteNotiSenderReceiver.inputName"
+                                          placeholder-name="vm.autoCompleteNotiSenderReceiver.placeholderName"
+                                          key-column-id="vm.autoCompleteNotiSenderReceiver.keyColumnId"
+                                          is-required="vm.autoCompleteNotiSenderReceiver.isRequired"
+                                          is-addnew="vm.autoCompleteNotiSenderReceiver.isAddnew"
+                                          add-data="vm.autoCompleteNotiSenderReceiver.addData"
+                                          callback-fn="vm.autoCompleteNotiSenderReceiver.callbackFn">
+                    </custom-auto-complete>
+                  </md-input-container>
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <p class="label-container">
+                    <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToComponentList();">{{vm.LabelConstant.Assembly.Assy}}</a>
+                  </p>
+                </th>
+                <td>
+                  <md-input-container class="autocompletecustom" flex="100" ng-if="vm.autoCompleteSearchAssy">
+                    <custom-auto-complete-search on-search-fn="vm.autoCompleteSearchAssy.onSearchFn"
+                                                 column-name="vm.autoCompleteSearchAssy.columnName"
+                                                 parent-column-name="vm.autoCompleteSearchAssy.parentColumnName"
+                                                 key-column-name="vm.autoCompleteSearchAssy.keyColumnName"
+                                                 input-name="vm.autoCompleteSearchAssy.inputName"
+                                                 placeholder-name="vm.autoCompleteSearchAssy.placeholderName"
+                                                 key-column-id="vm.autoCompleteSearchAssy.keyColumnId"
+                                                 is-required="vm.autoCompleteSearchAssy.isRequired"
+                                                 is-addnew="vm.autoCompleteSearchAssy.isAddnew"
+                                                 callback-fn="vm.autoCompleteSearchAssy.callbackFn"
+                                                 parent-id=""
+                                                 add-data="vm.autoCompleteSearchAssy.addData"
+                                                 on-select-callback-fn="vm.autoCompleteSearchAssy.onSelectCallbackFn">
+                    </custom-auto-complete-search>
+                  </md-input-container>
+                </td>
+                <th>
+                  <p class="label-container">
+                    <a class="cm-text-decoration" tabindex="-1" ng-click="vm.goToComponentList();">{{vm.LabelConstant.Assembly.NickName}}</a>
+                  </p>
+                </th>
+                <td>
+                  <div layout="row">
+                    <md-input-container flex="100">
+                      <input name="searchNickNameText" class="search-input" type="text"
+                             placeholder="Type here to search"
+                             ng-model="vm.filterNoti.searchNickNameText"
+                             ng-maxlength="50">
+                      <div ng-messages="vm.notiListForm.searchNickNameText.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(50, vm.notiListForm.searchNickNameText.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                    <md-button class="md-icon-button md-primary md-mini ml-0" ng-click="vm.filterNoti.searchNickNameText = '';"
+                               ng-if="vm.filterNoti.searchNickNameText">
+                      <md-icon md-font-icon="icon-close" class="material-icons mat-icon mb-5 ml-0"></md-icon>
+                      <md-tooltip>Reset</md-tooltip>
+                    </md-button>
+                  </div>
+                </td>
+                <th>
+                  <p class="label-container">
+                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToWorkorderList();">{{vm.LabelConstant.Workorder.WO}}</a>
+                  </p>
+                </th>
+                <td class="">
+                  <md-input-container ng-if="vm.autoCompleteWO" class="autocompletecustom" flex="100">
+                    <custom-auto-complete datalist="vm.workOrderList"
+                                          column-name="vm.autoCompleteWO.columnName"
+                                          controller-name="vm.autoCompleteWO.controllerName"
+                                          view-template-url="vm.autoCompleteWO.viewTemplateURL"
+                                          key-column-name="vm.autoCompleteWO.keyColumnName"
+                                          input-name="vm.autoCompleteWO.inputName"
+                                          placeholder-name="vm.autoCompleteWO.placeholderName"
+                                          key-column-id="vm.autoCompleteWO.keyColumnId"
+                                          is-required="vm.autoCompleteWO.isRequired"
+                                          is-addnew="vm.autoCompleteWO.isAddnew"
+                                          add-data="vm.autoCompleteWO.addData"
+                                          callback-fn="vm.autoCompleteWO.callbackFn"
+                                          on-select-callback-fn="vm.autoCompleteWO.onSelectCallbackFn">
+                    </custom-auto-complete>
+                  </md-input-container>
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <p class="label-container">
+                    <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToWorkOrderOperationList();">{{vm.LabelConstant.Operation.PageName}}</a>
+                  </p>
+                </th>
+                <td>
+                  <md-input-container ng-if="vm.autoCompleteWOOP" class="autocompletecustom" flex="100">
+                    <custom-auto-complete datalist="vm.autoCompleteWO.keyColumnId ? vm.workOrderOperationList : vm.operationMasterList"
+                                          column-name="vm.autoCompleteWOOP.columnName"
+                                          controller-name="vm.autoCompleteWOOP.controllerName"
+                                          view-template-url="vm.autoCompleteWOOP.viewTemplateURL"
+                                          key-column-name="vm.autoCompleteWOOP.keyColumnName"
+                                          input-name="vm.autoCompleteWOOP.inputName"
+                                          placeholder-name="vm.autoCompleteWOOP.placeholderName"
+                                          key-column-id="vm.autoCompleteWOOP.keyColumnId"
+                                          is-required="vm.autoCompleteWOOP.isRequired"
+                                          is-addnew="vm.autoCompleteWOOP.isAddnew"
+                                          add-data="vm.autoCompleteWOOP.addData"
+                                          callback-fn="vm.autoCompleteWOOP.callbackFn"
+                                          on-select-callback-fn="vm.autoCompleteWOOP.onSelectCallbackFn">
+                    </custom-auto-complete>
+                  </md-input-container>
+                </td>
+                <th>
+                  <p class="label-container">
+                    Contains Search
+                  </p>
+                </th>
+                <td>
+                  <div layout="row">
+                    <md-input-container flex="100">
+                      <input name="searchNotificationText" class="search-input" type="text"
+                             placeholder="Type here to search"
+                             ng-model="vm.filterNoti.searchNotificationText"
+                             ng-maxlength="200">
+                      <span class="font-size-10"><b>{{vm.notiContainSearchNote}}</b></span>
+                      <div ng-messages="vm.notiListForm.searchNotificationText.$error" role="alert">
+                        <div ng-message="maxlength">
+                          <span>{{vm.getMaxLengthValidation(200, vm.notiListForm.searchNotificationText.$viewValue.length)}}</span>
+                        </div>
+                      </div>
+                    </md-input-container>
+                    <md-button class="md-icon-button md-primary md-mini ml-0" ng-click="vm.filterNoti.searchNotificationText = '';"
+                               ng-if="vm.filterNoti.searchNotificationText">
+                      <md-icon md-font-icon="icon-close" class="material-icons mat-icon mb-5 ml-0"></md-icon>
+                      <md-tooltip>Reset</md-tooltip>
+                    </md-button>
+                  </div>
+                </td>
+                <td colspan="2" class="text-right">
+                  <md-button class="md-raised md-primary margin-top-0"
+                             ng-click="vm.searchFromNotification()">
+                    Search
+                  </md-button>
+                  <md-button class="md-raised md-primary margin-top-0"
+                             ng-disabled="vm.isDisableClearAllFilterBtn()"
+                             ng-click="vm.clearAllFilters()">
+                    Reset
+                  </md-button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </md-card>
+  <div class="content-wrapper" layout="column" flex ng-class="{'cm-content-wrp' : !vm.ShowNotiFilterDiv}">
+    <div ng-if="vm.currentSelectedTreeItemID == vm.constNotificationTreeFolders.Inbox.id && vm.isDisplayForAllUser && vm.notificationList.length > 0"
+         class="margin-top-5 margin-bottom-5">
+      <div flex="100" layout="row">
+        <div flex="15" class="pl-15">
+          <b>Receiver</b>
+        </div>
+        <div flex="15">
+          <b>Sender</b>
+        </div>
+        <div flex></div>
+      </div>
+    </div>
+    <div class="content thread-list cm-overflow-auto"
+         ng-if="vm.currentSelectedTreeItemID == vm.constNotificationTreeFolders.Inbox.id"
+         ng-include="'app/main/notification/views/classic/list/inbox-list.html'" flex>
+      <!--ms-scroll-->
+    </div>
+    <div class="content thread-list cm-overflow-auto cm-sent-box"
+         ng-if="vm.currentSelectedTreeItemID == vm.constNotificationTreeFolders.SendBox.id"
+         ng-include="'app/main/notification/views/classic/list/sendbox-list.html'" flex>
+      <!--ms-scroll-->
+    </div>
+    <!--<div class="content thread-list"
+         ng-if="vm.currentSelectedTreeItemDetID == vm.constNotificationTreeFolders.Inbox.id"
+         ng-include="'app/main/notification/views/classic/detail/detail.html'" ms-scroll flex>
+    </div>-->
+  </div>
+</form>

@@ -1,0 +1,296 @@
+<md-toolbar class="md-theme-light cm-workorder" layout="row" layout-align="space-between center" cg-busy="{promise:vm.cgBusyLoading}">
+  <h1 class="md-toolbar-tools" style="font-size:15px;" flex="60" ng-if="vm.reviewChangesList.length > 0">
+    <!--<span ng-if="!vm.isEditChangeLog" md-truncate>{{vm.selectedReviewChange.threadTitle}}</span>-->
+    <span ng-if="vm.autoCompleteReviewChanges" layout layout-row flex="100" class="font-input-14">
+      <md-input-container class="autocompletecustom margin-bottom-0 sideautocomp cm-operation-request-box" flex="100" md-no-float>
+        <custom-auto-complete datalist="vm.reviewChangesList"
+                              class="no-errors-spacer"
+                              column-name="vm.autoCompleteReviewChanges.columnName"
+                              controller-name="vm.autoCompleteReviewChanges.controllerName"
+                              view-template-url="vm.autoCompleteReviewChanges.viewTemplateURL"
+                              key-column-name="vm.autoCompleteReviewChanges.keyColumnName"
+                              input-name="vm.autoCompleteReviewChanges.inputName"
+                              placeholder-name="vm.autoCompleteReviewChanges.placeholderName"
+                              key-column-id="vm.autoCompleteReviewChanges.keyColumnId"
+                              is-required="vm.autoCompleteReviewChanges.isRequired"
+                              is-addnew="vm.autoCompleteReviewChanges.isAddnew"
+                              callback-fn="vm.autoCompleteReviewChanges.callbackFn"
+                              on-select-callback-fn="vm.autoCompleteReviewChanges.onSelectCallbackFn"
+                              custom-auto-focus="true">
+        </custom-auto-complete>
+      </md-input-container>
+    </span>
+    <!--<md-button class="md-icon-button margin-0" ng-if="!vm.isEditChangeLog" ng-click="changeRequest();">
+        <md-icon md-font-icon="icon-sync-alert"><md-tooltip>Change request</md-tooltip></md-icon>
+    </md-button>
+    <md-button class="md-icon-button margin-0" ng-if="vm.isEditChangeLog" ng-disabled="!vm.autoCompleteReviewChanges.keyColumnId" ng-click="changeReviewRequest();">
+        <md-icon md-font-icon="icon-check"><md-tooltip>Apply</md-tooltip></md-icon>
+    </md-button>
+    <md-button class="md-icon-button margin-0" ng-if="vm.isEditChangeLog" ng-click="discardChangeRequest();">
+        <md-icon md-font-icon="icon-close"><md-tooltip>Close</md-tooltip></md-icon>
+    </md-button>-->
+  </h1>
+  <div layout="row" flex="" layout-align="end center">
+    <div ng-if="vm.autoCompleteReviewChanges.keyColumnId && vm.reviewChangesList.length > 0">
+      <md-button class="md-primary md-raised margin-right-10" ng-if="!vm.isAddComment" ng-click="showAddComment();">
+        Comment
+      </md-button>
+      <md-button class="md-primary md-raised margin-right-10" ng-if="vm.isAddComment" ng-click="showRevReqDesc();">
+        View Change Request
+      </md-button>
+      <md-button class="md-primary md-raised margin-0" ng-click="showFilterBox();">
+        Filter/Order
+      </md-button>
+    </div>
+    <md-button class="md-icon-button margin-0" ng-click="closeSidenav()">
+      <md-icon md-font-icon="icon-close"><md-tooltip>Close</md-tooltip></md-icon>
+    </md-button>
+  </div>
+</md-toolbar>
+<div class="full-height" flex="100" ng-if="vm.autoCompleteReviewChanges.keyColumnId">
+  <md-content layout-padding layout="row" flex="100" layout-wrap
+              layout-align="start start" class="fullheight-toolbar-footer custom-scroll">
+    <div class="change-request-comment" ng-if="vm.reviewerOptions && vm.reviewerOptions.length > 0">
+      <div ng-click="vm.isGroupMemberOpen = !vm.isGroupMemberOpen">
+        <h5 class="m-0">
+          <b id="id_ReviewGroupMembersLabel">{{vm.reviewerOptions.length - 1}} Group Members</b>
+          <md-icon id="id_ReviewGroupMembersExpandIcon" class="arrowdropdown" md-font-icon="icon-menu-down"
+                   ng-if="!vm.isGroupMemberOpen">
+            <md-tooltip>Expand</md-tooltip>
+          </md-icon>
+          <md-icon id="id_ReviewGroupMembersExpandIcon" class="arrowdropdown" md-font-icon="icon-menu-up"
+                   ng-if="vm.isGroupMemberOpen">
+            <md-tooltip>Collapse</md-tooltip>
+          </md-icon>
+        </h5>
+      </div>
+      <div id="id_ReviewGroupMembersRepeatData" class="memberlistgp" layout="row" layout-wrap ng-if="vm.isGroupMemberOpen">
+        <div class="tag" ng-repeat="item in vm.reviewerOptions" ng-if="item.id > 0">
+          <div id="id_ReviewGroupMembersSingleData" class="tag-label">
+            {{item.name}}<span class="text-bold text-italic" ng-if="item.id == vm.woAuthorID">&nbsp;[{{vm.LabelConstant.Workorder.WOCreator}}]</span>
+          </div>
+        </div>
+        <div ng-if="vm.selectedReviewChange">
+          <md-button class="md-fab md-mini height-24 width-24 invite-new-member" ng-click="vm.openInviteMembersPopup($event)"
+                     ng-disabled="vm.isDisableToAccess">
+            <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus">
+              <md-tooltip>Invite User(s)</md-tooltip>
+            </md-icon>
+          </md-button>
+        </div>
+      </div>
+    </div>
+    <div layout="row" flex="100" ng-if="vm.isAddComment">
+      <div data-split-pane data-split-pane-properties="splitPaneProperties" class="cm-workorder-review-split-pane-height">
+        <div data-split-pane-component data-height="80%" class="min-height-100"
+             scroll-end-bottom scroll-end-fn="vm.getWorkorderRevReqComments">
+          <md-list flex>
+            <md-list-item class="md-3-line md-long-text no-padding" ng-repeat="item in vm.workorderReviewList">
+              <div class="chricon min-width-40"> {{item.icon}} </div>
+              <div class="md-list-item-text" style="margin:0px 0px 5px 0px;">
+                <h3>
+                  <span class="font-weight-500">{{item.empFullName}} <small>Posted On {{item.commentDate|date: vm.dateTimeDisplayFormat}}</small></span>
+                </h3>
+                <p ng-bind-html="item.description"></p>
+                <!--<div ng-if="item.commentemployeeID != vm.loginEmpID">-->
+                <div class="margin-top-5 margin-bottom-5"
+                     ng-if="vm.isUserHasAcceptRejRights && item.accRejStatus == 'P' && item.commentemployeeID != vm.woAuthorID">
+                  <md-button class="md-primary md-raised" ng-click="approve(item);" ng-disabled="vm.isDisableToAccess">
+                    Approve
+                  </md-button>
+                  <md-button class="md-primary md-raised" ng-click="reject(item);" ng-disabled="vm.isDisableToAccess">
+                    Decline
+                  </md-button>
+                </div>
+                <label class="md-primary-fg anchor-button font-size-12" ng-if="item.accRejStatus == 'A'">
+                  Approved by {{item.empFullNameOfAcceptRejectBy}} On {{item.accRejDate|date: vm.dateTimeDisplayFormat}}
+                </label>
+                <label class="md-primary-fg anchor-button font-size-12" ng-if="item.accRejStatus == 'R'">
+                  Declined by {{item.empFullNameOfAcceptRejectBy}} On {{item.accRejDate|date: vm.dateTimeDisplayFormat}}
+                </label>
+                <!--</div>-->
+              </div>
+              <md-divider></md-divider>
+            </md-list-item>
+          </md-list>
+          <div class="empty-state text-center full-height" layout="row" layout-align="center center" flex="100" layout-wrap ng-if="(vm.reviewChangesList.length > 0) && (vm.selectedStatus || vm.selectedReviewer) && !vm.workorderReviewList.length">
+            <div class="emty-icon" flex="100">
+              <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+            </div>
+            <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+          </div>
+          <div class="empty-state text-center full-height" layout="row" layout-align="center center" flex="100" layout-wrap ng-if="(vm.reviewChangesList.length > 0) && (!vm.selectedStatus && !vm.selectedReviewer && !vm.workorderReviewList.length)">
+            <div class="emty-icon" flex="100">
+              <img ng-src="{{vm.EmptyMesssageEmpty.IMAGEURL}}" />
+            </div>
+            <p flex="100" class="empty-state-title">{{vm.EmptyMesssageEmpty.MESSAGE}}</p>
+          </div>
+        </div>
+        <div data-split-pane-divider data-height="5px"></div>
+        <div data-split-pane-component data-height="20%" class="min-height-100">
+          <div layout="row" flex="100" style="background:inherit;">
+            <form name="vm.reviewform" flex="100" class="reply-form add-req-rev-comment margin-top-10" layout="row" layout-wrap>
+              <md-input-container flex="100" md-no-float class="md-block margin-bottom-0 margin-top-0 no-errors-spacer">
+                <span class="label-container margin-bottom-0">
+                  Comment<span>&nbsp;*</span>
+                  <span class="margin-bottom-10" ng-if="vm.reviewform.txtComment.$error.taMaxText" style="color:red; font-size:12px">{{vm.getMaxLengthValidation(vm.taToolbar.MAX_LENGTH, vm.reviewform.txtComment.$viewValue.length)}}</span>
+                </span>
+                <text-angular ta-toolbar="vm.taToolbar.INLINE" cg-busy-loading="vm.cgBusyLoading" ng-model="vm.comment"
+                              ng-class="{'text-angular-custom-border':vm.reviewform.txtComment.$error.taMaxText}"
+                              name="txtComment" ta-max-text="{{vm.taToolbar.MAX_LENGTH}}"
+                              ta-disabled="vm.isDisableAddComment || vm.isDisableToAccess" ng-required="true"></text-angular>
+              </md-input-container>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div layout="row" class="cm-custom-label-common" layout-wrap flex="100" ng-show="vm.isShowFilterBox">
+      <div class="cm-section-main" flex="100">
+        <div class="cm-section-inner" flex="100">
+          <table cellspacing="0" cellpadding="0" class="cm-table-input-main">
+            <tbody>
+              <tr>
+                <th><p class="label-container">Filter<span>&nbsp;</span></p></th>
+                <td colspan="5">
+                  <md-input-container flex="100">
+                    <md-select ng-model="vm.selectedStatus" placeholder="Filter">
+                      <md-option ng-repeat="item in vm.filterOptions" ng-value="item.id">
+                        {{item.name}}
+                      </md-option>
+                    </md-select>
+                  </md-input-container>
+                </td>
+              </tr>
+              <tr>
+                <th><p class="label-container">Review By<span>&nbsp;</span></p></th>
+                <td colspan="5">
+                  <md-input-container flex="100">
+                    <md-select ng-model="vm.selectedReviewer" placeholder="Review By">
+                      <md-option ng-repeat="item in vm.reviewerOptions" ng-value="item.id">
+                        {{item.name}}
+                      </md-option>
+                    </md-select>
+                  </md-input-container>
+                </td>
+              </tr>
+              <tr>
+                <th><p class="label-container">Sort By<span>&nbsp;</span></p></th>
+                <td>
+                  <md-input-container flex="100">
+                    <md-select ng-model="vm.selectedSortBy" placeholder="Sort By">
+                      <md-option ng-repeat="item in vm.sortByOptions" ng-value="item">
+                        {{item}}
+                      </md-option>
+                    </md-select>
+                  </md-input-container>
+                </td>
+                <th><p class="label-container">Order<span>&nbsp;</span></p></th>
+                <td>
+                  <md-input-container flex="100">
+                    <md-select ng-model="vm.selectedSortByOrder" placeholder="Order">
+                      <md-option value="A"> Ascending </md-option>
+                      <md-option value="D"> Descending </md-option>
+                    </md-select>
+                  </md-input-container>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!--<md-input-container flex="100">
+          <label>Filter</label>
+          <md-select ng-model="vm.selectedStatus" placeholder="Filter">
+              <md-option ng-repeat="item in vm.filterOptions" ng-value="item.id">
+                  {{item.name}}
+              </md-option>
+          </md-select>
+      </md-input-container>
+      <md-input-container flex="100">
+          <label>Review By</label>
+          <md-select ng-model="vm.selectedReviewer" placeholder="Review By">
+              <md-option ng-repeat="item in vm.reviewerOptions" ng-value="item.id">
+                  {{item.name}}
+              </md-option>
+          </md-select>
+      </md-input-container>
+      <md-input-container flex="50">
+          <label>Sort By</label>
+          <md-select ng-model="vm.selectedSortBy" placeholder="Sort By">
+              <md-option ng-repeat="item in vm.sortByOptions" ng-value="item">
+                  {{item}}
+              </md-option>
+          </md-select>
+      </md-input-container>
+      <md-input-container flex="50">
+          <label>Order</label>
+          <md-select ng-model="vm.selectedSortByOrder" placeholder="Order">
+              <md-option value="A"> Ascending </md-option>
+              <md-option value="D"> Descending </md-option>
+          </md-select>
+      </md-input-container>-->
+    </div>
+
+    <div layout="row" layout-wrap flex="100" ng-show="vm.isRevReqDescDisp">
+      <md-list flex>
+        <md-list-item class="md-3-line md-long-text no-padding">
+          <div class="chricon min-width-40"> {{vm.woRequestForReview.reqGenEmployee.icon}} </div>
+          <div class="md-list-item-text" style="margin:0px 0px 5px 0px;">
+            <h3>
+              <span class="font-weight-500">{{vm.woRequestForReview.reqGenEmployee.fullName}} <small>Posted On {{vm.woRequestForReview.createdAt|date: vm.dateTimeDisplayFormat}}</small></span>
+            </h3>
+            <p ng-bind-html="vm.woRequestForReview.description"></p>
+            <label class="md-primary-fg anchor-button font-size-12" ng-if="vm.woRequestForReview.accRejStatus == 'A'">
+              Approved by {{vm.woRequestForReview.accRejEmployee.fullNameOfAcceptRejectBy}} On {{vm.woRequestForReview.accRejDate|date: vm.dateTimeDisplayFormat}}
+            </label>
+            <label class="md-primary-fg anchor-button font-size-12" ng-if="vm.woRequestForReview.accRejStatus == 'R'">
+              Declined by {{vm.woRequestForReview.accRejEmployee.fullNameOfAcceptRejectBy}} On {{vm.woRequestForReview.accRejDate|date: vm.dateTimeDisplayFormat}}
+            </label>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+  </md-content>
+  <md-footer flex="100" layout="row" layout-wrap ng-if="vm.isAddComment">
+    <div flex="100" layout="row" layout-align="end center">
+      <md-button class="md-default md-raised" ng-click="closeSidenav()">
+        Cancel
+      </md-button>
+      <md-button class="md-primary md-raised" ng-click="saveComment(vm.comment);"
+                 ng-class="{'md-formdirty': vm.checkFormDirty(vm.reviewform)}"
+                 ng-disabled="vm.isDisableAddComment || vm.saveDisable || vm.isDisableToAccess">
+        Comment
+      </md-button>
+    </div>
+  </md-footer>
+  <md-footer flex="100" layout="row" layout-wrap ng-show="vm.isShowFilterBox">
+    <div flex="100" layout="row" layout-align="end center">
+      <md-button class="md-primary md-raised" ng-click="applyFilter();">Done</md-button>
+    </div>
+  </md-footer>
+  <md-footer flex="100" layout="row" layout-wrap ng-show="vm.isRevReqDescDisp">
+    <div flex="100" layout="row" layout-align="end center">
+      <md-button class="md-primary md-raised" ng-click="revApprove();" ng-if="vm.isUserHasAcceptRejRights && vm.woRequestForReview.accRejStatus == 'P'" ng-disabled="vm.isDisableToAccess">Approve</md-button>
+      <md-button class="md-primary md-raised" ng-click="revReject();" ng-if="vm.isUserHasAcceptRejRights && vm.woRequestForReview.accRejStatus == 'P'" ng-disabled="vm.isDisableToAccess">Decline</md-button>
+      <!--<md-button class="md-raised" ng-click="revCancelClicked();">Cancel</md-button>-->
+    </div>
+  </md-footer>
+</div>
+<div layout="row" flex="100" ng-if="!vm.autoCompleteReviewChanges.keyColumnId">
+  <div class="empty-state text-center full-height" layout="row" layout-align="center center" flex="100" layout-wrap
+       ng-if="vm.reviewChangesList.length > 0">
+    <div class="emty-icon" flex="100">
+      <img ng-src="{{vm.EmptyMesssageForChangeReqSelection.IMAGEURL}}" />
+    </div>
+    <p flex="100" class="empty-state-title">{{vm.EmptyMesssageForChangeReqSelection.MESSAGE}}</p>
+  </div>
+  <div class="empty-state text-center full-height" layout="row" layout-align="center center" flex="100"
+       layout-wrap ng-if="vm.isDataLoaded && vm.reviewChangesList.length == 0">
+    <div class="emty-icon" flex="100">
+      <img ng-src="{{vm.EmptyMesssageNotFound.IMAGEURL}}" />
+    </div>
+    <p flex="100" class="empty-state-title">{{vm.EmptyMesssageNotFound.MESSAGE}}</p>
+  </div>
+</div>

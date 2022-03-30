@@ -1,0 +1,2 @@
+mongod --config "D:\MongoDB\MongoDBReplica1\Config\mongod1.cfg" --storageEngine=wiredTiger --journal --port 27020 --replSet replicasetMain
+mongod --config "D:\MongoDB\MongoDBReplica2\Config\mongod2.cfg" --storageEngine=wiredTiger --journal --port 27030 --replSet replicasetMain

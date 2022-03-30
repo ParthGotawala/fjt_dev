@@ -1,0 +1,102 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed height-100p" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="header" layout="row" layout-align="space-between center">
+    <div layout="row">
+      <div class="white-fg" layout="column" layout-align="start start">
+        <div class="h2" layout="row" layout-align="start center">
+          <pagetitle is-list="true" is-display-menu-name="true"></pagetitle>
+        </div>
+        <div layout="row" layout-align="start center" class="product-count">
+          <breadcrumbs></breadcrumbs>
+        </div>
+      </div>
+    </div>
+    <div layout-align="end center" layout="row" ng-if="!vm.isNoDataFound">
+      <md-button class="md-primary md-raised md-ink-ripple" ng-click="vm.addEditReleaseNotes(null,$event)" ng-if="vm.isUserAdmin">
+        Add Notes
+      </md-button>
+    </div>
+  </div>
+  <div class="content-card padding-top-side " layout="row" layout-padding="" flex>
+    <div flex="25" class="pt-20" ng-if="!vm.isNoDataFound">
+      <md-content class="border border-dark height-100p cm-overflow-hidden">
+        <div class="md-no-sticky color-dark-blue padding-5-imp">
+          <div flex="100" layout="row" layout-align="space-between center">
+            <b class="font-size-16">Release Notes History</b>
+            <md-button class="md-primary md-raised md-ink-ripple" ng-click="vm.addEditRecord(null,$event)" ng-if="vm.isUserAdmin">
+              Add Release
+            </md-button>
+          </div>
+        </div>
+        <md-list class="padding-0 margin-0 cm-release-left" layout-padding="" flex>
+          <md-list-item ng-class="{'cm-releasenote-btn-active':data.isSelected}" ng-repeat="data in vm.releaseNote" class="margin-0 padding-0" ng-click="vm.retriveData(data)">
+            <div flex="100" class="md-list-item-text pl-30" layout="column">
+              <div flex="100" layout="row" layout-align="space-between center">
+                <b class="color-dark-blue font-size-16"> {{data.version}} ({{data.displayReleasedDate}}) </b>
+                <div layout="row" layout-align="end-center">
+                  <md-button class="h-24 md-button md-default-theme md-icon-button md-ink-ripple md-mini mh-0-imp p-0-imp w-24" ng-click="vm.addEditRecord(data,$event)" ng-if="vm.isUserAdmin">
+                    <md-icon role="img" md-font-icon="icon-pencil" class="material-icons mat-icon font-size-17-imp"></md-icon>
+                    <md-tooltip>Update</md-tooltip>
+                  </md-button>
+                  <md-button class="h-24 md-button md-default-theme md-icon-button md-ink-ripple md-mini mh-0-imp p-0-imp w-24" ng-click="vm.deleteRecord(data)" ng-if="vm.isUserAdmin">
+                    <md-icon role="img" md-font-icon="icon-trash" class="material-icons icon-trash font-size-17-imp"></md-icon>
+                    <md-tooltip>Delete</md-tooltip>
+                  </md-button>
+                </div>
+              </div>
+            </div>
+          </md-list-item>
+        </md-list>
+      </md-content>
+    </div>
+    <div flex="75"class="height-100p" ng-if="!vm.isNoDataFound">
+      <div class="md-list-item-text" layout="column">
+        <div flex="100" layout="row" layout-align="start end">
+          <h2 class="font-weight-700 pt-20">
+            {{vm.releaseNotesDetail.version}} Release Notes
+          </h2>
+          <md-button class="h-25 md-button md-default-theme md-icon-button md-ink-ripple md-mini p-0-imp w-25" ng-click="vm.copyReleaseNotes(null,null)">
+            <md-icon role="img" class="color-black cursor-pointer font-size-20 icon-content-copy material-icons md-default-theme mt-1"></md-icon>
+          </md-button>
+        </div>
+        <i class="font-size-14 nowrap cm-color-gray font-weight-700">{{vm.releaseNotesDetail.displayReleasedDate}}  </i>
+      </div>
+      <div class="cm-release-right" id="release-notes">
+        <div id="release-notes_{{$index}}" ng-repeat="datadetail in vm.releaseNoteList">
+          <div class="text-right border-top">
+            <md-button class="md-button md-default-theme md-icon-button md-ink-ripple md-mini mh-0-imp p-0-imp" ng-click="vm.addEditReleaseNotes(datadetail,$event)" ng-if="vm.isUserAdmin">
+              <md-icon role="img" md-font-icon="icon-pencil" class="material-icons mat-icon"></md-icon>
+              <md-tooltip>Update</md-tooltip>
+            </md-button>
+            <md-button class="md-button md-default-theme md-icon-button md-ink-ripple md-mini mh-0-imp p-0-imp" ng-click="vm.copyReleaseNotes(datadetail,$index)">
+              <md-icon role="img" class="color-black cursor-pointer font-size-22 icon-content-copy material-icons md-default-theme ml-5"></md-icon>
+            </md-button>
+            <md-button class="md-button md-default-theme md-icon-button md-ink-ripple md-mini mh-0-imp p-0-imp" ng-click="vm.deleteReleaseNotesDetails(datadetail)" ng-if="vm.isUserAdmin">
+              <md-icon role="img" md-font-icon="icon-trash" class="material-icons icon-trash"></md-icon>
+              <md-tooltip>Delete</md-tooltip>
+            </md-button>
+          </div>
+          <p ng-bind-html="datadetail.notes"></p>
+        </div>
+      </div>
+    </div>
+    <div class="center margin-left-0 margin-right-0" layout="column" flex ng-if="vm.isNoDataFound">
+      <div class="empty-state text-center full-height" layout="row" layout-align="center center" flex="100" layout-wrap>
+        <div class="emty-icon" flex="100">
+          <img ng-src="{{vm.EmptyMesssage.IMAGEURL}}" />
+        </div>
+        <p flex="100" class="empty-state-title">{{vm.EmptyMesssage.MESSAGE}}</p>
+        <p flex="100">{{vm.EmptyMesssage.ADDNEWMESSAGE}}</p>
+        <p flex="100">
+          <md-button class="md-fab md-mini md-icon-button" aria-label="Add" ng-click="vm.addEditRecord(null,$event)">
+            <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus"></md-icon>
+            <md-tooltip>Add</md-tooltip>
+          </md-button>
+          <md-button class="md-fab md-mini md-icon-button" aria-label="Refresh" ng-click="vm.retriveData()">
+            <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus"></md-icon>
+            <md-tooltip>Refresh</md-tooltip>
+          </md-button>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

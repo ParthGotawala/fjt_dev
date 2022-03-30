@@ -1,0 +1,329 @@
+=============================================================================
+-> Execute Below Scripts in MySQL Workbench.(in FJT Main Database) - Bhavik Thummar (26-02-2021)
+=============================================================================
+ALTER TABLE `reportmaster` CHANGE COLUMN `reportType` `reportViewType` TINYINT(1) NULL DEFAULT '0' ; 
+/***********************************************************************************/
+ALTER TABLE `reportmaster` CHANGE COLUMN `reportCategory` `reportGenerationType` VARCHAR(1) NULL DEFAULT '1' ;   
+/***********************************************************************************/
+ALTER TABLE `reportmaster` DROP COLUMN `category`; 
+/***********************************************************************************/
+ALTER TABLE `reportmaster`    
+ADD COLUMN `reportCategoryId` INT NULL AFTER `reportGenerationType`,   
+ADD INDEX `FK_reportmaster_reportCategoryId` (`reportCategoryId` ASC) VISIBLE;   
+/***********************************************************************************/
+ALTER TABLE `reportmaster`    
+ADD CONSTRAINT `FK_reportmaster_reportCategoryId`   
+  FOREIGN KEY (`reportCategoryId`)   
+  REFERENCES `genericcategory` (`gencCategoryID`)   
+  ON DELETE NO ACTION   
+  ON UPDATE NO ACTION;  
+/***********************************************************************************/
+ALTER TABLE `reportmaster` ADD COLUMN `isDefaultReport` TINYINT(1) NULL DEFAULT '0' AFTER `reportCategoryId`;
+/***********************************************************************************/
+ALTER TABLE `reportmaster` 
+CHANGE COLUMN `fileName` `fileName` VARCHAR(255) NULL DEFAULT NULL ,
+CHANGE COLUMN `draftFileName` `draftFileName` VARCHAR(255) NULL DEFAULT NULL ;
+/***********************************************************************************/
+ALTER TABLE `reportmaster` DROP COLUMN `isDraft`;
+/***********************************************************************************/
+ALTER TABLE `reportmaster` ADD COLUMN `reportTitle` VARCHAR(255) NULL AFTER `rdlcReportFileName`;
+/***********************************************************************************/
+CREATE TABLE `reportviewerparameter` (
+  `parameterGUID` char(36) NOT NULL,
+  `reportId` int NOT NULL,
+  `parameterValues` longtext,
+  `isDeleted` tinyint NOT NULL DEFAULT '0',
+  `createdBy` varchar(255) NOT NULL,
+  `updatedBy` varchar(255) DEFAULT NULL,
+  `deletedBy` varchar(255) DEFAULT NULL,
+  `createByRoleId` int NOT NULL,
+  `updateByRoleId` int DEFAULT NULL,
+  `deleteByRoleId` int DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `deletedAt` datetime DEFAULT NULL,
+  PRIMARY KEY (`parameterGUID`),
+  KEY `reportId_idx` (`reportId`),
+  CONSTRAINT `reportId` FOREIGN KEY (`reportId`) REFERENCES `reportmaster` (`id`)
+);
+/***********************************************************************************/
+CREATE TABLE `reportmasterparameter` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `reportId` int NOT NULL,
+  `parmeterMappingid` int NOT NULL,
+  `isRequired` tinyint NOT NULL DEFAULT '0',
+  `isDeleted` tinyint NOT NULL DEFAULT '0',
+  `createdBy` varchar(255) NOT NULL,
+  `updatedBy` varchar(255) DEFAULT NULL,
+  `deletedBy` varchar(255) DEFAULT NULL,
+  `createByRoleId` int NOT NULL,
+  `updateByRoleId` int DEFAULT NULL,
+  `deleteByRoleId` int DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `deletedAt` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `reportId_idx` (`reportId`),
+  KEY `parmeterMappingid_idx` (`parmeterMappingid`),
+  CONSTRAINT `parmeterMappingid` FOREIGN KEY (`parmeterMappingid`) REFERENCES `report_parameter_setting_mapping` (`id`),
+  CONSTRAINT `reportId_` FOREIGN KEY (`reportId`) REFERENCES `reportmaster` (`id`)
+);
+/***********************************************************************************/
+ALTER TABLE `reportviewerparameter` ADD COLUMN `reportName` VARCHAR(255) NULL DEFAULT NULL AFTER `reportId`;
+/***********************************************************************************/
+ALTER TABLE `report_parameter_setting_mapping` ADD COLUMN `isHiddenParameter` TINYINT(1) DEFAULT NULL DEFAULT '0' AFTER `displayName`;
+/***********************************************************************************/DROP FUNCTION IF EXISTS `fun_getReportCategoryNameByCategoryID`;
+DELIMITER $$
+CREATE DEFINER=`root`@`%` FUNCTION `fun_getReportCategoryNameByCategoryID`(          
+	pCategoryId varchar(50)        
+) RETURNS text CHARSET utf8mb4
+BEGIN          
+	DECLARE vCategoryName VARCHAR(50);         
+		SELECT DISTINCT gc.gencCategoryName INTO vCategoryName     
+		FROM genericcategory gc    
+		join reportmaster r on gc.gencCategoryID = r.reportCategoryId  
+		WHERE  gc.gencCategoryID = pCategoryId;      
+	RETURN vCategoryName;      
+END$$
+DELIMITER ;
+/***********************************************************************************/
+DROP FUNCTION IF EXISTS `fun_getReportNameByReportID`;
+DELIMITER $$
+CREATE DEFINER=`root`@`%` FUNCTION `fun_getReportNameByReportID`(          
+	pReportId INT        
+) RETURNS text CHARSET utf8mb4
+BEGIN          
+	DECLARE vReportName VARCHAR(255);         
+		SELECT DISTINCT r.reportName INTO vReportName     
+		FROM reportmaster r
+		WHERE  r.id = pReportId ANd r.isDeleted = false;      
+	RETURN vReportName;      
+END$$
+DELIMITER ;
+/***********************************************************************************/
+DROP PROCEDURE IF EXISTS `Sproc_RetrieveReportList`;
+DELIMITER $$
+CREATE DEFINER=`root`@`%` PROCEDURE `Sproc_RetrieveReportList`(                    
+	IN ppageIndex INT,                    
+	IN precordPerPage INT,                    
+	IN pOrderBy VARCHAR(255),                    
+	IN pWhereClause VARCHAR(16383),      
+    IN pIsDynamicReport TINYINT,    
+    IN pIsPublishReport TINYINT    
+	)
+BEGIN                    
+  
+		DECLARE pOffset INT;                    
+		DECLARE rowNumWhere VARCHAR(255) ;       
+		DECLARE vDateTimeDisplayFormat VARCHAR(100);                     
+		DECLARE vTimeZone VARCHAR(50);                     
+		SELECT fun_getTimeZone() INTO vTimeZone;            
+		SELECT fun_getDateTimeFormat() INTO vDateTimeDisplayFormat;                  
+  
+	SET @SQLStatement1="  ";            
+	IF pIsDynamicReport = TRUE THEN        
+		SET @SQLStatement1= " and reportGenerationType != 1";         
+	END IF;       
+  
+    IF pIsPublishReport = TRUE THEN        
+		SET @SQLStatement1= " and status = 1 and r.entityId is null";         
+	END IF;       
+  
+		SET @tempQuery = CONCAT("SELECT r.*,        
+			fun_getUserNameByID(r.updatedBy) updatedbyvalue,        
+			fun_getUserNameByID(r.createdBy) createdbyvalue,         
+			fun_getRoleByID(r.createByRoleId) createdbyRolevalue,        
+			fun_getRoleByID(r.updateByRoleId) updatedbyRolevalue,    
+			fun_getReportCategoryNameByCategoryID(r.reportCategoryId) category,
+			fun_ApplyCommonDateTimeFormatByParaValue(r.createdAt,'",vTimeZone,"', '",vDateTimeDisplayFormat,"') createdAtvalue,  
+			fun_ApplyCommonDateTimeFormatByParaValue(r.UpdatedAt,'",vTimeZone,"', '",vDateTimeDisplayFormat,"') updatedAtvalue,          
+			(CASE WHEN reportViewType THEN 'Detail' ELSE 'Summary' END) reportTypeConvertedvalue,   -- changecolumnnamr 
+			e.entityName,   
+			( CASE WHEN (r.status = 0) THEN 'Draft' WHEN (r.status = 1) THEN 'Published' ELSE '' END ) AS statusConvertedValue,
+			( CASE WHEN (r.reportGenerationType = '4') THEN 'Yes' ELSE 'No' END ) AS systemGenerated,
+			( CASE WHEN (r.reportGenerationType = '4') THEN '1' ELSE '0' END ) AS isSystemGenerated,
+			fun_getReportNameByReportID(r.refReportId) cloneFrom, 
+			fun_ConvertUTCDatetimeToDataKeyTimeZone(r.startDesigningDate) startActivityDate,             
+			fun_getUserNameByID(r.editingBy) activityStartBy
+		FROM `reportmaster`  r     
+        left join entity e on e.entityId = r.entityId    
+        left join report_change_logs rc on r.id = rc.reportId and endActivityDate is null    
+		WHERE r.deletedAt IS NULL and r.reportGenerationType != 3", @SQLStatement1);        -- changecolumnnamr   
+
+		IF (pOrderBy IS NULL OR pOrderBy = '') THEN                    
+			SET pOrderBy = "ORDER BY reportName ASC";                    
+		ELSE                    
+			SET pOrderBy = CONCAT("ORDER BY " , pOrderBy) ;                    
+		END IF;	                    
+  
+		IF(pWhereClause IS NULL OR pWhereClause = '') THEN                    
+			SET pWhereClause = '1=1' ;                    
+		END IF;	                    
+  
+		IF(ppageIndex <> 0 AND precordPerPage <> 0) THEN                     
+			SET pOffset = (ppageIndex -1) * precordPerPage; 		                    
+			SET rowNumWhere = CONCAT(" LIMIT " , pRecordPerPage , " OFFSET " , pOffset) ;                    
+		ELSE	                    
+			SET rowNumWhere = '';                    
+		END IF;	                    
+  
+		/* to get total count of rows */               
+			SET @SQLStatement2 = CONCAT(" SELECT COUNT(1) as TotalRecord from ( ",@tempquery," ) c where 1=1 and ", pWhereClause);              
+  
+			PREPARE query2 FROM @SQLStatement2;              
+			EXECUTE query2;              
+			DEALLOCATE PREPARE query2;            
+
+			SET @SQLStatement2 = CONCAT("select * from ( ", @tempquery," ) c              
+				where ", pWhereClause , " " , pOrderBy , rowNumWhere);              
+  
+			PREPARE query1 FROM @SQLStatement2;              
+			EXECUTE query1;              
+			DEALLOCATE PREPARE query1;           
+
+    END$$
+DELIMITER ;
+/***********************************************************************************/
+DROP PROCEDURE IF EXISTS `Sproc_GetCommonFormatDetail`;
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Sproc_GetCommonFormatDetail`()
+BEGIN  
+Select JSON_UNQUOTE(json_extract(json_extract(s.values, "$.UnitPrice"), "$.Decimal")) unitpriceDecimal  
+		,JSON_UNQUOTE(json_extract(json_extract(s.values, "$.UnitPrice"), "$.Step")) unitpriceStep  
+		,JSON_UNQUOTE(json_extract(json_extract(s.values, "$.UnitPrice"), "$.Report")) unitpriceReport  
+		,JSON_UNQUOTE(json_extract(json_extract(s.values, "$.Unit"), "$.Decimal")) unitDecimal  
+		,JSON_UNQUOTE(json_extract(json_extract(s.values, "$.Unit"), "$.Step")) unitStep  
+		,JSON_UNQUOTE(json_extract(json_extract(s.values, "$.Unit"), "$.Report")) unitReport  
+		,JSON_UNQUOTE(json_extract(json_extract(s.values, "$.Amount"), "$.Decimal")) amountDecimal  
+		,JSON_UNQUOTE(json_extract(json_extract(s.values, "$.Amount"), "$.Step")) amountStep  
+		,JSON_UNQUOTE(json_extract(json_extract(s.values, "$.Amount"), "$.Report")) amountReport  
+		,(Select   
+			JSON_UNQUOTE(json_extract(s.values, "$.ReportDateFormat")) DateFormat  
+		from systemconfigrations s where s.key = 'DatePickerDateFormat') DateFormat
+		,(Select   
+			JSON_UNQUOTE(json_extract(s.values, "$.ReportTimeFormat")) TimeFormat  
+		from systemconfigrations s where s.key = 'TimePickerTimeFormat') TimeFormat  
+		,(Select   
+			JSON_UNQUOTE(json_extract(s.values, "$.ReportDateTimeFormat")) DateTimeFormat  
+		from systemconfigrations s where s.key = 'DateTimePickerDateTimeFormat') DateTimeFormat  
+		,(Select   
+			JSON_UNQUOTE(json_extract(s.values, "$.HeaderTitleFontSize")) HeaderTitleFontSize  
+		from systemconfigrations s where s.key = 'ReportCommonData') HeaderTitleFontSize  
+		,(Select   
+			JSON_UNQUOTE(json_extract(s.values, "$.HeaderTitleFontFamily")) HeaderTitleFontFamily  
+		from systemconfigrations s where s.key = 'ReportCommonData') HeaderTitleFontFamily  
+		,(Select   
+			JSON_UNQUOTE(json_extract(s.values, "$.HeaderTitleFontColor")) HeaderTitleFontColor  
+		from systemconfigrations s where s.key = 'ReportCommonData') HeaderTitleFontColor  
+		,(Select cd.values from systemconfigrations cd where cd.key = 'CompanyLogo') CompanyLogo  
+		,(Select cd.values from systemconfigrations cd where cd.key = 'Report-Disclaimer') ReportDisclaimer  
+		,(Select cd.values from systemconfigrations cd where cd.key = 'Terms & Condition') TermsAndCondition  
+	from systemconfigrations s where s.key = 'CommonNumberFormat';   
+END$$
+DELIMITER ;
+/***********************************************************************************/ALTER TABLE `report_parameter_setting_mapping` 
+ADD COLUMN `dataSourceId` INT NULL DEFAULT NULL AFTER `type`,
+ADD INDEX `dataSourceId_idx` (`dataSourceId` ASC) VISIBLE;
+/***********************************************************************************/
+ALTER TABLE `report_parameter_setting_mapping` 
+ADD CONSTRAINT `dataSourceId` FOREIGN KEY (`dataSourceId`) REFERENCES `fixed_entity_dataelement` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+/***********************************************************************************/
+INSERT INTO `fixed_entity_dataelement` 
+(`tableName`, `displayColumnPKField`, `displayColumnField`, `createdAt`, `updatedAt`, `createdBy`, `isDeleted`, `filter`, `displayEntityName`) 
+VALUES 
+('rfq_mountingtypemst', 'id', 'name', fun_DatetimetoUTCDateTime(), fun_DatetimetoUTCDateTime(), '1', '0', 'isActive = 1', 'Mounting Type'),
+('component_partstatusmst', 'id', 'name', fun_DatetimetoUTCDateTime(), fun_DatetimetoUTCDateTime(), '1', '0', 'isActive = 1', 'Part Status'), 
+('rfq_parttypemst', 'id', 'partTypeName', fun_DatetimetoUTCDateTime(), fun_DatetimetoUTCDateTime(), '1', '0', 'isActive = 1', 'Functional Type'),
+('component', 'id', 'mfgPN', fun_DatetimetoUTCDateTime(), fun_DatetimetoUTCDateTime(), '1', '0', null, 'Mfg PN'),
+('customer_packingslip', 'id', 'packingSlipNumber', fun_DatetimetoUTCDateTime(), fun_DatetimetoUTCDateTime(), '1', '0', null, 'Packing Slip');
+/***********************************************************************************/
+select id into @packingSlipSourceID from `fixed_entity_dataelement` where displayEntityName = 'Packing Slip';
+
+INSERT INTO `report_parameter_setting_mapping`
+(`reportParamName`,`dbColumnName`,`displayName`,`isHiddenParameter`,`type`,`dataSourceId`,`options`,`createdBy`,`createByRoleId`,`createdAt`)
+VALUES
+('Para_Packing_SlipId','packingSlipId','Packing Slip',1,'A', @packingSlipSourceID, null,'1',1,fun_DatetimetoUTCDateTime()),
+('Para_Report_Version','reportVersion','Version',1,'TB', null, null,'1',1,fun_DatetimetoUTCDateTime());
+/***********************************************************************************/
+select id INTO @entityId FROM fixed_entity_dataelement WHERE displayEntityName = 'Customers';
+UPDATE report_parameter_setting_mapping SET dataSourceId = @entityId,type= 'M', options = null WHERE reportParamName = 'Para_CustomerID';
+
+select id INTO @entityId FROM fixed_entity_dataelement WHERE displayEntityName = 'Mfg PN';
+UPDATE report_parameter_setting_mapping SET dataSourceId = @entityId,type= 'A', options = null WHERE reportParamName = 'Para_PartID';
+
+select id INTO @entityId FROM fixed_entity_dataelement WHERE displayEntityName = 'Personnel';
+UPDATE report_parameter_setting_mapping SET dataSourceId = @entityId,type= 'A', options = null WHERE reportParamName = 'Para_EmployeeID';
+
+select id INTO @entityId FROM fixed_entity_dataelement WHERE displayEntityName = 'Suppliers';
+UPDATE report_parameter_setting_mapping SET dataSourceId = @entityId,type= 'M', options = null WHERE reportParamName = 'Para_SupplierID';
+
+select id INTO @entityId FROM fixed_entity_dataelement WHERE displayEntityName = 'Manufacturers';
+UPDATE report_parameter_setting_mapping SET dataSourceId = @entityId,type= 'M', options = null WHERE reportParamName = 'Para_MfgCodeID';
+
+select id INTO @entityId FROM fixed_entity_dataelement WHERE displayEntityName = 'Assembly';
+UPDATE report_parameter_setting_mapping SET dataSourceId = @entityId,type= 'A', options = null WHERE reportParamName = 'Para_AssyID';
+
+select id INTO @entityId FROM fixed_entity_dataelement WHERE displayEntityName = 'Mounting Type';
+UPDATE report_parameter_setting_mapping SET dataSourceId = @entityId,type= 'M', options = null WHERE reportParamName = 'Para_MountingTypeID';
+
+select id INTO @entityId FROM fixed_entity_dataelement WHERE displayEntityName = 'Functional Type';
+UPDATE report_parameter_setting_mapping SET dataSourceId = @entityId,type= 'M', options = null WHERE reportParamName = 'Para_FunctionalTypeID';
+
+select id INTO @entityId FROM fixed_entity_dataelement WHERE displayEntityName = 'Part Status' and tablename = 'component_partstatusmst'; /*Need Confirm with AP/VS */
+UPDATE report_parameter_setting_mapping SET dataSourceId = @entityId,type= 'M', options = null WHERE reportParamName = 'Para_PartStatusID';
+
+select id INTO @entityId FROM fixed_entity_dataelement WHERE displayEntityName = 'Work Orders';
+UPDATE report_parameter_setting_mapping SET dataSourceId = @entityId,type= 'A', options = null WHERE reportParamName = 'Para_WorkorderID';
+
+select id INTO @entityId FROM fixed_entity_dataelement WHERE displayEntityName = 'Operations';
+UPDATE report_parameter_setting_mapping SET dataSourceId = @entityId,type= 'A', options = null WHERE reportParamName = 'Para_OperationID';
+/***********************************************************************************/
+UPDATE report_parameter_setting_mapping SET type= 'C', options = null WHERE reportParamName = 'Para_WithAlternateParts';
+UPDATE report_parameter_setting_mapping SET dataSourceId = @entityId,type= 'R', options = '{"1":{ "Key":"Key1", "Value":"Key1Value"},"2":{ "Key":"Key2", "Value":"Key2Value"}}' WHERE reportParamName = 'Para_RadioButtonFilter';
+UPDATE report_parameter_setting_mapping SET type= 'D' WHERE reportParamName = 'Para_FromDate';
+UPDATE report_parameter_setting_mapping SET type= 'D' WHERE reportParamName = 'Para_ToDate';
+UPDATE report_parameter_setting_mapping SET type= 'T' WHERE reportParamName = 'Para_FromTime';
+UPDATE report_parameter_setting_mapping SET type= 'T' WHERE reportParamName = 'Para_ToTime';
+/***********************************************************************************/
+/*To make system generated entry for entity report ‘Customer Packing Slip*/
+select entityID INTO @entityId FROM entity WHERE entityName = 'Customer Packing Slip';
+INSERT INTO `reportmaster`
+(`reportName`,`rdlcReportFileName`,`reportTitle`,`createdAt`,`createdBy`,`createByRoleId`,`fileName`,`status`,`entityId`,`reportGenerationType`,`reportCategoryId`,`isDefaultReport`)
+VALUES
+('Customer Packing Slip','Customer Packing Slip','Packing Slip',fun_DatetimetoUTCDateTime(),'1',1,'CustomerPackingSlip',1,@entityId,4,null,1);
+/***********************************************************************************/
+/*To make system generated entry for entity report parameter*/
+select id INTO @reportId FROM reportmaster WHERE fileName = 'CustomerPackingSlip';
+select id INTO @parameterId FROM report_parameter_setting_mapping WHERE reportParamName = 'Para_Packing_SlipId';
+INSERT INTO `reportmasterparameter`
+(`reportId`,`parmeterMappingid`,`isRequired`,`createdBy`,`createByRoleId`,`createdAt`)
+VALUES
+(@reportId,@parameterId,1,'1',1,fun_DatetimetoUTCDateTime());
+/***********************************************************************************/
+ALTER TABLE `fixed_entity_dataelement` ADD COLUMN `displayFormattedColumnField` LONGTEXT NULL AFTER `displayColumnField`;
+/***********************************************************************************/
+UPDATE `fixed_entity_dataelement` SET `displayFormattedColumnField` = '{\"displayFormat\": \"concat(\'(\', mfgCode, \') \', mfgName)\",\"searchColmns\": [\"mfgCode\", \"mfgName\"],\"sortBy\": [],\"alias\": \"\"}' WHERE (`displayEntityName` = 'Customers');
+
+UPDATE `fixed_entity_dataelement` SET `displayFormattedColumnField` = '{\"displayFormat\": \"concat(\'(\', mfgCode, \') \', mfgName)\",\"searchColmns\": [\"mfgCode\", \"mfgName\"],\"sortBy\": [],\"alias\": \"\"}' WHERE (`displayEntityName` = 'Suppliers');
+
+UPDATE `fixed_entity_dataelement` SET `displayFormattedColumnField` = '{\"displayFormat\": \"concat(\'(\', initialName, \') \', firstName ,\' \', lastName)\",\"searchColmns\": [\"initialName\", \"firstName\", \"lastName\"],\"sortBy\": [],\"alias\": \"\"}' WHERE (`displayEntityName` = 'Personnel');
+
+UPDATE `fixed_entity_dataelement` SET `displayFormattedColumnField` = '{\"displayFormat\": \"opName\",\"searchColmns\": [\"opName\"],\"sortBy\": [],\"alias\": \"\"}' WHERE (`displayEntityName` = 'Operations');
+
+UPDATE `fixed_entity_dataelement` SET `displayFormattedColumnField` = '{\"displayFormat\": \"concat(\'(\', mfgCode, \') \', mfgName)\",\"searchColmns\": [\"mfgCode\", \"mfgName\"],\"sortBy\": [],\"alias\": \"\"}' WHERE (`displayEntityName` = 'Manufacturers');
+
+UPDATE `fixed_entity_dataelement` SET `displayFormattedColumnField` = '{\"displayFormat\": \"concat(soNumber, \' | \', poNumber,\' | \' , packingSlipNumber)\",\"searchColmns\": [\"soNumber\", \"poNumber\", \"packingSlipNumber\"],\"sortBy\": [],\"alias\": \"\"}' WHERE (`displayEntityName` = 'Packing Slip');
+
+UPDATE `fixed_entity_dataelement` SET `displayFormattedColumnField` = '{\"displayFormat\": \"woNumber\",\"searchColmns\": [\"woNumber\"],\"sortBy\": [],\"alias\": \"\"}' WHERE (`displayEntityName` = 'Work Orders');
+
+UPDATE `fixed_entity_dataelement` SET `displayFormattedColumnField` = '{\"displayFormat\": \"PIDCode\",\"searchColmns\": [\"PIDCode\"],\"sortBy\": [],\"alias\": \"\"}' WHERE (`displayEntityName` = 'Assembly');
+
+UPDATE `fixed_entity_dataelement` SET `displayFormattedColumnField` = '{\"displayFormat\": \"name\",\"searchColmns\": [\"name\"],\"sortBy\": [],\"alias\": \"\"}' WHERE (`displayEntityName` = 'Mounting Type');
+
+UPDATE `fixed_entity_dataelement` SET `displayFormattedColumnField` = '{\"displayFormat\": \"name\",\"searchColmns\": [\"name\"],\"sortBy\": [],\"alias\": \"\"}' WHERE (`displayEntityName` = 'Part Status' and tablename = 'component_partstatusmst'); /*Need Confirm with AP/VS */
+
+UPDATE `fixed_entity_dataelement` SET `displayFormattedColumnField` = '{\"displayFormat\": \"partTypeName\",\"searchColmns\": [\"partTypeName\"],\"sortBy\": [],\"alias\": \"\"}' WHERE (`displayEntityName` = 'Functional Type');
+
+UPDATE `fixed_entity_dataelement` SET `displayFormattedColumnField` = '{\"displayFormat\": \"mfgPN\",\"searchColmns\": [\"mfgPN\"],\"sortBy\": [],\"alias\": \"\"}' WHERE (`displayEntityName` = 'Mfg PN');
+
+/***********************************************************************************/

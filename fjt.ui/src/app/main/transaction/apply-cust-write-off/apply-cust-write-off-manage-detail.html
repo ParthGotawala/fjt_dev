@@ -1,0 +1,710 @@
+<div id="forms" class="page-layout simple fullwidth doc-page breadcrumb-fixed cm-custom-label-common" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="content-card" layout="column" flex="100">
+    <div layout="row" flex="100">
+      <div flex="100">
+        <form name="vm.custPaymentWriteOffForm" layout="row" layout-wrap class="md-inline-form padding-10-imp" ms-form-wizard-form novalidate>
+          <md-button id="btnRequireColValidation" type="submit" ng-hide="true"></md-button>
+          <fieldset flex="100" class="container-box margin-bottom-5">
+            <div class="cm-section-main border-0" flex="100">
+              <div class="cm-section-inner p-0-imp" layout="row" flex="100" layout-wrap>
+                <div flex="35" layout="column" class="flex-rs-md-50">
+                  <div layout="row" flex="100" class="material-section-devider">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-cust-payment-info">
+                      <tbody>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">
+                              <a tabindex="-1" class="cm-text-decoration" ng-click="vm.goToCustomerList();">{{vm.autoCompleteCustomer.placeholderName}}</a>
+                              <span ng-if="!vm.custPaymentMstID">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td colspan="5">
+                            <md-input-container flex="100" ng-if="vm.autoCompleteCustomer" class="autocompletecustom cm-custom-autocomplete margin-0">
+                              <custom-auto-complete datalist="vm.customerList"
+                                                    column-name="vm.autoCompleteCustomer.columnName"
+                                                    controller-name="vm.autoCompleteCustomer.controllerName"
+                                                    view-template-url="vm.autoCompleteCustomer.viewTemplateURL"
+                                                    key-column-name="vm.autoCompleteCustomer.keyColumnName"
+                                                    input-name="vm.autoCompleteCustomer.inputName"
+                                                    placeholder-name="vm.autoCompleteCustomer.placeholderName"
+                                                    key-column-id="vm.autoCompleteCustomer.keyColumnId"
+                                                    is-required="vm.autoCompleteCustomer.isRequired"
+                                                    is-disabled="vm.custPaymentMstID || vm.isCustPaymentLocked || vm.custPaymentModel.isPaymentVoided"
+                                                    is-addnew="vm.autoCompleteCustomer.isAddnew"
+                                                    callback-fn="vm.autoCompleteCustomer.callbackFn"
+                                                    add-data="vm.autoCompleteCustomer.addData"
+                                                    on-select-callback-fn="vm.autoCompleteCustomer.onSelectCallbackFn"
+                                                    custom-auto-focus="{{vm.custPaymentMstID ? false : true}}">
+                              </custom-auto-complete>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">
+                              Write Off Amount ($)
+                              <md-icon class="icon-question-mark-circle help-icon margin-right-5">
+                                <md-tooltip md-direction="top" class="tooltip-height-auto">
+                                  <span>{{vm.custPayDiffNotesConst.WriteOffAmtTooltip}}</span>
+                                </md-tooltip>
+                              </md-icon>
+                              <span ng-if="!vm.custPaymentMstID">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td colspan="2">
+                            <md-input-container flex="100" class="input-with-usd-symbol padding-left-0-imp margin-top-4 cm-invoice-amt-diff-font width-auto">
+                              <md-icon md-font-icon="icon-currency-usd" class="usdicon"></md-icon>
+                              <input type="number" id="paymentAmount" class="font-weight-700" name="paymentAmount" ng-model="vm.custPaymentModel.paymentAmount" placeholder="Write Off Amount"
+                                     ng-maxlength="13"
+                                     min="0.01" max="9999999999.99"
+                                     input-number-decimal-place
+                                     onkeypress="return OnlyNumbersWithDot(event)"
+                                     oninput="validateTwoDecimalOnly(this.value)"
+                                     step="{{$root.amountInputStep}}" required
+                                     ng-model-options="{ debounce: vm.debounceTimeIntervalConst }"
+                                     ng-disabled="true">
+                              <div ng-messages="vm.custPaymentWriteOffForm.paymentAmount.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="min">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="max">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="step">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                          <th><p class="label-container pt-2">Date<span>&nbsp;*</span></p></th>
+                          <td>
+                            <md-input-container class="datepicker padding-right-0-imp margin-bottom-0 max-width-150">
+                              <input name="paymentDate" type="text" class="float-left"
+                                     id="paymentDate"
+                                     max-value="vm.chequeDateOptions.maxDate"
+                                     allow-past-date="true"
+                                     allow-future-date="true"
+                                     datetime-picker="{{$root.dateDisplayFormat}}"
+                                     ng-model="vm.custPaymentModel.paymentDate"
+                                     enable-time="false"
+                                     ui-options="{clearOnBlur: true}"
+                                     ui-mask="{{$root.uimaskFormat.date.mask}}"
+                                     ui-mask-placeholder="{{$root.uimaskFormat.date.placeholder}}"
+                                     model-view-value="true"
+                                     datepicker-options="vm.chequeDateOptions"
+                                     is-open="vm.IsPickerOpen[vm.DATE_PICKER.paymentDate]"
+                                     ng-required="true"
+                                     custom-auto-focus="{{vm.custPaymentMstID ? true : false}}"
+                                     ng-disabled="vm.isCustPaymentLocked || vm.custPaymentModel.isPaymentVoided" />
+                              <md-icon md-font-icon="icon-calendar calender-icon"
+                                       ng-click="vm.IsPickerOpen[vm.DATE_PICKER.paymentDate] = (vm.isCustPaymentLocked || vm.custPaymentModel.isPaymentVoided) ? false : true">
+                              </md-icon>
+                              <div ng-messages="vm.custPaymentWriteOffForm.paymentDate.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="datetime">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                </div>
+                                <div ng-message="maxvalue">
+                                  <span>{{vm.maxAllowedPaymentDateMsg}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToCustWriteOffPaymentList();" tabindex="-1">Write Off#</a>
+                            </p>
+                          </th>
+                          <td colspan="4">
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="text" id="paymentNumber" name="paymentNumber"
+                                     ng-model="vm.custPaymentModel.paymentNumber" placeholder="Write Off#"
+                                     ng-maxlength="50" autocomplete="off"
+                                     folder-no-special-character
+                                     ng-disabled="true">
+                              <span class="font-size-10"><b>{{vm.customerPaymentNotesConst.WriteOffTotAmtHint}}</b></span>
+                              <div ng-messages="vm.custPaymentWriteOffForm.paymentNumber.$error" role="alert">
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(50,vm.custPaymentWriteOffForm.paymentNumber.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              {{vm.LabelConstant.COMMON.GRIDHEADER_MODYFYBY}}
+                            </p>
+                          </th>
+                          <td>
+                            <a tabindex="-1" class="cm-text-decoration underline h4 text-bold" ng-click="vm.goToManagePersonal(vm.custPaymentModel.updatedByEmpID);" ng-if="vm.custPaymentModel && vm.custPaymentModel.updatedByEmpInitialName">
+                              {{vm.custPaymentModel.updatedByEmpInitialName || '-'}}
+                            </a>
+                            <md-icon class="icon-question-mark-circle help-icon margin-right-5" ng-if="vm.custPaymentMstID">
+                              <md-tooltip class="cm-tooltip-table-data tooltip-height-auto pv-3" md-direction="top">
+                                <div>
+                                  <table cellspacing="0" cellpadding="0" border="1">
+                                    <tr>
+                                      <th>
+                                        {{vm.LabelConstant.COMMON.GRIDHEADER_MODIFY_DATE}}
+                                      </th>
+                                      <td>
+                                        {{vm.custPaymentModel.updatedAt || '-'}}
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </div>
+                              </md-tooltip>
+                            </md-icon>
+                          </td>
+                          <th>
+                            <p class="label-container">
+                              {{vm.LabelConstant.COMMON.GRIDHEADER_CREATEDBY}}
+                            </p>
+                          </th>
+                          <td>
+                            <div class="data-align-to-label">
+                              <a tabindex="-1" class="cm-text-decoration underline h4 text-bold" ng-click="vm.goToManagePersonal(vm.custPaymentModel.createdByEmpID);" ng-if="vm.custPaymentModel && vm.custPaymentModel.createdByEmpInitialName">
+                                {{vm.custPaymentModel.createdByEmpInitialName || '-'}}
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div flex="30" layout="column" class="flex-rs-md-50">
+                  <div layout="row" flex="100" class="material-section-devider">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-cust-payment-info">
+                      <tbody>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToCustomerBillToPage();"
+                                 tabindex="-1" ng-if="vm.autoCompleteCustomer.keyColumnId">Account Reference</a>
+                              <span class="color-black" ng-if="!vm.autoCompleteCustomer.keyColumnId">Account Reference</span>
+                              <md-icon class="icon-question-mark-circle help-icon margin-right-5">
+                                <md-tooltip md-direction="top" class="tooltip-height-auto">
+                                  <span>{{vm.custPayDiffNotesConst.AccountReferenceTooltip}}</span>
+                                </md-tooltip>
+                              </md-icon><span ng-if="!vm.custPaymentModel.accountReference">&nbsp;*</span>
+                            </p>
+                          </th>
+                          <td colspan="3">
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <input type="text" id="accountReference" name="accountReference" ng-model="vm.custPaymentModel.accountReference"
+                                     placeholder="Account Reference" ng-maxlength="50" required
+                                     disabled>
+                              <div layout="row" class="autocomplete-refresh-icons" layout-align="center center"
+                                   ng-if="!vm.custPaymentMstID">
+                                <md-button class="margin-0 md-icon-button md-ink-ripple" tabindex="-1"
+                                           ng-click="vm.refreshCustAccountReference()"><md-icon class="mdi mdi-refresh"></md-icon></md-button>
+                              </div>
+                              <span class="font-size-10"><b>{{vm.custPayDiffNotesConst.AccountReferenceNote}}</b></span>
+                              <div ng-messages="vm.custPaymentWriteOffForm.accountReference.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(50,vm.custPaymentWriteOffForm.accountReference.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToPaymentMethodList();"
+                                 tabindex="-1">{{vm.autoCompletePaymentMethodType.placeholderName}}</a>
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100"
+                                                ng-if="vm.autoCompletePaymentMethodType">
+                              <custom-auto-complete datalist="vm.paymentMethodTypeList"
+                                                    column-name="vm.autoCompletePaymentMethodType.columnName"
+                                                    controller-name="vm.autoCompletePaymentMethodType.controllerName"
+                                                    view-template-url="vm.autoCompletePaymentMethodType.viewTemplateURL"
+                                                    key-column-name="vm.autoCompletePaymentMethodType.keyColumnName"
+                                                    input-name="vm.autoCompletePaymentMethodType.inputName"
+                                                    placeholder-name="vm.autoCompletePaymentMethodType.placeholderName"
+                                                    key-column-id="vm.autoCompletePaymentMethodType.keyColumnId"
+                                                    is-required="!(vm.isCustPaymentLocked || vm.custPaymentModel.isPaymentVoided)"
+                                                    is-addnew="vm.autoCompletePaymentMethodType.isAddnew"
+                                                    add-data="vm.autoCompletePaymentMethodType.addData"
+                                                    callback-fn="vm.autoCompletePaymentMethodType.callbackFn"
+                                                    on-select-callback-fn="vm.autoCompletePaymentMethodType.onSelectCallbackFn"
+                                                    is-disabled="true">
+                              </custom-auto-complete>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              Transaction Mode
+                            </p>
+                          </th>
+                          <td>
+                            <md-input-container class="autocompletecustom cm-custom-autocomplete margin-0" flex="100"
+                                                ng-if="vm.autoCompleteGencTransactionMode">
+                              <custom-auto-complete datalist="vm.gencTransactionModeList"
+                                                    column-name="vm.autoCompleteGencTransactionMode.columnName"
+                                                    controller-name="vm.autoCompleteGencTransactionMode.controllerName"
+                                                    view-template-url="vm.autoCompleteGencTransactionMode.viewTemplateURL"
+                                                    key-column-name="vm.autoCompleteGencTransactionMode.keyColumnName"
+                                                    input-name="vm.autoCompleteGencTransactionMode.inputName"
+                                                    placeholder-name="vm.autoCompleteGencTransactionMode.placeholderName"
+                                                    key-column-id="vm.autoCompleteGencTransactionMode.keyColumnId"
+                                                    is-required="false"
+                                                    is-addnew="vm.autoCompleteGencTransactionMode.isAddnew"
+                                                    add-data="vm.autoCompleteGencTransactionMode.addData"
+                                                    callback-fn="vm.autoCompleteGencTransactionMode.callbackFn"
+                                                    on-select-callback-fn="vm.autoCompleteGencTransactionMode.onSelectCallbackFn"
+                                                    is-disabled="true">
+                              </custom-auto-complete>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            <p class="label-container">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToCustomerBillToPage();"
+                                 tabindex="-1" ng-if="vm.autoCompleteCustomer.keyColumnId">Current Terms Days</a>
+                              <span class="color-black" ng-if="!vm.autoCompleteCustomer.keyColumnId">Current Terms Days</span>
+                            </p>
+                          </th>
+                          <td>
+                            <p class="text-bold pt-5">{{vm.custCurrentTermsDays != null ? vm.custCurrentTermsDays : '-'}}</p>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div flex="35" layout="row" layout-wrap class="flex-rs-md-100">
+                  <div layout="row" flex="100">
+                    <table cellspacing="0" cellpadding="0" class="cm-table-input-main cm-cust-payment-info">
+                      <tbody>
+                        <tr>
+                          <th>
+                            <p class="label-container pt-2">SystemID</p>
+                          </th>
+                          <td class="w-150 padding-bottom-0">
+                            <md-input-container flex="100" class="margin-bottom-0 max-width-150">
+                              <input type="text" name="systemId" id="systemId" ng-model="vm.custPaymentModel.systemId" placeholder="systemId" ng-disabled="true">
+                            </md-input-container>
+                          </td>
+                          <td class="padding-bottom-0 text-right">
+                            <div class="p-5 inline-block border">
+                              <md-button tabindex="-1" class="md-raised margin-0" aria-label="Reset Details"
+                                         ng-click="vm.resetPaymentDet()" ng-disabled="vm.custPaymentMstID">
+                                Reset
+                              </md-button>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th><p class="label-container pt-2">Comments</p></th>
+                          <td colspan="4" class="padding-bottom-0">
+                            <md-input-container flex="100" class="margin-bottom-0">
+                              <div layout-align="start center">
+                                <textarea name="remark"
+                                          ng-model="vm.custPaymentModel.remark"
+                                          ng-maxlength="1000" md-maxlength="1000"
+                                          rows="3"
+                                          max-rows="3"
+                                          placeholder="Remark"
+                                          ng-disabled="vm.isCustPaymentLocked || vm.custPaymentModel.isPaymentVoided"
+                                          last-element elementcondition="{{vm.autoCompleteCustomer.keyColumnId ? false : true}}"></textarea>
+                              </div>
+                              <div ng-messages="vm.custPaymentWriteOffForm.remark.$error" role="alert">
+                                <div ng-message="required">
+                                  <span>{{vm.CORE_MESSAGE_CONSTANT.REQUIRED}}</span>
+                                </div>
+                                <div ng-message="maxlength">
+                                  <span>{{vm.getMaxLengthValidation(1000, vm.custPaymentWriteOffForm.remark.$viewValue.length)}}</span>
+                                </div>
+                              </div>
+                            </md-input-container>
+                          </td>
+                        </tr>
+                        <!--<tr>
+                          <th></th>
+                          <td colspan="4" class="vertical-bottom-align feeder-scan-message" ng-if="vm.addUpdatePaymentSuccessMsg && !vm.custPaymentWriteOffForm.$dirty">
+                            <div class="success-text ml-10 inline-block">
+                              {{vm.addUpdatePaymentSuccessMsg}}
+                            </div>
+                          </td>
+                        </tr>-->
+                      </tbody>
+                    </table>
+                  </div>
+                  <div layout layout-align="start end" class="feeder-scan-message margin-0" ng-if="vm.addUpdatePaymentSuccessMsg && !vm.custPaymentWriteOffForm.$dirty">
+                    <div class="success-text inline-block">
+                      {{vm.addUpdatePaymentSuccessMsg}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+          <div flex="100" layout="row">
+            <fieldset layout="row" flex="100" layout-wrap class="container-box">
+              <md-table-container layout="row" flex="100" layout-wrap
+                                  ng-if="vm.autoCompleteCustomer.keyColumnId && vm.custInvoicePaymentList.length > 0">
+                <div layout="row" flex="100">
+                  <div class="cm-section-main border-0" flex="100">
+                    <div class="cm-section-inner p-0-imp mb-5" layout="row" layout-align="start center">
+                      <div layout="row" flex-xl="80" flex-lg="85" layout-align="start start" class="flex-rs-md-100">
+                        <table cellspacing="0" cellpadding="0" class="cm-table-input-main border">
+                          <tbody>
+                            <tr>
+                              <th>
+                                <p class="label-container">
+                                  Invoice#
+                                </p>
+                              </th>
+                              <td>
+                                <md-input-container flex="100" class="margin-bottom-0">
+                                  <input type="text" id="invoiceNumber" name="invoiceNumber"
+                                         ng-model="vm.invPaySearch.invoiceNumber" placeholder=""
+                                         ng-maxlength="25" autocomplete="off"
+                                         ng-disabled="vm.isCustPaymentLocked || vm.custPaymentModel.isPaymentVoided"
+                                         my-enter="vm.searchAndApplyInvFromInvNo()">
+                                  <span class="font-size-10">
+                                    <b>Type invoice# and press enter to select</b>
+                                  </span>
+                                </md-input-container>
+                              </td>
+                              <th class="text-center ph-20">OR</th>
+                              <th>
+                                <p class="label-container">
+                                  Amount ($)
+                                </p>
+                              </th>
+                              <td>
+                                <md-input-container flex="100" class="margin-bottom-0">
+                                  <input type="number" id="invoiceAmount" name="invoiceAmount"
+                                         ng-model="vm.invPaySearch.invoiceAmount" placeholder=""
+                                         ng-maxlength="10" min="0" autocomplete="off"
+                                         my-enter="vm.searchAndApplyInvFromInvAmount()"
+                                         input-number-decimal-place
+                                         onkeypress="return OnlyNumbersWithDot(event)"
+                                         step="{{$root.amountInputStep}}"
+                                         ng-disabled="vm.isCustPaymentLocked || vm.custPaymentModel.isPaymentVoided">
+                                  <span class="font-size-10">
+                                    <b>Type outstanding amount and press enter to select</b>
+                                  </span>
+                                  <div ng-messages="vm.custPaymentWriteOffForm.invoiceAmount.$error" role="alert">
+                                    <div ng-message="min">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                    </div>
+                                    <div ng-message="max">
+                                      <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                    </div>
+                                    <div ng-message="maxlength">
+                                      <span>{{vm.getMaxLengthValidation(10,vm.custPaymentWriteOffForm.invoiceAmount.$viewValue.length)}}</span>
+                                    </div>
+                                  </div>
+                                </md-input-container>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div layout="row">
+                          <md-button class="md-primary md-raised cm-height-auto line-height-normal mh-10 mr-0" aria-label="Refresh Write Off" ng-click="vm.refreshPaymentDet()" ng-disabled="vm.isCustPaymentLocked || vm.custPaymentModel.isPaymentVoided">
+                            Reset <br /> Write Off Details
+                          </md-button>
+                          <fieldset class="container-box" flex>
+                            <legend class="margin-0">Prior to Payment</legend>
+                            <div class="pr-25">
+                              <table cellspacing="0" cellpadding="0">
+                                <tbody>
+                                  <tr>
+                                    <th class="pr-5">
+                                      <p class="label-container mv-10">
+                                        Past Due Balance:
+                                      </p>
+                                    </th>
+                                    <td class="pr-15">
+                                      <span class="text-bold font-size-20">
+                                        <a class="cm-text-decoration underline cursor-pointer" ng-click="vm.moveToInvoiceListPageWithFilter()">{{vm.customerPastDueBalanceTillToday | amount}}</a>
+                                      </span>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </fieldset>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div flex="100" layout-wrap id="cm-table-payment-details" class="display-flex cm-overflow-hidden" layout="row">
+                  <div flex-xl="80" flex-lg="85" layout="column" class="cm-scroll-table flex-rs-md-100">
+                    <fieldset flex class="container-box margin-bottom-10 cm-overflow-auto">
+                      <table md-table class="md-data-table table-row-select cm-cust-payment-table cm-data-table-word-break" flex="100">
+                        <thead md-head md-order="vm.query.order">
+                          <tr md-row class="cm-height-auto">
+                            <th md-column class="width-40 text-center">
+                              <md-checkbox ng-model="vm.isAllSelectFromCustInvoicePaymentList"
+                                           ng-change="vm.selectCustAllInvoice()"
+                                           ng-disabled="vm.isCustPaymentLocked || vm.custPaymentModel.isPaymentVoided || vm.isSelectAllInvNotAllowForZeroInvPayment">
+                              </md-checkbox>
+                            </th>
+                            <th md-column class="width-40">
+                              #
+                            </th>
+                            <th md-column md-order-by="" class="width-150 cm-white-space-normal">
+                              Invoice#
+                            </th>
+                            <th md-column md-order-by="invoiceDate" class="width-80 cm-white-space-normal">
+                              Invoice<br /> Date
+                            </th>
+                            <th md-column md-order-by="termsDays" class="width-80 cm-white-space-normal">
+                              Terms (days)
+                            </th>
+                            <th md-column md-order-by="originalPayAmountOfInvoice" class="width-155 cm-white-space-normal">
+                              Org.<br /> Amount ($)
+                            </th>
+                            <th md-column md-order-by="pastPaidAmountFromDPForSelectedInvoice" class="width-155 cm-white-space-normal">
+                              Payment Received ($) (Payments)
+                            </th>
+                            <th md-column md-order-by="pastPaidAmountFromCMForSelectedInv" class="width-145 cm-white-space-normal">
+                              Credit Applied ($) (Credit Memo)
+                            </th>
+                            <th md-column md-order-by="totWriteOffAmountForSelectedInvoice" class="width-125 cm-white-space-normal">
+                              Write Off<br /> Applied ($)
+                            </th>
+                            <th md-column md-order-by="pastPaidAmountForSelectedInvoice" class="width-155 cm-white-space-normal">
+                              Total Payment<br />Received ($)
+                              <md-icon class="icon-question-mark-circle help-icon margin-0 h-16 w-16 p-0-imp">
+                                <md-tooltip md-direction="top" class="tooltip-height-auto">
+                                  <span>{{vm.customerPaymentNotesConst.TotalWriteOffAmtHelpText}}</span>
+                                </md-tooltip>
+                              </md-icon>
+                            </th>
+                            <th md-column md-order-by="dueAmountForSelectedInvoice" class="width-155 cm-white-space-normal">
+                              Outst. Amt. Including<br /> WOFF Amt. ($)
+                            </th>
+                            <th md-column md-order-by="noOfDaysLateAfterDueDate" class="width-75 cm-white-space-normal">
+                              #Days<br />Late
+                            </th>
+                            <th md-column md-order-by="" class="text-right width-140">
+                              Write Off<br /> Amount ($)
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody md-body class="max-height-380">
+                          <tr md-row ng-repeat="invItem in vm.custInvoicePaymentList | orderBy: vm.query.order"
+                              ng-form="invPayDetForm_{{invItem.invoiceMstID}}">
+                            <td md-cell class="width-40 text-center">
+                              <md-checkbox ng-model="invItem.isSelected"
+                                           name="isSelected_{{invItem.invoiceMstID}}"
+                                           id="isSelected_{{invItem.invoiceMstID}}"
+                                           ng-disabled="vm.isCustPaymentLocked || vm.custPaymentModel.isPaymentVoided || invItem.isNotAllowForZeroInvPayment || invItem.isLocked"
+                                           ng-change="vm.selectCustSingleInvoice(invItem)" class="margin-top-10 margin-bottom-10"
+                                           last-element elementcondition="{{(vm.custInvoicePaymentList.length - 1) === $index && (!invItem.isSelected)}}">
+                              </md-checkbox>
+                            </td>
+                            <td md-cell class="width-40">{{$index+1}}</td>
+                            <td md-cell class="width-150">
+                              <a class="cm-text-decoration underline" ng-click="vm.goToCustInvoiceDetail(invItem.invoiceMstID);">{{invItem.invoiceNumber}}</a>
+                              <copy-text label="'Invoice#'" text="invItem.invoiceNumber"></copy-text>
+                              <md-icon md-font-icon="" class="material-icons mat-icon icon-lock" ng-if="invItem.isLocked"></md-icon>
+                            </td>
+                            <td md-cell class="width-80">{{invItem.invoiceDateWithConverted | date:vm.DefaultDateFormat}}</td>
+                            <td md-cell class="width-80">{{invItem.termsDays}}</td>
+                            <td md-cell class="text-right width-155 cm-amount">{{invItem.originalPayAmountOfInvoice | amount}}</td>
+                            <td md-cell class="text-right width-155 cm-amount cursor-pointer">
+                              <a class="cm-text-decoration underline"
+                                 ng-click="vm.showAppliedInvDPAmount(invItem,vm.receivableRefPaymentModeConst.ReceivablePayment.code)">
+                                {{invItem.pastPaidAmountFromDPForSelectedInvoice | amount}}
+                              </a>
+                            </td>
+                            <td md-cell class="text-right width-145 cm-amount cursor-pointer">
+                              <a class="cm-text-decoration underline"
+                                 ng-click="vm.showAppliedInvDPAmount(invItem,vm.receivableRefPaymentModeConst.CreditMemoApplied.code)">
+                                {{invItem.pastPaidAmountFromCMForSelectedInv | amount}}
+                              </a>
+                            </td>
+                            <td md-cell class="text-right width-125 cm-amount cursor-pointer">
+                              <a class="cm-text-decoration underline"
+                                 ng-click="vm.showAppliedInvDPAmount(invItem,vm.receivableRefPaymentModeConst.Writeoff.code)">
+                                {{invItem.totWriteOffAmountForSelectedInvoice | amount}}
+                              </a>
+                            </td>
+                            <td md-cell class="text-right width-155 cm-amount cursor-pointer">
+                              <a class="cm-text-decoration underline"
+                                 ng-click="vm.showAppliedInvDPAmount(invItem,null)">
+                                {{invItem.pastPaidAmountForSelectedInvoice | amount}}
+                              </a>
+                            </td>
+                            <td md-cell class="text-right width-155 cm-amount">{{invItem.liveDueAmountForSelectedInvoice | amount}}</td>
+                            <td md-cell class="width-75 text-right cm-amount" ng-class="{'color-red':invItem.noOfDaysLateAfterDueDate > 0}">
+                              {{invItem.noOfDaysLateAfterDueDate}}
+                            </td>
+                            <td md-cell class="text-right width-140 padding-left-0-imp">
+                              <md-input-container flex="100" class="input-with-usd-symbol padding-left-0-imp margin-bottom-0 width-100p">
+                                <md-icon md-font-icon="icon-currency-usd" class="usdicon"></md-icon>
+                                <input type="number" id="paymentAmountForSelectedInvoice_{{invItem.invoiceMstID}}" class="font-weight-600" name="paymentAmountForSelectedInvoice_{{invItem.invoiceMstID}}"
+                                       ng-model="invItem.paymentAmountForSelectedInvoice"
+                                       ng-maxlength="13"
+                                       min="{{(invItem.originalPayAmountOfInvoice === 0 || !invItem.isSelected) ? 0 : 0.01}}"
+                                       max="{{invItem.maxLimitOfDueAmountToPay}}"
+                                       onkeypress="return OnlyNumbersWithDot(event)"
+                                       oninput="validateTwoDecimalOnly(this.value)"
+                                       step="{{$root.amountInputStep}}"
+                                       last-element elementcondition="{{(vm.custInvoicePaymentList.length - 1) === $index}}"
+                                       placeholder="" ng-change="vm.paymentAmountChangeForSelectedInvoice(invItem)"
+                                       ng-model-options="{ debounce: vm.debounceTimeIntervalConst }"
+                                       ng-disabled="!invItem.isSelected || vm.isCustPaymentLocked || vm.custPaymentModel.isPaymentVoided || invItem.isLocked"
+                                       ng-class="{'text-angular-custom-border': (invItem.paymentAmountForSelectedInvoice > invItem.maxLimitOfDueAmountToPay)}">
+                                <div ng-messages="vm.custPaymentWriteOffForm['invPayDetForm_'+invItem.invoiceMstID]['paymentAmountForSelectedInvoice_'+invItem.invoiceMstID].$error" role="alert">
+                                  <div ng-message="min">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                  <div ng-message="max">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                  <div ng-message="step">
+                                    <span>{{vm.CORE_MESSAGE_CONSTANT.INVALID}}</span>
+                                  </div>
+                                  <div ng-message="maxlength">
+                                    <span>{{vm.getMaxLengthValidation(13,vm.custPaymentWriteOffForm['invPayDetForm_'+invItem.invoiceMstID]['paymentAmountForSelectedInvoice_'+invItem.invoiceMstID].$viewValue.length)}}</span>
+                                  </div>
+                                </div>
+                              </md-input-container>
+                            </td>
+                          </tr>
+                        </tbody>
+                        <tfoot md-foot>
+                          <tr md-row>
+                            <td md-cell class="width-10">
+                            </td>
+                            <td md-cell class="width-220" colspan="2">
+                              <span class="ml-10">
+                                Selected Invoice(s): {{vm.totalInvSelectedCount}}
+                              </span>
+                            </td>
+                            <td md-cell class="text-right width-80"></td>
+                            <td md-cell class="text-right width-80"><strong>Total:</strong></td>
+                            <td md-cell class="text-right width-155 cm-amount"><strong>{{vm.sumOfOriginalPayAmountForSelectedInvoice | amount}}</strong></td>
+                            <td md-cell class="text-right width-155 cm-amount"><strong></strong></td>
+                            <td md-cell class="text-right width-145 cm-amount"><strong></strong></td>
+                            <td md-cell class="text-right width-125 cm-amount"><strong></strong></td>
+                            <td md-cell class="text-right width-155 cm-amount"><strong></strong></td>
+                            <td md-cell class="text-right width-155 cm-amount"><strong>{{vm.sumOfLiveDueAmountForSelectedInvoice | amount}}</strong></td>
+                            <td md-cell class="text-right width-75 cm-amount"></td>
+                            <td md-cell class="text-right width-140"><strong class="padding-2 mr-15">{{vm.sumOfPaymentAmountForSelectedInvoice | amount}}</strong></td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </fieldset>
+                  </div>
+                  <div flex-xl="20" flex-lg="85" layout="row" layout-align="start start"
+                       ng-if="vm.autoCompleteCustomer.keyColumnId && vm.custInvoicePaymentList.length > 0"
+                       class="flex-rs-md-100">
+                    <div flex="100" layout-align="space-between center" class="pl-5" layout="row" layout-wrap>
+                      <div layout="row" layout-wrap flex="25" flex-xl="100" class="flex-rs-md-30 mt-rs-md-5">
+                        <fieldset flex="100" class="container-box cm-overflow-auto">
+                          <legend class="ml-15 mb-5">Amounts for Selected Invoice</legend>
+                          <table cellspacing="0" cellpadding="0" border="0" flex="100" class="width-100p">
+                            <tbody>
+                              <tr>
+                                <td>
+                                  <p class="label-container mb-0" layout-align="end">
+                                    Outstanding Amount
+                                    <md-icon class="icon-question-mark-circle help-icon margin-right-5">
+                                      <md-tooltip md-direction="top" class="tooltip-height-auto">
+                                        <span>Sum of selected invoice outstanding amount</span>
+                                      </md-tooltip>
+                                    </md-icon>
+                                  </p>
+                                </td>
+                                <td class="pr-35 text-right">
+                                  <p class="font-size-18"><b>{{vm.totDueAmountOfSelectedInv | amount}}</b></p>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td class="color-black">
+                                  <p class="label-container mb-0" layout-align="end">
+                                    Written Off Amount
+                                    <md-icon class="icon-question-mark-circle help-icon margin-right-5">
+                                      <md-tooltip md-direction="top" class="tooltip-height-auto">
+                                        <span>Sum of selected invoice write off</span>
+                                      </md-tooltip>
+                                    </md-icon>
+                                  </p>
+                                </td>
+                                <td class="color-black pr-35 text-right">
+                                  <p class="font-size-18">
+                                    <b>
+                                      {{vm.totPayAmountOfSelectedInv | amount}}
+                                    </b>
+                                  </p>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </fieldset>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </md-table-container>
+              <div layout="row" ng-if="!vm.autoCompleteCustomer.keyColumnId" flex="100">
+                <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap>
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.emptyCustomerConst.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title">{{vm.emptyCustomerConst.NOT_SELECTED_MASSAGE}}</p>
+                </div>
+              </div>
+              <div layout="row" flex="100" ng-if="vm.autoCompleteCustomer && vm.autoCompleteCustomer.keyColumnId && (!vm.custInvoicePaymentList || vm.custInvoicePaymentList.length==0)">
+                <div class="empty-state text-center full-height" flex="100" layout="row" layout-align="center center" layout-wrap>
+                  <div class="emty-icon" flex="100">
+                    <img ng-src="{{vm.emptyStateCustInvoiceConst.IMAGEURL}}" />
+                  </div>
+                  <p flex="100" class="empty-state-title">{{vm.emptyStateCustInvoiceConst.MESSAGE}}</p>
+                  <p flex="100">
+                    {{vm.emptyStateCustInvoiceConst.ADDNEWMESSAGE}}
+                  </p>
+                  <p flex="100">
+                    <md-button class="md-fab md-mini" ng-click="vm.goToCustInvoiceDetail(0)"
+                               ng-disabled="vm.isCustPaymentLocked || vm.custPaymentModel.isPaymentVoided">
+                      <md-icon role="img" md-font-icon="icon-plus" class="material-icons mat-icon icon-plus">
+                        <md-tooltip>Add Customer Invoice</md-tooltip>
+                      </md-icon>
+                    </md-button>
+                    <md-button class="md-fab md-mini" aria-label="Refresh Write Off Details"
+                               ng-click="vm.refreshCustomerInvoicesPaymentDet()"
+                               ng-disabled="vm.isCustPaymentLocked || vm.custPaymentModel.isPaymentVoided"
+                               last-element elementcondition="true">
+                      <md-icon role="img" md-font-icon="icon-refresh" class="material-icons mat-icon icon-plus">
+                        <md-tooltip>Refresh</md-tooltip>
+                      </md-icon>
+                    </md-button>
+                  </p>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+

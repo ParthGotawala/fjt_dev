@@ -1,0 +1,114 @@
+<div id="forms" class="page-layout simple fullwidth doc-page cm-custom-label-common breadcrumb-fixed" layout="column" cg-busy="{promise:vm.cgBusyLoading}">
+  <div class="header md-accent-bg" layout="row" layout-align="start center">
+    <md-button class="goto-products-button md-icon-button cm-back-btn-p-m" type="button" ng-click="vm.backToList()">
+      <md-icon md-font-icon="icons-backarrow" class="material-icons icons-backarrow cm-back-btn">
+      </md-icon>
+    </md-button>
+    <div class="white-fg" layout="row" layout-align="space-between center" flex="100">
+      <div>
+        <div class="h2" layout="row" layout-align="start center">
+          <div>
+            <pagetitle is-list="false" is-display-menu-name="true" prefix-content="vm.shippingRequestID ? 'Update' : 'Add'" suffix-content=""></pagetitle>
+          </div>
+          <md-input-container ng-if="vm.autoCompleteReqShipDtl" class="autocompletecustom margin-0 widget-dashboard-search-area cm-kit-allocation-so-autocomplete part-header-search-area">            
+            <custom-auto-complete-search on-search-fn="vm.autoCompleteReqShipDtl.onSearchFn"
+                                         column-name="vm.autoCompleteReqShipDtl.columnName"
+                                         key-column-name="vm.autoCompleteReqShipDtl.keyColumnName"
+                                         key-column-id="vm.autoCompleteReqShipDtl.keyColumnId"
+                                         input-name="vm.autoCompleteReqShipDtl.inputName"
+                                         placeholder-name="vm.autoCompleteReqShipDtl.placeholderName"
+                                         is-required="vm.autoCompleteReqShipDtl.isRequired"
+                                         is-addnew="vm.autoCompleteReqShipDtl.isAddnew"
+                                         callback-fn="vm.autoCompleteReqShipDtl.callbackFn"
+                                         callback-fn-param="msWizard"
+                                         on-select-callback-fn="vm.autoCompleteReqShipDtl.onSelectCallbackFn">
+            </custom-auto-complete-search>
+
+          </md-input-container>
+          <md-button class="md-primary md-raised" ng-if="vm.shippingRequestID" ng-click="vm.addReqForShip()">
+            Add Request for Shipping
+          </md-button>
+        </div>
+        <div class="product-count">
+          <span>
+            <breadcrumbs></breadcrumbs>
+          </span>
+        </div>
+      </div>
+      <div layout="row" layout-wrap layout-align="center center">
+        <span class="label-box padding-5-imp width-100" ng-class="vm.getWoStatusClassName(vm.requestForShipModel.status)"
+            ng-if="vm.isDeptTab">{{vm.getRequestStatus(vm.requestForShipModel.status)}}</span>
+        <div layout="column" class="cm-header-draft-btn" layout-wrap layout-align="center center">
+          <md-menu-bar id="user-menu" ng-if="!vm.isDeptTab">
+            <md-menu md-position-mode="left bottom">
+              <md-button class="user-button" ng-click="$mdOpenMenu()" aria-label="User settings">
+                <div layout="row" layout-align="space-between center">
+                  <span class="username">{{vm.getRequestStatus(vm.requestForShipModel.status)}}</span>
+                  <md-icon md-font-icon="icon-chevron-down"
+                           class="icon s16"></md-icon>
+                </div>
+              </md-button>
+              <md-menu-content width="3">
+                <md-menu-item ng-repeat="status in vm.requestStatus | orderBy:'DisplayOrder'">
+                  <md-button ng-click="vm.changeRequestStatus(status.ID,vm.requestForShipModel.status,vm.selectedTabIndex)">{{status.Name}}</md-button>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </md-menu-bar>
+          <div layout="row" layout-align="center center" ng-if="!vm.isDeptTab">
+            <span ng-if="vm.label" class="cm-font-10 padding-bottom-8"><b>{{vm.label}}</b></span>
+          </div>
+        </div>
+        <div layout="row" layout-align="center center">
+          <md-button class="md-primary md-raised"
+                     ng-class="{'md-formdirty': vm.frmRequestForShip.$dirty || vm.isDetailGridChanged}"
+                     ng-if="vm.isDetailTab"
+                     id="saveBtn" ng-click="vm.CheckStepAndAction(msWizard,true);">      
+            Save
+          </md-button>
+        </div>
+      </div>
+    </div>
+  </div>
+    <div class="content-card padding-top-side" layout="row" flex="100">
+        <div layout="row" flex="100">
+            <ms-form-wizard flex>
+                <md-tabs validate-step="true" is-valid="vm.isStepValid" class="fielddetail manage-workorder-tabing" md-dynamic-height id="manage-workorder-tabing"
+                         md-selected="vm.selectedTabIndex">
+                    <md-tab md-on-select="vm.onTabChanges(msWizard)" ng-disabled= "!vm.pageTabRights.DetailTab">
+                        <md-tab-label>
+                            <span class="ms-form-wizard-step-label">
+                                <span class="ms-form-wizard-step-number md-accent-bg"
+                                      ng-if="vm.frmRequestForShip.$invalid">1</span>
+                                <span class="ms-form-wizard-step-number md-accent-bg" ng-if="vm.frmRequestForShip.$valid">
+                                    <i class="icon-check s16"></i>
+                                </span>
+                                <span class="ms-form-wizard-step-text">Details</span>
+                            </span>
+                        </md-tab-label>
+                        <md-tab-body>
+                            <div ng-if="(vm.tabName == vm.requestShippingTabs.Detail.Name)" class="padding-10" flex="100">                                
+                                <request-for-ship-detail  shipping-request-id = "vm.shippingRequestID">   </request-for-ship-detail>                                
+                            </div>
+                        </md-tab-body>
+                    </md-tab>
+                    <md-tab md-on-select="vm.onTabChanges(msWizard)" ng-disabled="!vm.shippingRequestID || !vm.pageTabRights.ApprovalTab">
+                        <md-tab-label>
+                            <span class="ms-form-wizard-step-label">
+                                <span class="ms-form-wizard-step-number md-accent-bg">
+                                    <i class="icon-check s16"></i>
+                                </span>
+                                <span class="ms-form-wizard-step-text">Shipment Approval</span>
+                            </span>
+                        </md-tab-label>
+                        <md-tab-body>
+                          <div ng-if="(vm.tabName == vm.requestShippingTabs.Approval.Name)" class="padding-10" flex="100"  >                            
+                            <request-for-ship-approval shipping-request-id ="vm.shippingRequestID">   </request-for-ship-approval>
+                          </div>
+                        </md-tab-body>
+                    </md-tab>
+                </md-tabs>                
+            </ms-form-wizard>
+        </div>
+    </div>
+</div>
